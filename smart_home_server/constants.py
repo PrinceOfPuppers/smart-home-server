@@ -7,3 +7,4 @@ pressRepeats = 0
 maxChannels = 5
 
 schedulerJobFolder = f'{modulePath}/jobs'
+templateFolder = f'{modulePath}/templates'

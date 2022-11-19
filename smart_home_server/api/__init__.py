@@ -136,3 +136,7 @@ enableJobSchema = \
 def enableJob():
     jobs = getJobs()
     return jsonify({"jobs": jobs})
+
+@api.route('/api/test', methods=['GET'])
+def test():
+    return jsonify({"hi": "there"})

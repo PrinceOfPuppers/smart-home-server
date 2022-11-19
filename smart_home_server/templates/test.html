@@ -1,0 +1,13 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<html>
+</h2>Test Page</h2>
+
+<body>
+    <script>
+        fetch(`http://${window.location.host}/api/test`, {method: 'GET'})
+            .then((response) => response.json())
+            .then((data) => document.write(JSON.stringify(data)))
+    </script>
+  </body>
+</html>

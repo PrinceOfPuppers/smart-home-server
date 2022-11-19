@@ -36,16 +36,37 @@ def _parseTask(scheduledJob:dict):
 
 def _storeJob(scheduledJob: dict, id: str):
     scheduledJob['id'] = id
-    with open(_getJobPath(id), 'a') as f:
+    with open(_getJobPath(id), 'w') as f:
         f.write(json.dumps(scheduledJob))
     return id
 
-def _addJob(scheduledJob:dict):
+def _addJob(scheduledJob:dict, store:bool = True, newId:bool = True):
     s = _parseTask(scheduledJob)
-    id = str(uuid4())
-    _storeJob(scheduledJob, id)
+    id = str(uuid4()) if newId else scheduledJob['id']
+    if store:
+        _storeJob(scheduledJob, id)
     s.tag(id)
     s.job(_runJob, scheduledJob=scheduledJob)
+
+def _loadJobs(clearExisting:bool, overwrite:bool):
+    if clearExisting:
+        schedule.clear()
+
+    dir = os.listdir(const.schedulerJobFolder)
+    for path in dir:
+        with open(path, 'r+') as f:
+            scheduledJob = json.load(f)
+            id = scheduledJob['id']
+            existingJobs = schedule.get_jobs(id)
+
+            if len(existingJobs) != 0:
+                print("Duplicate Job Detected!")
+                if overwrite:
+                    schedule.clear(id)
+                else:
+                    continue
+            _addJob(scheduledJob, store = False, newId = False)
+
 
 def _removeJob(id: str):
     path = _getJobPath(id)

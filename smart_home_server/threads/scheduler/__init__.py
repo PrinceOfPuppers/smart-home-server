@@ -8,7 +8,7 @@ import time
 
 from smart_home_server.helpers import clearQueue
 
-from smart_home_server.threads.scheduler.handlers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath
+from smart_home_server.threads.scheduler.handlers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath, _loadJobs
 
 _scheduleEditQueue      = Queue()
 _schedulerLoopCondition = False
@@ -25,6 +25,11 @@ def removeJob(id: str):
 def updateJob(id: str, newScheduledJob:dict):
     global _scheduleEditQueue
     _scheduleEditQueue.put(lambda :_updateJob(id, newScheduledJob))
+
+def loadJobs(clearExisting:bool, overwrite:bool):
+    global _scheduleEditQueue
+    _scheduleEditQueue.put(lambda :_loadJobs(clearExisting=clearExisting, overwrite=overwrite))
+
 
 def getJobFromFile(id: str) -> Union[dict, None]:
     path = _getJobPath(id)
@@ -86,8 +91,10 @@ def startScheduler():
         raise Exception("Scheduler Already Running")
 
     clearQueue(_scheduleEditQueue)
+    loadJobs(clearExisting=True, overwrite=True)
     _schedulerThread = Thread(target=_schedulerLoop)
     _schedulerThread.start()
+    print("scheduler started")
 
 
 def stopScheduler():
@@ -104,3 +111,4 @@ def joinScheduler():
         _schedulerThread.join()
     else:
         _schedulerLoopCondition = False
+    print("scheduler joined")

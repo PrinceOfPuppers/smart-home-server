@@ -38,6 +38,7 @@ def startPresser():
     clearQueue(_pressQueue)
     _presserThread = Thread(target=_presserLoop)
     _presserThread.start()
+    print("presser started")
 
 def stopPresser():
     global _presserLoopCondition
@@ -51,3 +52,4 @@ def joinPresser():
         _presserThread.join()
     else:
         _presserLoopCondition = False
+    print("presser joined")

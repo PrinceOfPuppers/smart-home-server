@@ -1,14 +1,18 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 
 from smart_home_server.threads.scheduler import startScheduler, stopScheduler, joinScheduler
 from smart_home_server.threads.presser import startPresser, stopPresser, joinPresser
 from smart_home_server import InterruptTriggered
+import smart_home_server.constants as const
 
 from smart_home_server.api import api
 
 app = Flask(__name__)
 app.register_blueprint(api)
 
+@app.route('/<path:path>')
+def send_templates(path):
+    return send_from_directory(const.templateFolder, path)
 
 def startServer():
     global app
