@@ -1,5 +1,5 @@
 import json
-from flask import Flask, jsonify, request, Blueprint, current_app
+from flask import jsonify, request, Blueprint, current_app
 from flask_expects_json import expects_json
 
 import smart_home_server.constants as const
@@ -67,7 +67,7 @@ lightPressAction = \
     "type": "object", 
     "properties": {
         "type": {"const":"press"}, 
-        "data": {lightPressSchema}
+        "data": lightPressSchema,
     },
     "required": ["type", "data"]
 }

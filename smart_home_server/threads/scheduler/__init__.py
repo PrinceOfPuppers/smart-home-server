@@ -104,9 +104,3 @@ def joinScheduler():
         _schedulerThread.join()
     else:
         _schedulerLoopCondition = False
-
-
-while True:
-    schedule.run_pending()
-    time.sleep(1)
-
