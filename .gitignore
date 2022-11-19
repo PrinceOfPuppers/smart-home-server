@@ -1,0 +1,6 @@
+__pycache__
+notepad*
+smart_home_server.egg-info
+
+/build
+/dist

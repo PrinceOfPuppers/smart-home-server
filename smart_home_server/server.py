@@ -2,10 +2,10 @@ import json
 from flask import Flask, jsonify, request
 from flask_expects_json import expects_json
 
-import constants as const
-from presser import presserAppend
-from scheduler import addJob, removeJob, getJobs
-
+import smart_home_server.constants as const
+from smart_home_server.threads.scheduler import startScheduler, stopScheduler, joinScheduler, addJob, removeJob, getJobs
+from smart_home_server.threads.presser import startPresser, stopPresser, joinPresser, presserAppend
+from smart_home_server import InterruptTriggered
 
 app = Flask(__name__)
 
@@ -138,5 +138,17 @@ def enableJob():
     jobs = getJobs()
     return jsonify({"jobs": jobs})
 
+def startServer():
+    global app
+    try:
+        startPresser()
+        startScheduler()
+        app.run()
+    except InterruptTriggered:
+        stopPresser()
+        stopScheduler()
+        joinPresser()
+        joinScheduler()
+
 if __name__ == '__main__':
-    app.run()
+    startServer()

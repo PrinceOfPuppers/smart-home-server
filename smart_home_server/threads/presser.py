@@ -2,8 +2,8 @@ from time import sleep
 from queue import Queue, Empty
 from threading import Thread
 
-import constants as const
-from helpers import clearQueue
+import smart_home_server.constants as const
+from smart_home_server.helpers import clearQueue
 
 _pressQueue = Queue()
 _presserLoopCondition  = False
@@ -41,8 +41,11 @@ def startPresser():
 
 def stopPresser():
     global _presserLoopCondition
-    global _presserThread
+    _presserLoopCondition = False
 
+def joinPresser():
+    global _presserLoopCondition
+    global _presserThread
     if _presserThread is not None and _presserThread.is_alive():
         _presserLoopCondition = False
         _presserThread.join()

@@ -6,10 +6,9 @@ import os
 import json
 import time
 
-from helpers import clearQueue
+from smart_home_server.helpers import clearQueue
 
-from handlers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath
-
+from smart_home_server.threads.scheduler.handlers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath
 
 _scheduleEditQueue      = Queue()
 _schedulerLoopCondition = False
@@ -92,6 +91,11 @@ def startScheduler():
 
 
 def stopScheduler():
+    global _schedulerLoopCondition
+    global _schedulerThread
+    _schedulerLoopCondition = False
+
+def joinScheduler():
     global _schedulerLoopCondition
     global _schedulerThread
 

@@ -1,0 +1,5 @@
+#!/url/bin/env python3
+
+if __name__ == "__main__":
+    from smart_home_server import main
+    main()

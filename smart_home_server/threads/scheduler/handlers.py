@@ -3,8 +3,8 @@ from uuid import uuid4
 import os
 import json
 
-from presser import presserAppend
-import constants as const
+from smart_home_server.threads.presser import presserAppend
+import smart_home_server.constants as const
 
 
 def _runJob(scheduledJob:dict):
