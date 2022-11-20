@@ -92,6 +92,7 @@ def startScheduler():
 
     clearQueue(_scheduleEditQueue)
     loadJobs(clearExisting=True, overwrite=True)
+    _schedulerLoopCondition = True
     _schedulerThread = Thread(target=_schedulerLoop)
     _schedulerThread.start()
     print("scheduler started")

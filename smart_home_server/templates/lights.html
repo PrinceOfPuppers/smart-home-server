@@ -1,0 +1,42 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href = "style.css"></link>
+
+<html>
+</h2>Remote</h2>
+
+<script>
+    function postData(url, data){
+        fetch('/api/lights', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+        })
+        .then(response => console.log(response.ok))
+    }
+    function channelClick(channelNum, onOff){
+        var data = {'presses': [{'channel': channelNum, 'value': onOff}]}
+        postData('api/lights', data)
+    }
+</script>
+
+
+<template id='on-off-channel'>
+</template>
+
+<body>
+    <ul class="remote">
+        {% for channel in channels %}
+            <li>
+                <div class="on-off-channel">
+                    <button class="redButton", onclick = "channelClick({{ channel }}, false)"">off</button>
+                    <nobr>{{ channel }}</nobr>
+                    <button class="greenButton", onclick = "channelClick({{ channel }}, true)"">on</button>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+  </body>
+</html>

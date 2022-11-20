@@ -12,7 +12,7 @@ lightPressSchema = \
 {
     "type": "object",
     "properties": {
-        "channel": { "type": "integer", "minimum": 1, "maximum": const.maxChannels },
+        "channel": { "type": "integer", "minimum": 0, "maximum": len(const.txChannels)-1 },
         "value": { "type": "boolean" }
     },
     "required": ["channel", "value"]

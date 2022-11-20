@@ -2,14 +2,22 @@ from ntpath import dirname
 from collections import namedtuple
 import os
 
+def createIfNotExists(dir):
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
 modulePath = dirname(__file__)
 
-pressSpacing = 10
-pressRepeats = 0
-maxChannels = 5
+pressSpacing = 0.1
+pressRepeats = 2
 
-schedulerJobFolder = f'{modulePath}/jobs'
-templateFolder = f'{modulePath}/templates'
+storageFolder = f'{modulePath}/storage'
+createIfNotExists(storageFolder)
+schedulerJobFolder = f'{storageFolder}/jobs'
+createIfNotExists(schedulerJobFolder)
+
+templatesFolder = f'{modulePath}/templates'
+staticFolder = f'{templatesFolder}/static'
 
 TxChannel = namedtuple("Channel", ["on", "off"])
 

@@ -1,0 +1,55 @@
+:root {
+    --darkGrey: #1e1f1c;
+    --grey: #272822;
+    --lightGrey: #75715e;
+    --white: #f8f8f2;
+    --purple: #B267E6;
+    --red: #F92672;
+    --blue: #66D9EF;
+    --green: #A6E22E;
+    --yellow: #E6DB74;
+    --orange: #FD971F;
+    }
+
+    a {
+        color:  var(--blue);
+    }
+    a:visited {
+        color: var(--lightGrey);
+    }
+
+    button{
+        border-radius:15%;
+    }
+
+    button.greenButton {
+        background-color: var(--green);
+        color: var(-darkGrey)
+    }
+
+    button.redButton {
+        background-color: var(--red);
+        color: var(--darkGrey)
+    }
+
+    ul{
+        padding: 0;
+        list-style-type: none;
+    }
+
+    html {
+        background-color: var(--darkGrey);
+        color: var(--white);
+        font-family: Droid Sans Mono !important;
+    }
+
+    ul.remote {
+    }
+    ul.remote > li {
+    }
+    ul.remote > li:hover {
+    }
+    ul.remote > li > nobr {
+      text-decoration: none;
+    }
+

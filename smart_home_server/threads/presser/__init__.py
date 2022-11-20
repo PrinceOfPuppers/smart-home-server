@@ -57,6 +57,7 @@ def startPresser():
         raise Exception("Presser Already Running")
 
     clearQueue(_pressQueue)
+    _presserLoopCondition = True
     _presserThread = Thread(target=_presserLoop)
     _presserThread.start()
     print("presser started")
