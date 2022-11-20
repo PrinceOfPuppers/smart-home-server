@@ -9,15 +9,29 @@ _pressQueue = Queue()
 _presserLoopCondition  = False
 _presserThread = None
 
-def _changeChannel(channel: int, value: bool):
-    print(f'{channel=}', f'{value=}', flush=True)
+_rfdevice = None
+
+if const.isRpi():
+    from rpi_rf import RFDevice
+    def _changeChannel(channel: int, value: bool):
+        if _rfdevice is None:
+            raise Exception("attempted to change button while presser thread is stopped")
+
+        ch = const.txChannels[channel]
+        code = ch.on if value else ch.off
+
+        _rfdevice.tx_code(code, const.txProtocol, const.txPulseLength)
+        print(f'{channel=}', f'{value=}', flush=True)
+else:
+    def _changeChannel(channel: int, value: bool):
+        print(f'{channel=}', f'{value=}', flush=True)
 
 def _presserLoop():
     global _pressQueue
     global _presserLoopCondition
     while _presserLoopCondition:
         try:
-            press = _pressQueue.get(block=True, timeout = 1)
+            press = _pressQueue.get(block=True, timeout = const.pollingPeriod)
         except Empty:
             continue
         for _ in range(const.pressRepeats+1):
@@ -32,6 +46,13 @@ def startPresser():
     global _pressQueue
     global _presserLoopCondition
     global _presserThread
+    global _rfdevice
+
+    if const.isRpi():
+        _rfdevice = RFDevice(const.txGpio)
+        _rfdevice.enable_tx()
+
+
     if _presserLoopCondition:
         raise Exception("Presser Already Running")
 
@@ -42,6 +63,13 @@ def startPresser():
 
 def stopPresser():
     global _presserLoopCondition
+
+    if const.isRpi():
+        global _rfdevice
+        if _rfdevice is not None:
+            _rfdevice.cleanup()
+
+    _rfdevice = None
     _presserLoopCondition = False
 
 def joinPresser():

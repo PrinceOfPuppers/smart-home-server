@@ -29,7 +29,7 @@ setuptools.setup(
     url="https://github.com/PrinceOfPuppers/smart-home-server",
     packages=setuptools.find_packages(),
     include_package_data=True,
-    install_requires=['Flask', 'schedule', 'flask-expects-json'],
+    install_requires=['Flask', 'schedule', 'flask-expects-json', 'rpi-rf'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

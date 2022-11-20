@@ -7,7 +7,7 @@ import json
 import time
 
 from smart_home_server.helpers import clearQueue
-
+import smart_home_server.constants as const
 from smart_home_server.threads.scheduler.handlers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath, _loadJobs
 
 _scheduleEditQueue      = Queue()
@@ -74,9 +74,9 @@ def _schedulerLoop():
 
         schedule.run_pending()
         
-        # blocking with 1 second timeout (rather than sleeping)
+        # blocking with [pollingPeriod] second timeout (rather than sleeping)
         try:
-            edit = _scheduleEditQueue.get(block=True, timeout=1)
+            edit = _scheduleEditQueue.get(block=True, timeout=const.pollingPeriod)
         except Empty:
             continue
         edit()
