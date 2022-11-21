@@ -33,23 +33,17 @@
         color: var(--green);
         border-color: var(--green);
     }
-    .greenButton:hover {
-        color: var(--darkGrey);
-        background-color: var(--green);
-    }
-    .greenButton:active {
-        color: var(--darkGrey);
-        background-color: var(--white);
-    }
 
     .redButton {
         color: var(--red);
         border-color: var(--red);
     }
-    .redButton:hover {
+    
+    .greenButton:active {
         color: var(--darkGrey);
-        background-color: var(--red);
+        background-color: var(--white);
     }
+
     .redButton:active {
         color: var(--darkGrey);
         background-color: var(--white);
@@ -74,8 +68,6 @@
     }
     ul.remote > li {
     }
-    ul.remote > li:hover {
-    }
     ul.remote > li > nobr {
       text-decoration: none;
     }
@@ -83,14 +75,12 @@
         padding: 3pt;
     }
 
-    /* Add a black background color to the top navigation */
     .topnav {
       border: 2pt solid var(--lightGrey);
       background-color: var(--grey);
       overflow: hidden;
     }
 
-    /* Style the links inside the navigation bar */
     .topnav a {
       float: left;
       color: var(--white);
@@ -100,43 +90,56 @@
       font-size: 17px;
     }
 
-    /* Change the color of links on hover */
-    .topnav a:hover {
-      background-color: var(--lightGrey);
-      color: var(--darkGrey);
-    }
-
-    /* Add a color to the active/current link */
     .topnav a.active {
       background-color: var(--green);
       color: var(--darkGrey);
     }
 
-input, label {
-    display:block;
-}
+    input, label {
+        display:block;
+    }
 
-.atInput {
-    display:inline;
-}
+    .atInput {
+        display:inline;
+    }
 
-.formDiv {
-    float:left;
-    padding:3pt;
-}
-#jobForm {
-    width: fit-content;
-    border: 2pt solid var(--lightGrey);
-    background-color: var(--grey);
-    padding:3pt;
-}
-.schedule {
-    width: fit-content;
-    border: 2pt solid var(--lightGrey);
-    background-color: var(--grey);
-    padding:3pt;
-}
+    .formDiv {
+        float:left;
+        padding:3pt;
+    }
+    #jobForm {
+        width: fit-content;
+        border: 2pt solid var(--lightGrey);
+        background-color: var(--grey);
+        padding:3pt;
+    }
+    .schedule {
+        width: fit-content;
+        border: 2pt solid var(--lightGrey);
+        background-color: var(--grey);
+        padding:3pt;
+    }
 
-.indent {
-    padding-left: 3%;
-}
+    .indent {
+        padding-left: 3%;
+    }
+
+    @media (hover: hover) {
+        .greenButton:hover {
+            color: var(--darkGrey);
+            background-color: var(--green);
+        }
+
+        .redButton:hover {
+            color: var(--darkGrey);
+            background-color: var(--red);
+        }
+
+        ul.remote > li:hover {
+        }
+
+        .topnav a:hover {
+          background-color: var(--lightGrey);
+          color: var(--darkGrey);
+        }
+    }
