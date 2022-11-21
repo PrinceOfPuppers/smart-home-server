@@ -1,30 +1,22 @@
+<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href = "style.css"></link>
+<script type="text/javascript" src="funcs.js"></script>
 
 <html>
-</h2>Remote</h2>
-
 <script>
-    function postData(url, data){
-        fetch('/api/lights', {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-        })
-        .then(response => console.log(response.ok))
-    }
     function channelClick(channelNum, onOff){
         var data = {'presses': [{'channel': channelNum, 'value': onOff}]}
-        postData('api/lights', data)
+        sendData('api/remote', data)
     }
 </script>
 
 
-<template id='on-off-channel'>
-</template>
+<div class="topnav">
+    <a href="/dashboard">Dashboard</a>
+    <a class="active" href="/remote">Remote</a>
+    <a href="/scheudle">Schedule</a>
+</div> 
 
 <body>
     <ul class="remote">

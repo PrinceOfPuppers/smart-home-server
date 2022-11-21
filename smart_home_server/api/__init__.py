@@ -8,7 +8,7 @@ from smart_home_server.threads.presser import presserAppend
 
 api = Blueprint('api', __name__)
 
-lightPressSchema = \
+remotePressSchema = \
 {
     "type": "object",
     "properties": {
@@ -19,21 +19,21 @@ lightPressSchema = \
 
 }
 
-lightsSchema = \
+remoteSchema = \
 {
     "type": "object",
     "properties": {
         "presses": {
             "type": "array",
             "minItems": 1,
-            "items": lightPressSchema
+            "items": remotePressSchema
         }
     },
     "required": ["presses"]
 }
 
-@api.route('/api/lights', methods=['POST'])
-@expects_json(lightsSchema)
+@api.route('/api/remote', methods=['POST'])
+@expects_json(remoteSchema)
 def changeLights():
     presses = json.loads(request.data)['presses']
 
@@ -62,12 +62,12 @@ def changeLights():
     }
 }
 
-lightPressAction = \
+remotePressAction = \
 {
     "type": "object", 
     "properties": {
         "type": {"const":"press"}, 
-        "data": lightPressSchema,
+        "data": remotePressSchema,
     },
     "required": ["type", "data"]
 }
@@ -85,7 +85,7 @@ postJobSchema = \
                      ]},
         "at":        {"type": "string", "format": "time"},
         "do": {
-            "oneOf": [lightPressAction]},
+            "oneOf": [remotePressAction]},
     },
     "required": ['name', "unit", 'do']
 }

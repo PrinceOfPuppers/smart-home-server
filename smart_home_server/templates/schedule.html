@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href = "style.css"></link>
+<script type="text/javascript" src="funcs.js"></script>
+
+#input tasks will not have an id
+{
+    "name": "test job",
+    "id": "asdfakhjfqkhlk",
+    "enabled": True,
+    "every": 2,
+    "unit": "hours",
+    "at": "HH:MM:SS",
+
+    "do": {
+        "type": "press",
+        "data": {
+            "channel": 1,
+            "value": False
+        }
+
+    }
+}
+
+<html>
+<script>
+    function jobEnable(jobId, enable){
+        var data = {'id': job['id'], 'enable': enable}
+        sendData('api/schedule/jobs/enable', data)
+        location.reload();
+    }
+    function jobDelete(jobId){
+        var data = {'id': job['id']}
+        sendData('api/schedule/jobs', data, 'DELETE')
+        location.reload();
+    }
+</script>
+
+
+<div class="topnav">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/remote">Remote</a>
+    <a class="active" href="/schedule">Schedule</a>
+</div> 
+
+<body>
+    <h3>Current Schedule:</h3>
+    <ul class="schedule">
+        {% if len(jobs)== 0 %}
+            <p>Schedule Empty</p>
+        {% endif %}
+
+        {% for job in jobs %}
+            <li>
+                <div class="job">
+                    <button class="redButton", onclick = "jobDelete({{ job['id'] }})"">X</button>
+                    <nobr>{{ job['name'] }} - </nobr>
+
+                    <nobr>every </nobr>
+                    {% if 'every' in job %}
+                        <nobr>{{ job['every'] }} {{ job['unit'] }} - </nobr>
+                    { else }
+                        <nobr> {{ job['unit'] }} - </nobr>
+                    {% endif %}
+
+                    {% if 'at' in job %}
+                        <nobr>at {{ job['at'] }} - </nobr>
+                    {% endif %}
+
+                    <nobr>do </nobr>
+                    {% set do = job['do'] %}
+                    {% set type = do['type'] %}
+
+                    {% if type == "press" %}
+                        <nobr>switch channel: {{ f"{do['channel']} {'on' if do['value'] else 'off'}" }}</nobr>
+                    {% else %}
+                        <nobr>Unrecognized Job Type: {{ type }}</nobr>
+                    {% endif %}
+                        
+
+                    {% if job['active'] %}
+                        <button class="greenButton", onclick = "jobEnable({{ job['id'] }}, false )"">active</button>
+                    { else }
+                        <button class="redButton", onclick = "jobEnable({{ job['id'] }}, true )"">inactive</button>
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+    <h3>New Job:</h3>
+
+  </body>
+</html>

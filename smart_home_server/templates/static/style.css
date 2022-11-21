@@ -20,16 +20,40 @@
 
     button{
         border-radius:15%;
+        background-color: var(--darkGrey);
+
+        border: 2pt solid var(--white);
+        background-color: var(--darkGrey);
+        color: var(--white);
+        padding: 11pt 20pt;
+        font-size: 12pt;
+        cursor: pointer;
     }
 
     button.greenButton {
+        color: var(--green);
+        border-color: var(--green);
+    }
+    button.greenButton:hover {
+        color: var(--darkGrey);
         background-color: var(--green);
-        color: var(-darkGrey)
+    }
+    button.greenButton:active {
+        color: var(--darkGrey);
+        background-color: var(--white);
     }
 
     button.redButton {
+        color: var(--red);
+        border-color: var(--red);
+    }
+    button.redButton:hover {
+        color: var(--darkGrey);
         background-color: var(--red);
-        color: var(--darkGrey)
+    }
+    button.redButton:active {
+        color: var(--darkGrey);
+        background-color: var(--white);
     }
 
     ul{
@@ -51,5 +75,36 @@
     }
     ul.remote > li > nobr {
       text-decoration: none;
+    }
+    .on-off-channel {
+        padding: 3pt;
+    }
+
+    /* Add a black background color to the top navigation */
+    .topnav {
+      background-color: var(--grey);
+      overflow: hidden;
+    }
+
+    /* Style the links inside the navigation bar */
+    .topnav a {
+      float: left;
+      color: var(--white);
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      font-size: 17px;
+    }
+
+    /* Change the color of links on hover */
+    .topnav a:hover {
+      background-color: var(--lightGrey);
+      color: var(--darkGrey);
+    }
+
+    /* Add a color to the active/current link */
+    .topnav a.active {
+      background-color: var(--green);
+      color: var(--darkGrey);
     }
 

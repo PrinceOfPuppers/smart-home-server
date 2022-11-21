@@ -1,6 +1,6 @@
 from flask import Flask, send_from_directory, render_template
 
-from smart_home_server.threads.scheduler import startScheduler, stopScheduler, joinScheduler
+from smart_home_server.threads.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
 from smart_home_server.threads.presser import startPresser, stopPresser, joinPresser
 from smart_home_server import InterruptTriggered
 import smart_home_server.constants as const
@@ -14,9 +14,15 @@ app.register_blueprint(api)
 def send_templates(path):
    return send_from_directory(const.staticFolder, path)
 
-@app.route('/lights')
+@app.route('/remote')
 def lightsGet():
-    return render_template('lights.html', list_header="Channels:", channels=[i for i in range(len(const.txChannels))])
+    return render_template('remote.html', channels=[i for i in range(len(const.txChannels))])
+
+@app.route('/schedule')
+def scheduleGet():
+    jobs = getJobs()
+    return render_template('schedule.html', jobs=[jobs])
+
 
 def startServer():
     global app

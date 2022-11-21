@@ -42,6 +42,22 @@ def _storeJob(scheduledJob: dict, id: str):
 
 def _addJob(scheduledJob:dict, store:bool = True, newId:bool = True):
     s = _parseTask(scheduledJob)
+
+    if 'every' in scheduledJob:
+        # change every '1 units' to 'every unit'
+        if scheduledJob['every'] == 1:
+            scheduledJob.pop('every')
+            scheduledJob['unit'].rstrip('s')
+        else:
+            # pluralize
+            if scheduledJob['unit'][-1] != 's':
+                scheduledJob['unit'].append('s')
+    else:
+        # depluralize if there are no units
+        scheduledJob['unit'].rstrip('s')
+
+
+
     id = str(uuid4()) if newId else scheduledJob['id']
     if store:
         _storeJob(scheduledJob, id)
