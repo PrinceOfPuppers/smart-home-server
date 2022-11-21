@@ -52,6 +52,7 @@ def getJob(id: str) -> Union[dict, None]:
 def getJobs():
     jobs = []
     for j in schedule.get_jobs():
+        print(j)
         assert j.job_func is not None
         jobs.append(j.job_func.args[0])
     return jobs

@@ -7,5 +7,16 @@ function sendData(url, data, httpMethod = 'POST'){
     },
     body: JSON.stringify(data)
     })
+    // TODO: deal with error case better
     .then(response => console.log(response.ok))
+}
+
+function formToObject(form){
+    let formData = new FormData(form)
+
+    var object = {};
+    formData.forEach(function(value, key){
+        object[key] = value;
+    });
+    return object
 }

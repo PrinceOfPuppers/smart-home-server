@@ -3,7 +3,7 @@ from flask import jsonify, request, Blueprint, current_app
 from flask_expects_json import expects_json
 
 import smart_home_server.constants as const
-from smart_home_server.threads.scheduler import addJob, removeJob, getJobs
+from smart_home_server.threads.scheduler import addJob, removeJob, getJobs, enableDisableJob
 from smart_home_server.threads.presser import presserAppend
 
 api = Blueprint('api', __name__)
@@ -12,11 +12,9 @@ remotePressSchema = \
 {
     "type": "object",
     "properties": {
-        "channel": { "type": "integer", "minimum": 0, "maximum": len(const.txChannels)-1 },
-        "value": { "type": "boolean" }
+        "channel": { "type": "integer", "minimum": 0, "maximum": len(const.txChannels)-1}, # defaults to 0
+        "value": { "type": "boolean" } # defaults to True
     },
-    "required": ["channel", "value"]
-
 }
 
 remoteSchema = \
@@ -38,6 +36,8 @@ def changeLights():
     presses = json.loads(request.data)['presses']
 
     for press in presses:
+        press['channel'] = 0 if 'channel' not in press else press['channel']
+        press['value'] = True if 'value' not in press else press['value']
         presserAppend(press)
 
     return current_app.response_class(status=200)
@@ -78,12 +78,12 @@ postJobSchema = \
     "properties":{
         "name":      {"type": "string"},
         #"id":        {"type": "string"},
-        "enabled":   {"type": "bool", "default": True},
+        "enabled":   {"type": "boolean"}, # defaults to True
         "every":     {"type": "integer"},
-        "unit":      {"enum": ["second", "seconds", "minuite", "minuites", "hour", "hours", "day", "days", "week", "weeks",
+        "unit":      {"enum": ["second", "seconds", "minute", "minutes", "hour", "hours", "day", "days", "week", "weeks",
                                "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
                      ]},
-        "at":        {"type": "string", "format": "time"},
+        "at":        {"type": "string"},
         "do": {
             "oneOf": [remotePressAction]},
     },
@@ -91,9 +91,11 @@ postJobSchema = \
 }
 
 @api.route('/api/schedule', methods=['POST'])
-@expects_json(postJobSchema, fill_defaults=True, check_formats=True)
+@expects_json(postJobSchema, check_formats=True)
 def postJob():
+    print("here")
     scheduledJob = json.loads(request.data)
+    scheduledJob['enabled'] = True if 'enabled' not in scheduledJob else scheduledJob['enabled']
     addJob(scheduledJob)
     return current_app.response_class(status=200)
 
@@ -126,16 +128,18 @@ enableJobSchema = \
     "type": "object",
     "properties": {
         "id": {"type": "string"},
-        "enable": {"type": "boolean", "default": True}
+        "enable": {"type": "boolean"} # defaults to True
     },
     "required": ['id']
 }
 
 @api.route('/api/schedule/jobs/enable', methods=['PUT'])
-@expects_json(enableJobSchema, fill_defaults=True)
+@expects_json(enableJobSchema)
 def enableJob():
-    jobs = getJobs()
-    return jsonify({"jobs": jobs})
+    data = json.loads(request.data)
+    data['enable'] = True if 'enable' not in data else data['enable']
+    enableDisableJob(data['id'], data['enable'])
+    return current_app.response_class(status=200)
 
 @api.route('/api/test', methods=['GET'])
 def test():

@@ -101,6 +101,7 @@
 
     .atInput {
         display:inline;
+        padding-left:0px;
     }
 
     .formDiv {

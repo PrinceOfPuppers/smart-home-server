@@ -16,10 +16,50 @@
         location.reload();
     }
 
-    function submitJobHandler(event){
-
+    function padZeros(numStr, len){
+        console.log(numStr);
+        console.log(len);
+        if(numStr.length >= len){
+            return numStr
+        }
+        return "0".repeat(len-numStr.length).concat(numStr)
     }
 
+    function submitJobHandler(event){
+        event.preventDefault();
+        let form = event.currentTarget;
+        var data = formToObject(form)
+
+        data.at = ""
+        if(data.atHours !== ""){
+            data.at = data.at.concat(`${padZeros(data.atHours,2)}:`)
+            data.at = data.at.concat(data.atMinutes !== "" ? padZeros(data.atMinutes,2) : "00")
+            data.at = data.at.concat(data.atSeconds !== "" ? padZeros(data.atSeconds,2) : "00")
+        } else if(data.atMinutes !== "") {
+            data.at = data.at.concat(`:${padZeros(data.atMinutes,2)}:`)
+            data.at = data.at.concat(data.atSeconds !== "" ? padZeros(data.atSeconds,2) : "00")
+        } else if(data.atSeconds !== "") {
+            data.at = data.at.concat(`:${padZeros(data.atSeconds,2)}`)
+        }
+
+        // TODO: deal with error case better
+        if(data.do = "press"){
+            data.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}}
+        }
+        else{
+            console.log("error")
+        }
+
+        data = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== null && v !== undefined && v!== ""));
+
+        delete data.atHours;
+        delete data.atMinutes;
+        delete data.atSeconds;
+        console.log(data);
+
+        sendData('api/schedule', data, httpMethod = 'POST');
+        //location.reload();
+    }
 
     function hideUnhideJobForms(dropDown){
         // iterate over options in the drop down
@@ -38,13 +78,46 @@
         })
     }
 
+    function hideUnhideAtTimes(dropDown){
+        const atText = document.querySelector(`[id=atText]`);
+        const atSeconds = document.querySelector(`[id=atSeconds]`);
+        const atMinutes = document.querySelector(`[id=atMinutes]`);
+        const atHours = document.querySelector(`[id=atHours]`);
+
+        atText.style.display = "block";
+        atSeconds.style.display = "inline";
+        atMinutes.style.display = "inline"
+        atHours.style.display = "inline";
+
+        if (dropDown.value === "second") {
+            atText.style.display = "none";
+            atSeconds.style.display = "none";
+            atMinutes.style.display = "none"
+            atHours.style.display = "none";
+            return;
+        } 
+        if (dropDown.value == "minute"){
+            atMinutes.style.display = "none"
+            atHours.style.display = "none";
+            return;
+        }
+        if (dropDown.value == "hour"){
+            atHours.style.display = "none";
+            return;
+        }
+    }
+
     window.onload = () => {
         document.getElementById('jobForm').addEventListener('submit', submitJobHandler);
 
         // hide form fields for jobs unless they are selected in do dropdown
+        hideUnhideAtTimes(document.querySelector('#unit'));
+        document.querySelector('#unit').addEventListener("change", function(dropDown) {hideUnhideAtTimes(dropDown.target)});
+
         hideUnhideJobForms(document.querySelector('#do'));
         document.querySelector('#do').addEventListener("change", function(dropDown) {hideUnhideJobForms(dropDown.target)});
     }
+    
 </script>
 
 <div class="topnav">
@@ -65,35 +138,37 @@
                 <li>
                     <div class="job">
                         <button class="redButton", onclick = "jobDelete({{ job['id'] }})"">X</button>
-                        <nobr>{{ job['name'] }} - </nobr>
+
+                        {% if job['enabled'] %}
+                            <button class="greenButton", onclick = "jobEnable({{ job['id'] }}, false )"">active</button>
+                        {% else %}
+                            <button class="redButton", onclick = "jobEnable({{ job['id'] }}, true )"">inactive</button>
+                        {% endif %}
+
+                        <nobr>{{ job['name'] }}: </nobr>
 
                         <nobr>every </nobr>
                         {% if 'every' in job %}
-                            <nobr>{{ job['every'] }} {{ job['unit'] }} - </nobr>
-                        { else }
-                            <nobr> {{ job['unit'] }} - </nobr>
+                            <nobr>{{ job['every'] }} {{ job['unit'] }}</nobr>
+                        {% else %}
+                            <nobr> {{ job['unit'] }} </nobr>
                         {% endif %}
 
                         {% if 'at' in job %}
-                            <nobr>at {{ job['at'] }} - </nobr>
+                            <nobr>at {{ job['at'] }} => </nobr>
                         {% endif %}
 
-                        <nobr>do </nobr>
                         {% set do = job['do'] %}
                         {% set type = do['type'] %}
+                        {% set data = do['data'] %}
 
                         {% if type == "press" %}
-                        <nobr>switch channel: {{ do['channel'] }} {{'on' if do['value'] else 'off' }}</nobr>
+                        <nobr>switch channel:{{ data['channel'] }} {{'on' if data['value'] else 'off' }}</nobr>
                         {% else %}
                             <nobr>Unrecognized Job Type: {{ type }}</nobr>
                         {% endif %}
                             
 
-                        {% if job['active'] %}
-                            <button class="greenButton", onclick = "jobEnable({{ job['id'] }}, false )"">active</button>
-                        { else }
-                            <button class="redButton", onclick = "jobEnable({{ job['id'] }}, true )"">inactive</button>
-                        {% endif %}
                     </div>
                 </li>
             {% endfor %}
@@ -106,8 +181,8 @@
         <form id="jobForm">
             <section>
                 <div class="formDiv">
-                    <label for="name">Job Name:</label>
-                    <input type="text" id="name" name="name" required>
+                    <label for="jobName">Job Name:</label>
+                    <input type="text" id="jobName" name="name" required>
                 </div>
             <section>
 
@@ -115,15 +190,15 @@
 
             <section>
                 <div class="formDiv">
-                    <label for="every">Every (optional):</label>
-                    <input type="number" id="every" name="quantity" min="1" max="100">
+                    <label for="every">Every:</label>
+                    <input type="quantity" id="every" name="every" min="1" max="100" size="3" placeholder=1>
                 </div>
 
                 <div class="formDiv">
                     <label for="unit">Unit:</label>
                     <select id="unit" name="unit" required>
                     <option value="second">second</option>
-                    <option value="minuite">minuite</option>
+                    <option value="minute">minute</option>
                     <option value="hour">hour</option>
                     <option value="day">day</option>
                     <option value="week">week</option>
@@ -138,12 +213,10 @@
                 </div>
 
                 <div class="formDiv">
-                    <label for="at">At (HH:MM:SS) (optional):</label>
-                    <input type="number" class = "atInput" id="atHours" name="atHours" size="2" min="0" max="23">
-                    <nobr>:</nobr>
-                    <input type="number" class="atInput" id="atMinutes" name="atMinutes" size="2" min="0" max="59">
-                    <nobr>:</nobr>
-                    <input type="number" class="atInput" id="atSeconds" name="atSeconds" size="2" min="0" max="59">
+                    <label for="at" id="atText">At:</label>
+                    <input type="number" class = "atInput" id="atHours" name="atHours" size="2" min="0" max="23" placeholder="HH">
+                    <input type="number" class="atInput" id="atMinutes" name="atMinutes" size="2" min="0" max="59" placeholder="MM">
+                    <input type="number" class="atInput" id="atSeconds" name="atSeconds" size="2" min="0" max="59" placeholder="SS">
                 </div>
             </section>
 
@@ -159,14 +232,14 @@
 
                 <div class="formDiv">
                     <label for="pressChannel" id="pressChannelLabel">Channel:</label>
-                    <input type="number" id="pressChannel" name="pressChannel" min={{ minChannel }} max= {{ maxChannel }}>
+                    <input type="number" id="pressChannel" name="pressChannel" min={{ minChannel }} max= {{ maxChannel }} size="5" value="0">
                 </div>
 
                 <div class="formDiv">
                     <label for="pressValue" id="pressValueLabel">Value:</label>
-                    <select id="pressValue" name="pressValue" required>
-                    <option value=true>on</option>
-                    <option value=false>off</option>
+                    <select id="pressValue" name="pressValue">
+                    <option value="1">on</option>
+                    <option value="">off</option>
                     </select>
                 </div>
             </section>

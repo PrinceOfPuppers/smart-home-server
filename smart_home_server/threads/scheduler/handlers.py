@@ -8,9 +8,10 @@ import smart_home_server.constants as const
 
 
 def _runJob(scheduledJob:dict):
-    j = scheduledJob['do']
-    if not j['enabled']:
+    if not scheduledJob['enabled']:
         return
+
+    j = scheduledJob['do']
 
     if j['type'] == 'press':
         presserAppend(j['data'])
@@ -56,20 +57,19 @@ def _addJob(scheduledJob:dict, store:bool = True, newId:bool = True):
         # depluralize if there are no units
         scheduledJob['unit'].rstrip('s')
 
-
-
     id = str(uuid4()) if newId else scheduledJob['id']
     if store:
         _storeJob(scheduledJob, id)
     s.tag(id)
-    s.job(_runJob, scheduledJob=scheduledJob)
+    s.do(_runJob, scheduledJob)
 
 def _loadJobs(clearExisting:bool, overwrite:bool):
     if clearExisting:
         schedule.clear()
 
     dir = os.listdir(const.schedulerJobFolder)
-    for path in dir:
+    for p in dir:
+        path = f'{const.schedulerJobFolder}/{p}'
         with open(path, 'r+') as f:
             scheduledJob = json.load(f)
             id = scheduledJob['id']
