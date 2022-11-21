@@ -15,10 +15,11 @@
 <div class="topnav">
     <a href="/dashboard">Dashboard</a>
     <a class="active" href="/remote">Remote</a>
-    <a href="/scheudle">Schedule</a>
+    <a href="/schedule">Schedule</a>
 </div> 
 
 <body>
+    <div class="indent">
     <ul class="remote">
         {% for channel in channels %}
             <li>
@@ -30,5 +31,6 @@
             </li>
         {% endfor %}
     </ul>
+    </div>
   </body>
 </html>

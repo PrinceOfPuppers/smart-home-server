@@ -3,25 +3,6 @@
 <link rel="stylesheet" href = "style.css"></link>
 <script type="text/javascript" src="funcs.js"></script>
 
-#input tasks will not have an id
-{
-    "name": "test job",
-    "id": "asdfakhjfqkhlk",
-    "enabled": True,
-    "every": 2,
-    "unit": "hours",
-    "at": "HH:MM:SS",
-
-    "do": {
-        "type": "press",
-        "data": {
-            "channel": 1,
-            "value": False
-        }
-
-    }
-}
-
 <html>
 <script>
     function jobEnable(jobId, enable){
@@ -34,8 +15,36 @@
         sendData('api/schedule/jobs', data, 'DELETE')
         location.reload();
     }
-</script>
 
+    function submitJobHandler(event){
+
+    }
+
+    document.getElementById('jobForm').addEventListener('submit', submitJobHandler);
+
+
+    function hideUnhideJobForms(jobDropDown, job){
+
+    }
+    // hide form fields for jobs unless they are selected in do dropdown
+    document.querySelector('#do').addEventListener("change", function(dropDown) {
+
+        // iterate over options in the drop down
+        Array.from(dropDown.options).forEach((dropDownOption)){
+            // get all elements which match that option
+            const optionElements = document.querySelectorAll(`[id^='${dropDownOption.value}']`);
+
+            // see if they match the current value
+            if (dropDown.target.value === dropDownOption.value) {
+                // if so, display them
+                pressElements.forEach((element) => {element.style.display = "block"};)
+            } else {
+                // else hide them
+                pressElements.forEach((element) => {element.style.display = "none"};)
+            }
+        }
+    });
+</script>
 
 <div class="topnav">
     <a href="/dashboard">Dashboard</a>
@@ -45,49 +54,134 @@
 
 <body>
     <h3>Current Schedule:</h3>
-    <ul class="schedule">
-        {% if len(jobs)== 0 %}
-            <p>Schedule Empty</p>
-        {% endif %}
+    <div class="indent">
+        <ul class="schedule">
+            {% if jobs|length == 0 %}
+                <p>Schedule Empty</p>
+            {% endif %}
 
-        {% for job in jobs %}
-            <li>
-                <div class="job">
-                    <button class="redButton", onclick = "jobDelete({{ job['id'] }})"">X</button>
-                    <nobr>{{ job['name'] }} - </nobr>
+            {% for job in jobs %}
+                <li>
+                    <div class="job">
+                        <button class="redButton", onclick = "jobDelete({{ job['id'] }})"">X</button>
+                        <nobr>{{ job['name'] }} - </nobr>
 
-                    <nobr>every </nobr>
-                    {% if 'every' in job %}
-                        <nobr>{{ job['every'] }} {{ job['unit'] }} - </nobr>
-                    { else }
-                        <nobr> {{ job['unit'] }} - </nobr>
-                    {% endif %}
+                        <nobr>every </nobr>
+                        {% if 'every' in job %}
+                            <nobr>{{ job['every'] }} {{ job['unit'] }} - </nobr>
+                        { else }
+                            <nobr> {{ job['unit'] }} - </nobr>
+                        {% endif %}
 
-                    {% if 'at' in job %}
-                        <nobr>at {{ job['at'] }} - </nobr>
-                    {% endif %}
+                        {% if 'at' in job %}
+                            <nobr>at {{ job['at'] }} - </nobr>
+                        {% endif %}
 
-                    <nobr>do </nobr>
-                    {% set do = job['do'] %}
-                    {% set type = do['type'] %}
+                        <nobr>do </nobr>
+                        {% set do = job['do'] %}
+                        {% set type = do['type'] %}
 
-                    {% if type == "press" %}
-                        <nobr>switch channel: {{ f"{do['channel']} {'on' if do['value'] else 'off'}" }}</nobr>
-                    {% else %}
-                        <nobr>Unrecognized Job Type: {{ type }}</nobr>
-                    {% endif %}
-                        
+                        {% if type == "press" %}
+                        <nobr>switch channel: {{ do['channel'] }} {{'on' if do['value'] else 'off' }}</nobr>
+                        {% else %}
+                            <nobr>Unrecognized Job Type: {{ type }}</nobr>
+                        {% endif %}
+                            
 
-                    {% if job['active'] %}
-                        <button class="greenButton", onclick = "jobEnable({{ job['id'] }}, false )"">active</button>
-                    { else }
-                        <button class="redButton", onclick = "jobEnable({{ job['id'] }}, true )"">inactive</button>
-                    {% endif %}
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
+                        {% if job['active'] %}
+                            <button class="greenButton", onclick = "jobEnable({{ job['id'] }}, false )"">active</button>
+                        { else }
+                            <button class="redButton", onclick = "jobEnable({{ job['id'] }}, true )"">inactive</button>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
     <h3>New Job:</h3>
+
+    <div class="indent">
+        <form id="jobForm">
+            <section>
+                <div class="formDiv">
+                    <label for="name">Job Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+            <section>
+
+            <br style="clear:both;" />
+
+            <section>
+                <div class="formDiv">
+                    <label for="every">Every (optional):</label>
+                    <input type="number" id="every" name="quantity" min="1" max="100">
+                </div>
+
+                <div class="formDiv">
+                    <label for="unit">Unit:</label>
+                    <select id="unit" name="unit" required>
+                    <option value="second">second</option>
+                    <option value="minuite">minuite</option>
+                    <option value="hour">hour</option>
+                    <option value="day">day</option>
+                    <option value="week">week</option>
+                    <option value="monday">monday</option>
+                    <option value="tuesday">tuesday</option>
+                    <option value="wednesday">wednesday</option>
+                    <option value="thursday">thursday</option>
+                    <option value="friday">friday</option>
+                    <option value="saturday">saturday</option>
+                    <option value="sunday">sunday</option>
+                    </select>
+                </div>
+
+                <div class="formDiv">
+                    <label for="at">At (HH:MM:SS) (optional):</label>
+                    <input type="number" class = "atInput" id="atHours" name="atHours" size="2" min="0" max="23">
+                    <nobr>:</nobr>
+                    <input type="number" class="atInput" id="atMinutes" name="atMinutes" size="2" min="0" max="59">
+                    <nobr>:</nobr>
+                    <input type="number" class="atInput" id="atSeconds" name="atSeconds" size="2" min="0" max="59">
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+            <section>
+                <div class="formDiv">
+                    <label for="do">Do:</label>
+                    <select id="do" name="do" required>
+                    <option value="press">press</option>
+                    </select>
+                </div>
+
+                <div class="formDiv">
+                    <label for="pressChannel">Channel:</label>
+                    <input type="number" id="pressChannel" name="pressChannel" min={{ minChannel }} max= {{ maxChannel }}>
+                </div>
+
+                <div class="formDiv">
+                    <label for="pressValue">Value:</label>
+                    <select id="pressValue" name="pressValue" required>
+                    <option value=true>on</option>
+                    <option value=false>off</option>
+                    </select>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+            <section>
+                <div class="formDiv">
+                    <button type="submit" class="greenButton">Create Job</button>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+        </form>
+    </div>
 
   </body>
 </html>

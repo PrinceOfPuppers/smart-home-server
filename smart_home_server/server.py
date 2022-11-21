@@ -21,7 +21,7 @@ def lightsGet():
 @app.route('/schedule')
 def scheduleGet():
     jobs = getJobs()
-    return render_template('schedule.html', jobs=[jobs])
+    return render_template('schedule.html', minChannel=0, maxChannel=len(const.txChannels)-1, jobs=jobs)
 
 
 def startServer():

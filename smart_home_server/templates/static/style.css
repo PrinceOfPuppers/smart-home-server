@@ -19,7 +19,6 @@
     }
 
     button{
-        border-radius:15%;
         background-color: var(--darkGrey);
 
         border: 2pt solid var(--white);
@@ -30,28 +29,28 @@
         cursor: pointer;
     }
 
-    button.greenButton {
+    .greenButton {
         color: var(--green);
         border-color: var(--green);
     }
-    button.greenButton:hover {
+    .greenButton:hover {
         color: var(--darkGrey);
         background-color: var(--green);
     }
-    button.greenButton:active {
+    .greenButton:active {
         color: var(--darkGrey);
         background-color: var(--white);
     }
 
-    button.redButton {
+    .redButton {
         color: var(--red);
         border-color: var(--red);
     }
-    button.redButton:hover {
+    .redButton:hover {
         color: var(--darkGrey);
         background-color: var(--red);
     }
-    button.redButton:active {
+    .redButton:active {
         color: var(--darkGrey);
         background-color: var(--white);
     }
@@ -68,6 +67,10 @@
     }
 
     ul.remote {
+      border: 2pt solid var(--lightGrey);
+      background-color: var(--grey);
+      padding:10pt;
+      width: fit-content;
     }
     ul.remote > li {
     }
@@ -82,6 +85,7 @@
 
     /* Add a black background color to the top navigation */
     .topnav {
+      border: 2pt solid var(--lightGrey);
       background-color: var(--grey);
       overflow: hidden;
     }
@@ -108,3 +112,31 @@
       color: var(--darkGrey);
     }
 
+input, label {
+    display:block;
+}
+
+.atInput {
+    display:inline;
+}
+
+.formDiv {
+    float:left;
+    padding:3pt;
+}
+#jobForm {
+    width: fit-content;
+    border: 2pt solid var(--lightGrey);
+    background-color: var(--grey);
+    padding:3pt;
+}
+.schedule {
+    width: fit-content;
+    border: 2pt solid var(--lightGrey);
+    background-color: var(--grey);
+    padding:3pt;
+}
+
+.indent {
+    padding-left: 3%;
+}
