@@ -20,30 +20,31 @@
 
     }
 
-    document.getElementById('jobForm').addEventListener('submit', submitJobHandler);
 
-
-    function hideUnhideJobForms(jobDropDown, job){
-
-    }
-    // hide form fields for jobs unless they are selected in do dropdown
-    document.querySelector('#do').addEventListener("change", function(dropDown) {
-
+    function hideUnhideJobForms(dropDown){
         // iterate over options in the drop down
-        Array.from(dropDown.options).forEach((dropDownOption)){
+        Array.from(dropDown.options).forEach((dropDownOption) => {
             // get all elements which match that option
             const optionElements = document.querySelectorAll(`[id^='${dropDownOption.value}']`);
 
             // see if they match the current value
-            if (dropDown.target.value === dropDownOption.value) {
+            if (dropDown.value === dropDownOption.value) {
                 // if so, display them
-                pressElements.forEach((element) => {element.style.display = "block"};)
+                optionElements.forEach((element) => {element.style.display = "block"});
             } else {
                 // else hide them
-                pressElements.forEach((element) => {element.style.display = "none"};)
+                optionElements.forEach((element) => {element.style.display = "none"});
             }
-        }
-    });
+        })
+    }
+
+    window.onload = () => {
+        document.getElementById('jobForm').addEventListener('submit', submitJobHandler);
+
+        // hide form fields for jobs unless they are selected in do dropdown
+        hideUnhideJobForms(document.querySelector('#do'));
+        document.querySelector('#do').addEventListener("change", function(dropDown) {hideUnhideJobForms(dropDown.target)});
+    }
 </script>
 
 <div class="topnav">
@@ -157,12 +158,12 @@
                 </div>
 
                 <div class="formDiv">
-                    <label for="pressChannel">Channel:</label>
+                    <label for="pressChannel" id="pressChannelLabel">Channel:</label>
                     <input type="number" id="pressChannel" name="pressChannel" min={{ minChannel }} max= {{ maxChannel }}>
                 </div>
 
                 <div class="formDiv">
-                    <label for="pressValue">Value:</label>
+                    <label for="pressValue" id="pressValueLabel">Value:</label>
                     <select id="pressValue" name="pressValue" required>
                     <option value=true>on</option>
                     <option value=false>off</option>
