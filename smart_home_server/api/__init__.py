@@ -76,6 +76,7 @@ remotePressAction = \
     'additionalProperties': False,
 }
 
+weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 postJobSchema = \
 {
     "type": "object",
@@ -84,9 +85,7 @@ postJobSchema = \
         #"id":        {"type": "string"},
         "enabled":   {"type": "boolean"}, # defaults to True
         "every":     {"type": "integer"},
-        "unit":      {"enum": ["second", "minute", "hour", "day", "week",
-                               "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
-                     ]},
+        "unit":      {"enum": ["second", "minute", "hour", "day", "week"] + weekdays},
         #"at":        {"type": "string"},
         "atSeconds": {"type": "integer", "minimum": 0, "maximum": 59},
         "atMinutes": {"type": "integer", "minimum": 0, "maximum": 59},
@@ -106,6 +105,14 @@ def postJob():
     scheduledJob = json.loads(request.data)
 
     addDefault(scheduledJob, 'enabled', True)
+    
+    # TODO: return invalid request if every is present with weekday
+    if 'every' in scheduledJob:
+        if scheduledJob['every'] > 1:
+            if scheduledJob['unit'] in weekdays:
+                return current_app.response_class("days of the week 'units' are incompatible with 'every' > 1", status=400)
+        else:
+            scheduledJob.pop('every')
 
     atTime = getAtTime(scheduledJob)
     if atTime is not None:
@@ -154,7 +161,7 @@ enableJobSchema = \
     'additionalProperties': False,
 }
 
-@api.route('/api/schedule/jobs/enable', methods=['PUT'])
+@api.route('/api/schedule/jobs/enable', methods=['POST'])
 @expects_json(enableJobSchema)
 def enableJob():
     data = json.loads(request.data)

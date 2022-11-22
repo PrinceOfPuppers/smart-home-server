@@ -4,7 +4,8 @@ def clearQueue(q: Queue):
     with q.mutex:
         q.queue.clear()
 
-def padZeros(numStr, length):
+def padZeros(num, length):
+    numStr = str(num)
     return f'{"0"*(length - len(numStr))}' if len(numStr) > length else numStr
 
 def addDefault(data:dict, key:str, val):

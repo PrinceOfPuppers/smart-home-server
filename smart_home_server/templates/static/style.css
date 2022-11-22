@@ -25,6 +25,7 @@
         background-color: var(--darkGrey);
         color: var(--white);
         padding: 11pt 20pt;
+        /* padding: 5pt 10pt; */
         font-size: 12pt;
         cursor: pointer;
     }

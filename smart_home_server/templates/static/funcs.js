@@ -1,4 +1,4 @@
-function sendData(url, data, httpMethod = 'POST', reload=false){
+function sendData(url, data, httpMethod, reload=false){
     fetch(url, {
     method: httpMethod,
     headers: {
@@ -7,7 +7,6 @@ function sendData(url, data, httpMethod = 'POST', reload=false){
     },
     body: JSON.stringify(data)
     })
-    // TODO: deal with error case better
     .then((response) => {
         if(!response.ok){
             window.alert(`Status: ${response.status}\n${response.statusText}`);

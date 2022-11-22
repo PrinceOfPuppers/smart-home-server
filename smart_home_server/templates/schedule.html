@@ -5,52 +5,48 @@
 
 <html>
 <script>
+    const weekdays = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
+
     function jobEnable(jobId, enable){
-        var data = {'id': job['id'], 'enable': enable}
-        sendData('api/schedule/jobs/enable', data)
-        location.reload();
+        var data = {'id': jobId, 'enable': enable};
+        sendData('api/schedule/jobs/enable', data, 'POST', reload=true);
     }
     function jobDelete(jobId){
-        var data = {'id': job['id']}
-        sendData('api/schedule/jobs', data, 'DELETE')
-        location.reload();
-    }
-
-    function padZeros(numStr, len){
-        console.log(numStr);
-        console.log(len);
-        if(numStr.length >= len){
-            return numStr
-        }
-        return "0".repeat(len-numStr.length).concat(numStr)
+        console.log("testing123");
+        var data = {'id': jobId};
+        sendData('api/schedule/jobs', data, 'DELETE', reload=true);
     }
 
     function submitJobHandler(event){
         event.preventDefault();
         let form = event.currentTarget;
-        var data = formToObject(form)
+        var data = formToObject(form);
 
-        // TODO: deal with error case better
         if(data.do = "press"){
-            data.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}}
+            data.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
             delete data.pressChannel;
             delete data.pressValue;
         }
         else{
-            console.log("error")
+            window.alert(`Error: invalid job type: ${data.do}`);
+            return;
         }
 
+        // every is not compatible with days of the week
+        if(weekdays.indexOf(data.unit)!== -1){
+            delete data.every;
+        }
 
         data = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== null && v !== undefined && v!== ""));
 
-        if ('atHours' in data){data.atHours = Number(data.atHours)}
-        if ('atMinutes' in data){data.atMinutes = Number(data.atMinutes)}
-        if ('atSeconds' in data){data.atSeconds = Number(data.atSeconds)}
-        if ('every' in data){data.every = Number(data.every)}
+        if ('atHours' in data){data.atHours = Number(data.atHours);}
+        if ('atMinutes' in data){data.atMinutes = Number(data.atMinutes);}
+        if ('atSeconds' in data){data.atSeconds = Number(data.atSeconds);}
+        if ('every' in data){data.every = Number(data.every);}
 
         console.log(data);
 
-        sendData('api/schedule', data, httpMethod = 'POST', reload=true);
+        sendData('api/schedule', data, 'POST', reload=true);
     }
 
     function hideUnhideJobForms(dropDown){
@@ -68,6 +64,21 @@
                 optionElements.forEach((element) => {element.style.display = "none"});
             }
         })
+    }
+
+    function hideUnhideEvery(dropDown){
+        const everyText = document.querySelector(`[id=everyText]`);
+        const everyInput = document.querySelector(`[id=everyInput]`);
+
+        everyText.style.display = "block";
+        everyInput.style.display = "inline";
+
+        // if dropdown value is one of the days of the week
+        if (weekdays.indexOf(dropDown.value) !== -1) {
+            everyText.style.display = "none";
+            everyInput.style.display = "none";
+            return;
+        } 
     }
 
     function hideUnhideAtTimes(dropDown){
@@ -108,6 +119,9 @@
 
         hideUnhideJobForms(document.querySelector('#do'));
         document.querySelector('#do').addEventListener("change", function(dropDown) {hideUnhideJobForms(dropDown.target)});
+
+        hideUnhideEvery(document.querySelector('#unit'));
+        document.querySelector('#unit').addEventListener("change", function(dropDown) {hideUnhideEvery(dropDown.target)});
     }
     
 </script>
@@ -128,14 +142,14 @@
             {% for job in jobs %}
                 <li>
                     <div class="job">
-                        <button class="redButton", onclick = "jobDelete({{ job['id'] }})"">X</button>
+                        <button class="redButton", onclick = "jobDelete('{{ job['id'] }}')"">X</button>
 
                         <button class="blueButton">{{ job['name'] }}</button>
 
                         {% if job['enabled'] %}
-                            <button class="greenButton", onclick = "jobEnable({{ job['id'] }}, false )"">active</button>
+                            <button class="greenButton", onclick = "jobEnable('{{ job['id'] }}', false )"">active</button>
                         {% else %}
-                            <button class="redButton", onclick = "jobEnable({{ job['id'] }}, true )"">inactive</button>
+                            <button class="redButton", onclick = "jobEnable('{{ job['id'] }}', true )"">inactive</button>
                         {% endif %}
 
 
@@ -187,8 +201,8 @@
 
             <section>
                 <div class="formDiv">
-                    <label for="every">Every:</label>
-                    <input type="quantity" id="every" name="every" min="1" max="100" size="3" placeholder=1>
+                    <label for="every" id="everyText">Every:</label>
+                    <input type="quantity" id="everyInput" name="every" min="1" max="100" size="3" placeholder=1>
                 </div>
 
                 <div class="formDiv">

@@ -7,7 +7,7 @@
 <script>
     function channelClick(channelNum, onOff){
         var data = {'presses': [{'channel': channelNum, 'value': onOff}]}
-        sendData('api/remote', data)
+        sendData('api/remote', data, 'POST')
     }
 </script>
 

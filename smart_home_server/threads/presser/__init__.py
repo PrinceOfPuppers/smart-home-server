@@ -29,14 +29,20 @@ else:
 def _presserLoop():
     global _pressQueue
     global _presserLoopCondition
+
     while _presserLoopCondition:
         try:
-            press = _pressQueue.get(block=True, timeout = const.pollingPeriod)
-        except Empty:
+            try:
+                press = _pressQueue.get(block=True, timeout = const.pollingPeriod)
+            except Empty:
+                continue
+            for _ in range(const.pressRepeats+1):
+                _changeChannel(press['channel'], press['value'])
+                sleep(const.pressSpacing)
+
+        except Exception as e:
+            print(f"Presser Exception: \n{e}")
             continue
-        for _ in range(const.pressRepeats+1):
-            _changeChannel(press['channel'], press['value'])
-            sleep(const.pressSpacing)
 
 def presserAppend(press):
     global _pressQueue

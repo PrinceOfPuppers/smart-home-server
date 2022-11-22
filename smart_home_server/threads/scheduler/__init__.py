@@ -4,7 +4,6 @@ from queue import Queue, Empty
 from threading import Thread
 import os
 import json
-import time
 
 from smart_home_server.helpers import clearQueue
 import smart_home_server.constants as const
@@ -12,6 +11,7 @@ from smart_home_server.threads.scheduler.handlers import _addJob, _removeJob, _u
 
 _scheduleEditQueue      = Queue()
 _schedulerLoopCondition = False
+_schedulerThread = None
 
 def addJob(scheduledJob:dict):
     global _scheduleEditQueue
@@ -65,23 +65,26 @@ def _schedulerLoop():
     global _scheduleEditQueue
 
     while _schedulerLoopCondition:
-        while _scheduleEditQueue.qsize() != 0:
-            try:
-                edit = _scheduleEditQueue.get(block=False)
-            except Empty:
-                break
-            edit()
-
-        schedule.run_pending()
-        
-        # blocking with [pollingPeriod] second timeout (rather than sleeping)
         try:
-            edit = _scheduleEditQueue.get(block=True, timeout=const.pollingPeriod)
-        except Empty:
-            continue
-        edit()
+            while _scheduleEditQueue.qsize() != 0:
+                try:
+                    edit = _scheduleEditQueue.get(block=False)
+                except Empty:
+                    break
+                edit()
 
-_schedulerThread = None
+            schedule.run_pending()
+            
+            # blocking with [pollingPeriod] second timeout (rather than sleeping)
+            try:
+                edit = _scheduleEditQueue.get(block=True, timeout=const.pollingPeriod)
+            except Empty:
+                continue
+            edit()
+        except Exception as e:
+            print(f"Scheduler Exception: \n{e}")
+            continue
+
 
 def startScheduler():
     global _schedulerLoopCondition

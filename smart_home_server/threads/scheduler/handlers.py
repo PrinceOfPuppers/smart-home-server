@@ -56,11 +56,13 @@ def _addJob(scheduledJob:dict, store:bool = True, newId:bool = True):
         scheduledJob['unit'].rstrip('s')
 
     s = _parseTask(scheduledJob)
+
     id = str(uuid4()) if newId else scheduledJob['id']
     if store:
         _storeJob(scheduledJob, id)
     s.tag(id)
     s.do(_runJob, scheduledJob)
+
 
 def _loadJobs(clearExisting:bool, overwrite:bool):
     if clearExisting:
