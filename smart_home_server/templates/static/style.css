@@ -1,5 +1,7 @@
 :root {
     --darkGrey: #1e1f1c;
+    --darkGreyA: #1e1f1cb9;
+    --lightGreyA: #75715eb9;
     --grey: #272822;
     --lightGrey: #75715e;
     --white: #f8f8f2;
@@ -9,6 +11,26 @@
     --green: #A6E22E;
     --yellow: #E6DB74;
     --orange: #FD971F;
+    }
+    html {
+        background-color: var(--darkGrey);
+        background-image: url("ferns-compressed.jpeg");
+        background-attachment: fixed;
+        background-position: center;
+        background-size: cover;
+        color: var(--white);
+        font-family: Droid Sans Mono !important;
+    }
+    body{
+        margin-left: auto;
+        margin-right: auto;
+        width: fit-content;
+
+        border: 2pt solid var(--lightGreyA);
+        border-radius: 4px;
+
+        background-color: var(--darkGreyA);
+        padding: 10pt
     }
 
     a {
@@ -22,9 +44,10 @@
         background-color: var(--darkGrey);
 
         border: 2pt solid var(--white);
+        border-radius: 4pt;
         background-color: var(--darkGrey);
         color: var(--white);
-        padding: 11pt 20pt;
+        padding: 10pt 15pt;
         /* padding: 5pt 10pt; */
         font-size: 12pt;
         cursor: pointer;
@@ -54,12 +77,6 @@
         list-style-type: none;
     }
 
-    html {
-        background-color: var(--darkGrey);
-        color: var(--white);
-        font-family: Droid Sans Mono !important;
-    }
-
     ul.remote {
       border: 2pt solid var(--lightGrey);
       background-color: var(--grey);
@@ -67,6 +84,7 @@
       width: fit-content;
       margin-left: auto;
       margin-right: auto;
+      border-radius: 4pt;
     }
     ul.remote > li {
     }
@@ -82,6 +100,7 @@
       background-color: var(--grey);
       overflow: hidden;
       width: fit-content;
+      border-radius: 4px;
     }
 
     .topnav a {
@@ -102,12 +121,6 @@
         display:block;
     }
 
-    body{
-        margin-left: auto;
-        margin-right: auto;
-        width: fit-content;
-    }
-
     .atInput {
         display:inline;
         padding-left:0px;
@@ -117,23 +130,16 @@
         float:left;
         padding:3pt;
     }
-    #jobForm {
-        width: fit-content;
-        border: 2pt solid var(--lightGrey);
-        background-color: var(--grey);
-        padding:5pt;
-    }
     .schedule{
         width: fit-content;
     }
     .job {
         width: fit-content;
         border: 2pt solid var(--lightGrey);
+        border-radius: 4px;
         background-color: var(--grey);
         padding:5pt;
-        margin:10pt;
-        margin-left: 0pt;
-        margin-right: 0pt;
+        margin-bottom:10pt;
     }
 
     .jobText {
@@ -141,6 +147,14 @@
         background-color: var(--darkGrey);
         padding:5pt;
         margin-top:5pt;
+        border-radius: 4px;
+    }
+    #jobForm {
+        width: fit-content;
+        border: 2pt solid var(--lightGrey);
+        background-color: var(--grey);
+        padding:5pt;
+        border-radius: 4px;
     }
 
     .indent {

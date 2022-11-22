@@ -23,6 +23,10 @@ def scheduleGet():
     jobs = getJobs()
     return render_template('schedule.html', minChannel=0, maxChannel=len(const.txChannels)-1, jobs=jobs)
 
+@app.route('/dashboard')
+def dashboardGet():
+    return render_template('dashboard.html')
+
 
 def startServer():
     global app
