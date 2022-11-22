@@ -36,6 +36,11 @@
         if(weekdays.indexOf(data.unit)!== -1){
             delete data.every;
         }
+        if(data.unit === "week"){
+            delete data.atHours;
+            delete data.atMinutes;
+            delete data.atSeconds;
+        }
 
         data = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== null && v !== undefined && v!== ""));
 
@@ -92,7 +97,7 @@
         atMinutes.style.display = "inline"
         atHours.style.display = "inline";
 
-        if (dropDown.value === "second") {
+        if (dropDown.value === "second" || dropDown.value == "week") {
             atText.style.display = "none";
             atSeconds.style.display = "none";
             atMinutes.style.display = "none"

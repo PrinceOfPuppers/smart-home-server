@@ -118,6 +118,9 @@ def postJob():
     if atTime is not None:
         scheduledJob['at'] = atTime
 
+    if 'at' in scheduledJob and scheduledJob['unit'] == 'week':
+        return current_app.response_class("unit week is incompatible at times", status=400)
+
     scheduledJob.pop('atHours', None)
     scheduledJob.pop('atMinutes', None)
     scheduledJob.pop('atSeconds', None)

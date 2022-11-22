@@ -15,12 +15,15 @@
     html {
         background-color: var(--darkGrey);
         background-image: url("ferns-compressed.jpeg");
-        background-attachment: fixed;
         background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
         background-size: cover;
+
         color: var(--white);
         font-family: Droid Sans Mono !important;
     }
+
     body{
         margin-left: auto;
         margin-right: auto;
@@ -30,7 +33,7 @@
         border-radius: 4px;
 
         background-color: var(--darkGreyA);
-        padding: 10pt
+        padding: 10pt;
     }
 
     a {

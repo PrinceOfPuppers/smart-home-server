@@ -6,7 +6,7 @@ def clearQueue(q: Queue):
 
 def padZeros(num, length):
     numStr = str(num)
-    return f'{"0"*(length - len(numStr))}' if len(numStr) > length else numStr
+    return f'{"0"*(length - len(numStr))}{numStr}' if len(numStr) < length else numStr
 
 def addDefault(data:dict, key:str, val):
     if key not in data:
