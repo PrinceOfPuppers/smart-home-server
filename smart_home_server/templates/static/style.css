@@ -37,9 +37,14 @@
         padding: 10pt;
     }
 
+    .faintText {
+        color: var(--lightGreyA);
+    }
+
     a {
         color:  var(--blue);
     }
+
     a:visited {
         color: var(--lightGrey);
     }
@@ -138,9 +143,6 @@
     .formDiv {
         float:left;
         padding:3pt;
-    }
-    .schedule{
-        width: fit-content;
     }
     .job {
         width: fit-content;

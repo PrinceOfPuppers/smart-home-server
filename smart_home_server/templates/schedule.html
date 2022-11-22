@@ -155,9 +155,9 @@
     </div> 
 
     <h3>Current Schedule:</h3>
-        <ul class="schedule">
+        <ul>
             {% if jobs|length == 0 %}
-                <p>Schedule Empty</p>
+                <center class="faintText">Schedule Empty</center>
             {% endif %}
 
             {% for job in jobs %}
@@ -196,7 +196,7 @@
                             <br/>
                             <span class="nobr">→ </span>
                             {% if type == "press" %}
-                            <span class="nobr">switch channel:{{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
+                            <span class="nobr">switch channel: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
                             {% else %}
                                 <span class="nobr">Unrecognized Job Type: {{ type }}</span>
                             {% endif %}
