@@ -126,13 +126,14 @@
     
 </script>
 
-<div class="topnav">
-    <a href="/dashboard">Dashboard</a>
-    <a href="/remote">Remote</a>
-    <a class="active" href="/schedule">Schedule</a>
-</div> 
 
 <body>
+    <div class="topnav">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/remote">Remote</a>
+        <a class="active" href="/schedule">Schedule</a>
+    </div> 
+
     <h3>Current Schedule:</h3>
         <ul class="schedule">
             {% if jobs|length == 0 %}

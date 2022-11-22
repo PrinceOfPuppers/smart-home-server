@@ -82,8 +82,6 @@
       background-color: var(--grey);
       overflow: hidden;
       width: fit-content;
-      margin-left: auto;
-      margin-right: auto;
     }
 
     .topnav a {
@@ -104,6 +102,12 @@
         display:block;
     }
 
+    body{
+        margin-left: auto;
+        margin-right: auto;
+        width: fit-content;
+    }
+
     .atInput {
         display:inline;
         padding-left:0px;
@@ -118,12 +122,8 @@
         border: 2pt solid var(--lightGrey);
         background-color: var(--grey);
         padding:5pt;
-        margin-left: auto;
-        margin-right: auto;
     }
     .schedule{
-        margin-left: auto;
-        margin-right: auto;
         width: fit-content;
     }
     .job {
@@ -132,8 +132,8 @@
         background-color: var(--grey);
         padding:5pt;
         margin:10pt;
-        margin-left: auto;
-        margin-right: auto;
+        margin-left: 0pt;
+        margin-right: 0pt;
     }
 
     .jobText {
