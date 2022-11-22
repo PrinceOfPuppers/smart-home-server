@@ -28,6 +28,15 @@
         font-size: 12pt;
         cursor: pointer;
     }
+    button:active {
+        color: var(--darkGrey);
+        background-color: var(--white);
+    }
+
+    .blueButton {
+        color: var(--blue);
+        border-color: var(--blue);
+    }
 
     .greenButton {
         color: var(--green);
@@ -37,16 +46,6 @@
     .redButton {
         color: var(--red);
         border-color: var(--red);
-    }
-    
-    .greenButton:active {
-        color: var(--darkGrey);
-        background-color: var(--white);
-    }
-
-    .redButton:active {
-        color: var(--darkGrey);
-        background-color: var(--white);
     }
 
     ul{
@@ -65,6 +64,8 @@
       background-color: var(--grey);
       padding:10pt;
       width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
     }
     ul.remote > li {
     }
@@ -79,6 +80,9 @@
       border: 2pt solid var(--lightGrey);
       background-color: var(--grey);
       overflow: hidden;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .topnav a {
@@ -112,13 +116,30 @@
         width: fit-content;
         border: 2pt solid var(--lightGrey);
         background-color: var(--grey);
-        padding:3pt;
+        padding:5pt;
+        margin-left: auto;
+        margin-right: auto;
     }
-    .schedule {
+    .schedule{
+        margin-left: auto;
+        margin-right: auto;
+        width: fit-content;
+    }
+    .job {
         width: fit-content;
         border: 2pt solid var(--lightGrey);
         background-color: var(--grey);
-        padding:3pt;
+        padding:5pt;
+        margin:10pt;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .jobText {
+        border: 2pt solid var(--lightGrey);
+        background-color: var(--darkGrey);
+        padding:5pt;
+        margin-top:5pt;
     }
 
     .indent {
@@ -126,6 +147,11 @@
     }
 
     @media (hover: hover) {
+        .blueButton:hover {
+            color: var(--darkGrey);
+            background-color: var(--blue);
+        }
+
         .greenButton:hover {
             color: var(--darkGrey);
             background-color: var(--green);

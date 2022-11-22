@@ -1,4 +1,4 @@
-function sendData(url, data, httpMethod = 'POST'){
+function sendData(url, data, httpMethod = 'POST', reload=false){
     fetch(url, {
     method: httpMethod,
     headers: {
@@ -8,7 +8,15 @@ function sendData(url, data, httpMethod = 'POST'){
     body: JSON.stringify(data)
     })
     // TODO: deal with error case better
-    .then(response => console.log(response.ok))
+    .then((response) => {
+        if(!response.ok){
+            window.alert(`Status: ${response.status}\n${response.statusText}`);
+        }
+
+        if(reload){
+            location.reload();
+        }
+    })
 }
 
 function formToObject(form){

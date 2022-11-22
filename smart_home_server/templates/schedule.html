@@ -30,35 +30,27 @@
         let form = event.currentTarget;
         var data = formToObject(form)
 
-        data.at = ""
-        if(data.atHours !== ""){
-            data.at = data.at.concat(`${padZeros(data.atHours,2)}:`)
-            data.at = data.at.concat(data.atMinutes !== "" ? padZeros(data.atMinutes,2) : "00")
-            data.at = data.at.concat(data.atSeconds !== "" ? padZeros(data.atSeconds,2) : "00")
-        } else if(data.atMinutes !== "") {
-            data.at = data.at.concat(`:${padZeros(data.atMinutes,2)}:`)
-            data.at = data.at.concat(data.atSeconds !== "" ? padZeros(data.atSeconds,2) : "00")
-        } else if(data.atSeconds !== "") {
-            data.at = data.at.concat(`:${padZeros(data.atSeconds,2)}`)
-        }
-
         // TODO: deal with error case better
         if(data.do = "press"){
             data.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}}
+            delete data.pressChannel;
+            delete data.pressValue;
         }
         else{
             console.log("error")
         }
 
+
         data = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== null && v !== undefined && v!== ""));
 
-        delete data.atHours;
-        delete data.atMinutes;
-        delete data.atSeconds;
+        if ('atHours' in data){data.atHours = Number(data.atHours)}
+        if ('atMinutes' in data){data.atMinutes = Number(data.atMinutes)}
+        if ('atSeconds' in data){data.atSeconds = Number(data.atSeconds)}
+        if ('every' in data){data.every = Number(data.every)}
+
         console.log(data);
 
-        sendData('api/schedule', data, httpMethod = 'POST');
-        //location.reload();
+        sendData('api/schedule', data, httpMethod = 'POST', reload=true);
     }
 
     function hideUnhideJobForms(dropDown){
@@ -128,7 +120,6 @@
 
 <body>
     <h3>Current Schedule:</h3>
-    <div class="indent">
         <ul class="schedule">
             {% if jobs|length == 0 %}
                 <p>Schedule Empty</p>
@@ -139,45 +130,51 @@
                     <div class="job">
                         <button class="redButton", onclick = "jobDelete({{ job['id'] }})"">X</button>
 
+                        <button class="blueButton">{{ job['name'] }}</button>
+
                         {% if job['enabled'] %}
                             <button class="greenButton", onclick = "jobEnable({{ job['id'] }}, false )"">active</button>
                         {% else %}
                             <button class="redButton", onclick = "jobEnable({{ job['id'] }}, true )"">inactive</button>
                         {% endif %}
 
-                        <nobr>{{ job['name'] }}: </nobr>
 
-                        <nobr>every </nobr>
-                        {% if 'every' in job %}
-                            <nobr>{{ job['every'] }} {{ job['unit'] }}</nobr>
-                        {% else %}
-                            <nobr> {{ job['unit'] }} </nobr>
-                        {% endif %}
+                        <div class="jobText">
+                            <nobr>every </nobr>
+                            {% if 'every' in job %}
+                                <nobr>{{ job['every'] }} {{ job['unit'] }}</nobr>
+                            {% else %}
+                                <nobr> {{ job['unit'] }} </nobr>
+                            {% endif %}
 
-                        {% if 'at' in job %}
-                            <nobr>at {{ job['at'] }} => </nobr>
-                        {% endif %}
+                            {% if 'at' in job %}
+                                <nobr>at {{ job['at'] }} </nobr>
+                            {% endif %}
 
-                        {% set do = job['do'] %}
-                        {% set type = do['type'] %}
-                        {% set data = do['data'] %}
 
-                        {% if type == "press" %}
-                        <nobr>switch channel:{{ data['channel'] }} {{'on' if data['value'] else 'off' }}</nobr>
-                        {% else %}
-                            <nobr>Unrecognized Job Type: {{ type }}</nobr>
-                        {% endif %}
+                            {% set do = job['do'] %}
+                            {% set type = do['type'] %}
+                            {% set data = do['data'] %}
+
+                            <br/>
+                            <nobr>=> </nobr>
+                            {% if type == "press" %}
+                            <nobr>switch channel:{{ data['channel'] }} {{'on' if data['value'] else 'off' }}</nobr>
+                            {% else %}
+                                <nobr>Unrecognized Job Type: {{ type }}</nobr>
+                            {% endif %}
+                        </div>
+
+
                             
 
                     </div>
                 </li>
             {% endfor %}
         </ul>
-    </div>
 
     <h3>New Job:</h3>
 
-    <div class="indent">
         <form id="jobForm">
             <section>
                 <div class="formDiv">
@@ -255,7 +252,5 @@
             <br style="clear:both;" />
 
         </form>
-    </div>
-
   </body>
 </html>

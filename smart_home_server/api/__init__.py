@@ -5,6 +5,7 @@ from flask_expects_json import expects_json
 import smart_home_server.constants as const
 from smart_home_server.threads.scheduler import addJob, removeJob, getJobs, enableDisableJob
 from smart_home_server.threads.presser import presserAppend
+from smart_home_server.helpers import getAtTime, addDefault
 
 api = Blueprint('api', __name__)
 
@@ -15,6 +16,7 @@ remotePressSchema = \
         "channel": { "type": "integer", "minimum": 0, "maximum": len(const.txChannels)-1}, # defaults to 0
         "value": { "type": "boolean" } # defaults to True
     },
+    'additionalProperties': False,
 }
 
 remoteSchema = \
@@ -27,7 +29,8 @@ remoteSchema = \
             "items": remotePressSchema
         }
     },
-    "required": ["presses"]
+    "required": ["presses"],
+    'additionalProperties': False,
 }
 
 @api.route('/api/remote', methods=['POST'])
@@ -36,8 +39,8 @@ def changeLights():
     presses = json.loads(request.data)['presses']
 
     for press in presses:
-        press['channel'] = 0 if 'channel' not in press else press['channel']
-        press['value'] = True if 'value' not in press else press['value']
+        addDefault(press, 'channel', 0)
+        addDefault(press, 'value', True)
         presserAppend(press)
 
     return current_app.response_class(status=200)
@@ -69,7 +72,8 @@ remotePressAction = \
         "type": {"const":"press"}, 
         "data": remotePressSchema,
     },
-    "required": ["type", "data"]
+    "required": ["type", "data"],
+    'additionalProperties': False,
 }
 
 postJobSchema = \
@@ -80,33 +84,49 @@ postJobSchema = \
         #"id":        {"type": "string"},
         "enabled":   {"type": "boolean"}, # defaults to True
         "every":     {"type": "integer"},
-        "unit":      {"enum": ["second", "seconds", "minute", "minutes", "hour", "hours", "day", "days", "week", "weeks",
+        "unit":      {"enum": ["second", "minute", "hour", "day", "week",
                                "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
                      ]},
-        "at":        {"type": "string"},
+        #"at":        {"type": "string"},
+        "atSeconds": {"type": "integer", "minimum": 0, "maximum": 59},
+        "atMinutes": {"type": "integer", "minimum": 0, "maximum": 59},
+        "atHours":   {"type": "integer", "minimum": 0, "maximum": 23},
+
         "do": {
             "oneOf": [remotePressAction]},
     },
-    "required": ['name', "unit", 'do']
+    "required": ['name', "unit", 'do'],
+    'additionalProperties': False,
 }
+
 
 @api.route('/api/schedule', methods=['POST'])
 @expects_json(postJobSchema, check_formats=True)
 def postJob():
-    print("here")
     scheduledJob = json.loads(request.data)
-    scheduledJob['enabled'] = True if 'enabled' not in scheduledJob else scheduledJob['enabled']
+
+    addDefault(scheduledJob, 'enabled', True)
+
+    atTime = getAtTime(scheduledJob)
+    if atTime is not None:
+        scheduledJob['at'] = atTime
+
+    scheduledJob.pop('atHours', None)
+    scheduledJob.pop('atMinutes', None)
+    scheduledJob.pop('atSeconds', None)
+
     addJob(scheduledJob)
     return current_app.response_class(status=200)
 
 
 deleteJobSchema = \
 {
-        "type": "object",
-        "properties": {
-            "id": {"type": "string"}
-        },
-        "required": ["id"]
+    "type": "object",
+    "properties": {
+        "id": {"type": "string"}
+    },
+    "required": ["id"],
+    'additionalProperties': False,
 }
 
 @api.route('/api/schedule/jobs', methods=['DELETE'])
@@ -130,14 +150,15 @@ enableJobSchema = \
         "id": {"type": "string"},
         "enable": {"type": "boolean"} # defaults to True
     },
-    "required": ['id']
+    "required": ['id'],
+    'additionalProperties': False,
 }
 
 @api.route('/api/schedule/jobs/enable', methods=['PUT'])
 @expects_json(enableJobSchema)
 def enableJob():
     data = json.loads(request.data)
-    data['enable'] = True if 'enable' not in data else data['enable']
+    addDefault(data, 'enabled', True)
     enableDisableJob(data['id'], data['enable'])
     return current_app.response_class(status=200)
 
