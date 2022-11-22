@@ -1,9 +1,10 @@
 import json
 from flask import jsonify, request, Blueprint, current_app
 from flask_expects_json import expects_json
+import copy
 
 import smart_home_server.constants as const
-from smart_home_server.threads.scheduler import addJob, removeJob, getJobs, enableDisableJob
+from smart_home_server.threads.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJob, getJob
 from smart_home_server.threads.presser import presserAppend
 from smart_home_server.helpers import getAtTime, addDefault
 
@@ -146,6 +147,33 @@ def deleteJob():
     removeJob(id)
     return current_app.response_class(status=200)
 
+
+# currently only updates name
+patchJobSchema = \
+{
+    "type": "object",
+    "properties":{
+        "id":        {"type": "string"},
+        "name":      {"type": "string"},
+    },
+    "required": ['id', 'name'],
+    'additionalProperties': False,
+}
+@api.route('/api/schedule/jobs', methods=['PATCH'])
+@expects_json(patchJobSchema)
+def patchJob():
+    id = json.loads(request.data)['id']
+    name = json.loads(request.data)['name']
+
+    oldJob = getJob(id)
+    newJob = copy.deepcopy(oldJob)
+
+    assert newJob is not None
+
+    newJob['name'] = name
+
+    updateJob(id, newJob)
+    return current_app.response_class(status=200)
 
 @api.route('/api/schedule/jobs', methods=['GET'])
 def GetJobs():

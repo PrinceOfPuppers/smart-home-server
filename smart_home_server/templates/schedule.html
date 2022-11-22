@@ -12,7 +12,6 @@
         sendData('api/schedule/jobs/enable', data, 'POST', reload=true);
     }
     function jobDelete(jobId){
-        console.log("testing123");
         var data = {'id': jobId};
         sendData('api/schedule/jobs', data, 'DELETE', reload=true);
     }
@@ -48,8 +47,6 @@
         if ('atMinutes' in data){data.atMinutes = Number(data.atMinutes);}
         if ('atSeconds' in data){data.atSeconds = Number(data.atSeconds);}
         if ('every' in data){data.every = Number(data.every);}
-
-        console.log(data);
 
         sendData('api/schedule', data, 'POST', reload=true);
     }
@@ -115,6 +112,24 @@
         }
     }
 
+    function updateJobName(jobId, jobName){
+        const newName = window.prompt("Edit Name:", jobName);
+
+        if (newName == null || newName == undefined){
+            return;
+        }
+
+        if(newName.length > 20){
+            window.alert(`Name Too Long:\n  max length: 20 \n  current length: ${newName.length}`);
+            updateJobName(jobId, newName);
+            return;
+        }
+
+        var data = {'id': jobId, 'name': newName};
+
+        sendData('api/schedule/jobs', data, 'PATCH', reload=true);
+    }
+
     window.onload = () => {
         document.getElementById('jobForm').addEventListener('submit', submitJobHandler);
 
@@ -146,29 +161,31 @@
             {% endif %}
 
             {% for job in jobs %}
+                {% set jobId = job['id'] %}
+                {% set jobName = job['name'] %}
                 <li>
                     <div class="job">
-                        <button class="redButton", onclick = "jobDelete('{{ job['id'] }}')"">X</button>
+                        <button class="redButton", onclick = "jobDelete('{{ jobId }}')"">X</button>
 
-                        <button class="blueButton">{{ job['name'] }}</button>
+                        <button class="blueButton" onclick="updateJobName( '{{ jobId }}', '{{ jobName }}' )">{{ jobName }}</button>
 
                         {% if job['enabled'] %}
-                            <button class="greenButton", onclick = "jobEnable('{{ job['id'] }}', false )"">active</button>
+                            <button class="greenButton", onclick = "jobEnable('{{ jobId }}', false )"">active</button>
                         {% else %}
-                            <button class="redButton", onclick = "jobEnable('{{ job['id'] }}', true )"">inactive</button>
+                            <button class="redButton", onclick = "jobEnable('{{ jobId }}', true )"">inactive</button>
                         {% endif %}
 
 
                         <div class="jobText">
-                            <nobr>every </nobr>
+                            <span class="nobr">every </span>
                             {% if 'every' in job %}
-                                <nobr>{{ job['every'] }} {{ job['unit'] }}</nobr>
+                                <span class="nobr">{{ job['every'] }} {{ job['unit'] }}</span>
                             {% else %}
-                                <nobr> {{ job['unit'] }} </nobr>
+                                <span class="nobr"> {{ job['unit'] }} </span>
                             {% endif %}
 
                             {% if 'at' in job %}
-                                <nobr>at {{ job['at'] }} </nobr>
+                                <span class="nobr">at {{ job['at'] }} </span>
                             {% endif %}
 
 
@@ -177,11 +194,11 @@
                             {% set data = do['data'] %}
 
                             <br/>
-                            <nobr>=> </nobr>
+                            <span class="nobr">→ </span>
                             {% if type == "press" %}
-                            <nobr>switch channel:{{ data['channel'] }} {{'on' if data['value'] else 'off' }}</nobr>
+                            <span class="nobr">switch channel:{{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
                             {% else %}
-                                <nobr>Unrecognized Job Type: {{ type }}</nobr>
+                                <span class="nobr">Unrecognized Job Type: {{ type }}</span>
                             {% endif %}
                         </div>
 
@@ -199,7 +216,7 @@
             <section>
                 <div class="formDiv">
                     <label for="jobName">Job Name:</label>
-                    <input type="text" id="jobName" name="name" required>
+                    <input type="text" id="jobName" name="name" maxLength = "20" required>
                 </div>
             <section>
 

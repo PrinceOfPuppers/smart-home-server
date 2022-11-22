@@ -54,6 +54,7 @@ def getJobs():
     for j in schedule.get_jobs():
         assert j.job_func is not None
         jobs.append(j.job_func.args[0])
+    jobs.sort(key = lambda element: element['name'])
     return jobs
 
 def enableDisableJob(id: str, enable:bool):
