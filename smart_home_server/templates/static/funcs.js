@@ -1,11 +1,11 @@
 function sendData(url, data, httpMethod, reload=false){
     fetch(url, {
-    method: httpMethod,
-    headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
+        method: httpMethod,
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
     })
     .then((response) => {
         if(!response.ok){
@@ -17,6 +17,7 @@ function sendData(url, data, httpMethod, reload=false){
         }
     })
 }
+
 
 function formToObject(form){
     let formData = new FormData(form)

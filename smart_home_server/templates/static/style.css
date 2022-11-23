@@ -12,6 +12,7 @@
     --yellow: #E6DB74;
     --orange: #FD971F;
     }
+
     * {
     }
     html {
@@ -82,6 +83,28 @@
     .redButton {
         color: var(--red);
         border-color: var(--red);
+    }
+
+    .purpleButton {
+        color: var(--purple);
+        border-color: var(--purple);
+    }
+
+    .whiteButton {
+        color: var(--white);
+        border-color: var(--white);
+    }
+    .yellowButton {
+        color: var(--yellow);
+        border-color: var(--yellow);
+    }
+    .orangeButton {
+        color: var(--orange);
+        border-color: var(--orange);
+    }
+    .grayButton {
+        color: var(--lightGrey);
+        border-color: var(--lightGrey);
     }
 
     ul{
@@ -187,6 +210,26 @@
             color: var(--darkGrey);
             background-color: var(--red);
         }
+        .purpleButton:hover {
+            color: var(--darkGrey);
+            background-color: var(--purple);
+        }
+        .whiteButton:hover {
+            color: var(--darkGrey);
+            background-color: var(--white);
+        }
+        .yellowButton:hover {
+            color: var(--darkGrey);
+            background-color: var(--yellow);
+        }
+        .orangeButton:hover {
+            color: var(--darkGrey);
+            background-color: var(--orange);
+        }
+        .grayButton:hover {
+            color: var(--darkGrey);
+            background-color: var(--lightGrey);
+        }
 
         ul.remote > li:hover {
         }
@@ -196,3 +239,35 @@
           color: var(--darkGrey);
         }
     }
+
+.dashboardList {
+  display: flex;
+  flex-wrap: wrap;
+  width:fit-content;
+  max-width:90vw;
+  /*gap: 6px*/
+}
+
+.dashboardList div {
+    width: fit-content;
+    border: 2pt solid var(--lightGrey);
+    border-radius: 4px;
+    background-color: var(--grey);
+    padding:5pt;
+    height: fit-content;
+    /*margin-bottom:15pt;*/
+    margin:5pt;
+}
+
+.dashboardList div p{
+    border: 2pt solid var(--lightGrey);
+    background-color: var(--darkGrey);
+    padding:5pt;
+
+    margin:0;
+    margin-top:5pt;
+
+    border-radius: 4px;
+    white-space: pre-wrap;
+    font-family: monospace, monospace;
+}

@@ -7,10 +7,12 @@ import smart_home_server.constants as const
 
 from smart_home_server.api.schedule import scheduleApi
 from smart_home_server.api.remote import remoteApi
+from smart_home_server.api.dashboard import dashboardApi
 
 app = Flask(__name__)
 app.register_blueprint(scheduleApi)
 app.register_blueprint(remoteApi)
+app.register_blueprint(dashboardApi)
 
 @app.route('/<path:path>')
 def send_templates(path):
@@ -27,7 +29,7 @@ def scheduleGet():
 
 @app.route('/dashboard')
 def dashboardGet():
-    return render_template('dashboard.html', dashboardElements=const.dashboardElements)
+    return render_template('dashboard.html', dashboardElements=[element for element in const.dashboardElements if element['enabled']])
 
 
 def startServer():

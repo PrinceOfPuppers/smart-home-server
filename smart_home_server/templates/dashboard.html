@@ -4,9 +4,79 @@
 <script type="text/javascript" src="funcs.js"></script>
 
 <html>
-<script>
-</script>
 
+<script>
+    const delay = s => new Promise(res => setTimeout(res, 1000*s));
+
+    function updateDashboardElement(element, url){
+        fetch(url, {method: "GET"})
+        .then((response) => {
+            if(!response.ok){
+                window.alert(`Dashboard Update Error \nStatus: ${response.status} \n${response.statusText}`);
+                return;
+            }
+            //element.textContent = response.body;
+            response.text().then((text)=>{element.textContent = text});
+        })
+    }
+
+    async function pollDashboardElement(name, url, pollingPeriod){
+        const element = document.getElementById(`dashboard-${name}`);
+        const button = document.getElementById(`dashboardButton-${name}`)
+        button.onclick = () => {
+            element.textContent = "";
+            updateDashboardElement(element, url);
+        };
+        var cond = true;
+        while(cond){
+            updateDashboardElement(element, url);
+            await delay(sec);
+        }
+    }
+
+    const days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
+    const months = ['Jan','Feb','Mar','Apr','May','June','July','Aug','Sept','Oct','Nov','Dec']
+
+    function getTime(){
+        var dt = new Date();
+        const dayName = days[dt.getDay()];
+        const monthName = months[dt.getMonth()];
+        //const year = dt.getFullYear();
+        const date = dt.getDate();
+
+        const hours = dt.getHours()
+        const hoursStr   = String(hours%12).padStart(2,'0');
+        const minutesStr = String(dt.getMinutes()).padStart(2,'0');
+        const secondsStr = String(dt.getSeconds()).padStart(2,'0');
+        const ampm    = Math.floor(hours/12) == 0 ? 'AM' : 'PM';
+
+        const time    = `${hoursStr}:${minutesStr}:${secondsStr} ${ampm}`
+
+        return `${dayName}, ${monthName} ${date} \n${time}`;
+    }
+
+    async function clock(name){
+        const element = document.getElementById(`dashboard-${name}`);
+        const button = document.getElementById(`dashboardButton-${name}`)
+
+        button.onclick = () => {
+            element.textContent=getTime();
+        };
+
+        var cond = true;
+        while(cond){
+            element.textContent=getTime();
+            await delay(1);
+        }
+    }
+
+    window.onload = () => {
+        clock('clock');
+        {% for element in dashboardElements %}
+            pollDashboardElement("{{ element['name'] }}", "{{ element['url'] }}", {{ element['pollingPeriod'] }});
+        {% endfor %}
+    }
+</script>
 
 <body>
     <div class="topnav">
@@ -14,6 +84,21 @@
         <a href="/remote">Remote</a>
         <a href="/schedule">Schedule</a>
     </div> 
-    <center class="faintText" style="padding:10pt;padding-top:14pt">WIP</center>
+
+    <div class="dashboardList">
+        <div>
+            <button id="dashboardButton-clock" class="orangeButton" onclick="">Clock</button>
+            <p id="dashboard-clock"></p>
+        </div>
+        {% for element in dashboardElements %}
+            {% set name          = element['name'] %}
+            {% set color         = element['color'] %}
+            {% set url           = element['url'] %}
+            {% set pollingPeriod = element['pollingPeriod'] %}
+            <div>
+                <button class="{{ color }}Button" id="dashboardButton-{{ name }}">{{ name }}</button>
+                <p id="dashboard-{{ name }}"></p>
+            </div>
+        {% endfor %}
   </body>
 </html>

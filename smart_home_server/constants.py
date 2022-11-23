@@ -1,6 +1,7 @@
 from ntpath import dirname
 from collections import namedtuple
 import os
+import re
 
 def createIfNotExists(dir):
     if not os.path.exists(dir):
@@ -44,6 +45,7 @@ txChannels = [
 #seconds
 threadPollingPeriod = 1
 
+
 _isRpi = None
 def isRpi():
     global _isRpi
@@ -57,30 +59,38 @@ def isRpi():
             if 'raspberry pi' in m.read().lower(): 
                 _isRpi = True
     return _isRpi
-    
 
 
-{
-    'name': 'Humidity',
-    'url': '',
-    'pollingPeriod': 1*60,
-},
-{
-    'name': 'Temprature',
-    'url': '',
-    'pollingPeriod': 1*60,
-}
+_city = "Waterloo+Canada"
+forcastUrl = f'http://wttr.in/{_city}?TQ3n'
+weatherUrl = f'http://wttr.in/{_city}?TQ0n'
 
+# colors are blue, green, red, purple, yellow, orange, white, gray
 dashboardElements = [
     {
-        'name': 'Weather',
-        'url': '',
+        'name': 'USD → CAD',
+        'enabled':True,
+        'color': 'green',
+        'url': 'api/dashboard/forex?from=usd&to=cad',
         'pollingPeriod': 5*60,
     },
     {
-        'name': 'USD -> CAD',
-        'url': '',
-        'pollingPeriod': 2*60,
-    }
+        'name': 'Weather',
+        'enabled':True,
+        'color': 'blue',
+        'url': f'api/dashboard/weather',
+        'pollingPeriod': 10*60,
+    },
+    {
+        'name': 'Forcast',
+        'enabled': False,
+        'color': 'blue',
+        'url': f'api/dashboard/forcast',
+        'pollingPeriod': 10*60,
+    },
 ]
+
+#google scraping for dashboard
+googleExchangeRateDiv = re.compile(r"<div[^>]+data-exchange-rate\s?=\s?[\"\'](.*?)[\"\'][^>]?>")
+fakeUserAgentHeaders = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0"}
 

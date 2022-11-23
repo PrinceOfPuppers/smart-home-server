@@ -1,4 +1,7 @@
 from queue import Queue
+import requests
+
+import smart_home_server.constants as const
 
 def clearQueue(q: Queue):
     with q.mutex:
@@ -48,5 +51,17 @@ def getAtTime(scheduledJob:dict):
     if hasSeconds or hasMinutes or hasHours:
         return s
     return None
+
+
+def getExchangeRate(src,dest, decimal=3):
+    r = requests.get(f'https://www.google.com/search?q={src}+to+{dest}', headers=const.fakeUserAgentHeaders)
+    if not r.ok:
+        return None
+    x = const.googleExchangeRateDiv.search(r.text)
+    if not x:
+        return None
+    
+    res = x.group(1)
+    return str(round(float(res),decimal))
 
 
