@@ -3,7 +3,7 @@ from flask import request, Blueprint, current_app
 from flask_expects_json import expects_json
 import requests
 
-from smart_home_server.helpers import addDefault, getExchangeRate
+from smart_home_server.helpers import addDefault, getExchangeRate, getForecastStr
 import smart_home_server.constants as const
 
 
@@ -28,12 +28,20 @@ def wttrIn(url, stripHead, stripTail):
     else:
         None
 
-@dashboardApi.route('/api/dashboard/forcast', methods=['GET'])
-def getForcast():
-    t = wttrIn(const.forcastUrl, 0, -3)
+@dashboardApi.route('/api/dashboard/large-forecast', methods=['GET'])
+def getLargeForecast():
+    t = wttrIn(const.forecastUrl, 0, -3)
     if t is None:
-        return current_app.response_class(f"Error Getting Forcast", status=400, mimetype="text/plain")
+        return current_app.response_class(f"Error Getting Forecast", status=400, mimetype="text/plain")
     return current_app.response_class(t, status=200, mimetype="text/plain")
+
+@dashboardApi.route('/api/dashboard/forecast', methods=['GET'])
+def getForecast():
+    t = getForecastStr(const.wttrApiUrl)
+    if t is None:
+        return current_app.response_class(f"Error Getting Forecast", status=400, mimetype="text/plain")
+    return current_app.response_class(t, status=200, mimetype="text/plain")
+
 
 
 @dashboardApi.route('/api/dashboard/weather', methods=['GET'])

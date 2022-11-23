@@ -12,8 +12,17 @@
     --yellow: #E6DB74;
     --orange: #FD971F;
     }
+    @font-face {
+      font-family: "Noto-Color-Mono";
+      src: url('NotoColorEmoji-Regular.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: "Noto-Sans-Mono";
+      src: url('NotoSansMono-Regular.ttf') format('truetype');
+    }
 
     * {
+      font-family: Noto-Sans-Mono;
     }
     html {
         background-color: var(--darkGrey);
@@ -269,5 +278,6 @@
 
     border-radius: 4px;
     white-space: pre-wrap;
-    font-family: monospace, monospace;
+    font-family: Noto-Sans-Mono, Noto-Color-Mono;
+    font-size:11pt;
 }

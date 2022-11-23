@@ -62,7 +62,8 @@ def isRpi():
 
 
 _city = "Waterloo+Canada"
-forcastUrl = f'http://wttr.in/{_city}?TQ3n'
+forecastUrl = f'http://wttr.in/{_city}?TQ3n'
+wttrApiUrl = f'http://wttr.in/{_city}?format=j1'
 weatherUrl = f'http://wttr.in/{_city}?TQ0n'
 
 # colors are blue, green, red, purple, yellow, orange, white, gray
@@ -76,16 +77,23 @@ dashboardElements = [
     },
     {
         'name': 'Weather',
-        'enabled':True,
+        'enabled':False,
         'color': 'blue',
         'url': f'api/dashboard/weather',
         'pollingPeriod': 10*60,
     },
     {
-        'name': 'Forcast',
+        'name': 'Forecast',
+        'enabled': True,
+        'color': 'blue',
+        'url': f'api/dashboard/forecast',
+        'pollingPeriod': 10*60,
+    },
+    {
+        'name': 'Large-Forecast',
         'enabled': False,
         'color': 'blue',
-        'url': f'api/dashboard/forcast',
+        'url': f'api/dashboard/large-forecast',
         'pollingPeriod': 10*60,
     },
 ]
