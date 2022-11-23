@@ -5,10 +5,12 @@ from smart_home_server.threads.presser import startPresser, stopPresser, joinPre
 from smart_home_server import InterruptTriggered
 import smart_home_server.constants as const
 
-from smart_home_server.api import api
+from smart_home_server.api.schedule import scheduleApi
+from smart_home_server.api.remote import remoteApi
 
 app = Flask(__name__)
-app.register_blueprint(api)
+app.register_blueprint(scheduleApi)
+app.register_blueprint(remoteApi)
 
 @app.route('/<path:path>')
 def send_templates(path):
@@ -25,7 +27,7 @@ def scheduleGet():
 
 @app.route('/dashboard')
 def dashboardGet():
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', dashboardElements=const.dashboardElements)
 
 
 def startServer():
@@ -35,6 +37,8 @@ def startServer():
         startScheduler()
         app.run(host='0.0.0.0', port=5000)
     except InterruptTriggered:
+        pass
+    finally:
         stopPresser()
         stopScheduler()
         joinPresser()

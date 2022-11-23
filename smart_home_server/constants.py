@@ -42,7 +42,7 @@ txChannels = [
 ]
 
 #seconds
-pollingPeriod = 1
+threadPollingPeriod = 1
 
 _isRpi = None
 def isRpi():
@@ -58,3 +58,29 @@ def isRpi():
                 _isRpi = True
     return _isRpi
     
+
+
+{
+    'name': 'Humidity',
+    'url': '',
+    'pollingPeriod': 1*60,
+},
+{
+    'name': 'Temprature',
+    'url': '',
+    'pollingPeriod': 1*60,
+}
+
+dashboardElements = [
+    {
+        'name': 'Weather',
+        'url': '',
+        'pollingPeriod': 5*60,
+    },
+    {
+        'name': 'USD -> CAD',
+        'url': '',
+        'pollingPeriod': 2*60,
+    }
+]
+

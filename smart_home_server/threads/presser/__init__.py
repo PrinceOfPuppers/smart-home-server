@@ -33,7 +33,7 @@ def _presserLoop():
     while _presserLoopCondition:
         try:
             try:
-                press = _pressQueue.get(block=True, timeout = const.pollingPeriod)
+                press = _pressQueue.get(block=True, timeout = const.threadPollingPeriod)
             except Empty:
                 continue
             for _ in range(const.pressRepeats+1):
