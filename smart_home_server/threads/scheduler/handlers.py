@@ -90,6 +90,8 @@ def _removeJob(id: str):
     if os.path.exists(path):
         os.remove(path)
 
+    if len(schedule.get_jobs(id)) == 0:
+        return
     schedule.clear(id)
 
 def _updateJob(id: str, newScheduledJob:dict):

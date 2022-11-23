@@ -62,9 +62,11 @@ def isRpi():
 
 
 _city = "Waterloo+Canada"
-forecastUrl = f'http://wttr.in/{_city}?TQ3n'
-wttrApiUrl = f'http://wttr.in/{_city}?format=j1'
-weatherUrl = f'http://wttr.in/{_city}?TQ0n'
+fullForecastUrl   = f'http://wttr.in/{_city}'
+fullforecastUrlV2 = f'http://v2d.wttr.in/{_city}'
+forecastUrl       = f'http://wttr.in/{_city}?TQ3n'
+wttrApiUrl        = f'http://wttr.in/{_city}?format=j1'
+weatherUrl        = f'http://wttr.in/{_city}?TQ0n'
 
 # colors are blue, green, red, purple, yellow, orange, white, gray
 dashboardElements = [

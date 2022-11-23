@@ -26,7 +26,7 @@ postJobSchema = \
 {
     "type": "object",
     "properties":{
-        "name":      {"type": "string"},
+        "name":      {"type": "string", "minLength": 1, "maxLength": 30},
         #"id":        {"type": "string"},
         "enabled":   {"type": "boolean"}, # defaults to True
         "every":     {"type": "integer"},
@@ -98,7 +98,7 @@ patchJobSchema = \
     "type": "object",
     "properties":{
         "id":        {"type": "string"},
-        "name":      {"type": "string"},
+        "name":      {"type": "string", "minLength": 1, "maxLength": 30},
     },
     "required": ['id', 'name'],
     'additionalProperties': False,
@@ -110,9 +110,13 @@ def patchJob():
     name = json.loads(request.data)['name']
 
     oldJob = getJob(id)
-    newJob = copy.deepcopy(oldJob)
+    if oldJob is None:
+        return current_app.response_class(f"ID: {id} Does Not Exist", status=400)
 
-    assert newJob is not None
+    if oldJob['name'] == name:
+        return current_app.response_class(status=200)
+
+    newJob = copy.deepcopy(oldJob)
 
     newJob['name'] = name
 
@@ -144,6 +148,3 @@ def enableJob():
     enableDisableJob(data['id'], data['enable'])
     return current_app.response_class(status=200)
 
-@scheduleApi.route('/api/test', methods=['GET'])
-def test():
-    return jsonify({"hi": "there"})

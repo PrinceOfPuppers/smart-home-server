@@ -186,5 +186,5 @@ def getForecastStr(url):
         s += "─┴───────────────────────────────"
         days.append(s)
 
-    return '\n\n'.join(days) + "\n(H)our, (I)con, (T)emp, (P)recip"
+    return '\n\n'.join(days) + f"\n(H)our, (I)con, (T)emp, (P)recip"#\n{const.fullForcastUrl}\n{const.forecastUrlV2}"
 
