@@ -22,7 +22,8 @@
 
     async function pollDashboardElement(name, url, pollingPeriod){
         const element = document.getElementById(`dashboard-${name}`);
-        const button = document.getElementById(`dashboardButton-${name}`)
+        const button = document.getElementById(`dashboardButton-${name}`);
+        const sec = pollingPeriod*1000;
         button.onclick = () => {
             element.textContent = "";
             updateDashboardElement(element, url);
@@ -57,7 +58,7 @@
 
     async function clock(name){
         const element = document.getElementById(`dashboard-${name}`);
-        const button = document.getElementById(`dashboardButton-${name}`)
+        const button = document.getElementById(`dashboardButton-${name}`);
 
         button.onclick = () => {
             element.textContent=getTime();
@@ -70,8 +71,48 @@
         }
     }
 
+    function editLCD(name){
+        const element = document.getElementById(`dashboard-${name}`);
+        const text = element.textContent;
+        const lines = text.split('\n')
+        oldLine1 = lines.length > 0 ? lines[0] : ""
+        oldLine2 = lines.length > 1 ? lines[1] : ""
+
+        const line1 = window.prompt("LCD Line 1:", oldLine1);
+        if(line1 === null){
+            return;
+        }
+        const line2 = window.prompt("LCD Line 2:", oldLine2);
+
+        var data = {'line1': line1};
+        var newText = line1;
+        if(line2 !== null){
+            data['line2'] = line2;
+            newText += '\n' + line2;
+        }
+
+        sendData('api/dashboard/lcd', data, 'POST');
+        element.textContent = newText;
+    }
+    function lcdFmtCheatSheet(){
+        window.alert("\nFMT Cheat Sheet: \n  {clock}, {date}, {humid}, {temp}\n  {space} (adaptive gap filling)\n  {src->dest} (currencies)\n  {wttr[Temp|Humid|Text|UV|Percip|FeelsLike]}");
+    }
+    function getLCD(name){
+        const element = document.getElementById(`dashboard-${name}`);
+        fetch('api/dashboard/lcd', {method: "GET"})
+        .then((response) => {
+            if(!response.ok){
+                window.alert(`Dashboard LCD Update Error \nStatus: ${response.status} \n${response.statusText}`);
+                return;
+            }
+            //element.textContent = response.body;
+            response.text().then((text)=>{element.textContent = text});
+        })
+    }
+
     window.onload = () => {
         clock('clock');
+        getLCD('LCD')
         {% for element in dashboardElements %}
             pollDashboardElement("{{ element['name'] }}", "{{ element['url'] }}", {{ element['pollingPeriod'] }});
         {% endfor %}
@@ -100,5 +141,10 @@
                 <p id="dashboard-{{ name }}"></p>
             </div>
         {% endfor %}
+        <div>
+            <button id="dashboardButton-LCD" class="purpleButton" onclick="editLCD('LCD')">LCD (edit)</button>
+            <button class="purpleButton" onclick="lcdFmtCheatSheet()">?</button>
+            <p id="dashboard-LCD"></p>
+        </div>
   </body>
 </html>

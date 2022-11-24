@@ -2,6 +2,7 @@ from flask import Flask, send_from_directory, render_template
 
 from smart_home_server.threads.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
 from smart_home_server.threads.presser import startPresser, stopPresser, joinPresser
+from smart_home_server.threads.lcd import stopLCD, joinLCD, startUpdateLCD
 from smart_home_server import InterruptTriggered
 import smart_home_server.constants as const
 
@@ -37,14 +38,17 @@ def startServer():
     try:
         startPresser()
         startScheduler()
+        startUpdateLCD(fromFile=True)
         app.run(host='0.0.0.0', port=5000)
     except InterruptTriggered:
         pass
     finally:
         stopPresser()
         stopScheduler()
+        stopLCD()
         joinPresser()
         joinScheduler()
+        joinLCD()
 
 if __name__ == '__main__':
     startServer()

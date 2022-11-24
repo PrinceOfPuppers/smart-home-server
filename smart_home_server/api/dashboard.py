@@ -3,6 +3,7 @@ from flask import request, Blueprint, current_app
 from flask_expects_json import expects_json
 import requests
 
+from smart_home_server.threads.lcd import startUpdateLCD, getLCDFMT
 from smart_home_server.helpers import addDefault, getExchangeRate, getForecastStr
 import smart_home_server.constants as const
 
@@ -50,4 +51,36 @@ def getWeather():
     if t is None:
         return current_app.response_class(f"Error Getting Weather", status=400, mimetype="text/plain")
     return current_app.response_class(t, status=200, mimetype="text/plain")
+
+postLCDSchema = \
+{
+    "type": "object",
+    "properties": {
+        "line1":      {"type": "string", "minLength": 0, "maxLength": 70},
+        "line2":      {"type": "string", "minLength": 0, "maxLength": 70},
+    },
+    "required": ["line1"],
+    'additionalProperties': False,
+}
+
+@dashboardApi.route('/api/dashboard/lcd', methods=['POST'])
+@expects_json(postLCDSchema, check_formats=True)
+def postLCD():
+    data = json.loads(request.data)
+    s = data['line1']
+    if 'line2' in data:
+        s = f'{s}\n{data["line2"]}'
+    try:
+        s.encode('ascii')
+    except UnicodeEncodeError:
+        return current_app.response_class(f"String Must be ASCII", status=400, mimetype="text/plain")
+    startUpdateLCD(s)
+
+    return current_app.response_class(f"", status=200)
+
+
+@dashboardApi.route('/api/dashboard/lcd', methods=['GET'])
+def getLCD():
+    s = getLCDFMT()
+    return current_app.response_class(s, status=200, mimetype="text/plain")
 

@@ -1,5 +1,6 @@
 from queue import Queue
 import requests
+import string
 
 import smart_home_server.constants as const
 
@@ -187,4 +188,5 @@ def getForecastStr(url):
         days.append(s)
 
     return '\n\n'.join(days) + f"\n(H)our, (I)con, (T)emp, (P)recip"#\n{const.fullForcastUrl}\n{const.forecastUrlV2}"
+
 

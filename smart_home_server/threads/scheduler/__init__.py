@@ -83,23 +83,8 @@ def _schedulerLoop():
                 continue
             edit()
         except Exception as e:
-            print(f"Scheduler Exception: \n{e}")
+            print(f"Scheduler Exception: \n{e}", flush=True)
             continue
-
-
-def startScheduler():
-    global _schedulerLoopCondition
-    global _scheduleEditQueue
-    global _schedulerThread
-    if _schedulerLoopCondition:
-        raise Exception("Scheduler Already Running")
-
-    clearQueue(_scheduleEditQueue)
-    loadJobs(clearExisting=True, overwrite=True)
-    _schedulerLoopCondition = True
-    _schedulerThread = Thread(target=_schedulerLoop)
-    _schedulerThread.start()
-    print("scheduler started")
 
 
 def stopScheduler():
@@ -116,4 +101,19 @@ def joinScheduler():
         _schedulerThread.join()
     else:
         _schedulerLoopCondition = False
-    print("scheduler joined")
+
+def startScheduler():
+    global _schedulerLoopCondition
+    global _scheduleEditQueue
+    global _schedulerThread
+    if _schedulerLoopCondition:
+        raise Exception("Scheduler Already Running")
+
+    joinScheduler()
+
+    clearQueue(_scheduleEditQueue)
+    loadJobs(clearExisting=True, overwrite=True)
+    _schedulerLoopCondition = True
+    _schedulerThread = Thread(target=_schedulerLoop)
+    _schedulerThread.start()
+    print("scheduler started")

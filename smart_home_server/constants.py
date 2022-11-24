@@ -7,6 +7,7 @@ def createIfNotExists(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
 
+
 modulePath = dirname(__file__)
 
 pressSpacing = 0.1
@@ -16,6 +17,14 @@ storageFolder = f'{modulePath}/storage'
 createIfNotExists(storageFolder)
 schedulerJobFolder = f'{storageFolder}/jobs'
 createIfNotExists(schedulerJobFolder)
+
+lcdTextFile = f'{storageFolder}/lcd.txt'
+if not os.path.exists(lcdTextFile):
+    with open(lcdTextFile,"w") as f:
+        f.write(
+            "{date} {clock} {space} T:{temp} H:{humid}\n"
+            "{wttrText} T:{wttrTemp} H:{wttrHumid}"
+        )
 
 templatesFolder = f'{modulePath}/templates'
 staticFolder = f'{templatesFolder}/static'

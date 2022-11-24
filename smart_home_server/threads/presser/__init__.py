@@ -41,32 +41,12 @@ def _presserLoop():
                 sleep(const.pressSpacing)
 
         except Exception as e:
-            print(f"Presser Exception: \n{e}")
+            print(f"Presser Exception: \n{e}", flush=True)
             continue
 
 def presserAppend(press):
     global _pressQueue
     _pressQueue.put(press)
-
-def startPresser():
-    global _pressQueue
-    global _presserLoopCondition
-    global _presserThread
-    global _rfdevice
-
-    if const.isRpi():
-        _rfdevice = RFDevice(const.txGpio)
-        _rfdevice.enable_tx()
-
-
-    if _presserLoopCondition:
-        raise Exception("Presser Already Running")
-
-    clearQueue(_pressQueue)
-    _presserLoopCondition = True
-    _presserThread = Thread(target=_presserLoop)
-    _presserThread.start()
-    print("presser started")
 
 def stopPresser():
     global _presserLoopCondition
@@ -87,4 +67,24 @@ def joinPresser():
         _presserThread.join()
     else:
         _presserLoopCondition = False
-    print("presser joined")
+
+def startPresser():
+    global _pressQueue
+    global _presserLoopCondition
+    global _presserThread
+    global _rfdevice
+
+    if const.isRpi():
+        _rfdevice = RFDevice(const.txGpio)
+        _rfdevice.enable_tx()
+
+    if _presserLoopCondition:
+        raise Exception("Presser Already Running")
+
+    joinPresser() # incase its still stopping
+
+    clearQueue(_pressQueue)
+    _presserLoopCondition = True
+    _presserThread = Thread(target=_presserLoop)
+    _presserThread.start()
+    print("presser started")
