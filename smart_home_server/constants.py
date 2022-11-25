@@ -22,8 +22,8 @@ lcdTextFile = f'{storageFolder}/lcd.txt'
 if not os.path.exists(lcdTextFile):
     with open(lcdTextFile,"w") as f:
         f.write(
-            "{date} {clock} {space} T:{temp} H:{humid}\n"
-            "{wttrText} T:{wttrTemp} H:{wttrHumid}"
+            "{clock}{space} {wttrText}\n"
+            "T:{temp}/{wttrTemp} H:{humid}/{wttrHumid}"
         )
 
 templatesFolder = f'{modulePath}/templates'
@@ -84,7 +84,7 @@ dashboardElements = [
         'enabled':True,
         'color': 'green',
         'url': 'api/dashboard/forex?from=usd&to=cad',
-        'pollingPeriod': 5*60,
+        'pollingPeriod': 5,
     },
     {
         'name': 'Weather',
@@ -113,3 +113,7 @@ dashboardElements = [
 googleExchangeRateDiv = re.compile(r"<div[^>]+data-exchange-rate\s?=\s?[\"\'](.*?)[\"\'][^>]?>")
 fakeUserAgentHeaders = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0"}
 
+
+
+lcdLines = 2
+lcdWidth = 16

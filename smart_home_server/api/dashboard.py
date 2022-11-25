@@ -3,7 +3,7 @@ from flask import request, Blueprint, current_app
 from flask_expects_json import expects_json
 import requests
 
-from smart_home_server.threads.lcd import startUpdateLCD, getLCDFMT
+from smart_home_server.threads.lcd import startUpdateLCD, getLCDFMT, toggleLCDBacklight
 from smart_home_server.helpers import addDefault, getExchangeRate, getForecastStr
 import smart_home_server.constants as const
 
@@ -84,3 +84,7 @@ def getLCD():
     s = getLCDFMT()
     return current_app.response_class(s, status=200, mimetype="text/plain")
 
+@dashboardApi.route('/api/dashboard/lcd/toggle', methods=['POST'])
+def postLCDToggleBacklight():
+    s = toggleLCDBacklight()
+    return current_app.response_class(s, status=200, mimetype="text/plain")

@@ -23,7 +23,6 @@
     async function pollDashboardElement(name, url, pollingPeriod){
         const element = document.getElementById(`dashboard-${name}`);
         const button = document.getElementById(`dashboardButton-${name}`);
-        const sec = pollingPeriod*1000;
         button.onclick = () => {
             element.textContent = "";
             updateDashboardElement(element, url);
@@ -31,7 +30,7 @@
         var cond = true;
         while(cond){
             updateDashboardElement(element, url);
-            await delay(sec);
+            await delay(pollingPeriod);
         }
     }
 
@@ -71,8 +70,8 @@
         }
     }
 
-    function editLCD(name){
-        const element = document.getElementById(`dashboard-${name}`);
+    async function editLCD(){
+        const element = document.getElementById(`dashboard-LCD`);
         const text = element.textContent;
         const lines = text.split('\n')
         oldLine1 = lines.length > 0 ? lines[0] : ""
@@ -91,14 +90,17 @@
             newText += '\n' + line2;
         }
 
-        sendData('api/dashboard/lcd', data, 'POST');
-        element.textContent = newText;
+        ok = await sendData('api/dashboard/lcd', data, 'POST');
+        if(ok){
+            element.textContent = newText;
+        }
     }
     function lcdFmtCheatSheet(){
         window.alert("\nFMT Cheat Sheet: \n  {clock}, {date}, {humid}, {temp}\n  {space} (adaptive gap filling)\n  {src->dest} (currencies)\n  {wttr[Temp|Humid|Text|UV|Percip|FeelsLike]}");
     }
-    function getLCD(name){
-        const element = document.getElementById(`dashboard-${name}`);
+
+    function getLCD(){
+        const element = document.getElementById(`dashboard-LCD`);
         fetch('api/dashboard/lcd', {method: "GET"})
         .then((response) => {
             if(!response.ok){
@@ -110,9 +112,19 @@
         })
     }
 
+    function toggleLCDBacklight(){
+        fetch('api/dashboard/lcd/toggle', {method: "POST"})
+        .then((response) => {
+            if(!response.ok){
+                window.alert(`Dashboard LCD ToggleBacklight Error \nStatus: ${response.status} \n${response.statusText}`);
+                return;
+            }
+        })
+    }
+
     window.onload = () => {
         clock('clock');
-        getLCD('LCD')
+        getLCD()
         {% for element in dashboardElements %}
             pollDashboardElement("{{ element['name'] }}", "{{ element['url'] }}", {{ element['pollingPeriod'] }});
         {% endfor %}
@@ -142,8 +154,10 @@
             </div>
         {% endfor %}
         <div>
-            <button id="dashboardButton-LCD" class="purpleButton" onclick="editLCD('LCD')">LCD (edit)</button>
+            <button id="dashboardButton-LCD" class="purpleButton" onclick="getLCD()">LCD</button>
+            <button id="dashboardButton-LCD-Edit" class="purpleButton" onclick="editLCD()">Edit</button>
             <button class="purpleButton" onclick="lcdFmtCheatSheet()">?</button>
+            <button id="dashboardButton-LCD-Backlight" class="purpleButton" onclick="toggleLCDBacklight()">Backlight</button>
             <p id="dashboard-LCD"></p>
         </div>
   </body>

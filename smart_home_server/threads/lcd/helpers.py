@@ -46,8 +46,8 @@ tempHumidPeriod = 10
 def getTempHumidReplacements(args:set, replacements:dict):
     if args.isdisjoint(tempHumidArgs):
         return False
-    replacements["temp"] = 123
-    replacements["humid"] = 123
+    replacements["temp"] = 40
+    replacements["humid"] = 10
     return True
 
 
@@ -57,7 +57,8 @@ def getClockReplacements(args:set, replacements:dict):
     if args.isdisjoint(clockArgs):
         return False
     now = datetime.now()
-    replacements["clock"] = now.strftime("%I:%M %p")
+    #replacements["clock"] = now.strftime("%I:%M %p")
+    replacements["clock"] = now.strftime("%I:%M")
     replacements["date"] =  now.strftime("%b %-d")
     return True
 
@@ -78,15 +79,20 @@ def getPeriodPairs(args, replacements):
     return list(filter(lambda x: x[0]>0, periods))
 
 spaceFormat = "space"
-def fillSpaces(lines):
-    for i,line in enumerate(lines):
+def fillSpacesAndClamp(lines):
+    res = []
+    for i in range(min(len(lines), const.lcdLines)):
+        line = lines[i]
         size = len(line.format(space=""))
         numSpaces = len(line.format(space=" ")) - size
-        if numSpaces == 0:
-            continue
-        spaceSize = max((16 - size)//numSpaces, 0)
-        lines[i] = line.format(space=" "*spaceSize)
+        if numSpaces != 0:
+            spaceSize = max((const.lcdWidth - size)//numSpaces, 0)
+            line = line.format(space=" "*spaceSize)
 
-    return lines
+        # clamp length
+        line = line if len(line) <= const.lcdWidth else line[0:const.lcdWidth]
+        res.append(line)
+
+    return res
 
 

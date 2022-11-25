@@ -1,5 +1,5 @@
-function sendData(url, data, httpMethod, reload=false){
-    fetch(url, {
+async function sendData(url, data, httpMethod, reload=false){
+    return await fetch(url, {
         method: httpMethod,
         headers: {
             'Accept': 'application/json',
@@ -10,11 +10,13 @@ function sendData(url, data, httpMethod, reload=false){
     .then((response) => {
         if(!response.ok){
             window.alert(`Status: ${response.status}\n${response.statusText}`);
+            return false;
         }
 
         if(reload){
             location.reload();
         }
+        return true;
     })
 }
 

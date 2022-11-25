@@ -5,7 +5,8 @@ from time import sleep
 from threading import Thread
 
 import smart_home_server.constants as const
-from smart_home_server.threads.lcd.helpers import getPeriodPairs, fillSpaces
+from smart_home_server.threads.lcd.helpers import getPeriodPairs, fillSpacesAndClamp
+from smart_home_server.threads.lcd.driver import writeLCD, toggleBacklight
 
 _lcdThread = None
 _lcdLoopCondition = False
@@ -17,18 +18,17 @@ class IgnoreMissingDict(dict):
     def __missing__(self, key):
         return '{' + key + '}'
 
-def writeLCD(fmt, replacements):
+def printfLCD(fmt, replacements):
     text = fmt.format_map(IgnoreMissingDict(replacements))
     lines = text.split('\n')
-    lines = fillSpaces(lines)
+    lines = fillSpacesAndClamp(lines)
     text = '\n'.join(lines)
 
-    # TODO: cutoff lines past 16 char
-    print(text)
+    writeLCD(text)
 
 def _lcdLoop(fmt, args, replacements, periodPairs):
     global _lcdLoopCondition
-    writeLCD(fmt, replacements)
+    printfLCD(fmt, replacements)
     lastUpdate = datetime.now()
 
     while _lcdLoopCondition:
@@ -41,7 +41,7 @@ def _lcdLoop(fmt, args, replacements, periodPairs):
 
                 # update format string
                 func(args,replacements)
-                writeLCD(fmt, replacements)
+                printfLCD(fmt, replacements)
                 lastUpdate = datetime.now()
 
             sleep(1)
@@ -55,7 +55,7 @@ def _startLCD(fmt):
     args = {tup[1] for tup in string.Formatter().parse(fmt) if tup[1] is not None}
 
     if len(args) == 0:
-        writeLCD(fmt, {}) # no updates, static text
+        printfLCD(fmt, {}) # no updates, static text
         return
 
     replacements = {}
@@ -107,3 +107,6 @@ def startUpdateLCD(fmt = "", fromFile = False):
 def getLCDFMT():
     global _fmt
     return _fmt
+
+def toggleLCDBacklight():
+    toggleBacklight()
