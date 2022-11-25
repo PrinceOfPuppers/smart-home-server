@@ -146,14 +146,14 @@ WEATHER_SYMBOL = {
 
 months = ['Jan','Feb','Mar','Apr','May','June','July','Aug','Sept','Oct','Nov','Dec']
 
-def getForecastStr(url):
+def getWttrForecast(url):
     r = requests.get(url)
     if not r.ok:
         return None
 
     j = r.json()
     days = []
-
+    data = {'days': []}
 
     for day in j['weather']:
         date = day['date'].split('-')
@@ -166,7 +166,8 @@ def getForecastStr(url):
         uvIndex = day["uvIndex"]
 
         s = f"{m} {d}: {high}/{average}/{low}℃ - UV:{uvIndex}\n"
-        s += "─┬───────────────────────────────\n"
+
+        s +=  "─┬───────────────────────────────\n"
         l =  ["H│",
               "I│",
               "T│",
@@ -184,9 +185,10 @@ def getForecastStr(url):
             l[3] += mm
 
         s += '\n'.join(l) + '\n'
-        s += "─┴───────────────────────────────"
+        s +=  "─┴───────────────────────────────"
         days.append(s)
+        data['days'].append(day)
 
-    return '\n\n'.join(days) + f"\n(H)our, (I)con, (T)emp, (P)recip"#\n{const.fullForcastUrl}\n{const.forecastUrlV2}"
+    return '\n\n'.join(days) + f"\n(H)our, (I)con, (T)emp, (P)recip", data
 
 

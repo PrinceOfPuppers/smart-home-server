@@ -6,23 +6,12 @@ import copy
 from smart_home_server.threads.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJob, getJob
 from smart_home_server.helpers import getAtTime, addDefault
 
-from smart_home_server.api import remotePressSchema
+from smart_home_server.api import remotePressAction
 
 scheduleApi = Blueprint('scheduleApi', __name__)
 
-remotePressAction = \
-{
-    "type": "object",
-    "properties": {
-        "type": {"const":"press"},
-        "data": remotePressSchema,
-    },
-    "required": ["type", "data"],
-    'additionalProperties': False,
-}
-
 weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-postJobSchema = \
+postScheduledJobSchema = \
 {
     "type": "object",
     "properties":{
@@ -45,7 +34,7 @@ postJobSchema = \
 
 
 @scheduleApi.route('/api/schedule', methods=['POST'])
-@expects_json(postJobSchema, check_formats=True)
+@expects_json(postScheduledJobSchema, check_formats=True)
 def postJob():
     scheduledJob = json.loads(request.data)
 

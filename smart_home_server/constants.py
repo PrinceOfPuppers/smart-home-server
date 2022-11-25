@@ -84,35 +84,30 @@ dashboardElements = [
         'enabled':True,
         'color': 'green',
         'url': 'api/dashboard/forex?from=usd&to=cad',
-        'pollingPeriod': 5*60,
     },
     {
         'name': 'Weather',
         'enabled':False,
         'color': 'blue',
-        'url': f'api/dashboard/weather',
-        'pollingPeriod': 10*60,
+        'url': f'api/dashboard/weatherImage',
     },
     {
         'name': 'Forecast',
         'enabled': True,
         'color': 'blue',
         'url': f'api/dashboard/forecast',
-        'pollingPeriod': 10*60,
     },
     {
         'name': 'Large-Forecast',
         'enabled': False,
         'color': 'blue',
         'url': f'api/dashboard/large-forecast',
-        'pollingPeriod': 10*60,
     },
     {
         'name': 'Indoor Climate',
         'enabled': True,
         'color': 'yellow',
         'url': f'api/dashboard/temp-humid',
-        'pollingPeriod': 31,
     },
 ]
 

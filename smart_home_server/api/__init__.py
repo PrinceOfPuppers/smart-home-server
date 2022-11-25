@@ -9,3 +9,15 @@ remotePressSchema = \
     },
     'additionalProperties': False,
 }
+
+remotePressAction = \
+{
+    "type": "object",
+    "properties": {
+        "type": {"const":"press"},
+        "data": remotePressSchema,
+    },
+    "required": ["type", "data"],
+    'additionalProperties': False,
+}
+

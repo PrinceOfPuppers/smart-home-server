@@ -5,9 +5,18 @@ import requests
 
 from smart_home_server.threads.lcd import startUpdateLCD, getLCDFMT, toggleLCDBacklight
 from smart_home_server.hardware_interfaces.dht22 import getDHT
-from smart_home_server.helpers import addDefault, getExchangeRate, getForecastStr
+from smart_home_server.helpers import addDefault, getExchangeRate, getWttrForecast
 import smart_home_server.constants as const
 
+# return format is 
+#example = {
+#    'data': {
+#        "temp": 123,
+#        "humid": 123
+#    },
+#    'str': f'Temprature: 123 \nHumidity: 123'
+#    'pollingPeriod': 60*10
+#}
 
 dashboardApi = Blueprint('dashboardApi', __name__)
 
@@ -21,7 +30,16 @@ def getForex():
         return current_app.response_class("Error Scraping Exchange Rate", status=500, mimetype="text/plain")
     if exchangeRate is None:
         return current_app.response_class(f"No Exchange Rate Data Found for {src} to {dest}", status=400, mimetype="text/plain")
-    return current_app.response_class(exchangeRate, status=200, mimetype="text/plain")
+    res = {
+        'str': str(exchangeRate),
+        'data': {
+            'src': src,
+            'dest': dest,
+            'rate': exchangeRate,
+        },
+        'pollingPeriod': 5*60,
+    }
+    return jsonify(res)
 
 def wttrIn(url, stripHead, stripTail):
     r = requests.get(url)
@@ -35,23 +53,40 @@ def getLargeForecast():
     t = wttrIn(const.forecastUrl, 0, -3)
     if t is None:
         return current_app.response_class(f"Error Getting Forecast", status=400, mimetype="text/plain")
-    return current_app.response_class(t, status=200, mimetype="text/plain")
+
+    res = {
+        'str': t,
+        'data': {},
+        'pollingPeriod': 10*60
+    }
+    return jsonify(res)
 
 @dashboardApi.route('/api/dashboard/forecast', methods=['GET'])
 def getForecast():
-    t = getForecastStr(const.wttrApiUrl)
+    t = getWttrForecast(const.wttrApiUrl)
     if t is None:
         return current_app.response_class(f"Error Getting Forecast", status=400, mimetype="text/plain")
-    return current_app.response_class(t, status=200, mimetype="text/plain")
+    s, data = t
+    res = {
+        'str': s,
+        'data': data,
+        'pollingPeriod': 10*60
+    }
+    return jsonify(res)
 
 
 
-@dashboardApi.route('/api/dashboard/weather', methods=['GET'])
+@dashboardApi.route('/api/dashboard/weather-image', methods=['GET'])
 def getWeather():
-    t = wttrIn(const.weatherUrl,0,-1)
-    if t is None:
+    s = wttrIn(const.weatherUrl,0,-1)
+    if s is None:
         return current_app.response_class(f"Error Getting Weather", status=400, mimetype="text/plain")
-    return current_app.response_class(t, status=200, mimetype="text/plain")
+    res = {
+        'str': s,
+        'data': {},
+        'pollingPeriod': 10*60,
+    }
+    return jsonify(res)
 
 postLCDSchema = \
 {
@@ -83,7 +118,12 @@ def postLCD():
 @dashboardApi.route('/api/dashboard/lcd', methods=['GET'])
 def getLCD():
     s = getLCDFMT()
-    return current_app.response_class(s, status=200, mimetype="text/plain")
+    res = {
+        'str': s,
+        'data': {},
+        'pollingPeriod': 10*60,
+    }
+    return jsonify(res)
 
 @dashboardApi.route('/api/dashboard/lcd/toggle', methods=['POST'])
 def postLCDToggleBacklight():
@@ -94,8 +134,27 @@ def postLCDToggleBacklight():
 def getTempHumid():
     data = getDHT()
     if data is None:
-        t = f'Temprature: N/A \nHumidity: N/A'
+        s = f'Temprature: N/A \nHumidity: N/A'
+        res = {
+            'str':s,
+            'data':{},
+            'pollingPeriod': 31,
+        }
     else:
-        t = f'Temprature: {data.temp} \nHumidity: {data.humid}'
-    return current_app.response_class(t, status=200, mimetype="text/plain")
+        s = f'Temprature: {data.temp} \nHumidity: {data.humid}'
+        res = {
+            'str':s,
+            'data':{'temp':data.temp, 'humid': data.humid},
+            'pollingPeriod': 31,
+        }
+    return jsonify(res)
+
+
+
+
+
+
+
+
+
 
