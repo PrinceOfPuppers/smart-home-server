@@ -12,9 +12,9 @@ scheduleApi = Blueprint('scheduleApi', __name__)
 
 remotePressAction = \
 {
-    "type": "object", 
+    "type": "object",
     "properties": {
-        "type": {"const":"press"}, 
+        "type": {"const":"press"},
         "data": remotePressSchema,
     },
     "required": ["type", "data"],
@@ -50,7 +50,7 @@ def postJob():
     scheduledJob = json.loads(request.data)
 
     addDefault(scheduledJob, 'enabled', True)
-    
+
     # TODO: return invalid request if every is present with weekday
     if 'every' in scheduledJob:
         if scheduledJob['every'] > 1:

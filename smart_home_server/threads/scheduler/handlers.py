@@ -113,7 +113,7 @@ def _enableDisableJob(id: str, enable:bool):
 
     if scheduledJob['enabled'] == enable:
         return
-    
+
     scheduledJob['enabled'] = enable
     _updateJob(id, scheduledJob)
 

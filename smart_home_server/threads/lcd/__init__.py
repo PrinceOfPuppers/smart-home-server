@@ -6,7 +6,7 @@ from threading import Thread
 
 import smart_home_server.constants as const
 from smart_home_server.threads.lcd.helpers import getPeriodPairs, fillSpacesAndClamp
-from smart_home_server.threads.lcd.driver import writeLCD, toggleBacklight
+from smart_home_server.hardware_interfaces.lcd import writeLCD, toggleBacklight
 
 _lcdThread = None
 _lcdLoopCondition = False

@@ -22,19 +22,19 @@ def addDefault(data:dict, key:str, val):
         data[key] = val
 
 def getAtTime(scheduledJob:dict):
-    # formats: 
+    # formats:
     # seconds   -> None
     # minutes   -> :SS
     # hours     -> MM:SS
-    # otherwise -> HH:MM:SS 
+    # otherwise -> HH:MM:SS
 
     hasSeconds = "atSeconds" in scheduledJob
     hasMinutes = "atMinutes" in scheduledJob
     hasHours   = "atHours"   in scheduledJob
 
-    seconds = padZeros(scheduledJob["atSeconds"], 2) if hasSeconds else "00" 
-    minutes = padZeros(scheduledJob["atMinutes"], 2) if hasMinutes else "00" 
-    hours   = padZeros(scheduledJob["atHours"]  , 2) if hasHours   else "00" 
+    seconds = padZeros(scheduledJob["atSeconds"], 2) if hasSeconds else "00"
+    minutes = padZeros(scheduledJob["atMinutes"], 2) if hasMinutes else "00"
+    hours   = padZeros(scheduledJob["atHours"]  , 2) if hasHours   else "00"
 
     u = scheduledJob['unit']
     if u == 'seconds':
@@ -66,7 +66,7 @@ def getExchangeRate(src,dest, decimal=3):
     x = const.googleExchangeRateDiv.search(r.text)
     if not x:
         return None
-    
+
     res = x.group(1)
     return str(round(float(res),decimal))
 
@@ -153,13 +153,13 @@ def getForecastStr(url):
 
     j = r.json()
     days = []
-    
+
 
     for day in j['weather']:
         date = day['date'].split('-')
         m = months[int(date[1])-1]
         d = date[2]
-        
+
         average = day["avgtempC"]
         high = day["maxtempC"]
         low = day["mintempC"]
@@ -168,8 +168,8 @@ def getForecastStr(url):
         s = f"{m} {d}: {high}/{average}/{low}℃ - UV:{uvIndex}\n"
         s += "─┬───────────────────────────────\n"
         l =  ["H│",
-              "I│", 
-              "T│", 
+              "I│",
+              "T│",
               "P│"]
 
         for hour in day['hourly']:

@@ -65,7 +65,7 @@ def isRpi():
     path = '/sys/firmware/devicetree/base/model'
     if os.path.exists(path):
         with open(path, 'r') as m:
-            if 'raspberry pi' in m.read().lower(): 
+            if 'raspberry pi' in m.read().lower():
                 _isRpi = True
     return _isRpi
 
@@ -84,7 +84,7 @@ dashboardElements = [
         'enabled':True,
         'color': 'green',
         'url': 'api/dashboard/forex?from=usd&to=cad',
-        'pollingPeriod': 5,
+        'pollingPeriod': 5*60,
     },
     {
         'name': 'Weather',
@@ -107,6 +107,13 @@ dashboardElements = [
         'url': f'api/dashboard/large-forecast',
         'pollingPeriod': 10*60,
     },
+    {
+        'name': 'Indoor Climate',
+        'enabled': True,
+        'color': 'yellow',
+        'url': f'api/dashboard/temp-humid',
+        'pollingPeriod': 31,
+    },
 ]
 
 #google scraping for dashboard
@@ -114,6 +121,12 @@ googleExchangeRateDiv = re.compile(r"<div[^>]+data-exchange-rate\s?=\s?[\"\'](.*
 fakeUserAgentHeaders = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0"}
 
 
-
+lcdI2CAddress = 0x27
 lcdLines = 2
 lcdWidth = 16
+
+dhtGpio = 17
+dhtMinSamplePeriod = 30
+dhtMaxRetry = 3
+dhtSamples = 2
+

@@ -1,6 +1,6 @@
 import smart_home_server.constants as const
 
-# Generally 27 is the address;Find yours using: i2cdetect -y 1 
+# Generally 27 is the address;Find yours using: i2cdetect -y 1
 
 if const.isRpi():
     _lcd = None
@@ -11,11 +11,10 @@ if const.isRpi():
         if _lcd is not None:
             return
 
-        address = 0x27 
         port = 1 # 0 on an older Raspberry Pi
         charmap = 'A00'
         i2c_expander = 'PCF8574'
-        _lcd = i2c.CharLCD(i2c_expander, address, port=port, charmap=charmap,
+        _lcd = i2c.CharLCD(i2c_expander, const.lcdI2CAddress, port=port, charmap=charmap,
                           cols=const.lcdWidth, rows=const.lcdLines)
     def stopLCD():
         global _lcd

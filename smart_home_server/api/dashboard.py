@@ -1,9 +1,10 @@
 import json
-from flask import request, Blueprint, current_app
+from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 import requests
 
 from smart_home_server.threads.lcd import startUpdateLCD, getLCDFMT, toggleLCDBacklight
+from smart_home_server.hardware_interfaces.dht22 import getDHT
 from smart_home_server.helpers import addDefault, getExchangeRate, getForecastStr
 import smart_home_server.constants as const
 
@@ -86,5 +87,15 @@ def getLCD():
 
 @dashboardApi.route('/api/dashboard/lcd/toggle', methods=['POST'])
 def postLCDToggleBacklight():
-    s = toggleLCDBacklight()
-    return current_app.response_class(s, status=200, mimetype="text/plain")
+    toggleLCDBacklight()
+    return current_app.response_class(status=200)
+
+@dashboardApi.route('/api/dashboard/temp-humid', methods=['GET'])
+def getTempHumid():
+    data = getDHT()
+    if data is None:
+        t = f'Temprature: N/A \nHumidity: N/A'
+    else:
+        t = f'Temprature: {data.temp} \nHumidity: {data.humid}'
+    return current_app.response_class(t, status=200, mimetype="text/plain")
+

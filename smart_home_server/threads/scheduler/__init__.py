@@ -75,7 +75,7 @@ def _schedulerLoop():
                 edit()
 
             schedule.run_pending()
-            
+
             # blocking with [threadPollingPeriod] second timeout (rather than sleeping)
             try:
                 edit = _scheduleEditQueue.get(block=True, timeout=const.threadPollingPeriod)

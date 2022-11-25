@@ -2,13 +2,14 @@ import requests
 from datetime import datetime
 
 from smart_home_server.helpers import WWO_CODE, getExchangeRate
+from smart_home_server.hardware_interfaces.dht22 import getDHT
 import smart_home_server.constants as const
 
 
 wttrFmtArgs = {"wttrTemp", "wttrHumid", "wttrText", "wttrUV", "wttrPercip", "wttrFeelsLike"}
 weatherPeriod = 10*60
 def getWeatherReplacements(args:set, replacements:dict):
-    # check if fmt has args 
+    # check if fmt has args
     if args.isdisjoint(wttrFmtArgs):
         return False
 
@@ -46,8 +47,13 @@ tempHumidPeriod = 10
 def getTempHumidReplacements(args:set, replacements:dict):
     if args.isdisjoint(tempHumidArgs):
         return False
-    replacements["temp"] = 40
-    replacements["humid"] = 10
+    data = getDHT()
+    if data is None:
+        replacements["temp"] = 'NA'
+        replacements["humid"] = 'NA'
+        return True
+    replacements["temp"] = data.temp
+    replacements["humid"] = data.humid
     return True
 
 
@@ -71,9 +77,9 @@ def getPeriodPairs(args, replacements):
 
 
     periods = [
-        (weatherPeriod*hasWttr,        getWeatherReplacements), 
-        (forexPeriod*hasForex,         getForexReplacements), 
-        (tempHumidPeriod*hasTempHumid, getTempHumidReplacements), 
+        (weatherPeriod*hasWttr,        getWeatherReplacements),
+        (forexPeriod*hasForex,         getForexReplacements),
+        (tempHumidPeriod*hasTempHumid, getTempHumidReplacements),
         (clockPeriod*hasClock,         getClockReplacements)
     ]
     return list(filter(lambda x: x[0]>0, periods))

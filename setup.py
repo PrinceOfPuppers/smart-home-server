@@ -1,8 +1,24 @@
 import setuptools
 from ntpath import dirname
+import os
 
 with open('README.md', 'r') as f:
     longDescription = f.read()
+
+def isRPI():
+    path = '/sys/firmware/devicetree/base/model'
+    if os.path.exists(path):
+        with open(path, 'r') as m:
+            if 'raspberry pi' in m.read().lower():
+                return True
+    return False
+
+def getDeps():
+    deps=['Flask', 'schedule', 'flask-expects-json', 'requests']
+    if isRPI():
+        #rpi specific
+        deps.extend(['rpi-rf', 'RPLCD', 'pigpio_dht'])
+    return deps
 
 # single sourcing version number to __init__.py
 def getVersion(pkgDir):
@@ -14,10 +30,10 @@ def getVersion(pkgDir):
             if line.startswith("__version__"):
                 delim = '"' if '"' in line else "'"
                 return line.split(delim)[1]
-    
+
         else:
             raise RuntimeError("Unable to find version string.")
-    
+
 setuptools.setup(
     name="smart-home-server",
     version=getVersion("smart_home_server"),
@@ -29,7 +45,7 @@ setuptools.setup(
     url="https://github.com/PrinceOfPuppers/smart-home-server",
     packages=setuptools.find_packages(),
     include_package_data=True,
-    install_requires=['Flask', 'schedule', 'flask-expects-json', 'rpi-rf', 'RPLCD', 'requests'],
+    install_requires=getDeps(),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
