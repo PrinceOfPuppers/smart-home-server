@@ -36,12 +36,12 @@ def dashboardGet():
     elements=[]
     for source in dataSources:
         if 'dashboard' in source and source['dashboard']['enabled']:
-            print(source['url'], source['dashboard'])
             elements.append(
                 {
                     'url': source['url'],
                     'pollingPeriod': source['pollingPeriod'],
-                    **source['dashboard'],
+                    'color': source['color'],
+                    'name': source['name'],
                  }
             )
     return render_template('dashboard.html', dashboardElements=elements)

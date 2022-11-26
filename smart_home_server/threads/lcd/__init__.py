@@ -67,12 +67,12 @@ def startUpdateLCD(fmt = "", fromFile = False):
         with open(const.lcdTextFile,"w") as f:
             f.write(fmt)
 
-    setLCDFMT(fmt)
-
 
     if _lcdLoopCondition:
         stopLCD()
     joinLCD()
+
+    setLCDFMT(fmt)
 
     _lcdLoopCondition = True
     _lcdThread = Thread(target=lambda : _startLCD())

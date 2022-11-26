@@ -21,6 +21,10 @@ def updateToSend(source, toSend):
                 continue
             toSend[key] = data
 
+
+
+
+
 # sources format: sources = [{'local': f, 'pollingPeriod': 123, 'values':{...}}, ...]
 # cb will be passed a dict like this: {"temp": 123, "wttrFeelsLike": 234} for each value in values
 # funciton is blocking, will run until cbLoopCondition returns false

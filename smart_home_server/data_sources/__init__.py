@@ -1,10 +1,12 @@
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from smart_home_server.hardware_interfaces.lcd import getLCDFMT
 from smart_home_server.hardware_interfaces.dht22 import getDHT
 from smart_home_server.helpers import stripLines, padChar
 import smart_home_server.constants as const
+
+from typing import Callable
 
 # return format is 
 #example = {
@@ -160,18 +162,38 @@ def getClockLocal():
     }
     return res
 
+_cache = {}
+
+def cached(func:Callable, pollingPeriod, **kwargs):
+    global _cache
+
+    now = datetime.now()
+    if not func in _cache:
+        val = func(**kwargs)
+        _cache[func] = (now, val)
+        return val
+
+    cacheExpr = pollingPeriod//2
+    lastUpdate, oldVal = _cache[func]
+
+    if now < lastUpdate + timedelta(seconds=cacheExpr):
+        return oldVal
+    
+    val = func(**kwargs)
+    _cache[func] = (now, val)
+    return val
 
 
 dataSources = [
     {
+        'name': 'USD → CAD',
+        'color': 'green',
         'url': '/api/data/forex/usd/cad',
-        'local': lambda: getForexLocal('usd', 'cad'),
+        'local': lambda: cached(getForexLocal, 5*60, src = 'usd', dest = 'cad'),
         'pollingPeriod': 5*60,
 
         'dashboard':{
-            'name': 'USD → CAD',
             'enabled':True,
-            'color': 'green',
         },
 
         'values': {
@@ -183,14 +205,14 @@ dataSources = [
     },
 
     {
+        'name': 'Weather',
+        'color': 'blue',
         'url': f'/api/data/weatherImage',
-        'local': getWeatherImageLocal,
+        'local': lambda: cached(getWeatherImageLocal, 10*60),
         'pollingPeriod': 10*60,
 
         'dashboard':{
-            'name': 'Weather',
             'enabled':False,
-            'color': 'blue',
         }
     },
 
@@ -212,15 +234,14 @@ dataSources = [
     },
 
     {
+        'name': 'Forecast',
+        'color': 'blue',
         'url': f'/api/data/forecast',
-        'local': getForecastLocal,
+        'local': lambda: cached(getForecastLocal, 10*60),
         'pollingPeriod': 10*60,
 
         'dashboard':{
-            'name': 'Forecast',
             'enabled': True,
-            'color': 'blue',
-
         },
 
         'values': {
@@ -253,28 +274,27 @@ dataSources = [
 
     # has bespoke solution in frontend
     {
+        'name': 'LCD',
+        'color': 'purple',
         'url': f'/api/data/lcd',
         'local': getLCDLocal,
         'pollingPeriod': 10*60,
 
         'dashboard':{
-            'name': 'LCD',
             'enabled': False, #handled in frontend
-            'color': 'purple',
-
         }
     },
 
 
     {
+        'name': 'Indoor Climate',
+        'color': 'yellow',
         'url': f'/api/data/temp-humid',
-        'local': getIndoorClimateLocal,
+        'local': getIndoorClimateLocal, # already cached
         'pollingPeriod': 31,
 
         'dashboard':{
-            'name': 'Indoor Climate',
             'enabled': True,
-            'color': 'yellow',
         },
 
         'values': {
