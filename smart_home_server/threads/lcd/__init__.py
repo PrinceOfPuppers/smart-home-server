@@ -1,68 +1,41 @@
 import string
-from datetime import datetime, timedelta
-from collections import defaultdict
-from time import sleep
 from threading import Thread
 
 import smart_home_server.constants as const
-from smart_home_server.threads.lcd.helpers import getPeriodPairs, fillSpacesAndClamp
-from smart_home_server.hardware_interfaces.lcd import writeLCD, toggleBacklight
+from smart_home_server.hardware_interfaces.lcd import setLCDFMT, printfLCD, toggleBacklight, getLCDFMT
+from smart_home_server.data_sources.polling import polledUpdate
+from smart_home_server.data_sources import dataSources
 
 _lcdThread = None
 _lcdLoopCondition = False
 
-# used to get current format for dashboard
-_fmt = ""
-
-class IgnoreMissingDict(dict):
-    def __missing__(self, key):
-        return '{' + key + '}'
-
-def printfLCD(fmt, replacements):
-    text = fmt.format_map(IgnoreMissingDict(replacements))
-    lines = text.split('\n')
-    lines = fillSpacesAndClamp(lines)
-    text = '\n'.join(lines)
-
-    writeLCD(text)
-
-def _lcdLoop(fmt, args, replacements, periodPairs):
+def _startLCD():
     global _lcdLoopCondition
-    printfLCD(fmt, replacements)
-    lastUpdate = datetime.now()
 
-    while _lcdLoopCondition:
-        try:
-            now = datetime.now()
+    args = {tup[1] for tup in string.Formatter().parse(getLCDFMT()) if tup[1] is not None}
 
-            for period, func in periodPairs:
-                if now < lastUpdate+timedelta(seconds=period):
-                    continue
-
-                # update format string
-                func(args,replacements)
-                printfLCD(fmt, replacements)
-                lastUpdate = datetime.now()
-
-            sleep(1)
-        except Exception as e:
-            print(f"LCD Exception: \n{e}", flush=True)
+    sources = []
+    for s in dataSources:
+        if 'values' not in s:
             continue
 
-def _startLCD(fmt):
-    global _fmt
-    _fmt = fmt
-    args = {tup[1] for tup in string.Formatter().parse(fmt) if tup[1] is not None}
+        keys = args.intersection({key for key in s['values'].keys()})
 
-    if len(args) == 0:
-        printfLCD(fmt, {}) # no updates, static text
-        return
+        if len(keys) == 0:
+            continue
 
-    replacements = {}
+        sources.append({
+            'pollingPeriod': s['pollingPeriod'],
+            'local': s['local'],
+            'values': {key: s['values'][key] for key in keys}
+        })
 
-    periodPairs = getPeriodPairs(args, replacements)
-
-    _lcdLoop(fmt, args, replacements, periodPairs)
+    polledUpdate(\
+         sources, 
+         lambda values:printfLCD(values), 
+         lambda: _lcdLoopCondition, 
+         lambda e: print(f"LCD Exception: \n{e}", flush=True)
+     )
 
 
 def stopLCD():
@@ -94,19 +67,17 @@ def startUpdateLCD(fmt = "", fromFile = False):
         with open(const.lcdTextFile,"w") as f:
             f.write(fmt)
 
+    setLCDFMT(fmt)
+
 
     if _lcdLoopCondition:
         stopLCD()
     joinLCD()
 
     _lcdLoopCondition = True
-    _lcdThread = Thread(target=lambda : _startLCD(fmt))
+    _lcdThread = Thread(target=lambda : _startLCD())
     _lcdThread.start()
     print("lcd started")
-
-def getLCDFMT():
-    global _fmt
-    return _fmt
 
 def toggleLCDBacklight():
     toggleBacklight()

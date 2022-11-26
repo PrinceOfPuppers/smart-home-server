@@ -57,3 +57,48 @@ else:
         print("LCD Backlight Toggled\n", flush=True)
         pass
 
+
+
+# used to get current format for dashboard
+_fmt = ""
+
+class IgnoreMissingDict(dict):
+    def __missing__(self, key):
+        return '{' + key + '}'
+
+spaceFormat = "space"
+noSpace = IgnoreMissingDict({spaceFormat:""})
+oneSpace = IgnoreMissingDict({spaceFormat:""})
+def fillSpacesAndClamp(lines):
+    res = []
+    for i in range(min(len(lines), const.lcdLines)):
+        line = lines[i]
+        size = len(line.format_map(noSpace))
+        numSpaces = len(line.format_map(oneSpace)) - size
+        spaceSize = 0 if numSpaces < 1 else (const.lcdWidth - size)//numSpaces
+        line = line.format_map(IgnoreMissingDict({spaceFormat:" "*spaceSize}))
+
+        # clamp length
+        line = line if len(line) <= const.lcdWidth else line[0:const.lcdWidth]
+        res.append(line)
+
+    return res
+
+def printfLCD(replacements):
+    global _fmt
+    text = _fmt.format_map(IgnoreMissingDict(replacements))
+    lines = text.split('\n')
+    lines = fillSpacesAndClamp(lines)
+    text = '\n'.join(lines)
+
+    writeLCD(text)
+
+def getLCDFMT():
+    global _fmt
+    return _fmt
+
+def setLCDFMT(fmt):
+    global _fmt
+    _fmt = fmt
+
+
