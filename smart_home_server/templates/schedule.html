@@ -7,15 +7,6 @@
 <script>
     const weekdays = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
 
-    function jobEnable(jobId, enable){
-        var data = {'id': jobId, 'enable': enable};
-        sendData('api/schedule/jobs/enable', data, 'POST', reload=true);
-    }
-    function jobDelete(jobId){
-        var data = {'id': jobId};
-        sendData('api/schedule/jobs', data, 'DELETE', reload=true);
-    }
-
     function submitJobHandler(event){
         event.preventDefault();
         let form = event.currentTarget;
@@ -112,24 +103,6 @@
         }
     }
 
-    function updateJobName(jobId, jobName){
-        const newName = window.prompt("Edit Name:", jobName);
-
-        if (newName == null || newName == undefined){
-            return;
-        }
-
-        if(newName.length > 20){
-            window.alert(`Name Too Long:\n  max length: 20 \n  current length: ${newName.length}`);
-            updateJobName(jobId, newName);
-            return;
-        }
-
-        var data = {'id': jobId, 'name': newName};
-
-        sendData('api/schedule/jobs', data, 'PATCH', reload=true);
-    }
-
     window.onload = () => {
         document.getElementById('jobForm').addEventListener('submit', submitJobHandler);
 
@@ -152,6 +125,7 @@
         <a href="/dashboard">Dashboard</a>
         <a href="/remote">Remote</a>
         <a class="active" href="/schedule">Schedule</a>
+        <a href="/trigger">Trigger</a>
     </div> 
 
     <h3>Current Schedule:</h3>
@@ -165,14 +139,14 @@
                 {% set jobName = job['name'] %}
                 <li>
                     <div class="job">
-                        <button class="redButton", onclick = "jobDelete('{{ jobId }}')"">X</button>
+                        <button class="redButton", onclick = "jobDelete('api/schedule/jobs', '{{ jobId }}')"">X</button>
 
-                        <button class="blueButton" onclick="updateJobName( '{{ jobId }}', '{{ jobName }}' )">{{ jobName }}</button>
+                        <button class="blueButton" onclick="updateJobName('api/schedule/jobs', '{{ jobId }}', '{{ jobName }}' )">{{ jobName }}</button>
 
                         {% if job['enabled'] %}
-                            <button class="greenButton", onclick = "jobEnable('{{ jobId }}', false )"">active</button>
+                            <button class="greenButton", onclick = "jobEnable('api/schedule/jobs/enable', '{{ jobId }}', false )"">active</button>
                         {% else %}
-                            <button class="redButton", onclick = "jobEnable('{{ jobId }}', true )"">inactive</button>
+                            <button class="redButton", onclick = "jobEnable('api/schedule/jobs/enable', '{{ jobId }}', true )"">inactive</button>
                         {% endif %}
 
 
@@ -231,18 +205,9 @@
                 <div class="formDiv">
                     <label for="unit">Unit:</label>
                     <select id="unit" name="unit" required>
-                    <option value="second">second</option>
-                    <option value="minute">minute</option>
-                    <option value="hour">hour</option>
-                    <option value="day">day</option>
-                    <option value="week">week</option>
-                    <option value="monday">monday</option>
-                    <option value="tuesday">tuesday</option>
-                    <option value="wednesday">wednesday</option>
-                    <option value="thursday">thursday</option>
-                    <option value="friday">friday</option>
-                    <option value="saturday">saturday</option>
-                    <option value="sunday">sunday</option>
+                    {% for unit in timeUnits %}
+                        <option value="{{ unit }}">{{ unit }}</option>
+                    {% endfor %}
                     </select>
                 </div>
 

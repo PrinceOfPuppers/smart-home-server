@@ -18,6 +18,9 @@ createIfNotExists(storageFolder)
 schedulerJobFolder = f'{storageFolder}/jobs'
 createIfNotExists(schedulerJobFolder)
 
+triggeredJobFolder = f'{storageFolder}/triggers'
+createIfNotExists(triggeredJobFolder)
+
 lcdTextFile = f'{storageFolder}/lcd.txt'
 if not os.path.exists(lcdTextFile):
     with open(lcdTextFile,"w") as f:
@@ -77,44 +80,9 @@ forecastUrl       = f'http://wttr.in/{_city}?TQ3n'
 wttrApiUrl        = f'http://wttr.in/{_city}?format=j1'
 weatherUrl        = f'http://wttr.in/{_city}?TQ0n'
 
-# colors are blue, green, red, purple, yellow, orange, white, gray
-dashboardElements = [
-    {
-        'name': 'USD → CAD',
-        'enabled':True,
-        'color': 'green',
-        'url': 'api/dashboard/forex?from=usd&to=cad',
-    },
-    {
-        'name': 'Weather',
-        'enabled':False,
-        'color': 'blue',
-        'url': f'api/dashboard/weatherImage',
-    },
-    {
-        'name': 'Forecast',
-        'enabled': True,
-        'color': 'blue',
-        'url': f'api/dashboard/forecast',
-    },
-    {
-        'name': 'Large-Forecast',
-        'enabled': False,
-        'color': 'blue',
-        'url': f'api/dashboard/large-forecast',
-    },
-    {
-        'name': 'Indoor Climate',
-        'enabled': True,
-        'color': 'yellow',
-        'url': f'api/dashboard/temp-humid',
-    },
-]
-
 #google scraping for dashboard
 googleExchangeRateDiv = re.compile(r"<div[^>]+data-exchange-rate\s?=\s?[\"\'](.*?)[\"\'][^>]?>")
 fakeUserAgentHeaders = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0"}
-
 
 lcdI2CAddress = 0x27
 lcdLines = 2
@@ -125,3 +93,78 @@ dhtMinSamplePeriod = 30
 dhtMaxRetry = 3
 dhtSamples = 2
 
+
+WWO_CODE = {
+    "113": "Sunny",
+    "116": "PartlyCloudy",
+    "119": "Cloudy",
+    "122": "VeryCloudy",
+    "143": "Fog",
+    "176": "LightShowers",
+    "179": "LightSleetShowers",
+    "182": "LightSleet",
+    "185": "LightSleet",
+    "200": "ThunderyShowers",
+    "227": "LightSnow",
+    "230": "HeavySnow",
+    "248": "Fog",
+    "260": "Fog",
+    "263": "LightShowers",
+    "266": "LightRain",
+    "281": "LightSleet",
+    "284": "LightSleet",
+    "293": "LightRain",
+    "296": "LightRain",
+    "299": "HeavyShowers",
+    "302": "HeavyRain",
+    "305": "HeavyShowers",
+    "308": "HeavyRain",
+    "311": "LightSleet",
+    "314": "LightSleet",
+    "317": "LightSleet",
+    "320": "LightSnow",
+    "323": "LightSnowShowers",
+    "326": "LightSnowShowers",
+    "329": "HeavySnow",
+    "332": "HeavySnow",
+    "335": "HeavySnowShowers",
+    "338": "HeavySnow",
+    "350": "LightSleet",
+    "353": "LightShowers",
+    "356": "HeavyShowers",
+    "359": "HeavyRain",
+    "362": "LightSleetShowers",
+    "365": "LightSleetShowers",
+    "368": "LightSnowShowers",
+    "371": "HeavySnowShowers",
+    "374": "LightSleetShowers",
+    "377": "LightSleet",
+    "386": "ThunderyShowers",
+    "389": "ThunderyHeavyRain",
+    "392": "ThunderySnowShowers",
+    "395": "HeavySnowShowers",
+}
+
+WEATHER_SYMBOL = {
+    "Unknown":             ("✨",2),
+    "Cloudy":              ("☁️" ,2),
+    "Fog":                 ("🌫",2),
+    "HeavyRain":           ("🌧",2),
+    "HeavyShowers":        ("🌧",2),
+    "HeavySnow":           ("❄️" ,2),
+    "HeavySnowShowers":    ("❄️" ,2),
+    "LightRain":           ("🌦",2),
+    "LightShowers":        ("🌦",2),
+    "LightSleet":          ("🌧",2),
+    "LightSleetShowers":   ("🌧",2),
+    "LightSnow":           ("🌨",2),
+    "LightSnowShowers":    ("🌨",2),
+    "PartlyCloudy":        ("⛅️",2),
+    "Sunny":               ("☀️" ,2),
+    "ThunderyHeavyRain":   ("🌩",2),
+    "ThunderyShowers":     ("⛈" ,2),
+    "ThunderySnowShowers": ("⛈" ,2),
+    "VeryCloudy":          ("☁️" ,2),
+}
+
+months = ['Jan','Feb','Mar','Apr','May','June','July','Aug','Sept','Oct','Nov','Dec']

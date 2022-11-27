@@ -6,11 +6,12 @@ import copy
 from smart_home_server.threads.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJob, getJob
 from smart_home_server.helpers import getAtTime, addDefault
 
-from smart_home_server.api import remotePressAction
+from smart_home_server.api import allJobsSchema
 
 scheduleApi = Blueprint('scheduleApi', __name__)
 
 weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+timeUnits = ["second", "minute", "hour", "day", "week"] + weekdays
 postScheduledJobSchema = \
 {
     "type": "object",
@@ -19,14 +20,14 @@ postScheduledJobSchema = \
         #"id":        {"type": "string"},
         "enabled":   {"type": "boolean"}, # defaults to True
         "every":     {"type": "integer"},
-        "unit":      {"enum": ["second", "minute", "hour", "day", "week"] + weekdays},
+        "unit":      {"enum": timeUnits},
         #"at":        {"type": "string"},
         "atSeconds": {"type": "integer", "minimum": 0, "maximum": 59},
         "atMinutes": {"type": "integer", "minimum": 0, "maximum": 59},
         "atHours":   {"type": "integer", "minimum": 0, "maximum": 23},
 
         "do": {
-            "oneOf": [remotePressAction]},
+            "oneOf": allJobsSchema},
     },
     "required": ['name', "unit", 'do'],
     'additionalProperties': False,
@@ -40,7 +41,6 @@ def postJob():
 
     addDefault(scheduledJob, 'enabled', True)
 
-    # TODO: return invalid request if every is present with weekday
     if 'every' in scheduledJob:
         if scheduledJob['every'] > 1:
             if scheduledJob['unit'] in weekdays:

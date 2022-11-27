@@ -41,7 +41,7 @@ def _presserLoop():
                 sleep(const.pressSpacing)
 
         except Exception as e:
-            print(f"Presser Exception: \n{e}", flush=True)
+            print(f"Presser Exception: \n{repr(e)}", flush=True)
             continue
 
 def presserAppend(press):

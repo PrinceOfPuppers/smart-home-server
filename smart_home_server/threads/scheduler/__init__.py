@@ -5,13 +5,14 @@ from threading import Thread
 import os
 import json
 
-from smart_home_server.helpers import clearQueue
+from smart_home_server.helpers import clearQueue, waitUntil
 import smart_home_server.constants as const
-from smart_home_server.threads.scheduler.handlers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath, _loadJobs
+from smart_home_server.threads.scheduler.handlers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath, _loadJobs, _getJobs, _getJob
 
 _scheduleEditQueue      = Queue()
+_scheduleGetQueue       = Queue()
 _schedulerLoopCondition = False
-_schedulerThread = None
+_schedulerThread        = None
 
 def addJob(scheduledJob:dict):
     global _scheduleEditQueue
@@ -39,22 +40,18 @@ def getJobFromFile(id: str) -> Union[dict, None]:
         return res
     return None
 
-def getJob(id: str) -> Union[dict, None]:
-    jobs = schedule.get_jobs(id)
-    if len(jobs) > 1:
-        raise Exception("Multiple jobs with same id")
-    if len(jobs) == 0:
-        return None
-    job = jobs[0]
-    assert job.job_func is not None
-    return job.job_func.args[0]
+def getJob(id:str):
+    jobOut = []
+    condition = [False]
+    _scheduleEditQueue.put(lambda :_getJob(id, jobOut, condition))
+    waitUntil(lambda: condition[0])
+    return jobOut[0]
 
 def getJobs():
     jobs = []
-    for j in schedule.get_jobs():
-        assert j.job_func is not None
-        jobs.append(j.job_func.args[0])
-    jobs.sort(key = lambda element: element['name'])
+    condition = [False]
+    _scheduleEditQueue.put(lambda :_getJobs(jobs, condition))
+    waitUntil(lambda: condition[0])
     return jobs
 
 def enableDisableJob(id: str, enable:bool):
@@ -83,7 +80,7 @@ def _schedulerLoop():
                 continue
             edit()
         except Exception as e:
-            print(f"Scheduler Exception: \n{e}", flush=True)
+            print(f"Scheduler Exception: \n{repr(e)}", flush=True)
             continue
 
 

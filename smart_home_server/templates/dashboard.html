@@ -12,29 +12,34 @@
         var response;
         for(let i = 0; i < 3; i++){
             response = await fetch(url, {method: "GET"});
-            if(response.ok){
-                break;
+            if(!response.ok){
+                continue;
             }
+            if(!response.headers.get('content-type')?.includes('application/json')){
+                return;
+            }
+            break;
         }
         if(response === undefined){
             window.alert(`Dashboard Update Error \nStatus: ${response.status} \n${response.statusText}`);
-            return -1;
+            return;
         }
         //element.textContent = response.body;
-        return await response.json().then((json)=>{
+        await console.log(response);
+
+        await response.json().then((json)=>{
             element.textContent = json['str'];
-            return json['pollingPeriod'];
         });
     }
 
-    async function pollDashboardElement(name, url){
+    async function pollDashboardElement(name, url, pollingPeriod){
         const element = document.getElementById(`dashboard-${name}`);
         const button = document.getElementById(`dashboardButton-${name}`);
         button.onclick = () => {
             element.textContent = "";
             updateDashboardElement(element, url);
         };
-        const pollingPeriod = await updateDashboardElement(element, url);
+        updateDashboardElement(element, url);
         if(pollingPeriod == null || pollingPeriod == undefined || pollingPeriod < 1){
             window.alert("Error: Invalid Polling Period");
             return;
@@ -107,13 +112,19 @@
             element.textContent = newText;
         }
     }
+
+    values = [
+    {% for value in values %}
+        "{{ value }}",
+    {% endfor %}
+    ]
     function lcdFmtCheatSheet(){
-        window.alert("\nFMT Cheat Sheet: \n  {clock}, {date}, {humid}, {temp}\n  {space} (adaptive gap filling)\n  {src->dest} (currencies)\n  {wttr[Temp|Humid|Text|UV|Percip|FeelsLike]}");
+        window.alert(`\nFMT Cheat Sheet: \n  {${values.join('}\n  {')}}`);
     }
 
     function getLCD(){
         const element = document.getElementById(`dashboard-LCD`);
-        fetch('api/dashboard/lcd', {method: "GET"})
+        fetch('api/data/lcd', {method: "GET"})
         .then((response) => {
             if(!response.ok){
                 window.alert(`Dashboard LCD Update Error \nStatus: ${response.status} \n${response.statusText}`);
@@ -138,7 +149,7 @@
         clock('clock');
         getLCD()
         {% for element in dashboardElements %}
-            pollDashboardElement("{{ element['name'] }}", "{{ element['url'] }}");
+            pollDashboardElement("{{ element['name'] }}", "{{ element['url'] }}", {{ element['pollingPeriod'] }});
         {% endfor %}
     }
 </script>
@@ -148,6 +159,7 @@
         <a class="active" href="/dashboard">Dashboard</a>
         <a href="/remote">Remote</a>
         <a href="/schedule">Schedule</a>
+        <a href="/trigger">Trigger</a>
     </div> 
 
     <div class="dashboardList">
@@ -159,7 +171,6 @@
             {% set name          = element['name'] %}
             {% set color         = element['color'] %}
             {% set url           = element['url'] %}
-            {% set pollingPeriod = element['pollingPeriod'] %}
             <div>
                 <button class="{{ color }}Button" id="dashboardButton-{{ name }}">{{ name }}</button>
                 <p id="dashboard-{{ name }}"></p>
