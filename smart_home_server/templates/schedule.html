@@ -144,9 +144,9 @@
                         <button class="blueButton" onclick="updateJobName('api/schedule/jobs', '{{ jobId }}', '{{ jobName }}' )">{{ jobName }}</button>
 
                         {% if job['enabled'] %}
-                            <button class="greenButton", onclick = "jobEnable('api/schedule/jobs', '{{ jobId }}', false )"">active</button>
+                            <button class="greenButton", onclick = "jobEnable('api/schedule/jobs/enable', '{{ jobId }}', false )"">active</button>
                         {% else %}
-                            <button class="redButton", onclick = "jobEnable('api/schedule/jobs', '{{ jobId }}', true )"">inactive</button>
+                            <button class="redButton", onclick = "jobEnable('api/schedule/jobs/enable', '{{ jobId }}', true )"">inactive</button>
                         {% endif %}
 
 

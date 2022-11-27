@@ -15,11 +15,15 @@ from smart_home_server.api.data import dataApi
 from smart_home_server.api.trigger import triggerApi, triggerComparisons
 from smart_home_server.data_sources import dataSources, dataSourceValues
 
+values = list(dataSourceValues)
+values.sort()
+
 app = Flask(__name__)
 app.register_blueprint(scheduleApi)
 app.register_blueprint(remoteApi)
 app.register_blueprint(dashboardApi)
 app.register_blueprint(dataApi)
+app.register_blueprint(triggerApi)
 
 @app.route('/<path:path>')
 def send_templates(path):
@@ -47,11 +51,11 @@ def dashboardGet():
                     'name': source['name'],
                  }
             )
-    return render_template('dashboard.html', dashboardElements=elements, values=dataSourceValues)
+    return render_template('dashboard.html', dashboardElements=elements, values=values)
 
-@app.route('/triggers')
-def triggersGet():
-    return render_template('trigger.html', values = dataSources, comparisons=triggerComparisons)
+@app.route('/trigger')
+def triggerGet():
+    return render_template('trigger.html', values=values, comparisons=triggerComparisons)
 
 
 def startServer():
