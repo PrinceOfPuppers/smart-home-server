@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href = "style.css"></link>
+<script type="text/javascript" src="funcs.js"></script>
+
+<html>
+<script>
+    postTriggerSchema = \
+    {
+        "type": "object",
+        "properties":{
+            "name":      {"type": "string", "minLength": 1, "maxLength": 30},
+            "enabled":   {"type": "boolean"}, # defaults to True
+            'negated':   {"type": "boolean"}, # defaults to false
+            'firstVar':  dataSourceSchema,
+            'comparison': {"enum": triggerComparisons},
+            'secondVar':  varSchema,
+
+            "do": {
+                "oneOf": allJobsSchema},
+        },
+        "required": ['name',' firstVar', 'comparison', "secondVar", 'do'],
+        'additionalProperties': False,
+    }
+
+    function submitJobHandler(event){
+        event.preventDefault();
+        let form = event.currentTarget;
+        var data = formToObject(form);
+
+        if(data.do = "press"){
+            data.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
+            delete data.pressChannel;
+            delete data.pressValue;
+        }
+        else{
+            window.alert(`Error: Invalid Job Type: ${data.do}`);
+            return;
+        }
+        data.negated = Boolean(data.negated)
+        data.firstVar = {value: data.firstVar}
+
+        data.secondVar = {type: data.secondVarType, value: data.secondVarValue}
+        delete data.secondVarType
+        delete data.secondVarValue
+
+        sendData('api/trigger', data, 'POST', reload=true);
+    }
+
+    function hideUnhideJobForms(dropDown){
+        // iterate over options in the drop down
+        Array.from(dropDown.options).forEach((dropDownOption) => {
+            // get all elements which match that option
+            const optionElements = document.querySelectorAll(`[id^='${dropDownOption.value}']`);
+
+            // see if they match the current value
+            if (dropDown.value === dropDownOption.value) {
+                // if so, display them
+                optionElements.forEach((element) => {element.style.display = "block"});
+            } else {
+                // else hide them
+                optionElements.forEach((element) => {element.style.display = "none"});
+            }
+        })
+    }
+
+    function hideUnhideSecondVarFields(dropDown){
+        const secondVarDataSource= document.querySelector(`[id=secondVarDataSource]`);
+        const secondVarDataSourceText = document.querySelector(`[id=secondVarDataSourceText]`);
+
+        const secondVarConstant = document.querySelector(`[id=secondVarConstant ]`);
+        const secondVarConstantText = document.querySelector(`[id=secondVarConstantText ]`);
+
+        secondVarConstantText.style.display = "block";
+        secondVarDataSourceText.style.display = "block";
+
+        secondVarConstant.style.display = "inline";
+        secondVarDataSource.style.display = "inline"
+
+        if (dropDown.value === "dataSource") {
+            secondVarDataSource.style.display = "none"
+            secondVarDataSourceText.style.display = "none"
+            return;
+        } 
+        secondVarConstant.style.display = "none";
+        secondVarConstantText.style.display = "none";
+    }
+
+    window.onload = () => {
+        document.getElementById('jobForm').addEventListener('submit', submitJobHandler);
+
+        // toggle between secondVar constant input field and secondVar data source dropdown menu depending on data type
+        hideUnhideSecondVarFields(document.querySelector('#secondVarType'));
+        document.querySelector('#secondVarType').addEventListener("change", function(dropDown) {hideUnhideSecondVarFields(dropDown.target)});
+
+        hideUnhideJobForms(document.querySelector('#do'));
+        document.querySelector('#do').addEventListener("change", function(dropDown) {hideUnhideJobForms(dropDown.target)});
+    }
+    
+</script>
+
+
+<body>
+    <div class="topnav">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/remote">Remote</a>
+        <a href="/schedule">Schedule</a>
+        <a class="active" href="/trigger">Trigger</a>
+    </div> 
+
+    <h3>Current Triggers:</h3>
+        <ul>
+            {% if jobs|length == 0 %}
+                <center class="faintText">No Triggers</center>
+            {% endif %}
+
+            {% for job in jobs %}
+                {% set jobId = job['id'] %}
+                {% set jobName = job['name'] %}
+                <li>
+                    <div class="job">
+                        <button class="redButton", onclick = "jobDelete('api/trigger/jobs' '{{ jobId }}')"">X</button>
+
+                        <button class="blueButton" onclick="updateJobName('api/trigger/jobs', '{{ jobId }}', '{{ jobName }}' )">{{ jobName }}</button>
+
+                        {% if job['enabled'] %}
+                            <button class="greenButton", onclick = "jobEnable('api/trigger/jobs', '{{ jobId }}', false )"">active</button>
+                        {% else %}
+                            <button class="redButton", onclick = "jobEnable('api/trigger/jobs', '{{ jobId }}', true )"">inactive</button>
+                        {% endif %}
+
+
+                        <div class="jobText">
+                            {% if job['negated'] %}
+                                <span class="nobr">if {{ job['firstVar']['value'] }} not {{ job['comparison'] }} {{ job['secondVar']['value'] }}</span>
+                            {% else %}
+                                <span class="nobr">if {{ job['firstVar']['value'] }} {{ job['comparison'] }} {{ job['secondVar']['value'] }}</span>
+                            {% endif %}
+
+                            {% set do = job['do'] %}
+                            {% set type = do['type'] %}
+                            {% set data = do['data'] %}
+
+                            <br/>
+                            <span class="nobr">→ </span>
+                            {% if type == "press" %}
+                            <span class="nobr">switch channel: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
+                            {% else %}
+                                <span class="nobr">Unrecognized Job Type: {{ type }}</span>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+    <h3>New Trigger:</h3>
+
+        <form id="jobForm">
+            <section>
+                <div class="formDiv">
+                    <label for="jobName">Trigger Name:</label>
+                    <input type="text" id="jobName" name="name" maxLength = "20" required>
+                </div>
+            <section>
+
+            <br style="clear:both;" />
+
+            <section>
+                <div class="formDiv">
+                    <label for="firstVar" id="firstVarText">1st Var:</label>
+                    <select id="firstVar" name="firstVar" required>
+                    {% for value in values %}
+                        <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+
+                <div class="formDiv">
+                    <label for="negated" id="negatedText">Negate:</label>
+                    <select id="negated" name="negated" required>
+                        <option value=""> </option>
+                        <option value="true">not</option>
+                    </select>
+                </div>
+
+                <div class="formDiv">
+                    <label for="comparison" id="comparisonText">Compare: </label>
+                    <select id="comparison" name="comparison" required>
+                        {% for comp in comparisons %}
+                            <option value="{{ comp }}">{{ comp }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="formDiv">
+                    <label for="secondVarType" id="secondVarTypeText">2nd Var Type: </label>
+                    <select id="secondVarType" name="secondVarType" required>
+                        <option value="constant">constant</option>
+                        <option value="dataSource">data</option>
+                    </select>
+                </div>
+
+                <div class="formDiv">
+                    <label for="secondVarConstant" id="secondVarConstantText">Constant:</label>
+                    <input type="text" id="secondVarConstant" name="secondVarConstant" maxLength = "20" required>
+                </div>
+
+                <div class="formDiv">
+                    <label for="secondVarDataSource" id="secondVarDataSourceText">2nd Var:</label>
+                    <select id="secondVarDataSource" name="secondVarDataSource" required>
+                    {% for value in values %}
+                        <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+            <section>
+                <div class="formDiv">
+                    <label for="do">Do:</label>
+                    <select id="do" name="do" required>
+                    <option value="press">press</option>
+                    </select>
+                </div>
+
+                <div class="formDiv">
+                    <label for="pressChannel" id="pressChannelLabel">Channel:</label>
+                    <input type="number" id="pressChannel" name="pressChannel" min={{ minChannel }} max= {{ maxChannel }} size="5" value="0">
+                </div>
+
+                <div class="formDiv">
+                    <label for="pressValue" id="pressValueLabel">Value:</label>
+                    <select id="pressValue" name="pressValue">
+                    <option value="1">on</option>
+                    <option value="">off</option>
+                    </select>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+            <section>
+                <div class="formDiv">
+                    <button type="submit" class="greenButton">Create Trigger</button>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+        </form>
+  </body>
+</html>

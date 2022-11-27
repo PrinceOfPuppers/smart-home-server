@@ -11,6 +11,7 @@ from smart_home_server.api import allJobsSchema
 scheduleApi = Blueprint('scheduleApi', __name__)
 
 weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+timeUnits = ["second", "minute", "hour", "day", "week"] + weekdays
 postScheduledJobSchema = \
 {
     "type": "object",
@@ -19,7 +20,7 @@ postScheduledJobSchema = \
         #"id":        {"type": "string"},
         "enabled":   {"type": "boolean"}, # defaults to True
         "every":     {"type": "integer"},
-        "unit":      {"enum": ["second", "minute", "hour", "day", "week"] + weekdays},
+        "unit":      {"enum": timeUnits},
         #"at":        {"type": "string"},
         "atSeconds": {"type": "integer", "minimum": 0, "maximum": 59},
         "atMinutes": {"type": "integer", "minimum": 0, "maximum": 59},

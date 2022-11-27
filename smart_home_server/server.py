@@ -8,10 +8,11 @@ from smart_home_server.threads.triggerManager import startTriggerManager, stopTr
 from smart_home_server import InterruptTriggered
 import smart_home_server.constants as const
 
-from smart_home_server.api.schedule import scheduleApi
+from smart_home_server.api.schedule import scheduleApi, timeUnits
 from smart_home_server.api.remote import remoteApi
 from smart_home_server.api.dashboard import dashboardApi
 from smart_home_server.api.data import dataApi
+from smart_home_server.api.trigger import triggerApi, triggerComparisons
 from smart_home_server.data_sources import dataSources, dataSourceValues
 
 app = Flask(__name__)
@@ -31,7 +32,7 @@ def lightsGet():
 @app.route('/schedule')
 def scheduleGet():
     jobs = getJobs()
-    return render_template('schedule.html', minChannel=0, maxChannel=len(const.txChannels)-1, jobs=jobs)
+    return render_template('schedule.html', minChannel=0, maxChannel=len(const.txChannels)-1, jobs=jobs, timeUnits = timeUnits)
 
 @app.route('/dashboard')
 def dashboardGet():
@@ -50,17 +51,7 @@ def dashboardGet():
 
 @app.route('/triggers')
 def triggersGet():
-    values=[]
-    for source in dataSources:
-        if 'values' not in source:
-            continue
-        for value in source['values']:
-            if 'enabled' not in value or not value['enabled']:
-                continue
-
-            values.append(value)
-
-    return render_template('triggers.html', values = values)
+    return render_template('trigger.html', values = dataSources, comparisons=triggerComparisons)
 
 
 def startServer():

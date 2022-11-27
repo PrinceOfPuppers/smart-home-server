@@ -30,3 +30,32 @@ function formToObject(form){
     });
     return object
 }
+
+
+function updateJobName(url, jobId, jobName){
+    const newName = window.prompt("Edit Name:", jobName);
+
+    if (newName == null || newName == undefined){
+        return;
+    }
+
+    if(newName.length > 20){
+        window.alert(`Name Too Long:\n  max length: 20 \n  current length: ${newName.length}`);
+        updateJobName(url, jobId, newName);
+        return;
+    }
+
+    var data = {'id': jobId, 'name': newName};
+
+    sendData(url, data, 'PATCH', reload=true);
+}
+
+function jobEnable(url, jobId, enable){
+    var data = {'id': jobId, 'enable': enable};
+    sendData(url, data, 'POST', reload=true);
+}
+function jobDelete(url, jobId){
+    var data = {'id': jobId};
+    sendData(url, data, 'DELETE', reload=true);
+}
+

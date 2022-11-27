@@ -3,15 +3,15 @@ from flask import jsonify, request, Blueprint, current_app
 from flask_expects_json import expects_json
 import copy
 
-from smart_home_server.threads.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJob, getJob
-from smart_home_server.helpers import getAtTime, addDefault
+from smart_home_server.helpers import addDefault
+from smart_home_server.data_sources import dataSourceValues
+from smart_home_server.threads.triggerManager import addTrigger, updateTriggerName, removeTrigger, enableDisableTrigger, getTrigger, getTriggers
 
 from smart_home_server.api import allJobsSchema
 
-scheduleApi = Blueprint('scheduleApi', __name__)
+triggerApi = Blueprint('triggerApi', __name__)
 
-weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-
+triggerComparisons = ['>', '<', '=', '>=', '<=', 'contains']
 
 dataSourceSchema = \
 {
@@ -43,7 +43,7 @@ postTriggerSchema = \
         "enabled":   {"type": "boolean"}, # defaults to True
         'negated':   {"type": "boolean"}, # defaults to false
         'firstVar':  dataSourceSchema,
-        'comparison': {"enum": ['>', '<', '=', '>=', '<=', 'contains']},
+        'comparison': {"enum": triggerComparisons},
         'secondVar':  varSchema,
 
         "do": {
@@ -54,18 +54,26 @@ postTriggerSchema = \
 }
 
 
-@scheduleApi.route('/api/trigger', methods=['POST'])
+@triggerApi.route('/api/trigger', methods=['POST'])
 @expects_json(postTriggerSchema, check_formats=True)
 def postJob():
     triggeredJob = json.loads(request.data)
     addDefault(triggeredJob, 'negated', False)
     addDefault(triggeredJob, 'enabled', True)
-    # TODO: ensure sources are in datasources
-    addTrigger(triggerJob)
+
+    firstVar = triggeredJob['firstVar']
+    if firstVar['value'] not in dataSourceValues:
+        return current_app.response_class(f"Unknown Data Value: {firstVar['value']}", status=400)
+
+    secondVar = triggeredJob['secondVar']
+    if secondVar['type'] == 'dataSource' and secondVar['value'] not in dataSourceValues:
+        return current_app.response_class(f"Unknown Data Value: {secondVar['value']}", status=400)
+
+    addTrigger(triggeredJob)
     return current_app.response_class(status=200)
 
 
-deleteJobSchema = \
+deleteTriggerSchema = \
 {
     "type": "object",
     "properties": {
@@ -75,16 +83,16 @@ deleteJobSchema = \
     'additionalProperties': False,
 }
 
-@scheduleApi.route('/api/schedule/jobs', methods=['DELETE'])
-@expects_json(deleteJobSchema)
-def deleteJob():
+@triggerApi.route('/api/trigger/jobs', methods=['DELETE'])
+@expects_json(deleteTriggerSchema)
+def deleteTrigger():
     id = json.loads(request.data)['id']
-    removeJob(id)
+    removeTrigger(id)
     return current_app.response_class(status=200)
 
 
 # currently only updates name
-patchJobSchema = \
+patchTriggerSchema = \
 {
     "type": "object",
     "properties":{
@@ -94,33 +102,29 @@ patchJobSchema = \
     "required": ['id', 'name'],
     'additionalProperties': False,
 }
-@scheduleApi.route('/api/schedule/jobs', methods=['PATCH'])
-@expects_json(patchJobSchema)
-def patchJob():
+@triggerApi.route('/api/trigger/jobs', methods=['PATCH'])
+@expects_json(patchTriggerSchema)
+def patchTrigger():
     id = json.loads(request.data)['id']
     name = json.loads(request.data)['name']
 
-    oldJob = getJob(id)
-    if oldJob is None:
-        return current_app.response_class(f"ID: {id} Does Not Exist", status=400)
+    oldTriggeredJob = getTrigger(id)
+    if oldTriggeredJob is None:
+        return current_app.response_class(f"Triggered Job with ID: {id} Does Not Exist", status=400)
 
-    if oldJob['name'] == name:
+    if oldTriggeredJob['name'] == name:
         return current_app.response_class(status=200)
 
-    newJob = copy.deepcopy(oldJob)
-
-    newJob['name'] = name
-
-    updateJob(id, newJob)
+    updateTriggerName(id, name)
     return current_app.response_class(status=200)
 
-@scheduleApi.route('/api/schedule/jobs', methods=['GET'])
-def GetJobs():
-    jobs = getJobs()
-    return jsonify({"jobs": jobs})
+@triggerApi.route('/api/trigger/jobs', methods=['GET'])
+def GetTriggers():
+    triggers = getTriggers()
+    return jsonify({"jobs": triggers})
 
 
-enableJobSchema = \
+enableTriggerSchema = \
 {
     "type": "object",
     "properties": {
@@ -131,11 +135,11 @@ enableJobSchema = \
     'additionalProperties': False,
 }
 
-@scheduleApi.route('/api/schedule/jobs/enable', methods=['POST'])
-@expects_json(enableJobSchema)
-def enableJob():
+@triggerApi.route('/api/trigger/jobs/enable', methods=['POST'])
+@expects_json(enableTriggerSchema)
+def enableTrigger():
     data = json.loads(request.data)
     addDefault(data, 'enabled', True)
-    enableDisableJob(data['id'], data['enable'])
+    enableDisableTrigger(data['id'], data['enable'])
     return current_app.response_class(status=200)
 
