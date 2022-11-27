@@ -2,7 +2,7 @@ import smart_home_server.constants as const
 from datetime import datetime, timedelta
 from time import sleep
 
-from smart_home_server.data_sources import getSources
+from smart_home_server.data_sources import getSources, dataSourceValues
 
 def dataFromDataPath(x, dataPath):
     y = x
@@ -29,7 +29,7 @@ def updateToSend(source, toSend):
 # note additional argumens may be passed
 # funciton is blocking, will run until cbLoopCondition returns false
 def polledUpdate(values, cb, cbLoopCondition, cbError, stopOnError = False):
-    sources = getSources(values)
+    sources = getSources([value for value in values if value in dataSourceValues])
 
     # remove sources which have no values enabled
     for i in reversed(range(len(sources))):

@@ -112,8 +112,14 @@
             element.textContent = newText;
         }
     }
+
+    values = [
+    {% for value in values %}
+        "{{ value }}",
+    {% endfor %}
+    ]
     function lcdFmtCheatSheet(){
-        window.alert("\nFMT Cheat Sheet: \n  {clock}, {date}, {humid}, {temp}\n  {space} (adaptive gap filling)\n  {src->dest} (currencies)\n  {wttr[Temp|Humid|Text|UV|Percip|FeelsLike]}");
+        window.alert(`\nFMT Cheat Sheet: \n  {${values.join('}\n  {')}}`);
     }
 
     function getLCD(){

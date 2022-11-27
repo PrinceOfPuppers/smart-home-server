@@ -39,6 +39,7 @@ def postLCD():
         s.encode('ascii')
     except UnicodeEncodeError:
         return current_app.response_class(f"String Must be ASCII", status=400, mimetype="text/plain")
+
     startUpdateLCD(s)
 
     return current_app.response_class(f"", status=200)

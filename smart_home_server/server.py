@@ -12,7 +12,7 @@ from smart_home_server.api.schedule import scheduleApi
 from smart_home_server.api.remote import remoteApi
 from smart_home_server.api.dashboard import dashboardApi
 from smart_home_server.api.data import dataApi
-from smart_home_server.data_sources import dataSources
+from smart_home_server.data_sources import dataSources, dataSourceValues
 
 app = Flask(__name__)
 app.register_blueprint(scheduleApi)
@@ -46,7 +46,7 @@ def dashboardGet():
                     'name': source['name'],
                  }
             )
-    return render_template('dashboard.html', dashboardElements=elements)
+    return render_template('dashboard.html', dashboardElements=elements, values=dataSourceValues)
 
 @app.route('/triggers')
 def triggersGet():
