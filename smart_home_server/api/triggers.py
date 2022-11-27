@@ -11,54 +11,57 @@ from smart_home_server.api import allJobsSchema
 scheduleApi = Blueprint('scheduleApi', __name__)
 
 weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-postScheduledJobSchema = \
+
+
+dataSourceSchema = \
+{
+    "type": "object", 
+    "properties":{
+        "value": {"type": "string", "minLength": 1, "maxLength": 50},
+    },
+    "required": ['value']
+}
+
+varSchema = \
+{
+    "type": "object", 
+    "properties":{
+        "type":  {"enum": ['constant', 'dataSource']},
+        "value": {"oneOf": [
+            {"type": "string", "minLength": 1, "maxLength": 50},
+            {"type": "number"},
+        ]}
+    },
+    "required": ['type', 'value']
+}
+
+postTriggerSchema = \
 {
     "type": "object",
     "properties":{
         "name":      {"type": "string", "minLength": 1, "maxLength": 30},
-        #"id":        {"type": "string"},
         "enabled":   {"type": "boolean"}, # defaults to True
-        "every":     {"type": "integer"},
-        "unit":      {"enum": ["second", "minute", "hour", "day", "week"] + weekdays},
-        #"at":        {"type": "string"},
-        "atSeconds": {"type": "integer", "minimum": 0, "maximum": 59},
-        "atMinutes": {"type": "integer", "minimum": 0, "maximum": 59},
-        "atHours":   {"type": "integer", "minimum": 0, "maximum": 23},
+        'negated':   {"type": "boolean"}, # defaults to false
+        'firstVar':  dataSourceSchema,
+        'comparison': {"enum": ['>', '<', '=', '>=', '<=', 'contains']},
+        'secondVar':  varSchema,
 
         "do": {
             "oneOf": allJobsSchema},
     },
-    "required": ['name', "unit", 'do'],
+    "required": ['name',' firstVar', 'comparison', "secondVar", 'do'],
     'additionalProperties': False,
 }
 
 
-@scheduleApi.route('/api/schedule', methods=['POST'])
-@expects_json(postScheduledJobSchema, check_formats=True)
+@scheduleApi.route('/api/trigger', methods=['POST'])
+@expects_json(postTriggerSchema, check_formats=True)
 def postJob():
-    scheduledJob = json.loads(request.data)
-
-    addDefault(scheduledJob, 'enabled', True)
-
-    if 'every' in scheduledJob:
-        if scheduledJob['every'] > 1:
-            if scheduledJob['unit'] in weekdays:
-                return current_app.response_class("days of the week 'units' are incompatible with 'every' > 1", status=400)
-        else:
-            scheduledJob.pop('every')
-
-    atTime = getAtTime(scheduledJob)
-    if atTime is not None:
-        scheduledJob['at'] = atTime
-
-    if 'at' in scheduledJob and scheduledJob['unit'] == 'week':
-        return current_app.response_class("unit week is incompatible at times", status=400)
-
-    scheduledJob.pop('atHours', None)
-    scheduledJob.pop('atMinutes', None)
-    scheduledJob.pop('atSeconds', None)
-
-    addJob(scheduledJob)
+    triggeredJob = json.loads(request.data)
+    addDefault(triggeredJob, 'negated', False)
+    addDefault(triggeredJob, 'enabled', True)
+    # TODO: ensure sources are in datasources
+    addTrigger(triggerJob)
     return current_app.response_class(status=200)
 
 

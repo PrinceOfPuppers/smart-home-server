@@ -3,6 +3,8 @@ from flask import Flask, send_from_directory, render_template
 from smart_home_server.threads.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
 from smart_home_server.threads.presser import startPresser, stopPresser, joinPresser
 from smart_home_server.threads.lcd import stopLCD, joinLCD, startUpdateLCD
+from smart_home_server.threads.triggerManager import startTriggerManager, stopTriggerManager, joinTriggerManager
+
 from smart_home_server import InterruptTriggered
 import smart_home_server.constants as const
 
@@ -46,6 +48,20 @@ def dashboardGet():
             )
     return render_template('dashboard.html', dashboardElements=elements)
 
+@app.route('/triggers')
+def triggersGet():
+    values=[]
+    for source in dataSources:
+        if 'values' not in source:
+            continue
+        for value in source['values']:
+            if 'enabled' not in value or not value['enabled']:
+                continue
+
+            values.append(value)
+
+    return render_template('triggers.html', values = values)
+
 
 def startServer():
     global app
@@ -53,6 +69,7 @@ def startServer():
         startPresser()
         startScheduler()
         startUpdateLCD(fromFile=True)
+        startTriggerManager()
         app.run(host='0.0.0.0', port=5000)
     except InterruptTriggered:
         pass
@@ -60,9 +77,11 @@ def startServer():
         stopPresser()
         stopScheduler()
         stopLCD()
+        stopTriggerManager()
         joinPresser()
         joinScheduler()
         joinLCD()
+        joinTriggerManager()
 
 if __name__ == '__main__':
     startServer()

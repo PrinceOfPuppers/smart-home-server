@@ -15,20 +15,6 @@ from smart_home_server.data_sources import dataSources
 dataApi = Blueprint('dataApi', __name__)
 
 
-@dataApi.route('/api/data/sources', methods=['GET'])
-def getSources():
-    data = json.loads(request.data)
-    s = data['line1']
-    if 'line2' in data:
-        s = f'{s}\n{data["line2"]}'
-    try:
-        s.encode('ascii')
-    except UnicodeEncodeError:
-        return current_app.response_class(f"String Must be ASCII", status=400, mimetype="text/plain")
-    startUpdateLCD(s)
-
-    return current_app.response_class(f"", status=200)
-
 def f(source):
     dash = source['dashboard']
     res = source['local']()

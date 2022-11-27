@@ -15,7 +15,6 @@ from typing import Callable
 #        "humid": 123
 #    },
 #    'str': f'Temprature: 123 \nHumidity: 123'
-#    'pollingPeriod': 60*10
 #}
 
 def getForexLocal(src,dest, decimal=3):
@@ -263,11 +262,23 @@ dataSources = [
             },
             'wttrPercip': {
                 'enabled': True,
-                'dataPath': ['data', 'current', 'UV']
+                'dataPath': ['data', 'current', 'percip']
+            },
+            'wttrTotalPercip': {
+                'enabled': True,
+                'dataPath': ['data', 'days', 0, 'percip']
             },
             'wttrFeelsLike': {
                 'enabled': True,
                 'dataPath': ['data', 'current', 'feelsLike']
+            },
+            'wttrTempTomorrow': {
+                'enabled': True,
+                'dataPath': ['data', 'days', 1, 'temp']
+            },
+            'wttrTempPercip': {
+                'enabled': True,
+                'dataPath': ['data', 'days', 1, 'percip']
             },
         },
     },
@@ -309,3 +320,23 @@ dataSources = [
         }
     },
 ]
+
+dataSourceValues = set()
+for source in dataSources:
+    if 'values' not in source:
+        continue
+    for value in source['values']:
+        dataSourceValues.add(value)
+
+def getSources(valueKeys: list):
+    res = []
+
+    for source in dataSources:
+        if not 'values' in source:
+            continue
+        for key in valueKeys:
+            if key in source['values']:
+                res.append(source)
+                break
+    return res
+

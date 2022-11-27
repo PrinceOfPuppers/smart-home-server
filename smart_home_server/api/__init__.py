@@ -1,4 +1,5 @@
 import smart_home_server.constants as const
+from smart_home_server.threads.presser import presserAppend
 
 remotePressSchema = \
 {
@@ -21,3 +22,14 @@ remotePressAction = \
     'additionalProperties': False,
 }
 
+
+allJobsSchema = [remotePressAction]
+
+
+def runJob(job:dict):
+    # job must contain key 'do'
+    do = job['do']
+    if do['type'] == 'press':
+        presserAppend(do['data'])
+    else:
+        raise Exception(f"Invalid Job Type '{do}'")

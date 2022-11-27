@@ -3,20 +3,8 @@ from uuid import uuid4
 import os
 import json
 
-from smart_home_server.threads.presser import presserAppend
+from smart_home_server.api import runJob
 import smart_home_server.constants as const
-
-
-def _runJob(scheduledJob:dict):
-    if not scheduledJob['enabled']:
-        return
-
-    j = scheduledJob['do']
-
-    if j['type'] == 'press':
-        presserAppend(j['data'])
-    else:
-        raise Exception(f"Invalid Job Type '{j['do']}'")
 
 
 def _getJobPath(id:str):
@@ -61,7 +49,7 @@ def _addJob(scheduledJob:dict, store:bool = True, newId:bool = True):
     if store:
         _storeJob(scheduledJob, id)
     s.tag(id)
-    s.do(_runJob, scheduledJob)
+    s.do(runJob, scheduledJob)
 
 
 def _loadJobs(clearExisting:bool, overwrite:bool):
@@ -104,7 +92,8 @@ def _updateJob(id: str, newScheduledJob:dict):
 def _enableDisableJob(id: str, enable:bool):
     jobs = schedule.get_jobs(id)
     if len(jobs) > 1:
-        raise Exception("Multiple jobs with same id")
+        print("Schedule: Multiple jobs with same id")
+        return
     if len(jobs) == 0:
         return
     job = jobs[0]
@@ -117,3 +106,26 @@ def _enableDisableJob(id: str, enable:bool):
     scheduledJob['enabled'] = enable
     _updateJob(id, scheduledJob)
 
+def _getJobs(jobsOut, outCondition):
+    # out conditon is a boolean in a list (pass by reference)
+    for j in schedule.get_jobs():
+        assert j.job_func is not None
+        jobsOut.append(j.job_func.args[0])
+    jobsOut.sort(key = lambda element: element['name'])
+    outCondition[0] = True
+
+def _getJob(id: str, jobOut:list, outCondition):
+    jobs = schedule.get_jobs(id)
+    if len(jobs) > 1:
+        print("Schedule: Multiple jobs with same id")
+        jobOut.append(None)
+        outCondition[0] = True
+        return
+    if len(jobs) == 0:
+        jobOut.append(None)
+        outCondition[0] = True
+        return
+    job = jobs[0]
+    assert job.job_func is not None
+    jobOut.append(job.job_func.args[0])
+    outCondition[0] = True

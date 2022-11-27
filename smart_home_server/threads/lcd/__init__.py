@@ -12,29 +12,13 @@ _lcdLoopCondition = False
 def _startLCD():
     global _lcdLoopCondition
 
-    args = {tup[1] for tup in string.Formatter().parse(getLCDFMT()) if tup[1] is not None}
-
-    sources = []
-    for s in dataSources:
-        if 'values' not in s:
-            continue
-
-        keys = args.intersection({key for key in s['values'].keys()})
-
-        if len(keys) == 0:
-            continue
-
-        sources.append({
-            'pollingPeriod': s['pollingPeriod'],
-            'local': s['local'],
-            'values': {key: s['values'][key] for key in keys}
-        })
+    args = [tup[1] for tup in string.Formatter().parse(getLCDFMT()) if tup[1] is not None]
 
     polledUpdate(\
-         sources, 
+         args, 
          lambda values:printfLCD(values), 
          lambda: _lcdLoopCondition, 
-         lambda e: print(f"LCD Exception: \n{e}", flush=True)
+         lambda e: print(f"LCD Exception: \n{repr(e)}", flush=True)
      )
 
 

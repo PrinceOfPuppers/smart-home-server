@@ -12,15 +12,21 @@
         var response;
         for(let i = 0; i < 3; i++){
             response = await fetch(url, {method: "GET"});
-            if(response.ok){
-                break;
+            if(!response.ok){
+                continue;
             }
+            if(!response.headers.get('content-type')?.includes('application/json')){
+                return;
+            }
+            break;
         }
         if(response === undefined){
             window.alert(`Dashboard Update Error \nStatus: ${response.status} \n${response.statusText}`);
             return;
         }
         //element.textContent = response.body;
+        await console.log(response);
+
         await response.json().then((json)=>{
             element.textContent = json['str'];
         });

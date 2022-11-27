@@ -1,6 +1,7 @@
 from queue import Queue
 import requests
 import string
+import time
 
 import smart_home_server.constants as const
 
@@ -63,3 +64,8 @@ def getAtTime(scheduledJob:dict):
 
 
 
+def waitUntil(conditionCb, period = 0.01):
+  while True:
+    if conditionCb(): 
+        return
+    time.sleep(period)

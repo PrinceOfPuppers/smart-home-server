@@ -18,6 +18,9 @@ createIfNotExists(storageFolder)
 schedulerJobFolder = f'{storageFolder}/jobs'
 createIfNotExists(schedulerJobFolder)
 
+triggeredJobFolder = f'{storageFolder}/triggers'
+createIfNotExists(triggeredJobFolder)
+
 lcdTextFile = f'{storageFolder}/lcd.txt'
 if not os.path.exists(lcdTextFile):
     with open(lcdTextFile,"w") as f:
