@@ -19,6 +19,7 @@ class RunningTriggerData:
         id = str(uuid4()) if 'id' not in triggerJob else triggerJob['id']
         self.triggerJob['id'] = id
 
+        self._prevCondition = False
         self._manualStop = False
 
         self.thread = None
@@ -69,6 +70,7 @@ class RunningTriggerData:
     # will restart if already enabled
     def start(self):
         self._manualStop = False
+        self._prevCondition = False
         if self.thread is not None:
             self.thread.join()
             self.thread = None
@@ -131,10 +133,17 @@ class RunningTriggerData:
         elif comparison == 'contains':
             condition = str(var2Value).lower() in str(var1Value).lower()
 
-        condition != negated
+        condition = condition != negated
+
+        # DeBouncing: if we triggered the event previously, dont retrigger event
+        if self._prevCondition:
+            self._prevCondition = condition
+            return
+        self._prevCondition = condition
 
         if condition:
             runJob(self.triggerJob)
+
 
     def manualStop(self):
         self._manualStop = True
@@ -162,8 +171,9 @@ def _removeTrigger(id: str):
     global _triggers
     if not id in _triggers:
         return
-    t = _triggers[id]
+    t = _triggers.pop(id)
     t.delete()
+
 
 def _enableDisableTrigger(id: str, enable=True):
     global _triggers

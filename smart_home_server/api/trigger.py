@@ -1,7 +1,6 @@
 import json
 from flask import jsonify, request, Blueprint, current_app
 from flask_expects_json import expects_json
-import copy
 
 from smart_home_server.helpers import addDefault
 from smart_home_server.data_sources import dataSourceValues
@@ -49,7 +48,7 @@ postTriggerSchema = \
         "do": {
             "oneOf": allJobsSchema},
     },
-    "required": ['name',' firstVar', 'comparison', "secondVar", 'do'],
+    "required": ['name','firstVar', 'comparison', "secondVar", 'do'],
     'additionalProperties': False,
 }
 

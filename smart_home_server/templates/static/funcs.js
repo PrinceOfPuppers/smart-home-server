@@ -58,4 +58,16 @@ function jobDelete(url, jobId){
     var data = {'id': jobId};
     sendData(url, data, 'DELETE', reload=true);
 }
+function processDoData(data){
+    if(data.do = "press"){
+        data.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
+        delete data.pressChannel;
+        delete data.pressValue;
+    }
+    else{
+        window.alert(`Error: Invalid Job Type: ${data.do}`);
+        return false;
+    }
+    return true;
+}
 

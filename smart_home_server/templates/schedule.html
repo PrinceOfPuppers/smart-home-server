@@ -12,13 +12,7 @@
         let form = event.currentTarget;
         var data = formToObject(form);
 
-        if(data.do = "press"){
-            data.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
-            delete data.pressChannel;
-            delete data.pressValue;
-        }
-        else{
-            window.alert(`Error: invalid job type: ${data.do}`);
+        if(!processDoData(data)){
             return;
         }
 

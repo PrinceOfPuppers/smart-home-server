@@ -10,21 +10,22 @@
         let form = event.currentTarget;
         var data = formToObject(form);
 
-        if(data.do = "press"){
-            data.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
-            delete data.pressChannel;
-            delete data.pressValue;
-        }
-        else{
-            window.alert(`Error: Invalid Job Type: ${data.do}`);
+        if(!processDoData(data)){
             return;
         }
+
         data.negated = Boolean(data.negated)
         data.firstVar = {value: data.firstVar}
 
-        data.secondVar = {type: data.secondVarType, value: data.secondVarValue}
+        if(data.secondVarType == 'constant'){
+            data.secondVar = {type: data.secondVarType, value: data.secondVarConstant}
+        } else {
+            data.secondVar = {type: data.secondVarType, value: data.secondVarDataSource}
+        }
         delete data.secondVarType
-        delete data.secondVarValue
+        delete data.secondVarConstant
+        delete data.secondVarDataSource
+        console.log(data)
 
         sendData('api/trigger', data, 'POST', reload=true);
     }
@@ -92,16 +93,16 @@
 
     <h3>Current Triggers:</h3>
         <ul>
-            {% if jobs|length == 0 %}
+            {% if triggerJobs|length == 0 %}
                 <center class="faintText">No Triggers</center>
             {% endif %}
 
-            {% for job in jobs %}
+            {% for job in triggerJobs %}
                 {% set jobId = job['id'] %}
                 {% set jobName = job['name'] %}
                 <li>
                     <div class="job">
-                        <button class="redButton", onclick = "jobDelete('api/trigger/jobs' '{{ jobId }}')"">X</button>
+                        <button class="redButton", onclick = "jobDelete('api/trigger/jobs', '{{ jobId }}')"">X</button>
 
                         <button class="blueButton" onclick="updateJobName('api/trigger/jobs', '{{ jobId }}', '{{ jobName }}' )">{{ jobName }}</button>
 
@@ -164,11 +165,8 @@
 
             <section>
                 <div class="formDiv">
-                    <label for="negated" id="negatedText">not:</label>
-                    <select id="negated" name="negated" required>
-                        <option value=""> </option>
-                        <option value="true">not</option>
-                    </select>
+                    <label for="negated" id="negatedText">Not:</label>
+                    <input type="checkbox" id="negated" name="negated" value="true">
                 </div>
 
                 <div class="formDiv">

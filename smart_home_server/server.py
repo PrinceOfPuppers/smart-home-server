@@ -3,7 +3,7 @@ from flask import Flask, send_from_directory, render_template
 from smart_home_server.threads.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
 from smart_home_server.threads.presser import startPresser, stopPresser, joinPresser
 from smart_home_server.threads.lcd import stopLCD, joinLCD, startUpdateLCD
-from smart_home_server.threads.triggerManager import startTriggerManager, stopTriggerManager, joinTriggerManager
+from smart_home_server.threads.triggerManager import startTriggerManager, stopTriggerManager, joinTriggerManager, getTriggers
 
 from smart_home_server import InterruptTriggered
 import smart_home_server.constants as const
@@ -55,8 +55,8 @@ def dashboardGet():
 
 @app.route('/trigger')
 def triggerGet():
-    return render_template('trigger.html', values=values, comparisons=triggerComparisons)
-
+    triggerJobs = getTriggers()
+    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs)
 
 def startServer():
     global app
