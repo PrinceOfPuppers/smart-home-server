@@ -119,6 +119,32 @@ class RunningTriggerData:
         negated = self.triggerJob['negated']
         comparison = self.triggerJob['comparison']
 
+        # try to convert to float/int
+        if isinstance(var1Value,str):
+            if var1Value.isdigit():
+                var1Value = int(var1Value)
+            else:
+                try:
+                    var1Value = float(var1Value)
+                except:
+                    pass
+
+        # try to convert to float/int
+        if isinstance(var2Value,str):
+            if var2Value.isdigit():
+                var2Value = int(var2Value)
+            else:
+                try:
+                    var2Value = float(var2Value)
+                except:
+                    pass
+
+        # if one is still str, make them both str
+        if isinstance(var1Value,str) != isinstance(var2Value,str):
+            var1Value = str(var1Value)
+            var2Value = str(var2Value)
+
+        print(type(var1Value), type(var2Value))
         condition = False
         if comparison == '=':
             condition = (var1Value == var2Value) or str(var1Value).lower() == str(var2Value).lower()
