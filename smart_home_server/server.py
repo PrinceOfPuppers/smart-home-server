@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, render_template
+from flask import Flask, send_from_directory, render_template, redirect
 
 from smart_home_server.threads.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
 from smart_home_server.threads.presser import startPresser, stopPresser, joinPresser
@@ -24,6 +24,10 @@ app.register_blueprint(remoteApi)
 app.register_blueprint(dashboardApi)
 app.register_blueprint(dataApi)
 app.register_blueprint(triggerApi)
+
+@app.route('/')
+def index():
+    return redirect("/dashboard", code=302)
 
 @app.route('/<path:path>')
 def send_templates(path):
