@@ -36,7 +36,7 @@ def lightsGet():
 @app.route('/schedule')
 def scheduleGet():
     jobs = getJobs()
-    return render_template('schedule.html', minChannel=0, maxChannel=len(const.txChannels)-1, jobs=jobs, timeUnits = timeUnits)
+    return render_template('schedule.html', minChannel=0, maxChannel=len(const.txChannels)-1, jobs=jobs, timeUnits = timeUnits, values=values)
 
 @app.route('/dashboard')
 def dashboardGet():
@@ -56,7 +56,7 @@ def dashboardGet():
 @app.route('/trigger')
 def triggerGet():
     triggerJobs = getTriggers()
-    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs)
+    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, minChannel=0, maxChannel=len(const.txChannels)-1)
 
 def startServer():
     global app

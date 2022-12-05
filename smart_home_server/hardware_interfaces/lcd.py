@@ -43,6 +43,13 @@ if const.isRpi():
             startLCD()
         assert _lcd is not None
         _lcd.backlight_enabled = not _lcd.backlight_enabled
+
+    def setBacklight(on:bool):
+        global _lcd
+        if _lcd is None:
+            startLCD()
+        _lcd.backlight_enabled = on
+
 else:
     def startLCD():
         pass
@@ -56,6 +63,9 @@ else:
     def toggleBacklight():
         print("LCD Backlight Toggled\n", flush=True)
         pass
+
+    def setBacklight(on:bool):
+        print(f"LCD Backlight Set: {'on' if on else 'off'}\n", flush=True)
 
 
 

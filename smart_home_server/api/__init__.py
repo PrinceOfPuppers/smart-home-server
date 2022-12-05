@@ -1,7 +1,8 @@
 import smart_home_server.constants as const
 from smart_home_server.threads.presser import presserAppend
+from smart_home_server.threads.lcd import updateFromJobData
 
-remotePressSchema = \
+postRemoteSchema = \
 {
     "type": "object",
     "properties": {
@@ -11,25 +12,48 @@ remotePressSchema = \
     'additionalProperties': False,
 }
 
-remotePressAction = \
+postLCDSchema = \
 {
     "type": "object",
     "properties": {
-        "type": {"const":"press"},
-        "data": remotePressSchema,
+        "line1":      {"type": "string", "minLength": 0, "maxLength": 70},
+        "line2":      {"type": "string", "minLength": 0, "maxLength": 70}, # defaults to ''
+        "backlight":  {"type": "boolean"}
     },
-    "required": ["type", "data"],
+    "required": ["line1"],
     'additionalProperties': False,
 }
 
+_schemas = [
+    ('press', postRemoteSchema),
+    ('lcd', postLCDSchema),
+]
 
-allJobsSchema = [remotePressAction]
-
+allJobsSchema = [
+    {
+        "type": "object",
+        "properties": {
+            "type": {"const": name},
+            "data": schema,
+        },
+        "required": ["type", "data"],
+        'additionalProperties': False,
+    } for name, schema in _schemas
+]
 
 def runJob(job:dict):
     # job must contain key 'do'
+    if not job['enabled']:
+        return
+
     do = job['do']
-    if do['type'] == 'press':
-        presserAppend(do['data'])
+    type = do['type']
+    data = do['data']
+
+    if type == 'press':
+        presserAppend(data)
+    elif type == 'lcd':
+        updateFromJobData(data)
     else:
         raise Exception(f"Invalid Job Type '{do}'")
+

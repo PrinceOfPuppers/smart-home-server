@@ -2,7 +2,7 @@ import string
 from threading import Thread
 
 import smart_home_server.constants as const
-from smart_home_server.hardware_interfaces.lcd import setLCDFMT, printfLCD, toggleBacklight, getLCDFMT
+from smart_home_server.hardware_interfaces.lcd import setLCDFMT, printfLCD, toggleBacklight, getLCDFMT, setBacklight
 from smart_home_server.data_sources.polling import polledUpdate
 from smart_home_server.data_sources import dataSources
 
@@ -65,3 +65,22 @@ def startUpdateLCD(fmt = "", fromFile = False):
 
 def toggleLCDBacklight():
     toggleBacklight()
+
+def setLCDBacklight(on: bool):
+    setBacklight(on)
+
+def updateFromJobData(data:dict):
+    s = data['line1']
+    if 'line2' in data:
+        s = f'{s}\n{data["line2"]}'
+
+    try:
+        s.encode('ascii')
+    except UnicodeEncodeError:
+        return False
+
+    startUpdateLCD(s)
+    if 'backlight' in data:
+        setLCDBacklight(data['backlight'])
+
+    return True

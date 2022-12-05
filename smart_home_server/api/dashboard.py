@@ -2,7 +2,7 @@ import json
 from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 
-from smart_home_server.threads.lcd import startUpdateLCD, getLCDFMT, toggleLCDBacklight
+from smart_home_server.threads.lcd import getLCDFMT, updateFromJobData, toggleLCDBacklight
 import smart_home_server.constants as const
 
 # return format is 
@@ -32,16 +32,8 @@ postLCDSchema = \
 @expects_json(postLCDSchema, check_formats=True)
 def postLCD():
     data = json.loads(request.data)
-    s = data['line1']
-    if 'line2' in data:
-        s = f'{s}\n{data["line2"]}'
-    try:
-        s.encode('ascii')
-    except UnicodeEncodeError:
+    if not updateFromJobData(data):
         return current_app.response_class(f"String Must be ASCII", status=400, mimetype="text/plain")
-
-    startUpdateLCD(s)
-
     return current_app.response_class(f"", status=200)
 
 

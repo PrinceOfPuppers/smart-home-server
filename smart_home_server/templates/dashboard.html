@@ -3,9 +3,12 @@
 <link rel="stylesheet" href = "style.css"></link>
 <script type="text/javascript" src="funcs.js"></script>
 
-<html>
+{% import 'macros.html' as m %}
 
+<html>
 <script>
+    {{ m.lcdFmtCheatSheet(values) }}
+
     const delay = s => new Promise(res => setTimeout(res, 1000*s));
 
     async function updateDashboardElement(element, url){
@@ -92,7 +95,7 @@
         const text = element.textContent;
         const lines = text.split('\n')
         oldLine1 = lines.length > 0 ? lines[0] : ""
-        oldLine2 = lines.length > 1 ? lines[1] : ""
+        oldLine2 = lines.length > 0 ? lines[1] : ""
 
         const line1 = window.prompt("LCD Line 1:", oldLine1);
         if(line1 === null){
@@ -111,15 +114,6 @@
         if(ok){
             element.textContent = newText;
         }
-    }
-
-    values = [
-    {% for value in values %}
-        "{{ value }}",
-    {% endfor %}
-    ]
-    function lcdFmtCheatSheet(){
-        window.alert(`\nFMT Cheat Sheet: \n  {${values.join('}\n  {')}}`);
     }
 
     function getLCD(){

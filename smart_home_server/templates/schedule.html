@@ -3,8 +3,12 @@
 <link rel="stylesheet" href = "style.css"></link>
 <script type="text/javascript" src="funcs.js"></script>
 
+{% import 'macros.html' as m %}
+
 <html>
 <script>
+    {{ m.lcdFmtCheatSheet(values) }}
+
     const weekdays = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
 
     function submitJobHandler(event){
@@ -12,12 +16,14 @@
         let form = event.currentTarget;
         var data = formToObject(form);
 
-        if(!processDoData(data)){
+        toSubmit = {}
+
+        if(!processDoData(data, toSubmit)){
             return;
         }
 
         // every is not compatible with days of the week
-        if(weekdays.indexOf(data.unit)!== -1){
+        if(weekdays.indexOf(data.unit) !== -1){
             delete data.every;
         }
         if(data.unit === "week"){
@@ -26,14 +32,17 @@
             delete data.atSeconds;
         }
 
+        // remove empty, null, undefined
         data = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== null && v !== undefined && v!== ""));
 
-        if ('atHours' in data){data.atHours = Number(data.atHours);}
-        if ('atMinutes' in data){data.atMinutes = Number(data.atMinutes);}
-        if ('atSeconds' in data){data.atSeconds = Number(data.atSeconds);}
-        if ('every' in data){data.every = Number(data.every);}
+        if ('atHours' in data){toSubmit.atHours = Number(data.atHours);}
+        if ('atMinutes' in data){toSubmit.atMinutes = Number(data.atMinutes);}
+        if ('atSeconds' in data){toSubmit.atSeconds = Number(data.atSeconds);}
+        if ('every' in data){toSubmit.every = Number(data.every);}
+        toSubmit.unit = data.unit
+        toSubmit.name = data.name
 
-        sendData('api/schedule', data, 'POST', reload=true);
+        sendData('api/schedule', toSubmit, 'POST', reload=true);
     }
 
     function hideUnhideJobForms(dropDown){
@@ -156,22 +165,10 @@
                                 <span class="nobr">at {{ job['at'] }} </span>
                             {% endif %}
 
-
                             {% set do = job['do'] %}
-                            {% set type = do['type'] %}
-                            {% set data = do['data'] %}
-
-                            <br/>
-                            <span class="nobr">→ </span>
-                            {% if type == "press" %}
-                            <span class="nobr">switch channel: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
-                            {% else %}
-                                <span class="nobr">Unrecognized Job Type: {{ type }}</span>
-                            {% endif %}
+                            {{ m.jobRepr(do['type'], do['data']) }}
                         </div>
 
-
-                            
 
                     </div>
                 </li>
@@ -215,27 +212,7 @@
 
             <br style="clear:both;" />
 
-            <section>
-                <div class="formDiv">
-                    <label for="do">Do:</label>
-                    <select id="do" name="do" required>
-                    <option value="press">press</option>
-                    </select>
-                </div>
-
-                <div class="formDiv">
-                    <label for="pressChannel" id="pressChannelLabel">Channel:</label>
-                    <input type="number" id="pressChannel" name="pressChannel" min={{ minChannel }} max= {{ maxChannel }} size="5" value="0">
-                </div>
-
-                <div class="formDiv">
-                    <label for="pressValue" id="pressValueLabel">Value:</label>
-                    <select id="pressValue" name="pressValue">
-                    <option value="1">on</option>
-                    <option value="">off</option>
-                    </select>
-                </div>
-            </section>
+            {{ m.jobFormDo() }}
 
             <br style="clear:both;" />
 

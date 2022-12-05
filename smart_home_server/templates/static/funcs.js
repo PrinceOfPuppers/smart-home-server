@@ -58,11 +58,12 @@ function jobDelete(url, jobId){
     var data = {'id': jobId};
     sendData(url, data, 'DELETE', reload=true);
 }
-function processDoData(data){
-    if(data.do = "press"){
-        data.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
-        delete data.pressChannel;
-        delete data.pressValue;
+function processDoData(data, toSubmit){
+    if(data.do == "press"){
+        toSubmit.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
+    }
+    else if(data.do == "lcd"){
+        toSubmit.do = {type:"lcd", data:{line1: data.lcdLine1, line2: data.lcdLine2, backlight: Boolean(data.lcdBacklight)}};
     }
     else{
         window.alert(`Error: Invalid Job Type: ${data.do}`);

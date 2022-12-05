@@ -144,7 +144,6 @@ class RunningTriggerData:
             var1Value = str(var1Value)
             var2Value = str(var2Value)
 
-        print(type(var1Value), type(var2Value))
         condition = False
         if comparison == '=':
             condition = (var1Value == var2Value) or str(var1Value).lower() == str(var2Value).lower()
