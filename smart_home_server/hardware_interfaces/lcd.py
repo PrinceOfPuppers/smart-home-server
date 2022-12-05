@@ -29,13 +29,15 @@ if const.isRpi():
         assert _lcd is not None
         _lcd.crlf()
 
-    def writeLCD(s):
+    def writeLCD(lines):
         global _lcd
         if _lcd is None:
             startLCD()
         assert _lcd is not None
-        _lcd.crlf()
-        _lcd.write_string(s)
+        _lcd.clear()
+        for line in lines:
+            _lcd.write_string(line)
+            _lcd.crlf()
 
     def toggleBacklight():
         global _lcd
@@ -57,7 +59,8 @@ else:
         pass
     def clearLCD():
         pass
-    def writeLCD(s):
+    def writeLCD(lines):
+        s = '\n'.join(lines)
         print(f"Write LCD:\n{s}\n", flush=True)
 
     def toggleBacklight():
@@ -99,9 +102,7 @@ def printfLCD(replacements):
     text = _fmt.format_map(IgnoreMissingDict(replacements))
     lines = text.split('\n')
     lines = fillSpacesAndClamp(lines)
-    text = '\n'.join(lines)
-
-    writeLCD(text)
+    writeLCD(lines)
 
 def getLCDFMT():
     global _fmt
