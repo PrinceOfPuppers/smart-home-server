@@ -69,7 +69,13 @@ def startServer():
         startScheduler()
         startUpdateLCD(fromFile=True)
         startTriggerManager()
-        app.run(host='0.0.0.0', port=5000)
+
+        if const.isRpi():
+            from waitress import serve
+            serve(app)
+        else:
+            app.run(host='0.0.0.0', port=5000)
+
     except InterruptTriggered:
         pass
     finally:

@@ -2,6 +2,7 @@ import smart_home_server.constants as const
 
 # Generally 27 is the address;Find yours using: i2cdetect -y 1
 
+_lastWritten = ["", ""]
 if const.isRpi():
     _lcd = None
     from RPLCD import i2c
@@ -31,9 +32,23 @@ if const.isRpi():
 
     def writeLCD(lines):
         global _lcd
+        global _lastWritten
         if _lcd is None:
             startLCD()
+
         assert _lcd is not None
+        assert len(lines)==2
+
+        same = True
+
+        for i in range(len(_lastWritten)):
+            if lines[i] != _lastWritten[i]:
+                same=False
+            _lastWritten[i] = lines[i]
+
+        if same:
+            return
+
         _lcd.clear()
         for line in lines:
             _lcd.write_string(line)
