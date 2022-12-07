@@ -51,4 +51,23 @@ sudo apt-get update
 sudo apt-get install pigpio
 sudo apt install python3-pip
 sudo systemctl enable pigpiod
+sudo systemctl start pigpiod
 pip3 install -e .
+
+# create systemd service
+PROGRAM="smart-home-server"
+# user service
+SERVICE_FILE="/usr/lib/systemd/user/$PROGRAM.service"
+BIN_LOCATION="/usr/local/bin/$PROGRAM"
+
+sudo chmod +x "bin/$PROGRAM"
+sudo cp "bin/$PROGRAM" $BIN_LOCATION
+
+sudo cp $PROGRAM.service $SERVICE_FILE
+sudo chmod 644 $SERVICE_FILE
+
+sudo systemctl daemon-reload
+systemctl --user daemon-reload
+systemctl --user enable $PROGRAM
+systemctl --user start $PROGRAM
+

@@ -1,0 +1,14 @@
+[Unit]
+Description=smart home server
+After=pigpiod.service
+SyslogIdentifier=smart-home-server
+                                        
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/smart-home-server
+Restart=on-failure
+RestartSec=10
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
