@@ -30,7 +30,7 @@
         }
         toSubmit.comparison = data.comparison
         toSubmit.name = data.name
-        sendData('api/trigger', data, 'POST', reload=true);
+        sendData('api/trigger', toSubmit, 'POST', reload=true);
     }
 
     function hideUnhideJobForms(dropDown){
