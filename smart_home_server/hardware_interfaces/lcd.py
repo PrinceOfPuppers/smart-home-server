@@ -96,7 +96,7 @@ class IgnoreMissingDict(dict):
 
 spaceFormat = "space"
 noSpace = IgnoreMissingDict({spaceFormat:""})
-oneSpace = IgnoreMissingDict({spaceFormat:""})
+oneSpace = IgnoreMissingDict({spaceFormat:" "})
 def fillSpacesAndClamp(lines):
     res = []
     for i in range(min(len(lines), const.lcdLines)):
@@ -117,7 +117,10 @@ def printfLCD(replacements):
     text = _fmt.format_map(IgnoreMissingDict(replacements))
     lines = text.split('\n')
     lines = fillSpacesAndClamp(lines)
-    writeLCD(lines)
+    try:
+        writeLCD(lines)
+    except:
+        print("LCD Write Error")
 
 def getLCDFMT():
     global _fmt

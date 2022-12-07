@@ -51,8 +51,8 @@ def getForecastLocal():
         current = j['current_condition'][0]
         data = {
             'current': {
-                "temp": float(current['temp_C']),
-                "humid": float(current['humidity']),
+                "temp": int(round(float(current['temp_C']))),
+                "humid": int(round(float(current['humidity']))),
                 "text": const.WWO_CODE[current['weatherCode']],
                 "UV": int(current['uvIndex']),
                 "percip": float(current['precipMM']),
@@ -147,7 +147,7 @@ def getIndoorClimateLocal():
         s = f'Temprature: {data.temp} \nHumidity: {data.humid}'
         res = {
             'str':s,
-            'data':{'temp':data.temp, 'humid': data.humid},
+            'data':{'temp':round(data.temp), 'humid': round(data.humid)},
         }
     return res
 

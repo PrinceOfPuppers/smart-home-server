@@ -113,7 +113,7 @@ class RunningTriggerData:
             var2Value = var2
 
         if var1Value is None or var2Value is None:
-            print(f"Trigger Job {self.triggerJob['name']} Has a None Value: {var1=} {var2=}", flush=True)
+            print(f"Trigger Job {self.triggerJob['name']} Has a None Value: var1={var1} var2={var2}", flush=True)
 
 
         negated = self.triggerJob['negated']

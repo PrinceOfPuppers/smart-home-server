@@ -30,7 +30,7 @@ if const.isRpi():
                 return _prevDHTRes
 
         try:
-            result = _dht.sample(samples=const.dhtSamples, max_retries=const.dhtMaxRetry)
+            result = _dht.sample(samples=const.dhtSamples)#, max_retries=const.dhtMaxRetry)
             if not result['valid']:
                 if not firstCall:
                     return _prevDHTRes
@@ -38,7 +38,8 @@ if const.isRpi():
             _prevDHTTime = now
             _prevDHTRes = DHTData(temp=result['temp_c'], humid=result['humidity'])
             return _prevDHTRes
-        except:
+        except Exception as e:
+            print("DHT Read Error: \n", e)
             if not firstCall:
                 return _prevDHTRes
             return None

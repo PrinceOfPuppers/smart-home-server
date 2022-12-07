@@ -21,10 +21,10 @@ if const.isRpi():
         code = ch.on if value else ch.off
 
         _rfdevice.tx_code(code, const.txProtocol, const.txPulseLength)
-        print(f'{channel=}', f'{value=}', flush=True)
+        #print(f'channel={channel}', f'value={value}', flush=True)
 else:
     def _changeChannel(channel: int, value: bool):
-        print(f'{channel=}', f'{value=}', flush=True)
+        print(f'channel={channel}', f'value={value}', flush=True)
 
 def _presserLoop():
     global _pressQueue

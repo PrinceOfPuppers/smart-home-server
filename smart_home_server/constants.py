@@ -10,7 +10,7 @@ def createIfNotExists(dir):
 
 modulePath = dirname(__file__)
 
-pressSpacing = 0.1
+pressSpacing = 0.01
 pressRepeats = 2
 
 storageFolder = f'{modulePath}/storage'
@@ -26,7 +26,7 @@ if not os.path.exists(lcdTextFile):
     with open(lcdTextFile,"w") as f:
         f.write(
             "{clock}{space} {wttrText}\n"
-            "T:{temp}/{wttrTemp} H:{humid}/{wttrHumid}"
+            "T:{temp}/{wttrTemp}{space} H:{humid}/{wttrHumid}"
         )
 
 templatesFolder = f'{modulePath}/templates'
@@ -88,7 +88,7 @@ lcdI2CAddress = 0x27
 lcdLines = 2
 lcdWidth = 16
 
-dhtGpio = 17
+dhtGpio = 22
 dhtMinSamplePeriod = 30
 dhtMaxRetry = 3
 dhtSamples = 2

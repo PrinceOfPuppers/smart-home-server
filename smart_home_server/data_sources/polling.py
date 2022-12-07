@@ -46,7 +46,13 @@ def polledUpdate(values, cb, cbLoopCondition, cbError, stopOnError = False):
     toSend = {}
 
     for source in sources:
-        updateToSend(source, toSend)
+        while True:
+            try:
+                updateToSend(source, toSend)
+                break
+            except Exception:
+                sleep(0.1)
+
 
     cb(toSend)
     lastUpdate = datetime.now()
