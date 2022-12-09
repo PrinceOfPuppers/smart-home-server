@@ -1,7 +1,6 @@
 [Unit]
 Description=smart home server
 After=pigpiod.service
-SyslogIdentifier=smart-home-server
                                         
 [Service]
 Type=simple
@@ -11,4 +10,4 @@ RestartSec=10
 KillMode=process
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target

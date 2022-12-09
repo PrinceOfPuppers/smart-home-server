@@ -47,6 +47,8 @@ pathappend() {
 pathappend "$HOME/.local/bin"
 source "$HOME/.profile"
 
+sudo raspi-config nonint do_i2c 0
+sudo loginctl enable-linger $(id -u)
 sudo apt-get update
 sudo apt-get install pigpio
 sudo apt install python3-pip

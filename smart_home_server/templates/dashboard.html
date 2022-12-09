@@ -28,7 +28,6 @@
             return;
         }
         //element.textContent = response.body;
-        await console.log(response);
 
         await response.json().then((json)=>{
             element.textContent = json['str'];
