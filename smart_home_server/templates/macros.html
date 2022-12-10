@@ -23,8 +23,8 @@
         </div>
 
         <div class="formDiv">
-            <label for="lcdBacklight" id="lcdBacklightLabel">Backlight:</label>
-            <input type="checkbox" id="lcdBacklight" name="lcdBacklight" value="true">
+            <label for="lcdBacklight" id="lcdBacklightLabel">Light:</label>
+            <input type="checkbox" id="lcdBacklight" name="lcdBacklight" value="true" checked="true">
         </div>
         
 
@@ -35,11 +35,21 @@
             <input type="text" id="lcdLine1" name="lcdLine1" maxLength = "40" size="20">
         </div>
 
+        <div class="formDiv">
+            <label for="lcdLine1Edit" id="lcdLine1Edit">Edit:</label>
+            <input type="checkbox" id="lcdLine1Edit" name="lcdLine1Edit" value="true" checked="true">
+        </div>
+
         <br id="lcdBr"/>
 
         <div class="formDiv">
             <label for="lcdLine2" id="lcdLine2Label">Line 2:</label>
             <input type="text" id="lcdLine2" name="lcdLine2" maxLength = "40" size="20">
+        </div>
+
+        <div class="formDiv">
+            <label for="lcdLine2Edit" id="lcdLine2Edit">Edit:</label>
+            <input type="checkbox" id="lcdLine2Edit" name="lcdLine2Edit" value="true" checked="true">
         </div>
 
         <br id="lcdBr"/>
@@ -59,12 +69,15 @@
     {% if type == "press" %}
         <span class="nobr">switch channel: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
     {% elif type == "lcd" %}
-        <span class="nobr">Update LCD: Backlight: {{'on' if data['backlight'] else 'off' }}</span>
-    <br/>
-        <span class="nobr">→ Line 1: {{ data['line1'] }}</span>
-    <br/>
-        <span class="nobr">→ Line 2: {{data['line2']}}</span>
-
+            <span class="nobr">Update LCD: Light: {{'on' if data['backlight'] else 'off' }}</span>
+        {% if 'line1' in data %}
+        <br/>
+                <span class="nobr">→ Line 1: {{ data['line1'] }}</span>
+        {% endif %}
+        {% if 'line2' in data %}
+        <br/>
+            <span class="nobr">→ Line 2: {{data['line2']}}</span>
+        {% endif %}
     {% else %}
         <span class="nobr">Unrecognized Job Type: {{ type }}</span>
     {% endif %}

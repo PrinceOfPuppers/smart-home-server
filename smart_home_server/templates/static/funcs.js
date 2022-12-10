@@ -63,7 +63,13 @@ function processDoData(data, toSubmit){
         toSubmit.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
     }
     else if(data.do == "lcd"){
-        toSubmit.do = {type:"lcd", data:{line1: data.lcdLine1, line2: data.lcdLine2, backlight: Boolean(data.lcdBacklight)}};
+        toSubmit.do = {type:"lcd", data:{backlight: Boolean(data.lcdBacklight)}};
+        if(data.lcdLine1Edit){
+            toSubmit.do.data.line1 = data.lcdLine1;
+        }
+        if(data.lcdLine2Edit){
+            toSubmit.do.data.line2 = data.lcdLine2;
+        }
     }
     else{
         window.alert(`Error: Invalid Job Type: ${data.do}`);
