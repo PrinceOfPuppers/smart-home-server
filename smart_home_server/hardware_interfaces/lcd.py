@@ -130,4 +130,3 @@ def setLCDFMT(fmt):
     global _fmt
     _fmt = fmt
 
-

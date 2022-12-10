@@ -1,6 +1,6 @@
 import smart_home_server.constants as const
 from smart_home_server.threads.presser import presserAppend
-from smart_home_server.threads.lcd import updateFromJobData
+from smart_home_server.threads.lcd import updateLCDFromJobData
 
 postRemoteSchema = \
 {
@@ -16,11 +16,11 @@ postLCDSchema = \
 {
     "type": "object",
     "properties": {
-        "line1":      {"type": "string", "minLength": 0, "maxLength": 70},
-        "line2":      {"type": "string", "minLength": 0, "maxLength": 70}, # defaults to ''
+        "line1":      {"type": "string", "minLength": 0, "maxLength": 70}, # defaults to no change
+        "line2":      {"type": "string", "minLength": 0, "maxLength": 70}, # defaults to no change
         "backlight":  {"type": "boolean"}
     },
-    "required": ["line1"],
+    "required": [],
     'additionalProperties': False,
 }
 
@@ -53,7 +53,7 @@ def runJob(job:dict):
     if type == 'press':
         presserAppend(data)
     elif type == 'lcd':
-        updateFromJobData(data)
+        updateLCDFromJobData(data)
     else:
         raise Exception(f"Invalid Job Type '{do}'")
 

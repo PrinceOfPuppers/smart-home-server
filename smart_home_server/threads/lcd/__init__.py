@@ -69,10 +69,19 @@ def toggleLCDBacklight():
 def setLCDBacklight(on: bool):
     setBacklight(on)
 
-def updateFromJobData(data:dict):
-    s = data['line1']
+def updateLCDFromJobData(data:dict):
+    s = ""
+    last = getLCDFMT().split('\n')
+    if 'line1' in data:
+        s += data['line1']
+    else:
+        if len(last) > 0:
+            s += last[0]
     if 'line2' in data:
-        s = f'{s}\n{data["line2"]}'
+        s += f'\n{data["line2"]}'
+    else:
+        if len(last) > 1:
+            s += f'\n{last[1]}'
 
     try:
         s.encode('ascii')
