@@ -6,6 +6,8 @@ from smart_home_server.hardware_interfaces.dht22 import getDHT
 from smart_home_server.helpers import stripLines, padChar, roundTimeStr
 import smart_home_server.constants as const
 
+from smart_home_server.data_sources.errors import currentErrors, getErrorStrAndBool
+
 from typing import Callable
 
 # return format is 
@@ -16,6 +18,16 @@ from typing import Callable
 #    },
 #    'str': f'Temprature: 123 \nHumidity: 123'
 #}
+
+def getErrors():
+    s, anyErr = getErrorStrAndBool()
+    d = currentErrors.copy()
+    d['anyErrors'] = anyErr
+    res = {
+        'str': s,
+        'data': d,
+    }
+    return res
 
 def getForexLocal(src,dest, decimal=3):
     try:
@@ -359,6 +371,29 @@ dataSources = [
             }
         }
     },
+    {
+        'name': 'Errors',
+        'color': 'red',
+        'url': '/api/data/errors',
+        'local': getErrors,
+        'pollingPeriod': 15,
+
+        'dashboard':{
+            'enabled':True,
+        },
+
+        'values': {
+            'anyErrors': {
+                'enabled': True,
+                'dataPath': ['data', 'anyErrors']
+            },
+            'DHTReadErr': {
+                'enabled': True,
+                'dataPath': ['data', 'Conseq_DHT_Read_Err']
+            }
+        },
+    },
+
 ]
 
 dataSourceValues = set()

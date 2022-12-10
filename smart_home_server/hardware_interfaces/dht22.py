@@ -3,12 +3,19 @@ from typing import Union
 from datetime import datetime, timedelta
 
 import smart_home_server.constants as const
+from smart_home_server.data_sources.errors import currentErrors
 
 @dataclass
 class DHTData:
     temp: float
     humid: float
 
+s = 'Conseq_DHT_Read_Err'
+def _addError():
+    currentErrors[s] += 1
+
+def _clearError():
+    currentErrors[s] += 0
 
 if const.isRpi():
     from pigpio_dht import DHT22
@@ -37,9 +44,12 @@ if const.isRpi():
                 return None
             _prevDHTTime = now
             _prevDHTRes = DHTData(temp=result['temp_c'], humid=result['humidity'])
+            _clearError()
             return _prevDHTRes
+
         except Exception as e:
             print("DHT Read Error: \n", e)
+            _addError()
             if not firstCall:
                 return _prevDHTRes
             return None
