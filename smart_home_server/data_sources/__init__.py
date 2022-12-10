@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from smart_home_server.hardware_interfaces.lcd import getLCDFMT
 from smart_home_server.hardware_interfaces.dht22 import getDHT
-from smart_home_server.helpers import stripLines, padChar
+from smart_home_server.helpers import stripLines, padChar, roundTimeStr
 import smart_home_server.constants as const
 
 from typing import Callable
@@ -48,16 +48,7 @@ def getForecastLocal():
     j = r.json()
     days = []
     try:
-        current = j['current_condition'][0]
         data = {
-            'current': {
-                "temp": int(round(float(current['temp_C']))),
-                "humid": int(round(float(current['humidity']))),
-                "text": const.WWO_CODE[current['weatherCode']],
-                "UV": int(current['uvIndex']),
-                "percip": float(current['precipMM']),
-                "feelsLike": float(current['FeelsLikeC']),
-            },
             'days': []
         }
 
@@ -114,7 +105,33 @@ def getForecastLocal():
     }
     return res
 
+def getCurrentWeather():
+    r = requests.get(const.wttrCurrentData)
+    if not r.ok:
+        return None
+    text, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split()
 
+    temp, feelsLike = temp[:-2], feelsLike[:-2]
+    humid = humid[:-1]
+    percip3h = percip3h[:-2]
+
+    sunrise = roundTimeStr(sunrise)
+    sunset = roundTimeStr(sunset)
+
+    res = {
+        'str': f'{text} {temp}C({feelsLike}C) {humid}%',
+        'data': {
+            'text': text,
+            'temp': temp,
+            'feelsLike': feelsLike,
+            'humid': humid,
+            'percip3h': percip3h,
+            'uv': uv,
+            'sunrise': sunrise,
+            'sunset': sunset,
+            },
+    }
+    return res
 
 def getWeatherImageLocal():
     r = requests.get(const.weatherUrl)
@@ -204,18 +221,6 @@ dataSources = [
     },
 
     {
-        'name': 'Weather',
-        'color': 'blue',
-        'url': f'/api/data/weatherImage',
-        'local': lambda: cached(getWeatherImageLocal, 10*60),
-        'pollingPeriod': 10*60,
-
-        'dashboard':{
-            'enabled':False,
-        }
-    },
-
-    {
         'local': getClockLocal,
         'pollingPeriod': 1,
 
@@ -232,6 +237,19 @@ dataSources = [
 
     },
 
+
+    {
+        'name': 'Weather',
+        'color': 'blue',
+        'url': f'/api/data/weatherImage',
+        'local': lambda: cached(getWeatherImageLocal, 10*60),
+        'pollingPeriod': 10*60,
+
+        'dashboard':{
+            'enabled':True,
+        }
+    },
+
     {
         'name': 'Forecast',
         'color': 'blue',
@@ -244,33 +262,9 @@ dataSources = [
         },
 
         'values': {
-            'wttrTemp': {
-                'enabled': True,
-                'dataPath': ['data', 'current', 'temp']
-            },
-            'wttrHumid': {
-                'enabled': True,
-                'dataPath': ['data', 'current', 'humid']
-            },
-            'wttrText': {
-                'enabled': True,
-                'dataPath': ['data', 'current', 'text']
-            },
-            'wttrUV': {
-                'enabled': True,
-                'dataPath': ['data', 'current', 'UV']
-            },
-            'wttrPercip': {
-                'enabled': True,
-                'dataPath': ['data', 'current', 'percip']
-            },
             'wttrTotalPercip': {
                 'enabled': True,
                 'dataPath': ['data', 'days', 0, 'percip']
-            },
-            'wttrFeelsLike': {
-                'enabled': True,
-                'dataPath': ['data', 'current', 'feelsLike']
             },
             'wttrTempTomorrow': {
                 'enabled': True,
@@ -283,7 +277,53 @@ dataSources = [
         },
     },
 
-    # has bespoke solution in frontend
+    {
+        'name': 'Current',
+        'color': 'blue',
+        'url': f'/api/data/current-weather',
+        'local': lambda: cached(getCurrentWeather, 10*60),
+        'pollingPeriod': 10*60,
+
+        'dashboard':{
+            'enabled': False,
+        },
+
+        'values': {
+            'wttrTemp': {
+                'enabled': True,
+                'dataPath': ['data', 'temp']
+            },
+            'wttrHumid': {
+                'enabled': True,
+                'dataPath': ['data', 'humid']
+            },
+            'wttrText': {
+                'enabled': True,
+                'dataPath': ['data', 'text']
+            },
+            'wttrUV': {
+                'enabled': True,
+                'dataPath': ['data', 'uv']
+            },
+            'wttrPercip3h': {
+                'enabled': True,
+                'dataPath': ['data', 'percip3h']
+            },
+            'wttrFeelsLike': {
+                'enabled': True,
+                'dataPath': ['data', 'feelsLike']
+            },
+            'wttrSunrise': {
+                'enabled': True,
+                'dataPath': ['data', 'sunrise']
+            },
+            'wttrSunset': {
+                'enabled': True,
+                'dataPath': ['data', 'sunset']
+            },
+        },
+    },
+
     {
         'name': 'LCD',
         'color': 'purple',

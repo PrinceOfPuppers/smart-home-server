@@ -10,8 +10,8 @@ def createIfNotExists(dir):
 
 modulePath = dirname(__file__)
 
-pressSpacing = 0.01
-pressRepeats = 2
+pressSpacing = 0.07
+pressRepeats = 4
 
 storageFolder = f'{modulePath}/storage'
 createIfNotExists(storageFolder)
@@ -54,6 +54,16 @@ txChannels = [
     TxChannel(on = 5292835, off = 5292835+9),
 ]
 
+# new switches which dont work with old system
+txChannels_B = [
+    TxChannel(on = 8638540, off = 8638532),
+    TxChannel(on = 8638538, off = 8638530),
+    TxChannel(on = 8638537, off = 8638529),
+    TxChannel(on = 8638541, off = 8638533),
+    TxChannel(on = 8638539, off = 8638531),
+]
+
+
 #seconds
 threadPollingPeriod = 1
 
@@ -76,9 +86,14 @@ def isRpi():
 _city = "Waterloo+Canada"
 fullForecastUrl   = f'http://wttr.in/{_city}'
 fullforecastUrlV2 = f'http://v2d.wttr.in/{_city}'
+#graphical forcast
 forecastUrl       = f'http://wttr.in/{_city}?TQ3n'
+# inaccurate current information, used for forcast
 wttrApiUrl        = f'http://wttr.in/{_city}?format=j1'
+# used for weather image
 weatherUrl        = f'http://wttr.in/{_city}?TQ0n'
+#used for current condition data
+wttrCurrentData   = f'http://wttr.in/{_city}?format=%C\n%t\n%f\n%h\n%p\n%u\n%S\n%s'
 
 #google scraping for dashboard
 googleExchangeRateDiv = re.compile(r"<div[^>]+data-exchange-rate\s?=\s?[\"\'](.*?)[\"\'][^>]?>")

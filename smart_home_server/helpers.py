@@ -2,12 +2,14 @@ from queue import Queue
 import requests
 import string
 import time
+from multiprocessing import JoinableQueue
 
 import smart_home_server.constants as const
+from typing import Union
 
-def clearQueue(q: Queue):
-    with q.mutex:
-        q.queue.clear()
+def clearQueue(q):
+    while not q.empty():
+        q.get()
 
 def padZeros(num, length):
     numStr = str(num)
@@ -69,3 +71,21 @@ def waitUntil(conditionCb, period = 0.01):
     if conditionCb(): 
         return
     time.sleep(period)
+
+
+def roundTimeStr(s):
+    # hh:mm:ss -> hh:mm
+
+    x = s.split(':')
+    for i in range(len(x)):
+        x[i] = int(x[i])
+
+    if x[0] >= 30:
+        x[1] += 1
+    if x[1] == 60:
+        x[1] = 0
+        x[2] += 1
+    if x[2] == 24:
+        x[2] = 0
+
+    return f'{padZeros(x[2], 2)}:{padZeros(x[1], 2)}'
