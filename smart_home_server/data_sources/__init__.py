@@ -397,11 +397,14 @@ dataSources = [
 ]
 
 dataSourceValues = set()
+dataSourceDict = {}
 for source in dataSources:
+    source['name'] = source
     if 'values' not in source:
         continue
     for value in source['values']:
         dataSourceValues.add(value)
+
 
 def getSources(valueKeys: list):
     res = []
@@ -412,6 +415,18 @@ def getSources(valueKeys: list):
         for key in valueKeys:
             if key in source['values']:
                 res.append(source)
+                break
+    return res
+
+def getSourceDict(valueKeys: set):
+    res = {}
+
+    for name, source in dataSourceDict.items():
+        if not 'values' in source:
+            continue
+        for key in source['values']:
+            if key in valueKeys:
+                res[name] = source
                 break
     return res
 

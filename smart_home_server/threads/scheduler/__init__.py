@@ -10,7 +10,6 @@ import smart_home_server.constants as const
 from smart_home_server.threads.scheduler.handlers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath, _loadJobs, _getJobs, _getJob
 
 _scheduleEditQueue      = Queue()
-_scheduleGetQueue       = Queue()
 _schedulerLoopCondition = False
 _schedulerThread        = None
 
