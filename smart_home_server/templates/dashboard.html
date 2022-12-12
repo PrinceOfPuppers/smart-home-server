@@ -12,7 +12,7 @@
     const delay = s => new Promise(res => setTimeout(res, 1000*s));
 
     function connectSocket(fullUrl, element, button){
-        sock = new WebSocket(fullUrl)
+        var sock = new WebSocket(fullUrl)
 
         sock.onmessage = (event) => {
             message = event.data

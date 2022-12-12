@@ -72,7 +72,7 @@ def _processSubs(subQueue:Queue, subscribers, lastUpdates):
 
 def _processUnsubs(subscribers, lastUpdates):
     for i in reversed(range(len(subscribers))):
-        sub = subscribers[i]
+        sub:Subscriber = subscribers[i]
         if not sub.cbUnsub():
             continue
 

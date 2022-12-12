@@ -9,43 +9,49 @@ import smart_home_server.constants as const
 
 dataSourcesSocket = Sock()
 
-x=''
-for i,source in enumerate(dataSources):
+def funcRenamer(f, name):
+    f.__name__ = name
+    return f
+
+for source in dataSources:
     if 'dashboard' not in source:
         continue
     if 'url' not in source:
         continue
-    x += f'@dataSourcesSocket.route(\'{source["url"]}\')\n' \
-         f'def f_onConnect_{i}(ws, i={i}):\n'
 
-    x += \
-'''
-    source=dataSources[i]
-    dash = source['dashboard']
-    value = f'{source["name"]}-str'
-    print(f'sock conn: {value}')
-    values = [value]
+    def onConnect(ws, source):
+        dash = source['dashboard']
+        value = f'{source["name"]}-str'
+        values = [value]
 
-    unsub=False
-    def sendData(data):
+        unsub=False
+        errors = 0
+        def sendLambda(data):
+            nonlocal unsub
+            nonlocal errors
+
+            try:
+                ws.send(data[value]),
+            except ConnectionClosed:
+                unsub=True
+            except Exception:
+                if errors > 3:
+                    unsub=True
+                errors+=1
+
+        print(f'sock sub: {value}')
+        subscribe(\
+            values,
+            sendLambda,
+            lambda: unsub,
+            lambda: print(f"{dash['name']} Error")
+        )
         try:
-            ws.send(data[value])
-        except:
+            while ws.connected:
+                ws.receive(timeout=const.threadPollingPeriod)
+        finally:
+            print(f'sock unsub: {value}')
             unsub=True
 
-    subscribe(\
-        values,
-        sendData,
-        lambda: unsub,
-        lambda: print(f"{dash['name']} Error")
-    )
-    try:
-        while not unsub:
-            ws.receive(timeout=const.threadPollingPeriod)
-    finally:
-        unsub=True
-        print(f'sock unsub: {value}')
-    ws.close()
+    dataSourcesSocket.route(source['url'])(f=funcRenamer(partial(onConnect, source=source), f"onConnect-{source['url']}"))
 
-'''
-exec(x)

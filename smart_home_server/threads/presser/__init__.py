@@ -37,7 +37,6 @@ def _presserLoop():
             break
 
         except Exception as e:
-            print(type(e))
             print(f"Presser Exception: \n{repr(e)}", flush=True)
             continue
 
