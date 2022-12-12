@@ -1,3 +1,8 @@
+import smart_home_server.constants as const
+if const.isRpi():
+    from gevent import monkey
+    monkey.patch_all()
+
 from flask import Flask, send_from_directory, render_template, redirect
 
 from smart_home_server.threads.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
@@ -7,7 +12,6 @@ from smart_home_server.threads.triggerManager import startTriggerManager, stopTr
 from smart_home_server.threads.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
 
 from smart_home_server import InterruptTriggered
-import smart_home_server.constants as const
 
 from smart_home_server.api.schedule import scheduleApi, timeUnits
 from smart_home_server.api.remote import remoteApi
@@ -74,8 +78,8 @@ def startServer():
         startSubscribeManager()
 
         if const.isRpi():
-            from waitress import serve
-            serve(app)
+            from gevent.pywsgi import WSGIServer
+            WSGIServer(('127.0.0.1', 5000), app).serve_forever()
         else:
             app.run(host='0.0.0.0', port=5000)
 

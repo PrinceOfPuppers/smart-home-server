@@ -10,5 +10,5 @@ def getErrorStrAndBool():
         s += f"DHT Read Err Chain: {currentErrors['Conseq_DHT_Read_Err']}"
 
     if not s:
-        return 'None', False
+        return 'No Errors', False
     return s, True
