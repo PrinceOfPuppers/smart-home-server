@@ -1,30 +1,55 @@
-from flask import Blueprint, current_app, jsonify
+from flask_sock import Sock
+from simple_websocket import ConnectionClosed
+from functools import partial
+import json
 
 from smart_home_server.data_sources import dataSources
+from smart_home_server.threads.subscribeManager import subscribe
+import smart_home_server.constants as const
 
-# return format is 
-#example = {
-#    'data': {
-#        "temp": 123,
-#        "humid": 123
-#    },
-#    'str': f'Temprature: 123 \nHumidity: 123'
-#    'pollingPeriod': 60*10
-#}
+dataSourcesSocket = Sock()
 
-dataApi = Blueprint('dataApi', __name__)
+def funcRenamer(f, name):
+    f.__name__ = name
+    return f
 
+for i,source in enumerate(dataSources):
+    if 'dashboard' not in source:
+        continue
+    if 'url' not in source:
+        continue
 
-def f(source):
-    dash = source['dashboard']
-    res = source['local']()
-    if res is None:
-        return current_app.response_class(f"Error Getting: {dash['name']}", status=400, mimetype="text/plain")
-    return jsonify(res)
+    def onConnect(ws, source, i=i):
+        dash = source['dashboard']
+        value = f'{source["name"]}-str'
+        values = [value]
 
-view_maker = lambda source: (lambda: f(source))
-for source in dataSources:
-    if 'dashboard' in source: #and source['dashboard']['enabled']:
-        #@dataApi.route(source['url'], methods=['GET'])
-        endpoint = source['url'].replace('/','')
-        dataApi.add_url_rule(source['url'], view_func = view_maker(source), endpoint=endpoint)
+        unsub=False
+        errors = 0
+        def sendLambda(data):
+            nonlocal unsub
+            nonlocal errors
+
+            try:
+                ws.send(data[value]),
+            except ConnectionClosed:
+                unsub=False
+            except Exception:
+                if errors > 3:
+                    unsub=False
+                errors+=1
+
+        subscribe(\
+            values,
+            sendLambda,
+            lambda: unsub,
+            lambda: print(f"{dash['name']} Error")
+        )
+        try:
+            while ws.connected:
+                ws.receive(timeout=const.threadPollingPeriod)
+        finally:
+            unsub=False
+
+    dataSourcesSocket.route(source['url'])(f=funcRenamer(partial(onConnect, source=source), f"onConnect-{source['url']}"))
+

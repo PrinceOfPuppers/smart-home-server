@@ -2,7 +2,7 @@ from queue import Queue
 from threading import Thread
 
 from smart_home_server.data_sources import dataSourceValues, getSourceDict
-from smart_home_server.threads.subscriber.helpers import _processSubs, _processUnsubs, _publishUpdates, Subscriber
+from smart_home_server.threads.subscribeManager.helpers import _processSubs, _processUnsubs, _publishUpdates, Subscriber
 
 _subThread = None
 _subscribers = []

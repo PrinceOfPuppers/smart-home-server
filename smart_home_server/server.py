@@ -4,6 +4,7 @@ from smart_home_server.threads.scheduler import startScheduler, stopScheduler, j
 from smart_home_server.threads.presser import startPresser, stopPresser, joinPresser
 from smart_home_server.threads.lcd import stopLCD, joinLCD, startUpdateLCD
 from smart_home_server.threads.triggerManager import startTriggerManager, stopTriggerManager, joinTriggerManager, getTriggers
+from smart_home_server.threads.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
 
 from smart_home_server import InterruptTriggered
 import smart_home_server.constants as const
@@ -11,7 +12,7 @@ import smart_home_server.constants as const
 from smart_home_server.api.schedule import scheduleApi, timeUnits
 from smart_home_server.api.remote import remoteApi
 from smart_home_server.api.dashboard import dashboardApi
-from smart_home_server.api.data import dataApi
+from smart_home_server.api.data import dataSourcesSocket
 from smart_home_server.api.trigger import triggerApi, triggerComparisons
 from smart_home_server.data_sources import dataSources, dataSourceValues
 
@@ -22,8 +23,9 @@ app = Flask(__name__)
 app.register_blueprint(scheduleApi)
 app.register_blueprint(remoteApi)
 app.register_blueprint(dashboardApi)
-app.register_blueprint(dataApi)
 app.register_blueprint(triggerApi)
+
+dataSourcesSocket.init_app(app)
 
 @app.route('/')
 def index():
@@ -69,6 +71,7 @@ def startServer():
         startScheduler()
         startUpdateLCD(fromFile=True)
         startTriggerManager()
+        startSubscribeManager()
 
         if const.isRpi():
             from waitress import serve
@@ -83,10 +86,12 @@ def startServer():
         stopScheduler()
         stopLCD()
         stopTriggerManager()
+        stopSubscribeManager()
         joinPresser()
         joinScheduler()
         joinLCD()
         joinTriggerManager()
+        joinSubscribeManager()
 
 if __name__ == '__main__':
     startServer()

@@ -233,6 +233,7 @@ dataSources = [
     },
 
     {
+        'name': 'clock',
         'local': getClockLocal,
         'pollingPeriod': 1,
 
@@ -395,11 +396,18 @@ dataSources = [
     },
 
 ]
+# add str to value
+for source in dataSources:
+    if 'values' not in source:
+        source['values'] = {}
+    source['values'][f"{source['name']}-str"] = {'enabled':False, 'dataPath': ['str']}
 
 dataSourceValues = set()
 dataSourceDict = {}
 for source in dataSources:
-    source['name'] = source
+    if 'name' not in source:
+        continue
+    dataSourceDict[source['name']] = source
     if 'values' not in source:
         continue
     for value in source['values']:

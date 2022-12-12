@@ -18,12 +18,13 @@ def _updateToSend(source, toSend):
     if res is None:
         return
     for key,value in source['values'].items():
-        if value['enabled']:
-            try:
-                data = _dataFromDataPath(res , value['dataPath'])
-            except KeyError:
-                continue
-            toSend[key] = data
+        # we do not check if enabled, its only used for frontend filtering
+        #if value['enabled']:
+        try:
+            data = _dataFromDataPath(res , value['dataPath'])
+        except KeyError:
+            continue
+        toSend[key] = data
 
 
 @dataclass
@@ -74,6 +75,7 @@ def _processUnsubs(subscribers, lastUpdates):
         sub = subscribers[i]
         if not sub.cbUnsub():
             continue
+
         # do unsub
         subscribers.pop(i)
         # clear sources which have no other subscribers
@@ -97,15 +99,20 @@ def _publishUpdates(subscribers, lastUpdates, toSend):
     for name in dataSourceDict:
         if name not in lastUpdates:
             continue
-        source = dataSourceDict['name']
+        source = dataSourceDict[name]
         period = source['pollingPeriod']
-        if now < lastUpdates['name']+timedelta(seconds=period):
+        if now < lastUpdates[name]+timedelta(seconds=period):
             # no update
             continue
 
         # do update
-        lastUpdates[name] = now
-        _updateToSend(source, toSend)
+        try:
+            _updateToSend(source, toSend)
+            lastUpdates[name] = now
+        except Exception as e:
+            for sub in subscribers:
+                if name in sub.sourcesDict:
+                    sub.cbError(e)
 
     # publish updates
     for sub in subscribers:
