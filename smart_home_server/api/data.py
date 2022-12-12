@@ -13,13 +13,13 @@ def funcRenamer(f, name):
     f.__name__ = name
     return f
 
-for i,source in enumerate(dataSources):
+for source in dataSources:
     if 'dashboard' not in source:
         continue
     if 'url' not in source:
         continue
 
-    def onConnect(ws, source, i=i):
+    def onConnect(ws, source):
         dash = source['dashboard']
         value = f'{source["name"]}-str'
         values = [value]
