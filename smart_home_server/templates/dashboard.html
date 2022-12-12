@@ -11,20 +11,8 @@
 
     const delay = s => new Promise(res => setTimeout(res, 1000*s));
 
-    function connectSocket(fullUrl, element, button, delay){
-        const reconnectDelayIncrement = 1;
-        const maxDelay = 10;
-        var sock;
-        try{
-            sock = new WebSocket(fullUrl)
-        }
-        catch{
-            console.log('Socket Connection Failed');
-            console.log('attempting reconnect...')
-            nextDelay = Math.max(reconnectDelayIncrement+delay, maxDelay);
-            setTimeout(() => {connectSocket(fullUrl, element, button, nextDelay)}, delay)
-        }
-
+    function connectSocket(fullUrl, element, button){
+        sock = new WebSocket(fullUrl)
 
         sock.onmessage = (event) => {
             message = event.data
@@ -37,20 +25,11 @@
         }
         sock.onopen = () => {
             console.log('Socket Connected');
-            delay = 0;
-        }
-
-        sock.onclose = () => {
-            console.log('Socket is closed');
-            console.log('attempting reconnect...')
-            nextDelay = Math.max(reconnectDelayIncrement+delay, maxDelay);
-            setTimeout(() => {connectSocket(fullUrl, element, button, nextDelay)}, delay)
         }
         button.onclick = () => {
-            sock.close()
-            sock = new WebSocket(fullUrl)
             element.textContent = "";
-            sock.emit('reload');
+            sock.close()
+            connectSocket(fullUrl, element, button)
         };
 
     }
@@ -59,7 +38,7 @@
         const fullUrl = `ws://${window.location.host}${url}`;
         const element = document.getElementById(`dashboard-${name}`);
         const button = document.getElementById(`dashboardButton-${name}`);
-        connectSocket(fullUrl, element, button, 0)
+        connectSocket(fullUrl, element, button)
     }
 
     const days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];

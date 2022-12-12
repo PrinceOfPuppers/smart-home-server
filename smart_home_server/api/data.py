@@ -9,47 +9,43 @@ import smart_home_server.constants as const
 
 dataSourcesSocket = Sock()
 
-def funcRenamer(f, name):
-    f.__name__ = name
-    return f
-
-for source in dataSources:
+x=''
+for i,source in enumerate(dataSources):
     if 'dashboard' not in source:
         continue
     if 'url' not in source:
         continue
+    x += f'@dataSourcesSocket.route(\'{source["url"]}\')\n' \
+         f'def f_onConnect_{i}(ws, i={i}):\n'
 
-    def onConnect(ws, source):
-        dash = source['dashboard']
-        value = f'{source["name"]}-str'
-        values = [value]
+    x += \
+'''
+    source=dataSources[i]
+    dash = source['dashboard']
+    value = f'{source["name"]}-str'
+    print(f'sock conn: {value}')
+    values = [value]
 
-        unsub=False
-        errors = 0
-        def sendLambda(data):
-            nonlocal unsub
-            nonlocal errors
-
-            try:
-                ws.send(data[value]),
-            except ConnectionClosed:
-                unsub=False
-            except Exception:
-                if errors > 3:
-                    unsub=False
-                errors+=1
-
-        subscribe(\
-            values,
-            sendLambda,
-            lambda: unsub,
-            lambda: print(f"{dash['name']} Error")
-        )
+    unsub=False
+    def sendData(data):
         try:
-            while ws.connected:
-                ws.receive(timeout=const.threadPollingPeriod)
-        finally:
-            unsub=False
+            ws.send(data[value])
+        except:
+            unsub=True
 
-    dataSourcesSocket.route(source['url'])(f=funcRenamer(partial(onConnect, source=source), f"onConnect-{source['url']}"))
+    subscribe(\
+        values,
+        sendData,
+        lambda: unsub,
+        lambda: print(f"{dash['name']} Error")
+    )
+    try:
+        while not unsub:
+            ws.receive(timeout=const.threadPollingPeriod)
+    finally:
+        unsub=True
+        print(f'sock unsub: {value}')
+    ws.close()
 
+'''
+exec(x)
