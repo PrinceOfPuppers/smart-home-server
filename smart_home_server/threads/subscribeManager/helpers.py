@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from queue import Queue, Empty
 from typing import Callable
 from dataclasses import dataclass
+from math import ceil
 
 from smart_home_server.data_sources import dataSourceDict
 
@@ -36,6 +37,13 @@ class Subscriber:
     cbUnsub: Callable
     cbError: Callable
 
+@dataclass
+class GetOnce:
+    sourcesDict: dict
+    values: set
+    cb: Callable
+    cbError: Callable
+
 def _filterAndCall(toSend:dict, values:set, f:Callable):
     s = {}
     for key in toSend:
@@ -44,31 +52,40 @@ def _filterAndCall(toSend:dict, values:set, f:Callable):
     f(s)
     
 
+def _withinMinUpdateTime(now, lastUpdate, pollingPeriod):
+    return now - lastUpdate < timedelta(0, ceil(pollingPeriod/2))
 
-def _processSub(sub, subscribers, lastUpdates):
+
+def _processSub(now:datetime, sub, subscribers, lastUpdates):
+    print(f"adding sub: {sub.values}")
     try:
         for name in sub.sourcesDict:
-            # set last updated to a time long in the past so it will always trigger an update
-            lastUpdates[name] = datetime.now() - timedelta(1000)
+            lastUpdates[name] = now - timedelta(1000)
         subscribers.append(sub)
     except Empty:
         return
 
-def _processSubs(subQueue:Queue, subscribers, lastUpdates):
-    # blocking for a small amount of time
-    try:
-        sub:Subscriber = subQueue.get(block=True, timeout=const.threadPollingPeriod)
-        _processSub(sub, subscribers, lastUpdates)
-    except Empty:
-        pass
+def _processGetOnce(now:datetime, once:GetOnce, lastUpdates, toSend):
+    extraData = {}
+    for name,source in once.sourcesDict.items():
+        # check if source is already being subscribed to
+        if name in lastUpdates:
+            # check if data is still usable
+            if _withinMinUpdateTime(now, lastUpdates[name], source['pollingPeriod']):
+                continue
+            _updateToSend(source, toSend)
+            lastUpdates[name] = now
 
-    # process all if multiple where sent
-    while True:
-        try:
-            sub:Subscriber = subQueue.get(block=False)
-            _processSub(sub, subscribers, lastUpdates)
-        except Empty:
-            return
+        # no subscribers fire and forget
+        else:
+            _updateToSend(once.sourcesDict[name], extraData)
+
+    # merge data togeather
+    extraData.update(toSend)
+    try:
+        _filterAndCall(extraData, once.values, once.cb)
+    except Exception as e:
+        once.cbError(e)
 
 def _processUnsubs(subscribers, lastUpdates):
     for i in reversed(range(len(subscribers))):
@@ -77,6 +94,7 @@ def _processUnsubs(subscribers, lastUpdates):
             continue
 
         # do unsub
+        print("unsubbing: ", sub.values)
         subscribers.pop(i)
         # clear sources which have no other subscribers
         for name in sub.sourcesDict:
@@ -93,8 +111,7 @@ def _processUnsubs(subscribers, lastUpdates):
                 break
             lastUpdates.pop(name)
 
-def _publishUpdates(subscribers, lastUpdates, toSend):
-    now = datetime.now()
+def _publishUpdates(now: datetime, subscribers, lastUpdates, toSend):
     # update data if applicable
     for name in dataSourceDict:
         if name not in lastUpdates:

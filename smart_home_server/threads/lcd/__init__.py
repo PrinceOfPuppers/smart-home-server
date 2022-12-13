@@ -1,47 +1,26 @@
 import string
-from threading import Thread
 
 import smart_home_server.constants as const
 from smart_home_server.hardware_interfaces.lcd import setLCDFMT, printfLCD, toggleBacklight, getLCDFMT, setBacklight
 from smart_home_server.threads.subscribeManager import subscribe
 
-_lcdThread = None
-_lcdLoopCondition = False
+# increment to unsub to from current subscribe
+_seq = 0
 
 def _startLCD():
-    global _lcdLoopCondition
-
     args = [tup[1] for tup in string.Formatter().parse(getLCDFMT()) if tup[1] is not None]
+    current = _seq
 
     subscribe(\
          args, 
          lambda values:printfLCD(values), 
-         lambda: _lcdLoopCondition, 
+         lambda: current != _seq, 
          lambda e: print(f"LCD Exception: \n{repr(e)}", flush=True)
      )
 
-
-def stopLCD():
-    global _lcdLoopCondition
-
-    if const.isRpi():
-        # TODO: gpio resources
-        pass
-
-    _lcdLoopCondition = False
-
-def joinLCD():
-    global _lcdLoopCondition
-    global _lcdThread
-    if _lcdThread is not None and _lcdThread.is_alive():
-        _lcdLoopCondition = False
-        _lcdThread.join()
-    else:
-        _lcdLoopCondition = False
-
 def startUpdateLCD(fmt = "", fromFile = False):
-    global _lcdThread
-    global _lcdLoopCondition
+    global _seq
+    _seq += 1
 
     if fromFile:
         with open(const.lcdTextFile,"r") as f:
@@ -50,16 +29,8 @@ def startUpdateLCD(fmt = "", fromFile = False):
         with open(const.lcdTextFile,"w") as f:
             f.write(fmt)
 
-
-    if _lcdLoopCondition:
-        stopLCD()
-    joinLCD()
-
     setLCDFMT(fmt)
-
-    _lcdLoopCondition = True
-    _lcdThread = Thread(target=lambda : _startLCD())
-    _lcdThread.start()
+    _startLCD()
     print("lcd started")
 
 def toggleLCDBacklight():

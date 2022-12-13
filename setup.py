@@ -14,10 +14,10 @@ def isRPI():
     return False
 
 def getDeps():
-    deps=['Flask', 'flask-sock', 'schedule', 'flask-expects-json', 'requests']
+    deps=['Flask', 'schedule', 'flask-expects-json', 'requests']
     if isRPI():
         #rpi specific
-        deps.extend(['rpi-rf', 'RPLCD', 'pigpio_dht', 'gevent', 'smbus2'])
+        deps.extend(['rpi-rf', 'RPLCD', 'pigpio_dht', 'waitress', 'smbus2'])
     return deps
 
 # single sourcing version number to __init__.py

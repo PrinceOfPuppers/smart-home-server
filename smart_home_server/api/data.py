@@ -1,57 +1,32 @@
-from flask_sock import Sock
-from simple_websocket import ConnectionClosed
-from functools import partial
-import json
+from flask import Blueprint, current_app, jsonify
 
 from smart_home_server.data_sources import dataSources
-from smart_home_server.threads.subscribeManager import subscribe
-import smart_home_server.constants as const
+from smart_home_server.threads.subscribeManager import getOnce
 
-dataSourcesSocket = Sock()
+# return format is 
+#example = {
+#    'data': {
+#        "temp": 123,
+#        "humid": 123
+#    },
+#    'str': f'Temprature: 123 \nHumidity: 123'
+#    'pollingPeriod': 60*10
+#}
 
-def funcRenamer(f, name):
-    f.__name__ = name
-    return f
+dataApi = Blueprint('dataApi', __name__)
 
+def route(source):
+    dash = source['dashboard']
+    value = f'{source["name"]}-str'
+    values = [value]
+    x = getOnce(values)
+    if isinstance(x, Exception):
+        return current_app.response_class(f"Error Getting: {dash['name']}", status=400, mimetype="text/plain")
+    return jsonify(x)
+
+
+view_maker = lambda source: (lambda: route(source))
 for source in dataSources:
-    if 'dashboard' not in source:
-        continue
-    if 'url' not in source:
-        continue
-
-    def onConnect(ws, source):
-        dash = source['dashboard']
-        value = f'{source["name"]}-str'
-        values = [value]
-
-        unsub=False
-        errors = 0
-        def sendLambda(data):
-            nonlocal unsub
-            nonlocal errors
-
-            try:
-                ws.send(data[value]),
-            except ConnectionClosed:
-                unsub=True
-            except Exception:
-                if errors > 3:
-                    unsub=True
-                errors+=1
-
-        print(f'sock sub: {value}')
-        subscribe(\
-            values,
-            sendLambda,
-            lambda: unsub,
-            lambda: print(f"{dash['name']} Error")
-        )
-        try:
-            while ws.connected:
-                ws.receive(timeout=const.threadPollingPeriod)
-        finally:
-            print(f'sock unsub: {value}')
-            unsub=True
-
-    dataSourcesSocket.route(source['url'])(f=funcRenamer(partial(onConnect, source=source), f"onConnect-{source['url']}"))
-
+    if 'dashboard' in source: #and source['dashboard']['enabled']:
+        endpoint = source['url'].replace('/','')
+        dataApi.add_url_rule(source['url'], view_func = view_maker(source), endpoint=endpoint)

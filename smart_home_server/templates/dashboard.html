@@ -11,34 +11,46 @@
 
     const delay = s => new Promise(res => setTimeout(res, 1000*s));
 
-    function connectSocket(fullUrl, element, button){
-        var sock = new WebSocket(fullUrl)
-
-        sock.onmessage = (event) => {
-            message = event.data
-            if(message === undefined){
-                window.alert(`Dashboard Update Error \nStatus: ${response.status} \n${response.statusText}`);
+    async function updateDashboardElement(name, element, url){
+        var response;
+        for(let i = 0; i < 3; i++){
+            response = await fetch(url, {method: "GET"});
+            if(!response.ok){
+                continue;
+            }
+            if(!response.headers.get('content-type')?.includes('application/json')){
                 return;
             }
-            console.log(message)
-            element.textContent = message;
+            break;
         }
-        sock.onopen = () => {
-            console.log('Socket Connected');
+        if(response === undefined){
+            window.alert(`Dashboard Update Error \nStatus: ${response.status} \n${response.statusText}`);
+            return;
         }
-        button.onclick = () => {
-            element.textContent = "";
-            sock.close()
-            connectSocket(fullUrl, element, button)
-        };
+        //element.textContent = response.body;
 
+        await response.json().then((json)=>{
+            element.textContent = json[`${name}-str`];
+        });
     }
 
-    function initDashboardElement(name, url){
-        const fullUrl = `ws://${window.location.host}${url}`;
+    async function pollDashboardElement(name, url, pollingPeriod){
         const element = document.getElementById(`dashboard-${name}`);
         const button = document.getElementById(`dashboardButton-${name}`);
-        connectSocket(fullUrl, element, button)
+        button.onclick = () => {
+            element.textContent = "";
+            updateDashboardElement(name, element, url);
+        };
+        updateDashboardElement(name, element, url);
+        if(pollingPeriod == null || pollingPeriod == undefined || pollingPeriod < 1){
+            window.alert("Error: Invalid Polling Period");
+            return;
+        }
+        var cond = true;
+        while(cond){
+            await delay(pollingPeriod);
+            updateDashboardElement(name, element, url);
+        }
     }
 
     const days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
@@ -103,8 +115,17 @@
         }
     }
 
-    function initLCD(){
-        initDashboardElement('LCD', '/api/data/lcd')
+    function getLCD(){
+        const element = document.getElementById(`dashboard-LCD`);
+        fetch('api/data/lcd', {method: "GET"})
+        .then((response) => {
+            if(!response.ok){
+                window.alert(`Dashboard LCD Update Error \nStatus: ${response.status} \n${response.statusText}`);
+                return;
+            }
+            //element.textContent = response.body;
+            response.json().then((json)=>{element.textContent = json['LCD-str']});
+        })
     }
 
     function toggleLCDBacklight(){
@@ -119,10 +140,9 @@
 
     window.onload = () => {
         clock('clock');
-        initLCD()
+        getLCD()
         {% for element in dashboardElements %}
-            initDashboardElement("{{ element['name'] }}", "{{ element['url'] }}")
-            //pollDashboardElement("{{ element['name'] }}", "{{ element['url'] }}", {{ element['pollingPeriod'] }});
+            pollDashboardElement("{{ element['name'] }}", "{{ element['url'] }}", {{ element['pollingPeriod'] }});
         {% endfor %}
     }
 </script>
