@@ -1,7 +1,6 @@
 from flask import Blueprint, current_app, jsonify
 
 from smart_home_server.data_sources import dataSources
-from smart_home_server.threads.subscribeManager import getOnce
 
 # return format is 
 #example = {
@@ -17,13 +16,11 @@ dataApi = Blueprint('dataApi', __name__)
 
 def route(source):
     dash = source['dashboard']
-    value = f'{source["name"]}-str'
-    values = [value]
-    x = getOnce(values)
-    if isinstance(x, Exception):
-        return current_app.response_class(f"Error Getting: {dash['name']}", status=400, mimetype="text/plain")
-    return jsonify(x)
+    res = source['local']()
 
+    if not res:
+        return current_app.response_class(f"Error Getting: {dash['name']}", status=400, mimetype="text/plain")
+    return jsonify(res)
 
 view_maker = lambda source: (lambda: route(source))
 for source in dataSources:

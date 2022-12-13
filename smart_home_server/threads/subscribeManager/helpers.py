@@ -37,13 +37,6 @@ class Subscriber:
     cbUnsub: Callable
     cbError: Callable
 
-@dataclass
-class GetOnce:
-    sourcesDict: dict
-    values: set
-    cb: Callable
-    cbError: Callable
-
 def _filterAndCall(toSend:dict, values:set, f:Callable):
     s = {}
     for key in toSend:
@@ -51,10 +44,6 @@ def _filterAndCall(toSend:dict, values:set, f:Callable):
             s[key] = toSend[key]
     f(s)
     
-
-def _withinMinUpdateTime(now, lastUpdate, pollingPeriod):
-    return now - lastUpdate < timedelta(0, ceil(pollingPeriod/2))
-
 
 def _processSub(now:datetime, sub, subscribers, lastUpdates):
     print(f"adding sub: {sub.values}")
@@ -64,28 +53,6 @@ def _processSub(now:datetime, sub, subscribers, lastUpdates):
         subscribers.append(sub)
     except Empty:
         return
-
-def _processGetOnce(now:datetime, once:GetOnce, lastUpdates, toSend):
-    extraData = {}
-    for name,source in once.sourcesDict.items():
-        # check if source is already being subscribed to
-        if name in lastUpdates:
-            # check if data is still usable
-            if _withinMinUpdateTime(now, lastUpdates[name], source['pollingPeriod']):
-                continue
-            _updateToSend(source, toSend)
-            lastUpdates[name] = now
-
-        # no subscribers fire and forget
-        else:
-            _updateToSend(once.sourcesDict[name], extraData)
-
-    # merge data togeather
-    extraData.update(toSend)
-    try:
-        _filterAndCall(extraData, once.values, once.cb)
-    except Exception as e:
-        once.cbError(e)
 
 def _processUnsubs(subscribers, lastUpdates):
     for i in reversed(range(len(subscribers))):
