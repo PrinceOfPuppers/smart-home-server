@@ -121,7 +121,8 @@ def getCurrentWeather():
     r = requests.get(const.wttrCurrentData)
     if not r.ok:
         return None
-    text, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split()
+
+    text, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split('\n')
 
     temp, feelsLike = temp[:-2], feelsLike[:-2]
     humid = humid[:-1]

@@ -94,6 +94,7 @@ def _publishUpdates(now: datetime, subscribers, lastUpdates, toSend):
             _updateToSend(source, toSend)
             lastUpdates[name] = now
         except Exception as e:
+            print(repr(e))
             for sub in subscribers:
                 if name in sub.sourcesDict:
                     sub.cbError(e)
