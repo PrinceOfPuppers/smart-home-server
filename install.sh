@@ -49,6 +49,7 @@ sudo apt-get install git
 gitPull="git -C $PWD pull"
 if ! grep -Fq "$gitPull" /etc/rc.local
     echo "$gitPull" | sudo tee -a /etc/rc.local
+fi
 
 pathappend "$HOME/.local/bin"
 source "$HOME/.profile"
