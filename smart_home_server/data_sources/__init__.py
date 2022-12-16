@@ -121,9 +121,11 @@ def getCurrentWeather():
     r = requests.get(const.wttrCurrentData)
     if not r.ok:
         return None
-    text, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split()
 
-    temp, feelsLike = temp[:-2], feelsLike[:-2]
+    text, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split('\n')
+    text = text.lower().replace("unknown precipitation", "rain")
+
+    temp, feelsLike = int(temp[:-2]), int(feelsLike[:-2])
     humid = humid[:-1]
     percip3h = percip3h[:-2]
 
@@ -201,7 +203,7 @@ def cached(func:Callable, pollingPeriod, **kwargs):
         _cache[func] = (now, val)
         return val
 
-    cacheExpr = pollingPeriod//2
+    cacheExpr = pollingPeriod//3
     lastUpdate, oldVal = _cache[func]
 
     if now < lastUpdate + timedelta(seconds=cacheExpr):
@@ -233,6 +235,7 @@ dataSources = [
     },
 
     {
+        'name': 'clock',
         'local': getClockLocal,
         'pollingPeriod': 1,
 
@@ -395,13 +398,23 @@ dataSources = [
     },
 
 ]
+# add str to value
+for source in dataSources:
+    if 'values' not in source:
+        source['values'] = {}
+    source['values'][f"{source['name']}-str"] = {'enabled':False, 'dataPath': ['str']}
 
 dataSourceValues = set()
+dataSourceDict = {}
 for source in dataSources:
+    if 'name' not in source:
+        continue
+    dataSourceDict[source['name']] = source
     if 'values' not in source:
         continue
     for value in source['values']:
         dataSourceValues.add(value)
+
 
 def getSources(valueKeys: list):
     res = []
@@ -412,6 +425,18 @@ def getSources(valueKeys: list):
         for key in valueKeys:
             if key in source['values']:
                 res.append(source)
+                break
+    return res
+
+def getSourceDict(valueKeys: set):
+    res = {}
+
+    for name, source in dataSourceDict.items():
+        if not 'values' in source:
+            continue
+        for key in source['values']:
+            if key in valueKeys:
+                res[name] = source
                 break
     return res
 

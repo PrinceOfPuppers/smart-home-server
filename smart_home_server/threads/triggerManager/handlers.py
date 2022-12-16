@@ -4,8 +4,8 @@ import json
 from threading import Thread
 
 from smart_home_server.api import runJob
-from smart_home_server.data_sources.polling import polledUpdate
 import smart_home_server.constants as const
+from smart_home_server.threads.subscribeManager import subscribe
 
 from typing import Dict
 
@@ -83,9 +83,9 @@ class RunningTriggerData:
 
         if self.triggerJob['secondVar']['type'] == 'dataSource':
             var2 = self.triggerJob['secondVar']['value']
-            l = polledUpdate([var1, var2], self._do, self._stopCb, self._errorCb)
+            l = lambda: subscribe([var1, var2], self._do, self._stopCb, self._errorCb)
         else:
-            l = lambda: polledUpdate([var1], self._do, self._stopCb, self._errorCb)
+            l = lambda: subscribe([var1], self._do, self._stopCb, self._errorCb)
 
         self.thread = Thread(target=l)
         self.thread.start()

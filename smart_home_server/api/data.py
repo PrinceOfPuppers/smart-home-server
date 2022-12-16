@@ -14,17 +14,16 @@ from smart_home_server.data_sources import dataSources
 
 dataApi = Blueprint('dataApi', __name__)
 
-
-def f(source):
+def route(source):
     dash = source['dashboard']
     res = source['local']()
-    if res is None:
+
+    if not res:
         return current_app.response_class(f"Error Getting: {dash['name']}", status=400, mimetype="text/plain")
     return jsonify(res)
 
-view_maker = lambda source: (lambda: f(source))
+view_maker = lambda source: (lambda: route(source))
 for source in dataSources:
     if 'dashboard' in source: #and source['dashboard']['enabled']:
-        #@dataApi.route(source['url'], methods=['GET'])
         endpoint = source['url'].replace('/','')
         dataApi.add_url_rule(source['url'], view_func = view_maker(source), endpoint=endpoint)
