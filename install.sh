@@ -43,10 +43,15 @@ pathappend() {
     fi
   done
 }
+sudo apt-get install git
+
+# on startup update project
+gitPull="git -C $PWD pull"
+if ! grep -Fq "$gitPull" /etc/rc.local
+    echo "$gitPull" | sudo tee -a /etc/rc.local
 
 pathappend "$HOME/.local/bin"
 source "$HOME/.profile"
-
 sudo raspi-config nonint do_i2c 0
 sudo loginctl enable-linger $(id -u)
 sudo apt-get update
