@@ -123,8 +123,9 @@ def getCurrentWeather():
         return None
 
     text, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split('\n')
+    text = text.lower().replace("unknown precipitation", "rain")
 
-    temp, feelsLike = temp[:-2], feelsLike[:-2]
+    temp, feelsLike = int(temp[:-2]), int(feelsLike[:-2])
     humid = humid[:-1]
     percip3h = percip3h[:-2]
 
@@ -202,7 +203,7 @@ def cached(func:Callable, pollingPeriod, **kwargs):
         _cache[func] = (now, val)
         return val
 
-    cacheExpr = pollingPeriod//2
+    cacheExpr = pollingPeriod//3
     lastUpdate, oldVal = _cache[func]
 
     if now < lastUpdate + timedelta(seconds=cacheExpr):

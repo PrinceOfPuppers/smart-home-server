@@ -42,10 +42,6 @@ if const.isRpi():
                 if not firstCall:
                     return _prevDHTRes
                 return None
-            _prevDHTTime = now
-            _prevDHTRes = DHTData(temp=result['temp_c'], humid=result['humidity'])
-            _clearError()
-            return _prevDHTRes
 
         except Exception as e:
             print("DHT Read Error: \n", e)
@@ -53,6 +49,11 @@ if const.isRpi():
             if not firstCall:
                 return _prevDHTRes
             return None
+
+        _prevDHTTime = now
+        _prevDHTRes = DHTData(temp=result['temp_c'], humid=result['humidity'])
+        _clearError()
+        return _prevDHTRes
 else:
     def getDHT() -> Union[DHTData, None]:
         return None
