@@ -48,6 +48,7 @@ sudo apt-get install git
 # on startup update project
 gitPull="git -C $PWD pull"
 if ! grep -Fq "$gitPull" /etc/rc.local
+then
     echo "$gitPull" | sudo tee -a /etc/rc.local
 fi
 
