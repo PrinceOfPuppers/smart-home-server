@@ -15,7 +15,7 @@ def _addError():
     currentErrors[s] += 1
 
 def _clearError():
-    currentErrors[s] += 0
+    currentErrors[s] = 0
 
 if const.isRpi():
     from pigpio_dht import DHT22
