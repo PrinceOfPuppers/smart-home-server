@@ -45,13 +45,6 @@ pathappend() {
 }
 sudo apt-get install git
 
-# on startup update project
-gitPull="git -C $PWD pull"
-if ! grep -Fq "$gitPull" /etc/rc.local
-then
-    echo "$gitPull" | sudo tee -a /etc/rc.local
-fi
-
 pathappend "$HOME/.local/bin"
 source "$HOME/.profile"
 sudo raspi-config nonint do_i2c 0
@@ -63,14 +56,23 @@ sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
 pip3 install -e .
 
+# create update script
+UPDATE_PROGRAM="smart-home-update"
+
+echo "#!/bin/sh" > "./$UPDATE_PROGRAM"
+echo "git -C $PWD pull" | sudo tee -a "./$UPDATE_PROGRAM"
+sudo chmod +x "./$UPDATE_PROGRAM"
+
 # create systemd service
 PROGRAM="smart-home-server"
 # user service
 SERVICE_FILE="/usr/lib/systemd/user/$PROGRAM.service"
 BIN_LOCATION="/usr/local/bin/$PROGRAM"
+UPDATE_BIN_LOCATION="/user/local/bin/$UPDATE_PROGRAM"
 
 sudo chmod +x "bin/$PROGRAM"
 sudo cp "bin/$PROGRAM" $BIN_LOCATION
+sudo mv "./$UPDATE_PROGRAM" $UPDATE_BIN_LOCATION
 
 sudo cp $PROGRAM.service $SERVICE_FILE
 sudo chmod 644 $SERVICE_FILE

@@ -2,6 +2,7 @@ __pycache__
 notepad*
 smart_home_server.egg-info
 smart_home_server/storage
+smart-home-update
 
 /build
 /dist

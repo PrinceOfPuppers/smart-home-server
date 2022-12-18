@@ -4,6 +4,7 @@ After=pigpiod.service
                                         
 [Service]
 Type=simple
+ExecStartPre=/usr/local/bin/smart-home-update
 ExecStart=/usr/local/bin/smart-home-server
 Restart=on-failure
 RestartSec=10
