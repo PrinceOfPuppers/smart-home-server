@@ -68,7 +68,7 @@ PROGRAM="smart-home-server"
 # user service
 SERVICE_FILE="/usr/lib/systemd/user/$PROGRAM.service"
 BIN_LOCATION="/usr/local/bin/$PROGRAM"
-UPDATE_BIN_LOCATION="/user/local/bin/$UPDATE_PROGRAM"
+UPDATE_BIN_LOCATION="/usr/local/bin/$UPDATE_PROGRAM"
 
 sudo chmod +x "bin/$PROGRAM"
 sudo cp "bin/$PROGRAM" $BIN_LOCATION
