@@ -104,6 +104,7 @@ lcdLines = 2
 lcdWidth = 16
 
 dhtGpio = 22
+dhtGpioPwr = 18
 dhtMinSamplePeriod = 30
 dhtMaxRetry = 3
 dhtSamples = 2

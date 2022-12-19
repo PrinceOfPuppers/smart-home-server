@@ -17,7 +17,7 @@ def getDeps():
     deps=['Flask', 'schedule', 'flask-expects-json', 'requests']
     if isRPI():
         #rpi specific
-        deps.extend(['rpi-rf', 'RPLCD', 'pigpio_dht', 'waitress', 'smbus2'])
+        deps.extend(['rpi-rf', 'RPLCD', 'pigpio_dht', 'waitress', 'smbus2', 'pigpio'])
     return deps
 
 # single sourcing version number to __init__.py

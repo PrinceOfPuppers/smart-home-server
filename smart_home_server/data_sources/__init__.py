@@ -123,7 +123,7 @@ def getCurrentWeather():
         return None
 
     text, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split('\n')
-    text = text.lower().replace("unknown precipitation", "rain")
+    text = text.lower().replace("unknown precipitation", "precip")
 
     temp, feelsLike = int(temp[:-2]), int(feelsLike[:-2])
     humid = humid[:-1]
