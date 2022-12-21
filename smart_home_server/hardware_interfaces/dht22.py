@@ -29,40 +29,29 @@ if const.isRpi():
     _pi.set_pull_up_down(const.dhtGpioPwr, pigpio.PUD_OFF)
     _pi.write(const.dhtGpioPwr, 0)
 
-
-    _prevDHTRes: Union[None, DHTData] = None
-    _prevDHTTime:Union[None, datetime] = None
-
     def getDHT() -> Union[DHTData, None]:
-        global _prevDHTTime
-        global _prevDHTRes
         global _pi
-
-        firstCall = _prevDHTTime is None or _prevDHTRes is None
-        now = datetime.now()
-        if not firstCall:
-            assert _prevDHTTime is not None
-            if now < _prevDHTTime + timedelta(seconds=const.dhtMinSamplePeriod):
-                return _prevDHTRes
+        global _dht
 
         try:
             _pi.write(const.dhtGpioPwr, 1)
             sleep(0.1)
-            result = _dht.sample(samples=const.dhtSamples)#, max_retries=const.dhtMaxRetry)
+            result = _dht.sample(samples=const.dhtSamples, max_retries=const.dhtMaxRetry)
             if not result['valid']:
                 raise Exception("DHT22 Packet Invalid")
-            _prevDHTTime = now
-            _prevDHTRes = DHTData(temp=result['temp_c'], humid=result['humidity'])
+            val = DHTData(temp=result['temp_c'], humid=result['humidity'])
             _clearError()
-            return _prevDHTRes
 
         except Exception as e:
             print("DHT Read Error: \n", e)
             _addError()
-            if not firstCall:
-                return _prevDHTRes
+            # reset device
+            _dht = DHT22(const.dhtGpio)
+            val = None
         finally:
             _pi.write(const.dhtGpioPwr, 0)
+
+        return val
 
 else:
     def getDHT() -> Union[DHTData, None]:

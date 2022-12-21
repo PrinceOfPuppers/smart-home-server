@@ -7,6 +7,7 @@ from smart_home_server.helpers import stripLines, padChar, roundTimeStr
 import smart_home_server.constants as const
 
 from smart_home_server.data_sources.errors import currentErrors, getErrorStrAndBool
+from smart_home_server.data_sources.caching import cached
 
 from typing import Callable
 
@@ -192,34 +193,12 @@ def getClockLocal():
     }
     return res
 
-_cache = {}
-
-def cached(func:Callable, pollingPeriod, **kwargs):
-    global _cache
-
-    now = datetime.now()
-    if not func in _cache:
-        val = func(**kwargs)
-        _cache[func] = (now, val)
-        return val
-
-    cacheExpr = pollingPeriod//3
-    lastUpdate, oldVal = _cache[func]
-
-    if now < lastUpdate + timedelta(seconds=cacheExpr):
-        return oldVal
-    
-    val = func(**kwargs)
-    _cache[func] = (now, val)
-    return val
-
-
 dataSources = [
     {
         'name': 'USD → CAD',
         'color': 'green',
         'url': '/api/data/forex/usd/cad',
-        'local': lambda: cached(getForexLocal, 5*60, src = 'usd', dest = 'cad'),
+        'local': lambda: cached(getForexLocal, 5*60//2, src = 'usd', dest = 'cad'),
         'pollingPeriod': 5*60,
 
         'dashboard':{
@@ -257,7 +236,7 @@ dataSources = [
         'name': 'Weather',
         'color': 'blue',
         'url': f'/api/data/weatherImage',
-        'local': lambda: cached(getWeatherImageLocal, 10*60),
+        'local': lambda: cached(getWeatherImageLocal, 10*60//2),
         'pollingPeriod': 10*60,
 
         'dashboard':{
@@ -269,7 +248,7 @@ dataSources = [
         'name': 'Forecast',
         'color': 'blue',
         'url': f'/api/data/forecast',
-        'local': lambda: cached(getForecastLocal, 10*60),
+        'local': lambda: cached(getForecastLocal, 10*60//2),
         'pollingPeriod': 10*60,
 
         'dashboard':{
@@ -296,7 +275,7 @@ dataSources = [
         'name': 'Current',
         'color': 'blue',
         'url': f'/api/data/current-weather',
-        'local': lambda: cached(getCurrentWeather, 10*60),
+        'local': lambda: cached(getCurrentWeather, 10*60//2),
         'pollingPeriod': 10*60,
 
         'dashboard':{
@@ -356,8 +335,8 @@ dataSources = [
         'name': 'Indoor Climate',
         'color': 'yellow',
         'url': f'/api/data/temp-humid',
-        'local': getIndoorClimateLocal, # already cached
-        'pollingPeriod': 31,
+        'local': lambda: cached(getIndoorClimateLocal,30//2),
+        'pollingPeriod': 30,
 
         'dashboard':{
             'enabled': True,
