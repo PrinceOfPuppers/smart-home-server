@@ -6,11 +6,11 @@ from smart_home_server.hardware_interfaces.dht22 import getDHT
 from smart_home_server.helpers import stripLines, padChar, roundTimeStr
 import smart_home_server.constants as const
 
-from smart_home_server.data_sources.errors import currentErrors, getErrorStrAndBool
 from smart_home_server.data_sources.caching import cached
 
 from typing import Callable
 
+from smart_home_server.errors import currentErrors, getErrorStrAndBool
 # return format is 
 #example = {
 #    'data': {
@@ -372,7 +372,11 @@ dataSources = [
             'DHTReadErr': {
                 'enabled': True,
                 'dataPath': ['data', 'Conseq_DHT_Read_Err']
-            }
+            },
+            'LCDWriteErr': {
+                'enabled': True,
+                'dataPath': ['data', 'Conseq_LCD_Write_Err']
+            },
         },
     },
 
@@ -392,7 +396,8 @@ for source in dataSources:
     if 'values' not in source:
         continue
     for value in source['values']:
-        dataSourceValues.add(value)
+        if source['values'][value]['enabled']:
+            dataSourceValues.add(value)
 
 
 def getSources(valueKeys: list):

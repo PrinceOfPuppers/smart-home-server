@@ -3,7 +3,7 @@ from typing import Union
 from datetime import datetime, timedelta
 
 import smart_home_server.constants as const
-from smart_home_server.data_sources.errors import currentErrors
+from smart_home_server.errors import currentErrors
 
 @dataclass
 class DHTData:

@@ -1,9 +1,6 @@
 from queue import Queue,Empty
 from threading import Thread
 from datetime import datetime
-from smart_home_server.helpers import waitUntil
-from typing import Union
-from functools import partial
 
 from smart_home_server.data_sources import dataSourceValues, getSourceDict
 from smart_home_server.threads.subscribeManager.helpers import _processUnsubs, _publishUpdates, Subscriber, _processSub
@@ -44,10 +41,11 @@ def _subLoop():
     global _subManagerJobQueue
 
     while _subLoopCondition:
-        now = datetime.now()
-        _processSubs(now, _subManagerJobQueue, _subscribers, _lastUpdates)
-        _processUnsubs(_subscribers, _lastUpdates)
-        _publishUpdates(now, _subscribers, _lastUpdates, _toSend)
+            now = datetime.now()
+            _processSubs(now, _subManagerJobQueue, _subscribers, _lastUpdates)
+            _processUnsubs(_subscribers, _lastUpdates)
+            _publishUpdates(now, _subscribers, _lastUpdates, _toSend)
+
 
 def stopSubscribeManager():
     global _subLoopCondition

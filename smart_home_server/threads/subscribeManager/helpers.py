@@ -42,7 +42,10 @@ def _filterAndCall(toSend:dict, values:set, f:Callable):
     for key in toSend:
         if key in values:
             s[key] = toSend[key]
-    f(s)
+    try:
+        f(s)
+    except Exception as e:
+        print(f'SubLoop _filterAndCall Error: \n{e}')
     
 
 def _processSub(now:datetime, sub, subscribers, lastUpdates):
@@ -94,7 +97,7 @@ def _publishUpdates(now: datetime, subscribers, lastUpdates, toSend):
             _updateToSend(source, toSend)
             lastUpdates[name] = now
         except Exception as e:
-            print(repr(e))
+            print(f'SubLoop _updateToSend Error: \n{repr(e)}')
             for sub in subscribers:
                 if name in sub.sourcesDict:
                     sub.cbError(e)

@@ -1,3 +1,5 @@
+from smart_home_server.errors import currentErrors 
+
 import smart_home_server.constants as const
 
 # Generally 27 is the address;Find yours using: i2cdetect -y 1
@@ -114,13 +116,22 @@ def fillSpacesAndClamp(lines):
 
 def printfLCD(replacements):
     global _fmt
-    text = _fmt.format_map(IgnoreMissingDict(replacements))
-    lines = text.split('\n')
-    lines = fillSpacesAndClamp(lines)
+    try:
+        text = _fmt.format_map(IgnoreMissingDict(replacements))
+        lines = text.split('\n')
+        lines = fillSpacesAndClamp(lines)
+    except Exception as e:
+        print(f"LCD Format Error: \n{e}")
+        currentErrors['Conseq_LCD_Write_Err'] += 1 
+        return
+
     try:
         writeLCD(lines)
-    except:
-        print("LCD Write Error")
+    except Exception as e:
+        print(f"LCD Write Error: \n{e}")
+        currentErrors['Conseq_LCD_Write_Err'] += 1 
+        return
+    currentErrors['Conseq_LCD_Write_Err'] = 0
 
 def getLCDFMT():
     global _fmt
