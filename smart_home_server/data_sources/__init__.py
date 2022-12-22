@@ -7,6 +7,7 @@ from smart_home_server.helpers import stripLines, padChar, roundTimeStr
 import smart_home_server.constants as const
 
 from smart_home_server.data_sources.caching import cached
+from smart_home_server import __version__
 
 from typing import Callable
 
@@ -190,6 +191,13 @@ def getClockLocal():
     res = {
         'str': f'{clock} {date}',
         'data':{'clock': clock, 'date': date},
+    }
+    return res
+
+def getServerVersion():
+    res = {
+        'str': f'{__version__}',
+        'data':{'version': __version__},
     }
     return res
 
@@ -379,6 +387,25 @@ dataSources = [
             },
         },
     },
+    {
+        'name': 'Version',
+        'color': 'gray',
+        'url': '/api/data/version',
+        'local': getServerVersion,
+        'pollingPeriod': 10*60,
+
+        'dashboard':{
+            'enabled':True,
+        },
+
+        'values': {
+            'version': {
+                'enabled': False,
+                'dataPath': ['data', 'version']
+            }
+        },
+    },
+
 
 ]
 # add str to value
