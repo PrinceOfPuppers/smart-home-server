@@ -45,8 +45,8 @@ if const.isRpi():
         except Exception as e:
             print("DHT Read Error: \n", e)
             _addError()
-            # reset device
-            _dht = DHT22(const.dhtGpio)
+            # reset device (commented out due to pigpiod problems)
+            #_dht = DHT22(const.dhtGpio)
             val = None
         finally:
             _pi.write(const.dhtGpioPwr, 0)
