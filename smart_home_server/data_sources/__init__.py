@@ -119,6 +119,7 @@ def getForecastLocal():
     }
     return res
 
+
 def getCurrentWeather():
     r = requests.get(const.wttrCurrentData)
     if not r.ok:

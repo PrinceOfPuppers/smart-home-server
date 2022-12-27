@@ -21,26 +21,28 @@ def cached(func:Callable, cacheDuration:float, **kwargs):
 
 
     lock.acquire()
-    now = datetime.now()
+    try:
+        now = datetime.now()
 
-    if 'lastUpdate' in _cache[func]:
-        lastUpdate = _cache[func]['lastUpdate']
-        oldVal = _cache[func]['val']
+        if 'lastUpdate' in _cache[func]:
+            lastUpdate = _cache[func]['lastUpdate']
+            oldVal = _cache[func]['val']
 
-        cacheExprDT = timedelta(seconds=cacheDuration)
-        timeTillExprDT = cacheExprDT + lastUpdate - now
-        if timeTillExprDT > timedelta(seconds=0):
-            val = oldVal
+            cacheExprDT = timedelta(seconds=cacheDuration)
+            timeTillExprDT = cacheExprDT + lastUpdate - now
+            if timeTillExprDT > timedelta(seconds=0):
+                val = oldVal
+            else:
+                val = func(**kwargs)
+                _cache[func]['lastUpdate'] = now
+                _cache[func]['val'] = val
         else:
             val = func(**kwargs)
-            _cache[func]['lastUpdate'] = now
             _cache[func]['val'] = val
-    else:
-        val = func(**kwargs)
-        _cache[func]['val'] = val
-        _cache[func]['lastUpdate'] = now
+            _cache[func]['lastUpdate'] = now
 
-    lock.release()
+    finally:
+        lock.release()
     return val
 
 
