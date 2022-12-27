@@ -4,6 +4,7 @@ from queue import Queue, Empty
 from typing import Callable
 from dataclasses import dataclass
 from math import ceil
+import traceback
 
 from smart_home_server.data_sources import dataSourceDict
 
@@ -46,6 +47,7 @@ def _filterAndCall(toSend:dict, values:set, f:Callable):
         f(s)
     except Exception as e:
         print(f'SubLoop _filterAndCall Error: \n{e}')
+        print(f"Trace:\n{traceback.format_exc()}")
     
 
 def _processSub(now:datetime, sub, subscribers, lastUpdates):
@@ -98,6 +100,7 @@ def _publishUpdates(now: datetime, subscribers, lastUpdates, toSend):
             lastUpdates[name] = now
         except Exception as e:
             print(f'SubLoop _updateToSend Error: \n{repr(e)}')
+            print(f"Trace:\n{traceback.format_exc()}")
             for sub in subscribers:
                 if name in sub.sourcesDict:
                     sub.cbError(e)

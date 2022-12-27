@@ -1,4 +1,5 @@
 from smart_home_server.errors import currentErrors 
+import traceback
 
 import smart_home_server.constants as const
 
@@ -122,6 +123,7 @@ def printfLCD(replacements):
         lines = fillSpacesAndClamp(lines)
     except Exception as e:
         print(f"LCD Format Error: \n{e}")
+        print(f"Trace:\n{traceback.format_exc()}")
         currentErrors['Conseq_LCD_Write_Err'] += 1 
         return
 
@@ -129,6 +131,7 @@ def printfLCD(replacements):
         writeLCD(lines)
     except Exception as e:
         print(f"LCD Write Error: \n{e}")
+        print(f"Trace:\n{traceback.format_exc()}")
         currentErrors['Conseq_LCD_Write_Err'] += 1 
         return
     currentErrors['Conseq_LCD_Write_Err'] = 0
