@@ -4,6 +4,7 @@ from queue import Queue, Empty
 from threading import Thread
 import os
 import json
+from datetime import datetime
 
 from smart_home_server.helpers import clearQueue, waitUntil
 import smart_home_server.constants as const
@@ -108,6 +109,7 @@ def startScheduler():
     joinScheduler()
 
     clearQueue(_scheduleEditQueue)
+    print(f"Scheduler Load Time: {datetime.now()}")
     loadJobs(clearExisting=True, overwrite=True)
     _schedulerLoopCondition = True
     _schedulerThread = Thread(target=_schedulerLoop)

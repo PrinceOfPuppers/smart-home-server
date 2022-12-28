@@ -1,6 +1,6 @@
 [Unit]
 Description=smart home server
-After=pigpiod.service
+After=pigpiod.service remote-fs.target nss-user-lookup.target
                                         
 [Service]
 Type=simple

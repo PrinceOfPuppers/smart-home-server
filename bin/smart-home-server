@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 
 if __name__ == "__main__":
     from smart_home_server import main
