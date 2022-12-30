@@ -33,7 +33,7 @@ def getErrors():
 
 def getForexLocal(src,dest, decimal=3):
     try:
-        r = requests.get(f'https://www.google.com/search?q={src}+to+{dest}', headers=const.fakeUserAgentHeaders)
+        r = requests.get(f'https://www.google.com/search?q={src}+to+{dest}', headers=const.fakeUserAgentHeaders, timeout=const.requestTimeout)
     except:
         return None
     if not r.ok:
@@ -55,7 +55,7 @@ def getForexLocal(src,dest, decimal=3):
     return res
 
 def getForecastLocal():
-    r = requests.get(const.wttrApiUrl)
+    r = requests.get(const.wttrApiUrl, timeout=const.requestTimeout)
     if not r.ok:
         return None
 
@@ -121,7 +121,7 @@ def getForecastLocal():
 
 
 def getCurrentWeather():
-    r = requests.get(const.wttrCurrentData)
+    r = requests.get(const.wttrCurrentData, timeout=const.requestTimeout)
     if not r.ok:
         return None
 
@@ -151,7 +151,7 @@ def getCurrentWeather():
     return res
 
 def getWeatherImageLocal():
-    r = requests.get(const.weatherUrl)
+    r = requests.get(const.weatherUrl, timeout=const.requestTimeout)
     if not r.ok:
         return None
     s = stripLines(r.text,0,-1)
