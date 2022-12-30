@@ -6,7 +6,7 @@ from smart_home_server.helpers import addDefault
 from smart_home_server.data_sources import dataSourceValues
 from smart_home_server.threads.triggerManager import addTrigger, updateTriggerName, removeTrigger, enableDisableTrigger, getTrigger, getTriggers
 
-from smart_home_server.api import allJobsSchema
+from smart_home_server.api import allJobsSchema, validateJob
 
 triggerApi = Blueprint('triggerApi', __name__)
 
@@ -68,6 +68,10 @@ def postJob():
     if secondVar['type'] == 'dataSource' and secondVar['value'] not in dataSourceValues:
         return current_app.response_class(f"Unknown Data Value: {secondVar['value']}", status=400)
 
+
+    invalid = validateJob(triggeredJob)
+    if invalid:
+        return current_app.response_class(invalid, status=400)
     addTrigger(triggeredJob)
     return current_app.response_class(status=200)
 

@@ -3,6 +3,9 @@ from collections import namedtuple
 import os
 import re
 
+TxChannel = namedtuple("Channel", ["on", "off"])
+
+
 def createIfNotExists(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -29,40 +32,82 @@ if not os.path.exists(lcdTextFile):
             "T:{temp}/{wttrTemp}{space} H:{humid}/{wttrHumid}"
         )
 
+remoteFolder = f'{storageFolder}/remotes'
+createIfNotExists(remoteFolder)
+
+defaultRemoteFileA = f'{storageFolder}/remotes/A'
+if not os.path.exists(defaultRemoteFileA):
+    with open(defaultRemoteFileA,"w") as f:
+        f.write(
+            "A\n"
+            #extra channels (below remote)
+            f"{5264547}, {5264547+9}\n"
+
+            #main channels
+            f"{5264691}, {5264700}\n"
+            f"{5264835}, {5264844}\n"
+            f"{5265155}, {5265164}\n"
+            f"{5266691}, {5266700}\n"
+            f"{5272835}, {5272844}\n"
+
+            # extra channels (above remote)
+            f"{5282835}, {5282835+9}\n"
+            f"{5292835}, {5292835+9}\n"
+        )
+
+defaultRemoteFileB = f'{storageFolder}/remotes/B'
+if not os.path.exists(defaultRemoteFileB):
+    with open(defaultRemoteFileB,"w") as f:
+        f.write(
+            "B\n"
+            f"{8638540}, {8638532}\n"
+            f"{8638538}, {8638530}\n"
+            f"{8638537}, {8638529}\n"
+            f"{8638541}, {8638533}\n"
+            f"{8638539}, {8638531}\n"
+        )
+
+remotes = {}
+# parse remotes
+def loadRemotes():
+    global remotes
+    dir = os.listdir(remoteFolder)
+    for p in dir:
+        path = f'{remoteFolder}/{p}'
+        f = open(path, 'r+')
+        try:
+            lines = f.readlines()
+            if len(lines) < 2:
+                f.close()
+                os.remove(path)
+                continue
+            name = lines[0].strip()
+            buttons = []
+            for line in lines[1:]:
+                try:
+                    on, off = line.split(',')
+                    on  = int(on.strip())
+                    off = int(off.strip())
+                except Exception as e:
+                    print(e)
+                    continue
+                buttons.append(TxChannel(on=on, off=off))
+            if len(buttons) < 1:
+                f.close()
+                os.remove(path)
+                continue
+            remotes[name] = buttons
+        finally:
+            f.close()
+
+loadRemotes()
+
 templatesFolder = f'{modulePath}/templates'
 staticFolder = f'{templatesFolder}/static'
-
-TxChannel = namedtuple("Channel", ["on", "off"])
 
 txPulseLength = 171
 txProtocol = 1
 txGpio = 17
-
-txChannels = [
-    #extra channels (below remote)
-    TxChannel(on = 5264547, off = 5264547+9),
-
-    #main channels
-    TxChannel(on = 5264691, off = 5264700),
-    TxChannel(on = 5264835, off = 5264844),
-    TxChannel(on = 5265155, off = 5265164),
-    TxChannel(on = 5266691, off = 5266700),
-    TxChannel(on = 5272835, off = 5272844),
-
-    # extra channels (above remote)
-    TxChannel(on = 5282835, off = 5282835+9),
-    TxChannel(on = 5292835, off = 5292835+9),
-]
-
-# new switches which dont work with old system
-txChannels_B = [
-    TxChannel(on = 8638540, off = 8638532),
-    TxChannel(on = 8638538, off = 8638530),
-    TxChannel(on = 8638537, off = 8638529),
-    TxChannel(on = 8638541, off = 8638533),
-    TxChannel(on = 8638539, off = 8638531),
-]
-
 
 #seconds
 threadPollingPeriod = 1

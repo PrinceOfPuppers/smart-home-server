@@ -30,7 +30,7 @@ def _presserLoop():
                 break
 
             for _ in range(const.pressRepeats+1):
-                _changeChannel(press['channel'], press['value'])
+                _changeChannel(press['remote'], press['channel'], press['value'])
                 sleep(const.pressSpacing)
 
         except InterruptTriggered:

@@ -5,8 +5,8 @@
 
 <html>
 <script>
-    function channelClick(channelNum, onOff){
-        var data = {'channel': channelNum, 'value': onOff}
+    function channelClick(remote, channelNum, onOff){
+        var data = {'remote': remote, 'channel': channelNum, 'value': onOff}
         sendData('api/remote', data, 'POST')
     }
 </script>
@@ -20,16 +20,19 @@
         <a href="/schedule">Schedule</a>
         <a href="/trigger">Trigger</a>
     </div> 
-    <ul class="remote">
-        {% for channel in channels %}
-            <li>
-                <div class="on-off-channel">
-                    <button class="redButton", onclick = "channelClick({{ channel }}, false)"">off</button>
-                    <span class="nobr" class="remoteChannelNum">{{ channel }}</span>
-                    <button class="greenButton", onclick = "channelClick({{ channel }}, true)"">on</button>
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
+    {% for remote in remotes %}
+        <ul class="remote">
+            <center class="remoteChannelNum">~{{ remote }} </center>
+            {% for channel in remotes[remote] %}
+                <li>
+                    <div class="on-off-channel">
+                        <button class="redButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, false)"">off</button>
+                        <span class="nobr" class="remoteChannelNum">{{ loop.index - 1 }}</span>
+                        <button class="greenButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, true)"">on</button>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
   </body>
 </html>

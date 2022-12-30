@@ -26,6 +26,13 @@ app.register_blueprint(dashboardApi)
 app.register_blueprint(triggerApi)
 app.register_blueprint(dataApi)
 
+def _getRemoteInfo():
+    numChannels = []
+    r = []
+    for remote in const.remotes:
+        r.append(remote)
+        numChannels.append(len(const.remotes[remote]))
+    return numChannels, r
 
 @app.route('/')
 def index():
@@ -37,12 +44,17 @@ def send_templates(path):
 
 @app.route('/remote')
 def lightsGet():
-    return render_template('remote.html', channels=[i for i in range(len(const.txChannels))])
+    return render_template('remote.html', remotes = const.remotes)
 
 @app.route('/schedule')
 def scheduleGet():
     jobs = getJobs()
-    return render_template('schedule.html', minChannel=0, maxChannel=len(const.txChannels)-1, jobs=jobs, timeUnits = timeUnits, values=values)
+
+    return render_template('schedule.html', 
+                           remotes=const.remotes, 
+                           jobs=jobs, 
+                           timeUnits = timeUnits, 
+                           values=values)
 
 @app.route('/dashboard')
 def dashboardGet():
@@ -62,7 +74,7 @@ def dashboardGet():
 @app.route('/trigger')
 def triggerGet():
     triggerJobs = getTriggers()
-    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, minChannel=0, maxChannel=len(const.txChannels)-1)
+    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, remotes=const.remotes)
 
 def startServer():
     global app

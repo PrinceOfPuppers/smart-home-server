@@ -1,5 +1,5 @@
 
-{% macro jobFormDo() %}
+{% macro jobFormDo(remotes) %}
     <section>
         <div class="formDiv">
             <label for="do">Do:</label>
@@ -10,8 +10,17 @@
         </div>
 
         <div class="formDiv">
+            <label for="pressRemote" id="pressRemoteLabel">Remote:</label>
+            <select id="pressRemote" name="pressRemote">
+            {% for remote in remotes %}
+                <option value="{{ remote }}">{{ remote }}</option>
+            {% endfor %}
+            </select>
+        </div>
+
+        <div class="formDiv">
             <label for="pressChannel" id="pressChannelLabel">Channel:</label>
-            <input type="number" id="pressChannel" name="pressChannel" min={{ minChannel }} max= {{ maxChannel }} size="5" value="0">
+            <input type="number" id="pressChannel" name="pressChannel" size="5" value="0">
         </div>
 
         <div class="formDiv">
@@ -67,9 +76,9 @@
     <br/>
     <span class="nobr">→ </span>
     {% if type == "press" %}
-        <span class="nobr">switch channel: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
+        <span class="nobr">switch remote: {{data['remote']}} ch: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
     {% elif type == "lcd" %}
-            <span class="nobr">Update LCD: Light: {{'on' if data['backlight'] else 'off' }}</span>
+        <span class="nobr">Update LCD: Light: {{'on' if data['backlight'] else 'off' }}</span>
         {% if 'line1' in data %}
         <br/>
                 <span class="nobr">→ Line 1: {{ data['line1'] }}</span>

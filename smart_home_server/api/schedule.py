@@ -6,7 +6,7 @@ import copy
 from smart_home_server.threads.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJob, getJob
 from smart_home_server.helpers import getAtTime, addDefault
 
-from smart_home_server.api import allJobsSchema
+from smart_home_server.api import allJobsSchema, validateJob
 
 scheduleApi = Blueprint('scheduleApi', __name__)
 
@@ -58,6 +58,11 @@ def postJob():
     scheduledJob.pop('atHours', None)
     scheduledJob.pop('atMinutes', None)
     scheduledJob.pop('atSeconds', None)
+
+    
+    invalid = validateJob(scheduledJob)
+    if invalid:
+        return current_app.response_class(invalid, status=400)
 
     addJob(scheduledJob)
     return current_app.response_class(status=200)

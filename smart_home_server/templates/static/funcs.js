@@ -1,5 +1,5 @@
 async function sendData(url, data, httpMethod, reload=false){
-    return await fetch(url, {
+    const response = await fetch(url, {
         method: httpMethod,
         headers: {
             'Accept': 'application/json',
@@ -7,17 +7,17 @@ async function sendData(url, data, httpMethod, reload=false){
         },
         body: JSON.stringify(data)
     })
-    .then((response) => {
-        if(!response.ok){
-            window.alert(`Status: ${response.status}\n${response.statusText}`);
-            return false;
-        }
 
-        if(reload){
-            location.reload();
-        }
-        return true;
-    })
+    if(!response.ok){
+        const text = await response.text();
+        window.alert(`Status: ${response.status} ${response.statusText}\n${text}`);
+        return false;
+    }
+
+    if(reload){
+        location.reload();
+    }
+    return true;
 }
 
 
@@ -60,7 +60,7 @@ function jobDelete(url, jobId){
 }
 function processDoData(data, toSubmit){
     if(data.do == "press"){
-        toSubmit.do = {type:"press", data:{channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
+        toSubmit.do = {type:"press", data:{remote: data.pressRemote, channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
     }
     else if(data.do == "lcd"){
         toSubmit.do = {type:"lcd", data:{backlight: Boolean(data.lcdBacklight)}};

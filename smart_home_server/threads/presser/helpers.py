@@ -5,11 +5,11 @@ _rfdevice = None
 if const.isRpi():
     from rpi_rf import RFDevice
 
-    def _changeChannel(channel: int, value: bool):
+    def _changeChannel(remote: str, channel: int, value: bool):
         if _rfdevice is None:
             raise Exception("attempted to change button while presser thread is stopped")
 
-        ch = const.txChannels[channel]
+        ch = const.remotes[remote][channel]
         code = ch.on if value else ch.off
 
         _rfdevice.tx_code(code, const.txProtocol, const.txPulseLength)
@@ -28,8 +28,8 @@ if const.isRpi():
         _rfdevice = None
 
 else:
-    def _changeChannel(channel: int, value: bool):
-        print(f'channel={channel}', f'value={value}', flush=True)
+    def _changeChannel(remote:str, channel: int, value: bool):
+        print(f'remote={remote}', f'channel={channel}', f'value={value}', flush=True)
 
     def _initRfDevice():
         pass

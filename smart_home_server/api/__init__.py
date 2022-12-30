@@ -6,7 +6,8 @@ postRemoteSchema = \
 {
     "type": "object",
     "properties": {
-        "channel": { "type": "integer", "minimum": 0, "maximum": len(const.txChannels)-1}, # defaults to 0
+        "remote": {"type": "string", "minLength": 0, "maxLength": 20, "pattern": "^[ -~]*$"}, # no default, any ascii string is valid
+        "channel": { "type": "integer", "minimum": 0 }, # defaults to 0, validated in function
         "value": { "type": "boolean" } # defaults to True
     },
     'additionalProperties': False,
@@ -41,12 +42,40 @@ allJobsSchema = [
     } for name, schema in _schemas
 ]
 
+# additional sanatization not done by schema
+def validateJob(job:dict):
+    try:
+        do   = job['do']
+        type = do['type']
+        data = do['data']
+
+        if type == 'press':
+            remote = data['remote']
+            ch = data['channel']
+            if not remote in const.remotes:
+                return False
+            max = len(const.remotes[remote]) - 1
+            min = 0
+            if ch < min or ch > max:
+                return f"Invalid Channel: {ch} for Remote: {remote} (min: {min}, max: {max})"
+
+        elif type == 'lcd':
+            return ""
+
+        else:
+            print(f"Invalid Job Type '{do}'")
+            return "Invalid Job Type"
+    except:
+        return ""
+    
+
+
 def runJob(job:dict):
     # job must contain key 'do'
     if not job['enabled']:
         return
 
-    do = job['do']
+    do   = job['do']
     type = do['type']
     data = do['data']
 
