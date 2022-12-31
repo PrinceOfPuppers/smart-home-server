@@ -24,7 +24,7 @@
         const contentElement = document.getElementById(`note-new-content`);
 
         const name = nameElement.textContent;
-        const content = contentElement.textContent;
+        const content = contentElement.innerHTML.replace(/<br>/g, "\n");
         var data = {
             'name': name,
             'content': content,
@@ -36,7 +36,7 @@
         const contentElement = document.getElementById(`note-content-${id}`);
 
         const name = nameElement.textContent;
-        const content = contentElement.textContent;
+        const content = contentElement.innerHTML.replace(/<br>/g, "\n");
         var data = {
             'id': id,
             'name': name,
