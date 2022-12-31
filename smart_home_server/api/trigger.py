@@ -6,7 +6,7 @@ from smart_home_server.helpers import addDefault
 from smart_home_server.data_sources import dataSourceValues
 from smart_home_server.threads.triggerManager import addTrigger, updateTriggerName, removeTrigger, enableDisableTrigger, getTrigger, getTriggers
 
-from smart_home_server.api import allJobsSchema, validateJob
+from smart_home_server.api import allJobsSchema, validateJob, nameSchema, idSchema
 
 triggerApi = Blueprint('triggerApi', __name__)
 
@@ -38,7 +38,7 @@ postTriggerSchema = \
 {
     "type": "object",
     "properties":{
-        "name":      {"type": "string", "minLength": 1, "maxLength": 30},
+        "name":      nameSchema,
         "enabled":   {"type": "boolean"}, # defaults to True
         'negated':   {"type": "boolean"}, # defaults to false
         'firstVar':  dataSourceSchema,
@@ -80,7 +80,7 @@ deleteTriggerSchema = \
 {
     "type": "object",
     "properties": {
-        "id": {"type": "string"}
+        "id": idSchema
     },
     "required": ["id"],
     'additionalProperties': False,
@@ -99,8 +99,8 @@ patchTriggerSchema = \
 {
     "type": "object",
     "properties":{
-        "id":        {"type": "string"},
-        "name":      {"type": "string", "minLength": 1, "maxLength": 30},
+        "id":        idSchema,
+        "name":      nameSchema,
     },
     "required": ['id', 'name'],
     'additionalProperties': False,
@@ -131,7 +131,7 @@ enableTriggerSchema = \
 {
     "type": "object",
     "properties": {
-        "id": {"type": "string"},
+        "id": idSchema,
         "enable": {"type": "boolean"} # defaults to True
     },
     "required": ['id'],

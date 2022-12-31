@@ -35,6 +35,9 @@ if not os.path.exists(lcdTextFile):
 noteFolder = f'{storageFolder}/notes'
 createIfNotExists(noteFolder)
 
+macroFolder = f'{storageFolder}/macros'
+createIfNotExists(macroFolder)
+
 remoteFolder = f'{storageFolder}/remotes'
 createIfNotExists(remoteFolder)
 

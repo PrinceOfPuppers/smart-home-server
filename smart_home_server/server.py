@@ -13,6 +13,8 @@ from smart_home_server.api.remote import remoteApi
 from smart_home_server.api.dashboard import dashboardApi
 from smart_home_server.api.data import dataApi
 from smart_home_server.api.trigger import triggerApi, triggerComparisons
+from smart_home_server.api.note import noteApi
+from smart_home_server.api.macro import macroApi
 from smart_home_server.data_sources import dataSources, dataSourceValues
 from smart_home_server.notes import getNotes
 import smart_home_server.constants as const
@@ -26,6 +28,8 @@ app.register_blueprint(remoteApi)
 app.register_blueprint(dashboardApi)
 app.register_blueprint(triggerApi)
 app.register_blueprint(dataApi)
+app.register_blueprint(noteApi)
+app.register_blueprint(macroApi)
 
 def _getRemoteInfo():
     numChannels = []

@@ -2,6 +2,9 @@ import smart_home_server.constants as const
 from smart_home_server.threads.presser import presserAppend
 from smart_home_server.threads.lcd import updateLCDFromJobData
 
+nameSchema = {"type": "string", "minLength": 0, "maxLength": 20, "pattern": "^[^\n\r]*$"}
+idSchema   = {"type": "string", "minLength": 0, "maxLength": 50, "pattern": "^[^\n\r]*$"}
+
 postRemoteSchema = \
 {
     "type": "object",

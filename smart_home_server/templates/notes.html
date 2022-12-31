@@ -3,14 +3,14 @@
 <link rel="stylesheet" href = "style.css"></link>
 <script type="text/javascript" src="funcs.js"></script>
 
-{% import 'macros.html' as m %}
+{% import 'jinjaMacros.html' as m %}
 
 <html>
 <script>
     function getNote(id){
         const nameElement = document.getElementById(`note-name-${id}`);
         const contentElement = document.getElementById(`note-content-${id}`);
-        getData('api/dashboard/note', {id:id}, httpMethod="SEARCH")
+        getData('api/note', {id:id}, httpMethod="SEARCH")
             .then((json)=>{
                 if(json === null){
                     return;
@@ -29,9 +29,7 @@
             'name': name,
             'content': content,
         };
-        if(!sendData('/api/dashboard/note', data, 'POST', reload=true)){
-            return
-        }
+        sendData('/api/note', data, 'POST', reload=true);
     }
     function saveNote(id){
         const nameElement = document.getElementById(`note-name-${id}`);
@@ -44,17 +42,13 @@
             'name': name,
             'content': content,
         };
-        if(!sendData('/api/dashboard/note', data, 'PATCH')){
-            return
-        }
+        sendData('/api/note', data, 'PATCH');
     }
     function deleteNote(id){
         const element = document.getElementById(`note-element-${id}`);
         var data = {'id': id};
-        if(!sendData('/api/dashboard/note', data, 'DELETE')){
-            return
-        }
-        element.remove();
+        sendData('/api/note', data, 'DELETE')
+            .then((success)=>{element.remove()});
     }
 </script>
 

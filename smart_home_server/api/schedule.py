@@ -6,7 +6,7 @@ import copy
 from smart_home_server.threads.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJob, getJob
 from smart_home_server.helpers import getAtTime, addDefault
 
-from smart_home_server.api import allJobsSchema, validateJob
+from smart_home_server.api import allJobsSchema, validateJob, nameSchema, idSchema
 
 scheduleApi = Blueprint('scheduleApi', __name__)
 
@@ -16,7 +16,7 @@ postScheduledJobSchema = \
 {
     "type": "object",
     "properties":{
-        "name":      {"type": "string", "minLength": 1, "maxLength": 30},
+        "name":      nameSchema,
         #"id":        {"type": "string"},
         "enabled":   {"type": "boolean"}, # defaults to True
         "every":     {"type": "integer"},
@@ -72,7 +72,7 @@ deleteJobSchema = \
 {
     "type": "object",
     "properties": {
-        "id": {"type": "string"}
+        "id": idSchema
     },
     "required": ["id"],
     'additionalProperties': False,
@@ -91,8 +91,8 @@ patchJobSchema = \
 {
     "type": "object",
     "properties":{
-        "id":        {"type": "string"},
-        "name":      {"type": "string", "minLength": 1, "maxLength": 30},
+        "id":        idSchema,
+        "name":      nameSchema, # defaults to job if empty
     },
     "required": ['id', 'name'],
     'additionalProperties': False,
@@ -100,8 +100,11 @@ patchJobSchema = \
 @scheduleApi.route('/api/schedule/jobs', methods=['PATCH'])
 @expects_json(patchJobSchema)
 def patchJob():
-    id = json.loads(request.data)['id']
-    name = json.loads(request.data)['name']
+    patch = json.loads(request.data)
+    id = patch['id']
+    name = patch['name']
+    if not name:
+        name = 'job'
 
     oldJob = getJob(id)
     if oldJob is None:
@@ -127,7 +130,7 @@ enableJobSchema = \
 {
     "type": "object",
     "properties": {
-        "id": {"type": "string"},
+        "id": idSchema,
         "enable": {"type": "boolean"} # defaults to True
     },
     "required": ['id'],
