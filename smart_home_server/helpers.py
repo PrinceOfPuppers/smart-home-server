@@ -15,8 +15,6 @@ def padZeros(num, length):
     numStr = str(num)
     return f'{"0"*(length - len(numStr))}{numStr}' if len(numStr) < length else numStr
 
-def stripLines(text, stripHead, stripTail):
-    return '\n'.join(text.split('\n')[stripHead:stripTail])
 
 def padChar(s, c, length):
     s = str(s)

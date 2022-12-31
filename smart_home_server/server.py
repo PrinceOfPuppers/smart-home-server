@@ -14,6 +14,7 @@ from smart_home_server.api.dashboard import dashboardApi
 from smart_home_server.api.data import dataApi
 from smart_home_server.api.trigger import triggerApi, triggerComparisons
 from smart_home_server.data_sources import dataSources, dataSourceValues
+from smart_home_server.notes import getNotes
 import smart_home_server.constants as const
 
 values = list(dataSourceValues)
@@ -75,6 +76,13 @@ def dashboardGet():
 def triggerGet():
     triggerJobs = getTriggers()
     return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, remotes=const.remotes)
+
+@app.route('/notes')
+def notesGet():
+    notes = getNotes()
+    notes.sort(key = lambda element: element['name'])
+    return render_template('notes.html', notes=notes)
+
 
 def startServer():
     global app

@@ -20,6 +20,27 @@ async function sendData(url, data, httpMethod, reload=false){
     return true;
 }
 
+async function getData(url, data=null, httpMethod='GET'){
+    var content = {
+        method: httpMethod,
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+    };
+    if(data !== null){
+        content["body"] = JSON.stringify(data);
+    }
+    const response = await fetch(url, content)
+
+    if(!response.ok){
+        const text = await response.text();
+        window.alert(`Status: ${response.status} ${response.statusText}\n${text}`);
+        return null;
+    }
+
+    return await response.json();
+}
 
 function formToObject(form){
     let formData = new FormData(form)
@@ -47,16 +68,16 @@ function updateJobName(url, jobId, jobName){
 
     var data = {'id': jobId, 'name': newName};
 
-    sendData(url, data, 'PATCH', reload=true);
+    return sendData(url, data, 'PATCH', reload=true);
 }
 
 function jobEnable(url, jobId, enable){
     var data = {'id': jobId, 'enable': enable};
-    sendData(url, data, 'POST', reload=true);
+    return sendData(url, data, 'POST', reload=true);
 }
 function jobDelete(url, jobId){
     var data = {'id': jobId};
-    sendData(url, data, 'DELETE', reload=true);
+    return sendData(url, data, 'DELETE', reload=true);
 }
 function processDoData(data, toSubmit){
     if(data.do == "press"){

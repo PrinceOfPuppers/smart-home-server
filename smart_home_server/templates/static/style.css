@@ -73,6 +73,7 @@
         padding: 10pt 15pt;
         /* padding: 5pt 10pt; */
         cursor: pointer;
+        font-size:11pt;
     }
     button:active {
         color: var(--darkGrey);
@@ -280,4 +281,22 @@
     white-space: pre-wrap;
     font-family: Noto-Sans-Mono, Noto-Color-Mono;
     font-size:11pt;
+}
+
+.dashboardList div span{
+    border: 2pt solid var(--lightGrey);
+    background-color: var(--darkGrey);
+
+    white-space:nowrap;
+    font-family: Noto-Sans-Mono, Noto-Color-Mono;
+    font-size:11pt;
+
+    border-radius: 4pt;
+    padding: 10pt 15pt;
+}
+
+.entry:empty:not(:focus)::before {
+  content: attr(data-placeholder);
+  display: inline;
+  color: var(--lightGrey);
 }

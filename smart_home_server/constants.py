@@ -32,6 +32,9 @@ if not os.path.exists(lcdTextFile):
             "T:{temp}/{wttrTemp}{space} H:{humid}/{wttrHumid}"
         )
 
+noteFolder = f'{storageFolder}/notes'
+createIfNotExists(noteFolder)
+
 remoteFolder = f'{storageFolder}/remotes'
 createIfNotExists(remoteFolder)
 

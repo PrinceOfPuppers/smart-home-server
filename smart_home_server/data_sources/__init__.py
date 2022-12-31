@@ -1,9 +1,10 @@
 import requests
+import re
 from datetime import datetime, timedelta
 
 from smart_home_server.hardware_interfaces.lcd import getLCDFMT
 from smart_home_server.hardware_interfaces.dht22 import getDHT
-from smart_home_server.helpers import stripLines, padChar, roundTimeStr
+from smart_home_server.helpers import padChar, roundTimeStr
 import smart_home_server.constants as const
 
 from smart_home_server.data_sources.caching import cached
@@ -125,8 +126,9 @@ def getCurrentWeather():
     if not r.ok:
         return None
 
-    text, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split('\n')
-    text = text.lower().replace("unknown precipitation", "precip")
+    _, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split('\n')
+    # text was removed, its inaccurate for some reason
+    #text = text.lower().replace("unknown precipitation", "precip")
 
     temp, feelsLike = int(temp[:-2]), int(feelsLike[:-2])
     humid = humid[:-1]
@@ -136,9 +138,10 @@ def getCurrentWeather():
     sunset = roundTimeStr(sunset)
 
     res = {
-        'str': f'{text} {temp}C({feelsLike}C) {humid}%',
+        #'str': f'{text} {temp}C({feelsLike}C) {humid}%',
+        'str': f'{temp}C({feelsLike}C) {humid}%',
         'data': {
-            'text': text,
+            #'text': text,
             'temp': temp,
             'feelsLike': feelsLike,
             'humid': humid,
@@ -154,10 +157,17 @@ def getWeatherImageLocal():
     r = requests.get(const.weatherUrl, timeout=const.requestTimeout)
     if not r.ok:
         return None
-    s = stripLines(r.text,0,-1)
+
+    lines = r.text.split('\n')[0:-1]
+    s = '\n'.join(lines)
+    text = re.sub(r'[^a-zA-Z0-9\s]', '', lines[0]).strip()
+    print(text,'\n', lines[0])
+
     res = {
         'str': s,
-        'data': {},
+        'data': {
+            'text': text
+        },
     }
     return res
 
@@ -250,6 +260,12 @@ dataSources = [
 
         'dashboard':{
             'enabled':True,
+        },
+        'values': {
+            'wttrText': {
+                'enabled': True,
+                'dataPath': ['data', 'text']
+            },
         }
     },
 
@@ -299,10 +315,6 @@ dataSources = [
             'wttrHumid': {
                 'enabled': True,
                 'dataPath': ['data', 'humid']
-            },
-            'wttrText': {
-                'enabled': True,
-                'dataPath': ['data', 'text']
             },
             'wttrUV': {
                 'enabled': True,

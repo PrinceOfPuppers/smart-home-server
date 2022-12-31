@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href = "style.css"></link>
+<script type="text/javascript" src="funcs.js"></script>
+
+{% import 'macros.html' as m %}
+
+<html>
+<script>
+    function getNote(id){
+        const nameElement = document.getElementById(`note-name-${id}`);
+        const contentElement = document.getElementById(`note-content-${id}`);
+        getData('api/dashboard/note', {id:id}, httpMethod="SEARCH")
+            .then((json)=>{
+                if(json === null){
+                    return;
+                }
+                nameElement.textContent    = json['name']
+                contentElement.textContent = json['content']
+        });
+    }
+    function newNote(){
+        const nameElement = document.getElementById(`note-new-name`);
+        const contentElement = document.getElementById(`note-new-content`);
+
+        const name = nameElement.textContent;
+        const content = contentElement.textContent;
+        var data = {
+            'name': name,
+            'content': content,
+        };
+        if(!sendData('/api/dashboard/note', data, 'POST', reload=true)){
+            return
+        }
+    }
+    function saveNote(id){
+        const nameElement = document.getElementById(`note-name-${id}`);
+        const contentElement = document.getElementById(`note-content-${id}`);
+
+        const name = nameElement.textContent;
+        const content = contentElement.textContent;
+        var data = {
+            'id': id,
+            'name': name,
+            'content': content,
+        };
+        if(!sendData('/api/dashboard/note', data, 'PATCH')){
+            return
+        }
+    }
+    function deleteNote(id){
+        const element = document.getElementById(`note-element-${id}`);
+        var data = {'id': id};
+        if(!sendData('/api/dashboard/note', data, 'DELETE')){
+            return
+        }
+        element.remove();
+    }
+</script>
+
+<body>
+    <div class="topnav">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/remote">Remote</a>
+        <a href="/schedule">Schedule</a>
+        <a href="/trigger">Trigger</a>
+        <a class="active" href="/notes">Notes</a>
+    </div> 
+
+    <div class="dashboardList">
+        {% for note in notes %}
+            {% set id      = note['id'] %}
+            {% set name    = note['name'] %}
+            {% set content = note['content'] %}
+            <div id="note-element-{{ id }}">
+                <button id="note-Delete-{{ id }}" class="redButton" onclick="deleteNote('{{ id }}')">X</button>
+                <span id="note-name-{{ id }}" class="entry" id="note-new-name" contentEditable="true" spellcheck="false">{{ name }}</span>
+                <button id="note-edit-{{ id }}" class="yellowButton" onclick="saveNote('{{ id }}')">Save</button>
+                <p id="note-content-{{ id }}" contentEditable="true" spellcheck="false">{{ content }}</p>
+            </div>
+        {% endfor %}
+        <div>
+            <button class="redButton">X</button>
+            <span class="entry" id="note-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
+            <button id="note-new" class="yellowButton" onclick="newNote()">Create</button>
+            <p class="entry" id="note-new-content" contentEditable="true" data-placeholder="Content" spellcheck="false"></p>
+        </div>
+  </body>
+</html>

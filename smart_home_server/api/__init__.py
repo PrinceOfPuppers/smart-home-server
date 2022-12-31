@@ -10,6 +10,7 @@ postRemoteSchema = \
         "channel": { "type": "integer", "minimum": 0 }, # defaults to 0, validated in function
         "value": { "type": "boolean" } # defaults to True
     },
+    "required": ['remote'],
     'additionalProperties': False,
 }
 
