@@ -12,7 +12,7 @@
             </select>
         </div>
 
-        <div class="formDiv">
+        <div id="pressDiv" class="formDiv">
             <label for="pressRemote" id="pressRemoteLabel">Remote:</label>
             <select id="pressRemote" name="pressRemote">
             {% for remote in remotes %}
@@ -21,12 +21,12 @@
             </select>
         </div>
 
-        <div class="formDiv">
+        <div id="pressDiv"  class="formDiv">
             <label for="pressChannel" id="pressChannelLabel">Channel:</label>
             <input type="number" id="pressChannel" name="pressChannel" size="5" value="0">
         </div>
 
-        <div class="formDiv">
+        <div id="pressDiv"  class="formDiv">
             <label for="pressValue" id="pressValueLabel">Value:</label>
             <select id="pressValue" name="pressValue">
             <option value="1">on</option>
@@ -34,7 +34,7 @@
             </select>
         </div>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <label for="lcdBacklight" id="lcdBacklightLabel">Light:</label>
             <input type="checkbox" id="lcdBacklight" name="lcdBacklight" value="true" checked="true">
         </div>
@@ -42,51 +42,51 @@
 
         <br id="lcdBr"/>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <label for="lcdLine1" id="lcdLine1Label">Line 1:</label>
             <input type="text" id="lcdLine1" name="lcdLine1" maxLength = "40" size="20">
         </div>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <label for="lcdLine1Edit" id="lcdLine1Edit">Edit:</label>
             <input type="checkbox" id="lcdLine1Edit" name="lcdLine1Edit" value="true" checked="true">
         </div>
 
         <br id="lcdBr"/>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <label for="lcdLine2" id="lcdLine2Label">Line 2:</label>
             <input type="text" id="lcdLine2" name="lcdLine2" maxLength = "40" size="20">
         </div>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <label for="lcdLine2Edit" id="lcdLine2Edit">Edit:</label>
             <input type="checkbox" id="lcdLine2Edit" name="lcdLine2Edit" value="true" checked="true">
         </div>
 
         <br id="lcdBr"/>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <button type="button" id="lcdHelp" class="whiteButton" onclick="lcdFmtCheatSheet()">?</button>
         </div>
 
         {% if includeDelay %}
-            <div class="formDiv">
+            <div id="delayDiv" class="formDiv">
                 <label for="delaySeconds" id="delaySecondsLabel">Seconds:</label>
                 <input type="number" id="delaySeconds" name="delaySeconds" size="5" value="0">
+            </div>
 
+            <div id="delayDiv" class="formDiv">
                 <label for="delayMinutes" id="delayMinutes">Minutes:</label>
                 <input type="number" id="delayMinutes" name="delayMinutes" size="5" value="0">
+            </div>
 
+            <div id="delayDiv" class="formDiv">
                 <label for="delayHours" id="delayHours">Hours:</label>
                 <input type="number" id="delayHours" name="delayHours" size="5" value="0">
             </div>
-
-            <div class="formDiv">
-                <label for="pressChannel" id="pressChannelLabel">Channel:</label>
-                <input type="number" id="pressChannel" name="pressChannel" size="5" value="0">
-            </div>
         {% endif %}
+
 
     </section>
 {% endmacro %}

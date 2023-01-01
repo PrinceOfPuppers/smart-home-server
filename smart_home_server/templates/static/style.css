@@ -193,7 +193,7 @@
         margin-top:5pt;
         border-radius: 4px;
     }
-    #jobForm {
+    #jobForm, #newMacroForm, #addToMacroForm{
         width: fit-content;
         border: 2pt solid var(--lightGrey);
         background-color: var(--grey);

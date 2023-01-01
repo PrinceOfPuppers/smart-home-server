@@ -17,6 +17,7 @@ from smart_home_server.api.note import noteApi
 from smart_home_server.api.macro import macroApi
 from smart_home_server.data_sources import dataSources, dataSourceValues
 from smart_home_server.notes import getNotes
+from smart_home_server.macros import getMacros
 import smart_home_server.constants as const
 
 values = list(dataSourceValues)
@@ -86,6 +87,12 @@ def notesGet():
     notes = getNotes()
     notes.sort(key = lambda element: element['name'])
     return render_template('notes.html', notes=notes)
+
+@app.route('/macros')
+def macrosGet():
+    macros = getMacros()
+    macros.sort(key = lambda element: element['name'])
+    return render_template('macros.html', macros=macros, remotes=const.remotes)
 
 
 def startServer():

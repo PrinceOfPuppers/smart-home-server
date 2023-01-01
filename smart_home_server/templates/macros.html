@@ -74,7 +74,7 @@
 
 
     window.onload = () => {
-        document.getElementById('addToMacroFrom').addEventListener('submit', addToMacroHandler);
+        document.getElementById('addToMacroForm').addEventListener('submit', addToMacroHandler);
         document.getElementById('newMacroForm').addEventListener('submit', newMacroHandler);
 
         hideUnhideJobForms(document.querySelector('#do'));
@@ -149,7 +149,7 @@
             <section>
                 <div class="formDiv">
                     <label for="newMacroName" id="newMacroNameLabel">Name:</label>
-                    <input type="text" id="newMacroName" name="newMacroName" maxLength = "40" size="20" required>
+                    <input type="text" id="newMacroName" name="newMacroName" maxLength = "20" size="10" required>
                 </div>
 
                 <br style="clear:both;" />
@@ -164,7 +164,7 @@
 
     <h3>Add Item To Macro:</h3>
 
-        <form id="addToMacroFrom">
+        <form id="addToMacroForm">
             <section>
                 <div class="formDiv">
                     <label for="macroId" id="macroIdLabel">Macro:</label>
@@ -173,6 +173,8 @@
                         <option value="{{ macro['id'] }}">{{ macro['name'] }}</option>
                     {% endfor %}
                     </select>
+                </div>
+                <div class="formDiv">
                     <label for="macroitemIndex" id="macroitemIndexLabel">Index:</label>
                     <input type="quantity" id="macroItemIndex" name="macroItemIndex" min="-1" max="100" size="3" placeholder="-1">
                 </div>
