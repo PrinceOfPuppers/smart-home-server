@@ -93,12 +93,12 @@
 {% endmacro %}
 
 {% macro lcdFmtCheatSheet(values) %}
-values = [
-{% for value in values %}
-    "{{ value }}",
-{% endfor %}
-]
-function lcdFmtCheatSheet(){
-    window.alert(`\nFMT Cheat Sheet: \n  {${values.join('}\n  {')}}`);
-}
+    values = [
+    {% for value in values %}
+        "{{ value }}",
+    {% endfor %}
+    ]
+    function lcdFmtCheatSheet(){
+        window.alert(`\nFMT Cheat Sheet: \n  {${values.join('}\n  {')}}`);
+    }
 {% endmacro %}

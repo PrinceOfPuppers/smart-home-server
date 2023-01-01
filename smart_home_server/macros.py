@@ -1,6 +1,8 @@
 from uuid import uuid4
 import os
 import json
+from time import sleep
+from threading import Thread
 import smart_home_server.constants as const
 from smart_home_server.api import runJob
 from threading import Lock
@@ -13,14 +15,18 @@ class MacroDoesNotExist(Exception):
 class MacroAlreadyExists(Exception):
     pass
 
+class SequenceItemDoesNotExist(Exception):
+    pass
+
+
 def _getMacroPath(id:str):
     return f'{const.macroFolder}/{id}'
 
-def createMacro(name:str, jobs:dict, id=None, lock=True):
+def saveMacro(macro:dict, id=None, lock=True):
     global _macroLock
+    if lock:
+        _macroLock.acquire()
     try:
-        if lock:
-            _macroLock.acquire()
         if id == None:
             id = str(uuid4())
 
@@ -28,9 +34,8 @@ def createMacro(name:str, jobs:dict, id=None, lock=True):
         if os.path.exists(path):
             raise MacroAlreadyExists()
 
-        name = name.replace('\n', ' ').strip()
         with open(path, "w") as f:
-            f.write(json.dumps({"name":name, "jobs":jobs}))
+            f.write(json.dumps(macro))
     finally:
         if lock:
             _macroLock.release()
@@ -38,9 +43,9 @@ def createMacro(name:str, jobs:dict, id=None, lock=True):
 
 def deleteMacro(id: str, lock = True):
     global _macroLock
+    if lock:
+        _macroLock.acquire()
     try:
-        if lock:
-            _macroLock.acquire()
         path = _getMacroPath(id)
         if os.path.exists(path):
             os.remove(path)
@@ -50,25 +55,22 @@ def deleteMacro(id: str, lock = True):
         if lock:
             _macroLock.release()
 
-def updateMacro(id:str, name:str=None, jobs:dict=None):
+def overwriteMacro(id:str, newMacro:dict, lock=True):
     global _macroLock
-    _macroLock.acquire()
+    if lock:
+        _macroLock.acquire()
     try:
-        macro = getMacro(id, lock=False)
-        if macro is None:
-            return MacroDoesNotExist()
-        name = macro['name'] if name is None else name
-        jobs = macro['jobs'] if jobs is None else jobs
         deleteMacro(id, lock=False)
-        return createMacro(name, jobs, id=id, lock=False)
+        return saveMacro(newMacro, id=id, lock=False)
     finally:
-        _macroLock.release()
+        if lock:
+            _macroLock.release()
 
 def getMacro(id:str, lock = True):
     global _macroLock
+    if lock:
+        _macroLock.acquire()
     try:
-        if lock:
-            _macroLock.acquire()
         path = _getMacroPath(id)
         if not os.path.exists(path):
             raise MacroDoesNotExist()
@@ -83,6 +85,7 @@ def getMacro(id:str, lock = True):
             _macroLock.release()
 
 def getMacros():
+    global _macroLock
     _macroLock.acquire()
     try:
         dir = os.listdir(const.macroFolder)
@@ -96,13 +99,67 @@ def getMacros():
     finally:
         _macroLock.release()
 
-def runMacro(id):
+macro = {
+    "name": "Asdf",
+    "id": "Asdf",
+    "sequence": [
+        {'id': "asdf", 'type': "delay", "data":{"minutes":5,"seconds": 3}},
+        {'id': "asdf", 'type': "job", "data":{...}},
+    ],
+}
+
+def addMacroSequenceItem(id, sequenceItem, index = -1):
+    '''adds id to sequence item'''
+    global _macroLock
     _macroLock.acquire()
     try:
         macro = getMacro(id, lock=False)
-        print(f"Running Macro: {macro['name']}")
-        jobs = macro['jobs']
-        for job in jobs:
-            runJob(job)
+        sequenceItemId = str(uuid4())
+        sequenceItem['id'] = sequenceItemId
+        if index == -1:
+            macro['sequence'].append(sequenceItem)
+        else:
+            index = min(max(index,0), len(macro['sequence']))
+            macro['sequence'].insert(index, sequenceItem)
+
+        overwriteMacro(macro['id'], macro)
     finally:
         _macroLock.release()
+
+def deleteMacroSequenceItem(macroId, sequenceItemId):
+    global _macroLock
+    _macroLock.acquire()
+    try:
+        macro = getMacro(macroId, lock=False)
+        for i,item in enumerate(macro['sequence']):
+            if item['id'] == sequenceItemId:
+                macro['sequence'].pop(i)
+                overwriteMacro(macro['id'], macro)
+                return
+        raise SequenceItemDoesNotExist()
+    finally:
+        _macroLock.release()
+
+def _runMacroSequence(sequence, delay = 0):
+    if len(sequence) == 0:
+        return
+    if delay > 0:
+        sleep(delay)
+    for i,item in enumerate(sequence):
+        if item['type'] == 'job':
+            runJob(item['data'])
+        elif item['type'] == 'delay':
+            data = item['data']
+            seconds = data['seconds'] + data['minutes']*60 + data['hours']*60*60
+            t = Thread(target= lambda: _runMacroSequence(sequence[i+1:], delay = seconds))
+            t.start()
+            break
+
+def runMacro(id):
+    global _macroLock
+    macro = getMacro(id)
+    name = macro['name']
+    sequence = macro['sequence']
+    print(f"Running Macro: {name}")
+    _runMacroSequence(sequence)
+
