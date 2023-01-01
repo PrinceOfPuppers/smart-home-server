@@ -6,8 +6,15 @@
 <html>
 <script>
     function channelClick(remote, channelNum, onOff){
+        const id = `${onOff ? "on" : "off"}-button-${remote}-${channelNum}`
+        const saveButtonElement = document.getElementById(id);
+
         var data = {'remote': remote, 'channel': channelNum, 'value': onOff}
-        sendData('api/remote', data, 'POST')
+        sendData('api/remote', data, 'POST').then((success)=>{
+            if(success){
+                tempChangeButton(saveButtonElement, "O");
+            }
+        });
     }
 </script>
 
@@ -27,9 +34,9 @@
             {% for channel in remotes[remote] %}
                 <li>
                     <div class="on-off-channel">
-                        <button class="redButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, false)"">off</button>
+                        <button id="off-button-{{remote}}-{{loop.index-1}}" class="redButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, false)"">-</button>
                         <span class="nobr" class="remoteChannelNum">{{ loop.index - 1 }}</span>
-                        <button class="greenButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, true)"">on</button>
+                        <button id="on-button-{{remote}}-{{loop.index-1}}" class="greenButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, true)"">-</button>
                     </div>
                 </li>
             {% endfor %}

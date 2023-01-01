@@ -20,6 +20,10 @@ async function sendData(url, data, httpMethod, reload=false){
     return true;
 }
 
+async function delay(s){
+    return new Promise(res => setTimeout(res, 1000*s));
+}
+
 async function getData(url, data=null, httpMethod='GET'){
     var content = {
         method: httpMethod,
@@ -99,3 +103,10 @@ function processDoData(data, toSubmit){
     return true;
 }
 
+function tempChangeButton(element, newText, time=1){
+    const text = element.textContent;
+    element.textContent = newText;
+    delay(time).then(()=>{
+        element.textContent = text;
+    });
+}

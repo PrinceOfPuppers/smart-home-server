@@ -34,6 +34,7 @@
     function saveNote(id){
         const nameElement = document.getElementById(`note-name-${id}`);
         const contentElement = document.getElementById(`note-content-${id}`);
+        const saveButtonElement = document.getElementById(`note-edit-${id}`);
 
         const name = nameElement.textContent;
         const content = contentElement.innerHTML.replace(/<br>/g, "\n");
@@ -42,7 +43,11 @@
             'name': name,
             'content': content,
         };
-        sendData('/api/note', data, 'PATCH');
+        sendData('/api/note', data, 'PATCH').then((success)=>{
+            if(success){
+                tempChangeButton(saveButtonElement, "Saved!");
+            }
+        });
     }
     function deleteNote(id){
         const element = document.getElementById(`note-element-${id}`);
