@@ -110,3 +110,21 @@ function tempChangeButton(element, newText, time=1){
         element.textContent = text;
     });
 }
+
+function hideUnhideJobForms(dropDown){
+    // iterate over options in the drop down
+    Array.from(dropDown.options).forEach((dropDownOption) => {
+        // get all elements which match that option
+        const optionElements = document.querySelectorAll(`[id^='${dropDownOption.value}']`);
+
+        // see if they match the current value
+        if (dropDown.value === dropDownOption.value) {
+            // if so, display them
+            optionElements.forEach((element) => {element.style.display = "block"});
+        } else {
+            // else hide them
+            optionElements.forEach((element) => {element.style.display = "none"});
+        }
+    })
+}
+
