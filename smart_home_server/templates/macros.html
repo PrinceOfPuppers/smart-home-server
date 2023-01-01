@@ -9,9 +9,7 @@
 <script>
     {{ m.lcdFmtCheatSheet(values) }}
 
-    const weekdays = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
-
-    function submitJobHandler(event){
+    function addToMacroHandler(event){
         event.preventDefault();
         let form = event.currentTarget;
         var data = formToObject(form);
@@ -22,80 +20,66 @@
             return;
         }
 
-        // every is not compatible with days of the week
-        if(weekdays.indexOf(data.unit) !== -1){
-            delete data.every;
-        }
-        if(data.unit === "week"){
-            delete data.atHours;
-            delete data.atMinutes;
-            delete data.atSeconds;
-        }
+        toSubmit.index = 'macroItemIndex' in data ? Number(data.macroItemIndex) : -1;
 
-        // remove empty, null, undefined
-        data = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== null && v !== undefined && v!== ""));
-
-        if ('atHours' in data){toSubmit.atHours = Number(data.atHours);}
-        if ('atMinutes' in data){toSubmit.atMinutes = Number(data.atMinutes);}
-        if ('atSeconds' in data){toSubmit.atSeconds = Number(data.atSeconds);}
-        if ('every' in data){toSubmit.every = Number(data.every);}
-        toSubmit.unit = data.unit
-        toSubmit.name = data.name
-
-        sendData('api/schedule', toSubmit, 'POST', reload=true);
+        sendData('api/macro/item', toSubmit, 'POST', reload=true);
     }
 
-    function hideUnhideEvery(dropDown){
-        const everyText = document.querySelector(`[id=everyText]`);
-        const everyInput = document.querySelector(`[id=everyInput]`);
-
-        everyText.style.display = "block";
-        everyInput.style.display = "inline";
-
-        // if dropdown value is one of the days of the week
-        if (weekdays.indexOf(dropDown.value) !== -1) {
-            everyText.style.display = "none";
-            everyInput.style.display = "none";
-            return;
-        } 
+    function macroPost(url){
+        var data = {};
+        return sendData(url, data, 'POST', reload=true);
     }
 
-    function hideUnhideAtTimes(dropDown){
-        const atText = document.querySelector(`[id=atText]`);
-        const atSeconds = document.querySelector(`[id=atSeconds]`);
-        const atMinutes = document.querySelector(`[id=atMinutes]`);
-        const atHours = document.querySelector(`[id=atHours]`);
-
-        atText.style.display = "block";
-        atSeconds.style.display = "inline";
-        atMinutes.style.display = "inline"
-        atHours.style.display = "inline";
-
-        if (dropDown.value === "second" || dropDown.value == "week") {
-            atText.style.display = "none";
-            atSeconds.style.display = "none";
-            atMinutes.style.display = "none"
-            atHours.style.display = "none";
-            return;
-        } 
-        if (dropDown.value == "minute"){
-            atMinutes.style.display = "none"
-            atHours.style.display = "none";
-            return;
-        }
-        if (dropDown.value == "hour"){
-            atHours.style.display = "none";
-            return;
-        }
+    function macroDelete(url, id){
+        var data = {'id': jobId};
+        const macroElement = document.getElementById(`macro-${id}`);
+        return sendData(url, data, 'DELETE').then((success)=>{
+            if(success){
+                macroElement.remove();
+            }
+        });
     }
+    function macroRun(url, id){
+        const runButton = document.getElementById(`macro-run-button-${id}`);
+        var data = {'id': jobId};
+
+        return sendData(url, data, 'POST').then((success)=>{
+            if(success){
+                tempChangeButton(runButton, "Running!");
+            }
+        });
+    }
+    function macroItemDelete(url, id, itemId){
+        var data = {'id': jobId, 'itemId': itemId};
+        const macroItemElement = document.getElementById(`macro-item-${id}-${itemId}`);
+        return sendData(url, data, 'DELETE').then((success)=>{
+            if(success){
+                macroItemElement.remove();
+            }
+        });
+    }
+
+    function newMacroHandler(event){
+        event.preventDefault();
+        let form = event.currentTarget;
+        var data = formToObject(form);
+
+        const name = 'newMaroName' in data ? data.newMacroName : ''
+        toSubmit = {name: name}
+
+        toSubmit.index = 'macroItemIndex' in data ? Number(data.macroItemIndex) : -1;
+
+        sendData('api/macro', toSubmit, 'POST', reload=true);
+    }
+
 
     window.onload = () => {
-        document.getElementById('jobForm').addEventListener('submit', submitJobHandler);
+        document.getElementById('addToMacroFrom').addEventListener('submit', addToMacroHandler);
+        document.getElementById('newMacroForm').addEventListener('submit', newMacroHandler);
 
         hideUnhideJobForms(document.querySelector('#do'));
         document.querySelector('#do').addEventListener("change", function(dropDown) {hideUnhideJobForms(dropDown.target)});
     }
-    
 </script>
 
 
@@ -120,10 +104,10 @@
                 {% set macroName = macro['name'] %}
                 {% set sequence  = macro['sequence'] %}
                 <li>
-                    <div class="macro">
+                    <div class="macro-{{ macroId }}">
                         <button class="redButton", onclick = "macroDelete('api/macro', '{{ macroId }}')"">X</button>
                         <button class="blueButton">{{ macroName }}</button>
-                        <button class="greenButton", onclick = "runMacro('api/macro/run', '{{ macroId }}')"">Run</button>
+                        <button class="greenButton", id="macro-run-button-{{ macroId }}", onclick = "runMacro('api/macro/run', '{{ macroId }}')"">Run</button>
 
                         <ul class="macroItems">
                             {% for item in sequence %}
@@ -131,7 +115,7 @@
                                 {% set itemType  = item['type'] %}
                                 {% set itemData  = item['data'] %}
                                 <li>
-                                    <div class="macroItem">
+                                    <div class="macro-item-{{ macroId }}-{{ itemId }}">
                                         <button class="redButton", onclick = "macroItemDelete('api/macro/delete', '{{ macroId }}', '{{ itemId }}')"">X</button>
 
                                         {% if type == 'delay' %}
@@ -160,26 +144,43 @@
             {% endfor %}
         </ul>
 
-    <button class="purpleButton">New Macro</button>
-    <h3>Add Item To Macro:</h3>
-
-        <form id="jobForm">
+    <h3>New Macro:</h3>
+        <form id="newMacroForm">
             <section>
                 <div class="formDiv">
-                    <label for="macroId">Macro:</label>
-                    <select id="macroIdInput" name="macroId" required>
+                    <label for="newMacroName" id="newMacroNameLabel">Name:</label>
+                    <input type="text" id="newMacroName" name="newMacroName" maxLength = "40" size="20" required>
+                </div>
+
+                <br style="clear:both;" />
+
+                <div class="formDiv">
+                    <button type="submit" class="purpleButton">New Macro</button>
+                </div>
+
+                <br style="clear:both;" />
+            </section>
+        </form>
+
+    <h3>Add Item To Macro:</h3>
+
+        <form id="addToMacroFrom">
+            <section>
+                <div class="formDiv">
+                    <label for="macroId" id="macroIdLabel">Macro:</label>
+                    <select id="macroId" name="macroId" required>
                     {% for macro in macros %}
                         <option value="{{ macro['id'] }}">{{ macro['name'] }}</option>
                     {% endfor %}
                     </select>
-                    <label for="itemIndex" id="itemIndexText">Index:</label>
-                    <input type="quantity" id="itemIndexInput" name="itemIndex" min="-1" max="100" size="3" placeholder="-1">
+                    <label for="macroitemIndex" id="macroitemIndexLabel">Index:</label>
+                    <input type="quantity" id="macroItemIndex" name="macroItemIndex" min="-1" max="100" size="3" placeholder="-1">
                 </div>
-            <section>
+            </section>
 
             <br style="clear:both;" />
 
-            {{ m.jobFormDo(remotes) }}
+            {{ m.jobFormDo(remotes, includeDelay=True) }}
 
             <br style="clear:both;" />
 

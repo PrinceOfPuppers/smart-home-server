@@ -1,11 +1,14 @@
 
-{% macro jobFormDo(remotes) %}
+{% macro jobFormDo(remotes, includeDelay=False) %}
     <section>
         <div class="formDiv">
             <label for="do">Do:</label>
             <select id="do" name="do" required>
             <option value="press">press</option>
             <option value="lcd">lcd</option>
+            {% if includeDelay %}
+                <option value="delay">delay</option>
+            {% endif %}
             </select>
         </div>
 
@@ -66,6 +69,24 @@
         <div class="formDiv">
             <button type="button" id="lcdHelp" class="whiteButton" onclick="lcdFmtCheatSheet()">?</button>
         </div>
+
+        {% if includeDelay %}
+            <div class="formDiv">
+                <label for="delaySeconds" id="delaySecondsLabel">Seconds:</label>
+                <input type="number" id="delaySeconds" name="delaySeconds" size="5" value="0">
+
+                <label for="delayMinutes" id="delayMinutes">Minutes:</label>
+                <input type="number" id="delayMinutes" name="delayMinutes" size="5" value="0">
+
+                <label for="delayHours" id="delayHours">Hours:</label>
+                <input type="number" id="delayHours" name="delayHours" size="5" value="0">
+            </div>
+
+            <div class="formDiv">
+                <label for="pressChannel" id="pressChannelLabel">Channel:</label>
+                <input type="number" id="pressChannel" name="pressChannel" size="5" value="0">
+            </div>
+        {% endif %}
 
     </section>
 {% endmacro %}

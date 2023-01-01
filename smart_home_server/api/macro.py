@@ -10,7 +10,6 @@ from smart_home_server.macros import getMacro, saveMacro, addMacroSequenceItem, 
 macroApi = Blueprint('macroApi', __name__)
 
 postDelaySchema = {
-    {
         "type": "object",
         "properties": {
             "seconds": { "type": "integer", "minimum": 0, "maximum": 60*60*24}, # defaults to 0
@@ -19,7 +18,6 @@ postDelaySchema = {
         },
         "required": [],
         'additionalProperties': False,
-    }
 }
 
 macroSequenceItemSchema = [
@@ -32,15 +30,7 @@ macroSequenceItemSchema = [
         "required": ["type", "data"],
         'additionalProperties': False,
     }, 
-    {
-        "type": "object",
-        "properties": {
-            "type": {"const": "job"},
-            "data": {"enum": allJobsSchema},
-        },
-        "required": ["type", "data"],
-        'additionalProperties': False,
-    }, 
+    *allJobsSchema,
 ]
 
 postMacroSequenceSchema = \
@@ -56,7 +46,7 @@ postMacroSchema = \
         "type": "object",
         "properties": {
             "name":     nameSchema, # defaults to Macro if empty
-            "sequence": postMacroSequenceSchema,
+            "sequence": postMacroSequenceSchema, #defaults to empty list
         },
         "required": ["sequence", "name"],
         'additionalProperties': False,
@@ -67,7 +57,7 @@ addMacroSequenceItemSchema = \
     "properties": {
         "id":   idSchema,
         "index": { "type": "integer", "minimum": -1 }, #defaults to -1, validated in function
-        "item": macroSequenceItemSchema,
+        "do": macroSequenceItemSchema,
     },
     'required': ['id', 'item'],
     'additionalProperties': False,
@@ -97,20 +87,24 @@ runMacroSchema = searchMacroSchema
 def postMacroRoute():
     data = json.loads(request.data)
     try:
-        saveMacro({"name": data['name'], "sequence": data['sequence']})
+        name = 'macro' if not 'name' in data else data['name'].strip()
+        if not name:
+            name = 'macro'
+        sequence = [] if not 'sequence' in data else data['sequence']
+        saveMacro({"name": name, "sequence": sequence})
         return current_app.response_class(status=200)
     except MacroAlreadyExists:
         return current_app.response_class("Macro With That ID Already Exists (should never occur)", status=400)
     except:
         return current_app.response_class(status=400)
 
-@macroApi.route('/api/macro/item', methods=['PATCH'])
+@macroApi.route('/api/macro/item', methods=['POST'])
 @expects_json(addMacroSequenceItemSchema, check_formats=True)
 def addMacroSequenceItemRoute():
     data = json.loads(request.data)
     id = data['id']
     index = -1 if not 'index' in data else data['index']
-    item = data['item']
+    item = data['do']
     try:
         addMacroSequenceItem(id, item, index=index)
         return current_app.response_class(status=200)

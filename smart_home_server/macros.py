@@ -146,14 +146,14 @@ def _runMacroSequence(sequence, delay = 0):
     if delay > 0:
         sleep(delay)
     for i,item in enumerate(sequence):
-        if item['type'] == 'job':
-            runJob(item['data'])
-        elif item['type'] == 'delay':
+        if item['type'] == 'delay':
             data = item['data']
             seconds = data['seconds'] + data['minutes']*60 + data['hours']*60*60
             t = Thread(target= lambda: _runMacroSequence(sequence[i+1:], delay = seconds))
             t.start()
             break
+        else:
+            runJob(item['data'])
 
 def runMacro(id):
     global _macroLock
