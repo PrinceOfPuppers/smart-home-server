@@ -177,7 +177,7 @@
         float:left;
         padding:3pt;
     }
-    .job {
+    .job, .macro{
         width: fit-content;
         border: 2pt solid var(--lightGrey);
         border-radius: 4px;
@@ -186,7 +186,7 @@
         margin-bottom:15pt;
     }
 
-    .jobText {
+    .jobText, .macroItems {
         border: 2pt solid var(--lightGrey);
         background-color: var(--darkGrey);
         padding:5pt;

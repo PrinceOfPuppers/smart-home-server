@@ -48,7 +48,7 @@ postMacroSchema = \
             "name":     nameSchema, # defaults to Macro if empty
             "sequence": postMacroSequenceSchema, #defaults to empty list
         },
-        "required": ["sequence", "name"],
+        "required": [],
         'additionalProperties': False,
 }
 addMacroSequenceItemSchema = \

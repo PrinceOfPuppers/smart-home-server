@@ -63,12 +63,8 @@
         event.preventDefault();
         let form = event.currentTarget;
         var data = formToObject(form);
-
         const name = 'newMaroName' in data ? data.newMacroName : ''
         toSubmit = {name: name}
-
-        toSubmit.index = 'macroItemIndex' in data ? Number(data.macroItemIndex) : -1;
-
         sendData('api/macro', toSubmit, 'POST', reload=true);
     }
 
@@ -104,7 +100,7 @@
                 {% set macroName = macro['name'] %}
                 {% set sequence  = macro['sequence'] %}
                 <li>
-                    <div class="macro-{{ macroId }}">
+                    <div class="macro" id="macro-{{ macroId }}">
                         <button class="redButton", onclick = "macroDelete('api/macro', '{{ macroId }}')"">X</button>
                         <button class="blueButton">{{ macroName }}</button>
                         <button class="greenButton", id="macro-run-button-{{ macroId }}", onclick = "runMacro('api/macro/run', '{{ macroId }}')"">Run</button>
