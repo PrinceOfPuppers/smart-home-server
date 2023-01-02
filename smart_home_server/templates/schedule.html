@@ -130,18 +130,21 @@
                 {% set jobTextId =  'job-text-%s' % (jobId) %}
                 <li>
                     <div class="job">
-                        {{ m.deleteButton( "jobDelete('api/schedule/jobs', '%s')" % (jobId) ) }}
+                        <span class="buttonBar">
+                            {{ m.deleteButton( "jobDelete('api/schedule/jobs', '%s')" % (jobId) ) }}
 
-                        <button class="blueButton" onclick="updateJobName('api/schedule/jobs', '{{ jobId }}', '{{ jobName }}' )">{{ jobName }}</button>
+                            <button class="blueButton" onclick="updateJobName('api/schedule/jobs', '{{ jobId }}', '{{ jobName }}' )">{{ jobName }}</button>
 
-                        {{ m.dropDownButton( dropDownId, jobTextId ) }}
+                            {{ m.dropDownButton( dropDownId, jobTextId ) }}
+
+                            {% if job['enabled'] %}
+                                {{ m.enabledButton( "jobEnable('api/schedule/jobs/enable', '%s', false)" % (jobId) ) }}
+                            {% else %}
+                                {{ m.disabledButton( "jobEnable('api/schedule/jobs/enable', '%s', true)" % (jobId) ) }}
+                            {% endif %}
+                        </span>
 
 
-                        {% if job['enabled'] %}
-                            {{ m.enabledButton( "jobEnable('api/schedule/jobs/enable', '%s', false)" % (jobId) ) }}
-                        {% else %}
-                            {{ m.disabledButton( "jobEnable('api/schedule/jobs/enable', '%s', true)" % (jobId) ) }}
-                        {% endif %}
 
 
                         <div class="jobText" id="{{ jobTextId }}">

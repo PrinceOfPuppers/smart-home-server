@@ -94,17 +94,19 @@
                 <li>
                     <div class="job">
 
-                        {{ m.deleteButton( "jobDelete('api/trigger/jobs', '%s')" % (jobId) ) }}
+                        <span class="buttonBar">
+                            {{ m.deleteButton( "jobDelete('api/trigger/jobs', '%s')" % (jobId) ) }}
 
-                        <button class="blueButton" onclick="updateJobName('api/trigger/jobs', '{{ jobId }}', '{{ jobName }}' )">{{ jobName }}</button>
+                            <button class="blueButton" onclick="updateJobName('api/trigger/jobs', '{{ jobId }}', '{{ jobName }}' )">{{ jobName }}</button>
 
-                        {{ m.dropDownButton( dropDownId, jobTextId ) }}
+                            {{ m.dropDownButton( dropDownId, jobTextId ) }}
 
-                        {% if job['enabled'] %}
-                            {{ m.enabledButton( "jobEnable('api/trigger/jobs/enable', '%s', false)" % (jobId) ) }}
-                        {% else %}
-                            {{ m.disabledButton( "jobEnable('api/trigger/jobs/enable', '%s', true)" % (jobId) ) }}
-                        {% endif %}
+                            {% if job['enabled'] %}
+                                {{ m.enabledButton( "jobEnable('api/trigger/jobs/enable', '%s', false)" % (jobId) ) }}
+                            {% else %}
+                                {{ m.disabledButton( "jobEnable('api/trigger/jobs/enable', '%s', true)" % (jobId) ) }}
+                            {% endif %}
+                        </span>
 
 
                         <div class="jobText" id="{{ jobTextId }}">

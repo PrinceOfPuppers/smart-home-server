@@ -29,19 +29,23 @@
         <a href="/notes">Notes</a>
         <a href="/macros">Macros</a>
     </div> 
-    {% for remote in remotes %}
-        <ul class="remote">
-            <center class="remoteChannelNum">~{{ remote }} </center>
-            {% for channel in remotes[remote] %}
-                <li>
-                    <div class="on-off-channel">
-                        <button id="off-button-{{remote}}-{{loop.index-1}}" class="redButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, false)"">-</button>
-                        <span class="nobr" class="remoteChannelNum">{{ loop.index - 1 }}</span>
-                        <button id="on-button-{{remote}}-{{loop.index-1}}" class="greenButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, true)"">-</button>
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
-    {% endfor %}
+    <ul class="remotes">
+        {% for remote in remotes %}
+            <li>
+                <ul class="remote">
+                    <center class="remoteChannelNum">{{ remote }}</center>
+                    {% for channel in remotes[remote] %}
+                        <li>
+                            <div class="on-off-channel">
+                                <button id="off-button-{{remote}}-{{loop.index-1}}" class="redButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, false)"">-</button>
+                                <span class="nobr" class="remoteChannelNum">{{ loop.index - 1 }}</span>
+                                <button id="on-button-{{remote}}-{{loop.index-1}}" class="greenButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, true)"">-</button>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
   </body>
 </html>

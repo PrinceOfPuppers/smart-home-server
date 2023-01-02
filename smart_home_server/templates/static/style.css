@@ -23,6 +23,7 @@
 
     * {
       font-family: Noto-Sans-Mono;
+      line-height: 1.2012em;
     }
     html {
         background-color: var(--darkGrey);
@@ -65,13 +66,13 @@
 
     button{
         background-color: var(--darkGrey);
-        line-height: 1em;
 
         border: 2pt solid var(--white);
         border-radius: 4pt;
         background-color: var(--darkGrey);
         color: var(--white);
-        padding: 10pt 15pt;
+        padding: 10pt 12pt;
+        /* padding: 10pt 15pt; */
         /* padding: 5pt 10pt; */
         cursor: pointer;
         font-size:11pt;
@@ -117,10 +118,20 @@
         color: var(--lightGrey);
         border-color: var(--lightGrey);
     }
-
     ul{
         padding: 0;
         list-style-type: none;
+    }
+    ul.remotes{
+      display: flex;
+      flex-wrap: wrap;
+      max-width:90vw;
+      justify-content: center;
+    }
+    ul.remotes > li {
+        padding-left: 10pt;
+        padding-right: 10pt;
+        padding-bottom: 10pt;
     }
 
     ul.remote {
@@ -132,10 +143,8 @@
       margin-right: auto;
       border-radius: 4pt;
     }
-    ul.remote > li {
-    }
-    ul.remote > li > span {
-      text-decoration: none;
+    ul.remote > li > div > button {
+        padding: 10pt 15pt;
     }
     .on-off-channel {
         padding: 3pt;
@@ -185,6 +194,10 @@
         background-color: var(--grey);
         padding:5pt;
         margin-bottom:15pt;
+    }
+    .buttonBar{
+        width: fit-content;
+        font-size:8pt;
     }
     .jobText {
         border: 2pt solid var(--lightGrey);
@@ -261,13 +274,11 @@
           color: var(--darkGrey);
         }
     }
-
 .dashboardList {
   display: flex;
   flex-wrap: wrap;
   width:fit-content;
   max-width:90vw;
-  /*gap: 6px*/
 }
 
 .dashboardList div {
@@ -277,7 +288,6 @@
     background-color: var(--grey);
     padding:5pt;
     height: fit-content;
-    /*margin-bottom:15pt;*/
     margin:5pt;
 }
 
@@ -295,7 +305,7 @@
     font-size:11pt;
 }
 
-.dashboardList div span{
+.entry {
     border: 2pt solid var(--lightGrey);
     background-color: var(--darkGrey);
 

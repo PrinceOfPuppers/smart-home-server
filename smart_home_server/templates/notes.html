@@ -73,9 +73,11 @@
             {% set name    = note['name'] %}
             {% set content = note['content'] %}
             <div id="note-element-{{ id }}">
-                {{ m.deleteButton( "deleteNote('%s')" % (id) ) }}
-                <span id="note-name-{{ id }}" class="entry" id="note-new-name" contentEditable="true" spellcheck="false">{{ name }}</span>
-                <button id="note-edit-{{ id }}" class="yellowButton" onclick="saveNote('{{ id }}')">Save</button>
+                <span class="buttonBar">
+                    {{ m.deleteButton( "deleteNote('%s')" % (id) ) }}
+                    <span id="note-name-{{ id }}" class="entry" id="note-new-name" contentEditable="true" spellcheck="false">{{ name }}</span>
+                    <button id="note-edit-{{ id }}" class="yellowButton" onclick="saveNote('{{ id }}')">Save</button>
+                </span>
                 <p id="note-content-{{ id }}" contentEditable="true" spellcheck="false">{{ content }}</p>
             </div>
         {% endfor %}
