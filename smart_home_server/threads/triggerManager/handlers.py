@@ -1,7 +1,6 @@
 from uuid import uuid4
 import os
 import json
-from threading import Thread
 
 from smart_home_server.api import runJob
 import smart_home_server.constants as const
@@ -15,14 +14,12 @@ def _getTriggersPath(id:str):
 
 class RunningTriggerData:
     def __init__(self, triggerJob):
+        self.subscribed = False
         self.triggerJob = triggerJob
         id = str(uuid4()) if 'id' not in triggerJob else triggerJob['id']
         self.triggerJob['id'] = id
 
         self._prevCondition = False
-        self._manualStop = False
-
-        self.thread = None
 
     def getId(self):
         return self.triggerJob['id']
@@ -36,10 +33,9 @@ class RunningTriggerData:
     @classmethod
     def createNewTriggerAndStart(cls, triggerJob):
         t = cls(triggerJob)
+        t.serialize()
         if not t.triggerJob['enabled']:
-            t.serialize()
             return t
-        t.enable()
         t.start()
         return t
 
@@ -56,25 +52,24 @@ class RunningTriggerData:
         self.serialize()
 
     def _stopCb(self):
-        stopSig = not self.triggerJob['enabled'] or self._manualStop
+        stopSig = not self.triggerJob['enabled']
+        if stopSig:
+            self.subscribed = False
         return stopSig
 
     def _errorCb(self, e):
         print(f"Trigger Job {self.triggerJob['name']} Error: {repr(e)}", flush=True)
         
-    def join(self):
+    def stop(self):
         self.triggerJob['enabled'] = False
-        if self.thread is not None:
-            self.thread.join()
-            self.thread = None
 
-    # will restart if already enabled
     def start(self):
-        self._manualStop = False
+        if self.subscribed:
+            print(f"Trigger Job {self.triggerJob['name']} Attempted to Start While Already Running", flush=True)
+            return
+
+        self.subscribed = True
         self._prevCondition = False
-        if self.thread is not None:
-            self.thread.join()
-            self.thread = None
 
         if not self.triggerJob['enabled']:
             print(f"Trigger Job {self.triggerJob['name']} Attempted to Start While Being Disabled", flush=True)
@@ -84,12 +79,9 @@ class RunningTriggerData:
 
         if self.triggerJob['secondVar']['type'] == 'dataSource':
             var2 = self.triggerJob['secondVar']['value']
-            l = lambda: subscribe([var1, var2], self._do, self._stopCb, self._errorCb)
+            subscribe([var1, var2], self._do, self._stopCb, self._errorCb)
         else:
-            l = lambda: subscribe([var1], self._do, self._stopCb, self._errorCb)
-
-        self.thread = Thread(target=l)
-        self.thread.start()
+            subscribe([var1], self._do, self._stopCb, self._errorCb)
 
     def _do(self, values):
         if not self.triggerJob['enabled']:
@@ -171,11 +163,8 @@ class RunningTriggerData:
             runJob(self.triggerJob)
 
 
-    def manualStop(self):
-        self._manualStop = True
-
     def delete(self):
-        self.join()
+        self.stop()
         path = _getTriggersPath(self.getId())
         if os.path.exists(path):
             os.remove(path)
@@ -209,16 +198,15 @@ def _enableDisableTrigger(id: str, enable=True):
 
     if enable:
         t.enable()
-        t.start()
+        if not t.subscribed:
+            t.start()
     else:
         t.disable()
 
 def _loadTriggers():
     global _triggers
     for t in _triggers.values():
-        t.manualStop()
-    for t in _triggers.values():
-        t.join()
+        t.stop()
     _triggers.clear()
 
     dir = os.listdir(const.triggeredJobFolder)
