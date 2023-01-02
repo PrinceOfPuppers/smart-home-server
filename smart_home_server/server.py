@@ -3,7 +3,7 @@ from flask import Flask, send_from_directory, render_template, redirect
 from smart_home_server.threads.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
 from smart_home_server.threads.presser import startPresser, stopPresser, joinPresser
 from smart_home_server.threads.lcd import startUpdateLCD
-from smart_home_server.threads.triggerManager import startTriggerManager, stopTriggerManager, joinTriggerManager, getTriggers
+from smart_home_server.threads.triggerManager import getTriggers
 from smart_home_server.threads.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
 
 from smart_home_server import InterruptTriggered
@@ -102,7 +102,6 @@ def startServer():
         startPresser()
         startScheduler()
         startUpdateLCD(fromFile=True)
-        startTriggerManager()
 
         if const.isRpi():
             from waitress import serve
@@ -116,11 +115,9 @@ def startServer():
         joinSubscribeManager()
         stopPresser()
         stopScheduler()
-        stopTriggerManager()
         stopSubscribeManager()
         joinPresser()
         joinScheduler()
-        joinTriggerManager()
 
 if __name__ == '__main__':
     startServer()

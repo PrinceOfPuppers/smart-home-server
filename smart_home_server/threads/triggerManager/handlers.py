@@ -174,6 +174,7 @@ class RunningTriggerData:
             f.write(json.dumps(self.triggerJob))
         pass
 
+_loaded = False
 
 # TODO: stop all triggers
 _triggers:Dict[str,RunningTriggerData] = {}
@@ -205,6 +206,8 @@ def _enableDisableTrigger(id: str, enable=True):
 
 def _loadTriggers():
     global _triggers
+    global _loaded
+    print("Loading Triggers")
     for t in _triggers.values():
         t.stop()
     _triggers.clear()
@@ -217,30 +220,47 @@ def _loadTriggers():
         if t.triggerJob['enabled']:
             t.start()
 
+    print("Triggers Loaded")
+    _loaded = True
+
 def _updateTriggerName(id: str, name:str):
     global _triggers
+    global _loaded
+
+    if not _loaded:
+        _loadTriggers()
+
     if not id in _triggers:
         return
     _triggers[id].updateName(name)
 
 
-def _getTrigger(id: str, triggerOut:list, conditionOut:list):
+def _getTrigger(id: str):
     global _triggers
+    global _loaded
+
+    if not _loaded:
+        _loadTriggers()
+
     if id not in _triggers:
         return None
 
     t = _triggers[id]
-    triggerOut.append(t.triggerJob)
-    conditionOut[0] = True
+    return t
 
-def _getTriggers(triggerOut:list, conditionOut:list):
+def _getTriggers():
     global _triggers
+    global _loaded
+
+    if not _loaded:
+        _loadTriggers()
+
     res = []
     for id in _triggers.keys():
         if id not in _triggers:
             continue
-        triggerOut.append(_triggers[id].triggerJob)
+        res.append(_triggers[id].triggerJob)
 
-    triggerOut.sort(key = lambda element: element['name'])
-    conditionOut[0] = True
+    res.sort(key = lambda element: element['name'])
     return res
+
