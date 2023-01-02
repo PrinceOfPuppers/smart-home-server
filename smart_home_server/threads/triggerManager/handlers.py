@@ -56,7 +56,8 @@ class RunningTriggerData:
         self.serialize()
 
     def _stopCb(self):
-        return self.triggerJob['enabled'] and not self.manualStop
+        stopSig = not self.triggerJob['enabled'] or self._manualStop
+        return stopSig
 
     def _errorCb(self, e):
         print(f"Trigger Job {self.triggerJob['name']} Error: {repr(e)}", flush=True)
