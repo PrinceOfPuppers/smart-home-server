@@ -1,35 +1,35 @@
 import schedule
 from typing import Union
-from queue import Queue, Empty
-from threading import Thread
+from threading import Lock, Thread
 import os
 import json
 from datetime import datetime
+from time import sleep
 
-from smart_home_server.helpers import clearQueue, waitUntil
 import smart_home_server.constants as const
 from smart_home_server.threads.scheduler.handlers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath, _loadJobs, _getJobs, _getJob
 
-_scheduleEditQueue      = Queue()
 _schedulerLoopCondition = False
 _schedulerThread        = None
 
+_schedulerLock = Lock()
+
 def addJob(scheduledJob:dict):
-    global _scheduleEditQueue
-    _scheduleEditQueue.put(lambda :_addJob(scheduledJob))
+    with _schedulerLock:
+        _addJob(scheduledJob)
 
 
 def removeJob(id: str):
-    global _scheduleEditQueue
-    _scheduleEditQueue.put(lambda :_removeJob(id))
+    with _schedulerLock:
+        _removeJob(id)
 
 def updateJob(id: str, newScheduledJob:dict):
-    global _scheduleEditQueue
-    _scheduleEditQueue.put(lambda :_updateJob(id, newScheduledJob))
+    with _schedulerLock:
+        _updateJob(id, newScheduledJob)
 
 def loadJobs(clearExisting:bool, overwrite:bool):
-    global _scheduleEditQueue
-    _scheduleEditQueue.put(lambda :_loadJobs(clearExisting=clearExisting, overwrite=overwrite))
+    with _schedulerLock:
+        _loadJobs(clearExisting=clearExisting, overwrite=overwrite)
 
 
 def getJobFromFile(id: str) -> Union[dict, None]:
@@ -41,22 +41,16 @@ def getJobFromFile(id: str) -> Union[dict, None]:
     return None
 
 def getJob(id:str):
-    jobOut = []
-    condition = [False]
-    _scheduleEditQueue.put(lambda :_getJob(id, jobOut, condition))
-    waitUntil(lambda: condition[0])
-    return jobOut[0]
+    with _schedulerLock:
+        return _getJob(id)
 
 def getJobs():
-    jobs = []
-    condition = [False]
-    _scheduleEditQueue.put(lambda :_getJobs(jobs, condition))
-    waitUntil(lambda: condition[0])
-    return jobs
+    with _schedulerLock:
+        return _getJobs()
 
 def enableDisableJob(id: str, enable:bool):
-    global _scheduleEditQueue
-    _scheduleEditQueue.put(lambda :_enableDisableJob(id, enable))
+    with _schedulerLock:
+        _enableDisableJob(id, enable)
 
 def _schedulerLoop():
     global _schedulerLoopCondition
@@ -64,29 +58,16 @@ def _schedulerLoop():
 
     while _schedulerLoopCondition:
         try:
-            while _scheduleEditQueue.qsize() != 0:
-                try:
-                    edit = _scheduleEditQueue.get(block=False)
-                except Empty:
-                    break
-                edit()
-
-            schedule.run_pending()
-
-            # blocking with [threadPollingPeriod] second timeout (rather than sleeping)
-            try:
-                edit = _scheduleEditQueue.get(block=True, timeout=const.threadPollingPeriod)
-            except Empty:
-                continue
-            edit()
+            with _schedulerLock:
+                schedule.run_pending()
         except Exception as e:
             print(f"Scheduler Exception: \n{repr(e)}", flush=True)
-            continue
+        sleep(const.threadPollingPeriod)
+
 
 
 def stopScheduler():
     global _schedulerLoopCondition
-    global _schedulerThread
     _schedulerLoopCondition = False
 
 def joinScheduler():
@@ -101,14 +82,12 @@ def joinScheduler():
 
 def startScheduler():
     global _schedulerLoopCondition
-    global _scheduleEditQueue
     global _schedulerThread
     if _schedulerLoopCondition:
         raise Exception("Scheduler Already Running")
 
     joinScheduler()
 
-    clearQueue(_scheduleEditQueue)
     print(f"Scheduler Load Time: {datetime.now()}")
     loadJobs(clearExisting=True, overwrite=True)
     _schedulerLoopCondition = True

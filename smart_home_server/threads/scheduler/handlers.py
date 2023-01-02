@@ -106,26 +106,21 @@ def _enableDisableJob(id: str, enable:bool):
     scheduledJob['enabled'] = enable
     _updateJob(id, scheduledJob)
 
-def _getJobs(jobsOut, outCondition):
-    # out conditon is a boolean in a list (pass by reference)
+def _getJobs():
+    res = []
     for j in schedule.get_jobs():
         assert j.job_func is not None
-        jobsOut.append(j.job_func.args[0])
-    jobsOut.sort(key = lambda element: element['name'])
-    outCondition[0] = True
+        res.append(j.job_func.args[0])
+    res.sort(key = lambda element: element['name'])
+    return res
 
-def _getJob(id: str, jobOut:list, outCondition):
+def _getJob(id: str):
     jobs = schedule.get_jobs(id)
     if len(jobs) > 1:
         print("Schedule: Multiple jobs with same id")
-        jobOut.append(None)
-        outCondition[0] = True
-        return
+        return None
     if len(jobs) == 0:
-        jobOut.append(None)
-        outCondition[0] = True
-        return
+        return None
     job = jobs[0]
     assert job.job_func is not None
-    jobOut.append(job.job_func.args[0])
-    outCondition[0] = True
+    return job.job_func.args[0]
