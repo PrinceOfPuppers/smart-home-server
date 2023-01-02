@@ -185,8 +185,7 @@
         padding:5pt;
         margin-bottom:15pt;
     }
-
-    .jobText, .macroItems {
+    .jobText, .macroItem {
         border: 2pt solid var(--lightGrey);
         background-color: var(--darkGrey);
         padding:5pt;

@@ -37,7 +37,7 @@ postMacroSequenceSchema = \
 {
     "type": "array",
     "items": {
-        "enum": macroSequenceItemSchema
+        "oneOf": macroSequenceItemSchema
     },
     'additionalProperties': False,
 }
@@ -57,9 +57,9 @@ addMacroSequenceItemSchema = \
     "properties": {
         "id":   idSchema,
         "index": { "type": "integer", "minimum": -1 }, #defaults to -1, validated in function
-        "do": macroSequenceItemSchema,
+        "do": {"oneOf": macroSequenceItemSchema}
     },
-    'required': ['id', 'item'],
+    'required': ['id', 'do'],
     'additionalProperties': False,
 }
 deleteItemMacroSchema = \
@@ -105,8 +105,10 @@ def addMacroSequenceItemRoute():
     id = data['id']
     index = -1 if not 'index' in data else data['index']
     item = data['do']
+    print("here123")
     try:
         addMacroSequenceItem(id, item, index=index)
+        print("here321")
         return current_app.response_class(status=200)
     except MacroDoesNotExist:
         return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)

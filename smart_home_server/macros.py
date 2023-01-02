@@ -122,7 +122,7 @@ def addMacroSequenceItem(id, sequenceItem, index = -1):
             index = min(max(index,0), len(macro['sequence']))
             macro['sequence'].insert(index, sequenceItem)
 
-        overwriteMacro(macro['id'], macro)
+        overwriteMacro(macro['id'], macro, lock=False)
     finally:
         _macroLock.release()
 
@@ -134,7 +134,7 @@ def deleteMacroSequenceItem(macroId, sequenceItemId):
         for i,item in enumerate(macro['sequence']):
             if item['id'] == sequenceItemId:
                 macro['sequence'].pop(i)
-                overwriteMacro(macro['id'], macro)
+                overwriteMacro(macro['id'], macro, lock=False)
                 return
         raise SequenceItemDoesNotExist()
     finally:
@@ -153,7 +153,7 @@ def _runMacroSequence(sequence, delay = 0):
             t.start()
             break
         else:
-            runJob(item['data'])
+            runJob({'do': item})
 
 def runMacro(id):
     global _macroLock

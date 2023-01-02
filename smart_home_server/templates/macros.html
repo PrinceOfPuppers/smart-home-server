@@ -21,6 +21,7 @@
         }
 
         toSubmit.index = 'macroItemIndex' in data ? Number(data.macroItemIndex) : -1;
+        toSubmit.id = data.macroId;
 
         sendData('api/macro/item', toSubmit, 'POST', reload=true);
     }
@@ -31,7 +32,7 @@
     }
 
     function macroDelete(url, id){
-        var data = {'id': jobId};
+        var data = {'id': id};
         const macroElement = document.getElementById(`macro-${id}`);
         return sendData(url, data, 'DELETE').then((success)=>{
             if(success){
@@ -41,7 +42,7 @@
     }
     function macroRun(url, id){
         const runButton = document.getElementById(`macro-run-button-${id}`);
-        var data = {'id': jobId};
+        var data = {'id': id};
 
         return sendData(url, data, 'POST').then((success)=>{
             if(success){
@@ -50,7 +51,7 @@
         });
     }
     function macroItemDelete(url, id, itemId){
-        var data = {'id': jobId, 'itemId': itemId};
+        var data = {'id': id, 'itemId': itemId};
         const macroItemElement = document.getElementById(`macro-item-${id}-${itemId}`);
         return sendData(url, data, 'DELETE').then((success)=>{
             if(success){
@@ -63,7 +64,7 @@
         event.preventDefault();
         let form = event.currentTarget;
         var data = formToObject(form);
-        const name = 'newMaroName' in data ? data.newMacroName : ''
+        const name = 'newMacroName' in data ? data.newMacroName : ''
         toSubmit = {name: name}
         sendData('api/macro', toSubmit, 'POST', reload=true);
     }
@@ -103,35 +104,16 @@
                     <div class="macro" id="macro-{{ macroId }}">
                         <button class="redButton", onclick = "macroDelete('api/macro', '{{ macroId }}')"">X</button>
                         <button class="blueButton">{{ macroName }}</button>
-                        <button class="greenButton", id="macro-run-button-{{ macroId }}", onclick = "runMacro('api/macro/run', '{{ macroId }}')"">Run</button>
+                        <button class="greenButton", id="macro-run-button-{{ macroId }}", onclick = "macroRun('api/macro/run', '{{ macroId }}')"">Run</button>
 
                         <ul class="macroItems">
                             {% for item in sequence %}
-                                {% set itemId    = item['id'] %}
-                                {% set itemType  = item['type'] %}
-                                {% set itemData  = item['data'] %}
-                                <li>
-                                    <div class="macro-item-{{ macroId }}-{{ itemId }}">
-                                        <button class="redButton", onclick = "macroItemDelete('api/macro/delete', '{{ macroId }}', '{{ itemId }}')"">X</button>
-
-                                        {% if type == 'delay' %}
-                                            <span class="nobr">delay for: </span>
-                                            {% if 'hours' in data %}
-                                                <span class="nobr">{{ data['hours'] }}hrs </span>
-                                            {% endif %}
-
-                                            {% if 'minutes' in data %}
-                                                <span class="nobr">{{ data['minutes'] }}min </span>
-                                            {% endif %}
-
-                                            {% if 'seconds' in data %}
-                                                <span class="nobr">{{ data['seconds'] }}sec </span>
-                                            {% endif %}
-                                        {% else %}
-                                            {% set do = job['do'] %}
-                                            {{ m.jobRepr(do['type'], do['data']) }}
-                                        {% endif %}
-                                    </div>
+                                {% set itemId = item['id'] %}
+                                {% set type   = item['type'] %}
+                                {% set data   = item['data'] %}
+                                <li class="macroItem" id="macro-item-{{ macroId }}-{{ itemId }}">
+                                    <button class="redButton", onclick = "macroItemDelete('api/macro/item', '{{ macroId }}', '{{ itemId }}')"">X</button>
+                                    {{ m.jobRepr(type, data, br=False) }}
                                 </li>
                             {% endfor %}
                         </ul>
@@ -172,7 +154,7 @@
                 </div>
                 <div class="formDiv">
                     <label for="macroitemIndex" id="macroitemIndexLabel">Index:</label>
-                    <input type="quantity" id="macroItemIndex" name="macroItemIndex" min="-1" max="100" size="3" placeholder="-1">
+                    <input type="quantity" id="macroItemIndex" name="macroItemIndex" min="-1" max="100" size="3" value=-1 placeholder=0>
                 </div>
             </section>
 

@@ -93,9 +93,11 @@
 
 
 
-{% macro jobRepr(type, data) %}
-    <br/>
-    <span class="nobr">→ </span>
+{% macro jobRepr(type, data, br=True) %}
+    {% if br %}
+        <br/>
+    {% endif %}
+    <span class="nobr">> </span>
     {% if type == "press" %}
         <span class="nobr">switch remote: {{data['remote']}} ch: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
     {% elif type == "lcd" %}
@@ -107,6 +109,19 @@
         {% if 'line2' in data %}
         <br/>
             <span class="nobr">→ Line 2: {{data['line2']}}</span>
+        {% endif %}
+    {% elif type == 'delay' %}
+        <span class="nobr">delay for: </span>
+        {% if 'hours' in data and data['hours']%}
+            <span class="nobr">{{ data['hours'] }}h </span>
+        {% endif %}
+
+        {% if 'minutes' in data and data['minutes']%}
+            <span class="nobr">{{ data['minutes'] }}m </span>
+        {% endif %}
+
+        {% if 'seconds' in data and data['seconds']%}
+            <span class="nobr">{{ data['seconds'] }}s </span>
         {% endif %}
     {% else %}
         <span class="nobr">Unrecognized Job Type: {{ type }}</span>

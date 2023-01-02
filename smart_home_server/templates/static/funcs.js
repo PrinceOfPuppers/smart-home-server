@@ -97,7 +97,7 @@ function processDoData(data, toSubmit){
         }
     }
     else if(data.do == "delay"){
-        toSubmit.do = {type:"delay", data:{seconds: data.delaySeconds, minutes: data.delayMinutes, hours: data.delayHours}};
+        toSubmit.do = {type:"delay", data:{seconds: Number(data.delaySeconds), minutes: Number(data.delayMinutes), hours: Number(data.delayHours)}};
     }
     else{
         window.alert(`Error: Invalid Job Type: ${data.do}`);
