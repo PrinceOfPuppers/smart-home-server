@@ -93,11 +93,14 @@
 
 
 
-{% macro jobRepr(type, data, br=True) %}
+{% macro jobRepr(type, data, br=True, cursor=True) %}
     {% if br %}
         <br/>
     {% endif %}
-    <span class="nobr">> </span>
+
+    {% if cursor %}
+        <span class="nobr">> </span>
+    {% endif %}
     {% if type == "press" %}
         <span class="nobr">switch remote: {{data['remote']}} ch: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
     {% elif type == "lcd" %}

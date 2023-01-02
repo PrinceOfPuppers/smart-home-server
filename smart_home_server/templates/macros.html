@@ -68,6 +68,18 @@
         toSubmit = {name: name}
         sendData('api/macro', toSubmit, 'POST', reload=true);
     }
+    function macroShow(id){
+        const macroShowButton = document.getElementById(`macro-show-button-${id}`);
+        const macroItemsElement = document.getElementById(`macro-items-${id}`);
+        const text = macroShowButton.innerText;
+        if(text == 'Show'){
+            macroItemsElement.style.display = "block";
+            macroShowButton.innerText = 'Hide'
+        }else{
+            macroItemsElement.style.display = "none";
+            macroShowButton.innerText = 'Show'
+        }
+    }
 
 
     window.onload = () => {
@@ -105,15 +117,16 @@
                         <button class="redButton", onclick = "macroDelete('api/macro', '{{ macroId }}')"">X</button>
                         <button class="blueButton">{{ macroName }}</button>
                         <button class="greenButton", id="macro-run-button-{{ macroId }}", onclick = "macroRun('api/macro/run', '{{ macroId }}')"">Run</button>
+                        <button class="purpleButton", id="macro-show-button-{{ macroId }}", onclick = "macroShow('{{ macroId }}')"">Show</button>
 
-                        <ul class="macroItems">
+                        <ul class="macroItems" id="macro-items-{{ macroId }}">
                             {% for item in sequence %}
                                 {% set itemId = item['id'] %}
                                 {% set type   = item['type'] %}
                                 {% set data   = item['data'] %}
                                 <li class="macroItem" id="macro-item-{{ macroId }}-{{ itemId }}">
                                     <button class="redButton", onclick = "macroItemDelete('api/macro/item', '{{ macroId }}', '{{ itemId }}')"">X</button>
-                                    {{ m.jobRepr(type, data, br=False) }}
+                                    {{ m.jobRepr(type, data, br=False, cursor=False) }}
                                 </li>
                             {% endfor %}
                         </ul>
