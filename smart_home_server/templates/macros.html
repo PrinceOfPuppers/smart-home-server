@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href = "style.css"></link>
+<script type="text/javascript" src="funcs.js"></script>
+
+{% import 'jinjaMacros.html' as m %}
+
+<html>
+<script>
+    {{ m.lcdFmtCheatSheet(values) }}
+
+    function addToMacroHandler(event){
+        event.preventDefault();
+        let form = event.currentTarget;
+        var data = formToObject(form);
+
+        toSubmit = {}
+
+        if(!processDoData(data, toSubmit)){
+            return;
+        }
+
+        toSubmit.index = 'macroItemIndex' in data ? Number(data.macroItemIndex) : -1;
+        toSubmit.id = data.macroId;
+
+        sendData('api/macro/item', toSubmit, 'POST', reload=true);
+    }
+
+    function macroPost(url){
+        var data = {};
+        return sendData(url, data, 'POST', reload=true);
+    }
+
+    function macroDelete(url, id){
+        var data = {'id': id};
+        const macroElement = document.getElementById(`macro-${id}`);
+        return sendData(url, data, 'DELETE').then((success)=>{
+            if(success){
+                macroElement.remove();
+            }
+        });
+    }
+    function macroRun(url, id){
+        const runButton = document.getElementById(`macro-run-button-${id}`);
+        var data = {'id': id};
+
+        return sendData(url, data, 'POST').then((success)=>{
+            if(success){
+                tempChangeButton(runButton, "Running!");
+            }
+        });
+    }
+    function macroItemDelete(url, id, itemId){
+        var data = {'id': id, 'itemId': itemId};
+        const macroItemElement = document.getElementById(`macro-item-${id}-${itemId}`);
+        return sendData(url, data, 'DELETE').then((success)=>{
+            if(success){
+                macroItemElement.remove();
+            }
+        });
+    }
+
+    function newMacroHandler(event){
+        event.preventDefault();
+        let form = event.currentTarget;
+        var data = formToObject(form);
+        const name = 'newMacroName' in data ? data.newMacroName : ''
+        toSubmit = {name: name}
+        sendData('api/macro', toSubmit, 'POST', reload=true);
+    }
+
+
+    window.onload = () => {
+        document.getElementById('addToMacroForm').addEventListener('submit', addToMacroHandler);
+        document.getElementById('newMacroForm').addEventListener('submit', newMacroHandler);
+
+        hideUnhideJobForms(document.querySelector('#do'));
+        document.querySelector('#do').addEventListener("change", function(dropDown) {hideUnhideJobForms(dropDown.target)});
+    }
+</script>
+
+
+<body>
+    <div class="topnav">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/remote">Remote</a>
+        <a href="/schedule">Schedule</a>
+        <a href="/trigger">Trigger</a>
+        <a href="/notes">Notes</a>
+        <a class="active" href="/macros">Macros</a>
+    </div> 
+
+    <h3>Current Macros:</h3>
+        <ul>
+            {% if macros|length == 0 %}
+                <center class="faintText">No Macros</center>
+            {% endif %}
+
+            {% for macro in macros %}
+                {% set macroId   = macro['id'] %}
+                {% set macroName = macro['name'] %}
+                {% set sequence  = macro['sequence'] %}
+                <li>
+                    <div class="macro" id="macro-{{ macroId }}">
+                        <button class="redButton", onclick = "macroDelete('api/macro', '{{ macroId }}')"">X</button>
+                        <button class="blueButton">{{ macroName }}</button>
+                        <button class="greenButton", id="macro-run-button-{{ macroId }}", onclick = "macroRun('api/macro/run', '{{ macroId }}')"">Run</button>
+
+                        <ul class="macroItems">
+                            {% for item in sequence %}
+                                {% set itemId = item['id'] %}
+                                {% set type   = item['type'] %}
+                                {% set data   = item['data'] %}
+                                <li class="macroItem" id="macro-item-{{ macroId }}-{{ itemId }}">
+                                    <button class="redButton", onclick = "macroItemDelete('api/macro/item', '{{ macroId }}', '{{ itemId }}')"">X</button>
+                                    {{ m.jobRepr(type, data, br=False) }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+    <h3>New Macro:</h3>
+        <form id="newMacroForm">
+            <section>
+                <div class="formDiv">
+                    <label for="newMacroName" id="newMacroNameLabel">Name:</label>
+                    <input type="text" id="newMacroName" name="newMacroName" maxLength = "20" size="10" required>
+                </div>
+
+                <br style="clear:both;" />
+
+                <div class="formDiv">
+                    <button type="submit" class="purpleButton">New Macro</button>
+                </div>
+
+                <br style="clear:both;" />
+            </section>
+        </form>
+
+    <h3>Add Item To Macro:</h3>
+
+        <form id="addToMacroForm">
+            <section>
+                <div class="formDiv">
+                    <label for="macroId" id="macroIdLabel">Macro:</label>
+                    <select id="macroId" name="macroId" required>
+                    {% for macro in macros %}
+                        <option value="{{ macro['id'] }}">{{ macro['name'] }}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+                <div class="formDiv">
+                    <label for="macroitemIndex" id="macroitemIndexLabel">Index:</label>
+                    <input type="quantity" id="macroItemIndex" name="macroItemIndex" min="-1" max="100" size="3" value=-1 placeholder=0>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+            {{ m.jobFormDo(remotes, includeDelay=True) }}
+
+            <br style="clear:both;" />
+
+            <section>
+                <div class="formDiv">
+                    <button type="submit" class="greenButton">Add To Macro</button>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+        </form>
+  </body>
+</html>

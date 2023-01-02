@@ -3,15 +3,41 @@ from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 
 from smart_home_server.api import allJobsSchema, nameSchema, idSchema
-from smart_home_server.macros import getMacro, createMacro, updateMacro, deleteMacro, MacroAlreadyExists, MacroDoesNotExist, runMacro
+
+from smart_home_server.macros import getMacro, saveMacro, addMacroSequenceItem, deleteMacro, runMacro, deleteMacroSequenceItem, \
+                                     MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist
 
 macroApi = Blueprint('macroApi', __name__)
 
-postMacroJobsSchema = \
+postDelaySchema = {
+        "type": "object",
+        "properties": {
+            "seconds": { "type": "integer", "minimum": 0, "maximum": 60*60*24}, # defaults to 0
+            "minutes": { "type": "integer", "minimum": 0, "maximum": 60*24 },   # defaults to 0
+            "hours":   { "type": "integer", "minimum": 0, "maximum": 24},       # defaults to 0
+        },
+        "required": [],
+        'additionalProperties': False,
+}
+
+macroSequenceItemSchema = [
+    {
+        "type": "object",
+        "properties": {
+            "type": {"const": "delay"},
+            "data": postDelaySchema,
+        },
+        "required": ["type", "data"],
+        'additionalProperties': False,
+    }, 
+    *allJobsSchema,
+]
+
+postMacroSequenceSchema = \
 {
     "type": "array",
     "items": {
-        "enum": allJobsSchema
+        "oneOf": macroSequenceItemSchema
     },
     'additionalProperties': False,
 }
@@ -19,21 +45,31 @@ postMacroSchema = \
 {
         "type": "object",
         "properties": {
-            "name": nameSchema, # defaults to Macro if empty
-            "jobs": postMacroJobsSchema,
+            "name":     nameSchema, # defaults to Macro if empty
+            "sequence": postMacroSequenceSchema, #defaults to empty list
         },
-        "required": ["jobs", "name"],
+        "required": [],
         'additionalProperties': False,
 }
-patchMacroSchema = \
+addMacroSequenceItemSchema = \
 {
     "type": "object",
     "properties": {
-        "id": idSchema,
-        "name": nameSchema,
-        "jobs": postMacroJobsSchema,
+        "id":   idSchema,
+        "index": { "type": "integer", "minimum": -1 }, #defaults to -1, validated in function
+        "do": {"oneOf": macroSequenceItemSchema}
     },
-    'required': ['id'],
+    'required': ['id', 'do'],
+    'additionalProperties': False,
+}
+deleteItemMacroSchema = \
+{
+    "type": "object",
+    "properties": {
+        "id":   idSchema,
+        "itemId": idSchema,
+    },
+    'required': ['id', 'itemId'],
     'additionalProperties': False,
 }
 searchMacroSchema = \
@@ -50,32 +86,50 @@ runMacroSchema = searchMacroSchema
 @expects_json(postMacroSchema, check_formats=True)
 def postMacroRoute():
     data = json.loads(request.data)
-    name = 'Macro' if not data['name'] else data['name']
-    jobs = data['jobs']
     try:
-        createMacro(name, jobs)
+        name = 'macro' if not 'name' in data else data['name'].strip()
+        if not name:
+            name = 'macro'
+        sequence = [] if not 'sequence' in data else data['sequence']
+        saveMacro({"name": name, "sequence": sequence})
         return current_app.response_class(status=200)
     except MacroAlreadyExists:
         return current_app.response_class("Macro With That ID Already Exists (should never occur)", status=400)
+    except:
+        return current_app.response_class(status=400)
 
-
-@macroApi.route('/api/macro', methods=['PATCH'])
-@expects_json(patchMacroSchema, check_formats=True)
-def patchMacroRoute():
+@macroApi.route('/api/macro/item', methods=['POST'])
+@expects_json(addMacroSequenceItemSchema, check_formats=True)
+def addMacroSequenceItemRoute():
     data = json.loads(request.data)
     id = data['id']
-
-    if 'name' not in data or not data['name']:
-        name = None
-    else:
-        name = data['name']
-
-    jobs = None if 'jobs' not in data else data['jobs']
+    index = -1 if not 'index' in data else data['index']
+    item = data['do']
+    print("here123")
     try:
-        updateMacro(id, name = name, jobs = jobs)
+        addMacroSequenceItem(id, item, index=index)
+        print("here321")
         return current_app.response_class(status=200)
     except MacroDoesNotExist:
         return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)
+    except:
+        return current_app.response_class(status=400)
+
+@macroApi.route('/api/macro/item', methods=['DELETE'])
+@expects_json(deleteItemMacroSchema, check_formats=True)
+def deleteMacroSequenceItemRoute():
+    data = json.loads(request.data)
+    id = data['id']
+    itemId = data['itemId']
+    try:
+        deleteMacroSequenceItem(id, itemId)
+        return current_app.response_class(status=200)
+    except MacroDoesNotExist:
+        return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)
+    except SequenceItemDoesNotExist:
+        return current_app.response_class(f"Macro with ID:{id} Does Not Contain Item with ID: {itemId}", status=400)
+    except:
+        return current_app.response_class(status=400)
 
 @macroApi.route('/api/macro', methods=['SEARCH'])
 @expects_json(searchMacroSchema, check_formats=True)
@@ -87,6 +141,8 @@ def searchMacroRoute():
         return jsonify(macro)
     except MacroDoesNotExist:
         return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)
+    except:
+        return current_app.response_class(status=400)
 
 @macroApi.route('/api/macro', methods=['DELETE'])
 @expects_json(deleteMacroSchema, check_formats=True)
@@ -98,6 +154,8 @@ def deleteMacroRoute():
         return current_app.response_class(status=200)
     except MacroDoesNotExist:
         return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)
+    except:
+        return current_app.response_class(status=400)
 
 
 @macroApi.route('/api/macro/run', methods=['POST'])
@@ -110,4 +168,6 @@ def runMacroRoute():
         return current_app.response_class(status=200)
     except MacroDoesNotExist:
         return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)
+    except:
+        return current_app.response_class(status=400)
 

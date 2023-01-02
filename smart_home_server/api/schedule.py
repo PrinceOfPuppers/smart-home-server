@@ -26,8 +26,7 @@ postScheduledJobSchema = \
         "atMinutes": {"type": "integer", "minimum": 0, "maximum": 59},
         "atHours":   {"type": "integer", "minimum": 0, "maximum": 23},
 
-        "do": {
-            "oneOf": allJobsSchema},
+        "do": {"oneOf": allJobsSchema},
     },
     "required": ['name', "unit", 'do'],
     'additionalProperties': False,

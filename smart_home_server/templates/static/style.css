@@ -177,7 +177,7 @@
         float:left;
         padding:3pt;
     }
-    .job {
+    .job, .macro{
         width: fit-content;
         border: 2pt solid var(--lightGrey);
         border-radius: 4px;
@@ -185,15 +185,14 @@
         padding:5pt;
         margin-bottom:15pt;
     }
-
-    .jobText {
+    .jobText, .macroItem {
         border: 2pt solid var(--lightGrey);
         background-color: var(--darkGrey);
         padding:5pt;
         margin-top:5pt;
         border-radius: 4px;
     }
-    #jobForm {
+    #jobForm, #newMacroForm, #addToMacroForm{
         width: fit-content;
         border: 2pt solid var(--lightGrey);
         background-color: var(--grey);

@@ -76,7 +76,8 @@ def validateJob(job:dict):
 
 def runJob(job:dict):
     # job must contain key 'do'
-    if not job['enabled']:
+
+    if 'enabled' in job and not job['enabled']:
         return
 
     do   = job['do']

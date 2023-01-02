@@ -96,6 +96,9 @@ function processDoData(data, toSubmit){
             toSubmit.do.data.line2 = data.lcdLine2;
         }
     }
+    else if(data.do == "delay"){
+        toSubmit.do = {type:"delay", data:{seconds: Number(data.delaySeconds), minutes: Number(data.delayMinutes), hours: Number(data.delayHours)}};
+    }
     else{
         window.alert(`Error: Invalid Job Type: ${data.do}`);
         return false;

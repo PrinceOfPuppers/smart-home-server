@@ -1,15 +1,18 @@
 
-{% macro jobFormDo(remotes) %}
+{% macro jobFormDo(remotes, includeDelay=False) %}
     <section>
         <div class="formDiv">
             <label for="do">Do:</label>
             <select id="do" name="do" required>
             <option value="press">press</option>
             <option value="lcd">lcd</option>
+            {% if includeDelay %}
+                <option value="delay">delay</option>
+            {% endif %}
             </select>
         </div>
 
-        <div class="formDiv">
+        <div id="pressDiv" class="formDiv">
             <label for="pressRemote" id="pressRemoteLabel">Remote:</label>
             <select id="pressRemote" name="pressRemote">
             {% for remote in remotes %}
@@ -18,12 +21,12 @@
             </select>
         </div>
 
-        <div class="formDiv">
+        <div id="pressDiv"  class="formDiv">
             <label for="pressChannel" id="pressChannelLabel">Channel:</label>
             <input type="number" id="pressChannel" name="pressChannel" size="5" value="0">
         </div>
 
-        <div class="formDiv">
+        <div id="pressDiv"  class="formDiv">
             <label for="pressValue" id="pressValueLabel">Value:</label>
             <select id="pressValue" name="pressValue">
             <option value="1">on</option>
@@ -31,7 +34,7 @@
             </select>
         </div>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <label for="lcdBacklight" id="lcdBacklightLabel">Light:</label>
             <input type="checkbox" id="lcdBacklight" name="lcdBacklight" value="true" checked="true">
         </div>
@@ -39,42 +42,62 @@
 
         <br id="lcdBr"/>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <label for="lcdLine1" id="lcdLine1Label">Line 1:</label>
             <input type="text" id="lcdLine1" name="lcdLine1" maxLength = "40" size="20">
         </div>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <label for="lcdLine1Edit" id="lcdLine1Edit">Edit:</label>
             <input type="checkbox" id="lcdLine1Edit" name="lcdLine1Edit" value="true" checked="true">
         </div>
 
         <br id="lcdBr"/>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <label for="lcdLine2" id="lcdLine2Label">Line 2:</label>
             <input type="text" id="lcdLine2" name="lcdLine2" maxLength = "40" size="20">
         </div>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <label for="lcdLine2Edit" id="lcdLine2Edit">Edit:</label>
             <input type="checkbox" id="lcdLine2Edit" name="lcdLine2Edit" value="true" checked="true">
         </div>
 
         <br id="lcdBr"/>
 
-        <div class="formDiv">
+        <div id="lcdDiv" class="formDiv">
             <button type="button" id="lcdHelp" class="whiteButton" onclick="lcdFmtCheatSheet()">?</button>
         </div>
+
+        {% if includeDelay %}
+            <div id="delayDiv" class="formDiv">
+                <label for="delaySeconds" id="delaySecondsLabel">Seconds:</label>
+                <input type="number" id="delaySeconds" name="delaySeconds" size="5" value="0">
+            </div>
+
+            <div id="delayDiv" class="formDiv">
+                <label for="delayMinutes" id="delayMinutes">Minutes:</label>
+                <input type="number" id="delayMinutes" name="delayMinutes" size="5" value="0">
+            </div>
+
+            <div id="delayDiv" class="formDiv">
+                <label for="delayHours" id="delayHours">Hours:</label>
+                <input type="number" id="delayHours" name="delayHours" size="5" value="0">
+            </div>
+        {% endif %}
+
 
     </section>
 {% endmacro %}
 
 
 
-{% macro jobRepr(type, data) %}
-    <br/>
-    <span class="nobr">→ </span>
+{% macro jobRepr(type, data, br=True) %}
+    {% if br %}
+        <br/>
+    {% endif %}
+    <span class="nobr">> </span>
     {% if type == "press" %}
         <span class="nobr">switch remote: {{data['remote']}} ch: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
     {% elif type == "lcd" %}
@@ -87,18 +110,31 @@
         <br/>
             <span class="nobr">→ Line 2: {{data['line2']}}</span>
         {% endif %}
+    {% elif type == 'delay' %}
+        <span class="nobr">delay for: </span>
+        {% if 'hours' in data and data['hours']%}
+            <span class="nobr">{{ data['hours'] }}h </span>
+        {% endif %}
+
+        {% if 'minutes' in data and data['minutes']%}
+            <span class="nobr">{{ data['minutes'] }}m </span>
+        {% endif %}
+
+        {% if 'seconds' in data and data['seconds']%}
+            <span class="nobr">{{ data['seconds'] }}s </span>
+        {% endif %}
     {% else %}
         <span class="nobr">Unrecognized Job Type: {{ type }}</span>
     {% endif %}
 {% endmacro %}
 
 {% macro lcdFmtCheatSheet(values) %}
-values = [
-{% for value in values %}
-    "{{ value }}",
-{% endfor %}
-]
-function lcdFmtCheatSheet(){
-    window.alert(`\nFMT Cheat Sheet: \n  {${values.join('}\n  {')}}`);
-}
+    values = [
+    {% for value in values %}
+        "{{ value }}",
+    {% endfor %}
+    ]
+    function lcdFmtCheatSheet(){
+        window.alert(`\nFMT Cheat Sheet: \n  {${values.join('}\n  {')}}`);
+    }
 {% endmacro %}
