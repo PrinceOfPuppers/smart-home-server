@@ -6,6 +6,7 @@
             <select id="do" name="do" required>
             <option value="press">press</option>
             <option value="lcd">lcd</option>
+            <option value="reboot">reboot</option>
             {% if includeDelay %}
                 <option value="delay">delay</option>
             {% endif %}
@@ -113,6 +114,8 @@
         <br/>
             <span class="nobr">→ Line 2: {{data['line2']}}</span>
         {% endif %}
+    {% elif type == "reboot" %}
+        <span class="nobr">reboot</span>
     {% elif type == 'delay' %}
         <span class="nobr">delay for: </span>
         {% if 'hours' in data and data['hours']%}

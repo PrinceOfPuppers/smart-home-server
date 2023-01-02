@@ -1,6 +1,7 @@
 import smart_home_server.constants as const
 from smart_home_server.threads.presser import presserAppend
 from smart_home_server.threads.lcd import updateLCDFromJobData
+from smart_home_server.hardware_interfaces.reboot import reboot
 
 nameSchema = {"type": "string", "minLength": 0, "maxLength": 20, "pattern": "^[^\n\r]*$"}
 idSchema   = {"type": "string", "minLength": 0, "maxLength": 50, "pattern": "^[^\n\r]*$"}
@@ -28,10 +29,18 @@ postLCDSchema = \
     "required": [],
     'additionalProperties': False,
 }
+rebootSchema = \
+{
+    "type": "object",
+    "properties": {},
+    "required": [],
+    'additionalProperties': False,
+}
 
 _schemas = [
     ('press', postRemoteSchema),
     ('lcd', postLCDSchema),
+    ('reboot', rebootSchema),
 ]
 
 allJobsSchema = [
@@ -62,10 +71,10 @@ def validateJob(job:dict):
             min = 0
             if ch < min or ch > max:
                 return f"Invalid Channel: {ch} for Remote: {remote} (min: {min}, max: {max})"
-
+        elif type == 'reboot':
+            return ""
         elif type == 'lcd':
             return ""
-
         else:
             print(f"Invalid Job Type '{do}'")
             return "Invalid Job Type"
@@ -88,6 +97,8 @@ def runJob(job:dict):
         presserAppend(data)
     elif type == 'lcd':
         updateLCDFromJobData(data)
+    elif type == 'reboot':
+        reboot()
     else:
         raise Exception(f"Invalid Job Type '{do}'")
 

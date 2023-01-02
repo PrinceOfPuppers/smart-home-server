@@ -96,6 +96,9 @@ function processDoData(data, toSubmit){
             toSubmit.do.data.line2 = data.lcdLine2;
         }
     }
+    else if(data.do == "reboot"){
+        toSubmit.do = {type:"reboot", data:{}};
+    }
     else if(data.do == "delay"){
         toSubmit.do = {type:"delay", data:{seconds: Number(data.delaySeconds), minutes: Number(data.delayMinutes), hours: Number(data.delayHours)}};
     }
