@@ -161,7 +161,6 @@ def getWeatherImageLocal():
     lines = r.text.split('\n')[0:-1]
     s = '\n'.join(lines)
     text = re.sub(r'[^a-zA-Z0-9\s]', '', lines[0]).strip()
-    print(text,'\n', lines[0])
 
     res = {
         'str': s,

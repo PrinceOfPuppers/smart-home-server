@@ -19,37 +19,37 @@
                 contentElement.textContent = json['content']
         });
     }
-    function newNote(){
+     function newNote(){
         const nameElement = document.getElementById(`note-new-name`);
         const contentElement = document.getElementById(`note-new-content`);
 
         const name = nameElement.textContent;
         const content = contentElement.innerHTML.replace(/<br>/g, "\n");
-        var data = {
+         var data = {
             'name': name,
             'content': content,
         };
         sendData('/api/note', data, 'POST', reload=true);
     }
-    function saveNote(id){
+     function saveNote(id){
         const nameElement = document.getElementById(`note-name-${id}`);
         const contentElement = document.getElementById(`note-content-${id}`);
         const saveButtonElement = document.getElementById(`note-edit-${id}`);
 
         const name = nameElement.textContent;
         const content = contentElement.innerHTML.replace(/<br>/g, "\n");
-        var data = {
+         var data = {
             'id': id,
             'name': name,
             'content': content,
         };
-        sendData('/api/note', data, 'PATCH').then((success)=>{
-            if(success){
+         sendData('/api/note', data, 'PATCH').then((success)=>{
+             if(success){
                 tempChangeButton(saveButtonElement, "Saved!");
             }
         });
     }
-    function deleteNote(id){
+     function deleteNote(id){
         const element = document.getElementById(`note-element-${id}`);
         var data = {'id': id};
         sendData('/api/note', data, 'DELETE')
@@ -73,14 +73,14 @@
             {% set name    = note['name'] %}
             {% set content = note['content'] %}
             <div id="note-element-{{ id }}">
-                <button id="note-Delete-{{ id }}" class="redButton" onclick="deleteNote('{{ id }}')">X</button>
+                {{ m.deleteButton( "deleteNote('%s')" % (id) ) }}
                 <span id="note-name-{{ id }}" class="entry" id="note-new-name" contentEditable="true" spellcheck="false">{{ name }}</span>
                 <button id="note-edit-{{ id }}" class="yellowButton" onclick="saveNote('{{ id }}')">Save</button>
                 <p id="note-content-{{ id }}" contentEditable="true" spellcheck="false">{{ content }}</p>
             </div>
         {% endfor %}
         <div>
-            <button class="redButton">X</button>
+            {{ m.deleteButton( "" ) }}
             <span class="entry" id="note-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
             <button id="note-new" class="yellowButton" onclick="newNote()">Create</button>
             <p class="entry" id="note-new-content" contentEditable="true" data-placeholder="Content" spellcheck="false"></p>

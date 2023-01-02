@@ -131,3 +131,15 @@ function hideUnhideJobForms(dropDown){
     })
 }
 
+function toggleDropDown(buttonId, elementId){
+    const button = document.getElementById(buttonId);
+    const element = document.getElementById(elementId);
+    if(button.innerText == '⏷'){
+        element.style.display = "block";
+        button.innerText = '⏶'
+    }else{
+        element.style.display = "none";
+        button.innerText = '⏷'
+    }
+}
+

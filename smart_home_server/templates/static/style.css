@@ -65,6 +65,7 @@
 
     button{
         background-color: var(--darkGrey);
+        line-height: 1em;
 
         border: 2pt solid var(--white);
         border-radius: 4pt;
@@ -185,15 +186,24 @@
         padding:5pt;
         margin-bottom:15pt;
     }
-    .jobText, .macroItem {
+    .jobText {
         border: 2pt solid var(--lightGrey);
         background-color: var(--darkGrey);
         padding:5pt;
         margin-top:5pt;
         border-radius: 4px;
+        display: none;
+    }
+    .macroItem {
+        border: 2pt solid var(--lightGrey);
+        background-color: var(--darkGrey);
+        padding:5pt;
+        margin-top:5pt;
+        border-radius: 4px;
+
     }
     .macroItems {
-       display: none;
+        display: none;
     }
     #jobForm, #newMacroForm, #addToMacroForm{
         width: fit-content;

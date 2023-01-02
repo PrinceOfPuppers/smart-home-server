@@ -125,20 +125,25 @@
             {% for job in jobs %}
                 {% set jobId = job['id'] %}
                 {% set jobName = job['name'] %}
+
+                {% set dropDownId =  'drop-down-button-%s' % (jobId) %}
+                {% set jobTextId =  'job-text-%s' % (jobId) %}
                 <li>
                     <div class="job">
-                        <button class="redButton", onclick = "jobDelete('api/schedule/jobs', '{{ jobId }}')"">X</button>
+                        {{ m.deleteButton( "jobDelete('api/schedule/jobs', '%s')" % (jobId) ) }}
 
                         <button class="blueButton" onclick="updateJobName('api/schedule/jobs', '{{ jobId }}', '{{ jobName }}' )">{{ jobName }}</button>
 
+                        {{ m.dropDownButton( dropDownId, jobTextId ) }}
+
                         {% if job['enabled'] %}
-                            <button class="greenButton", onclick = "jobEnable('api/schedule/jobs/enable', '{{ jobId }}', false )"">active</button>
+                            {{ m.enabledButton( "jobEnable('api/schedule/jobs/enable', '%s', false)" % (jobId) ) }}
                         {% else %}
-                            <button class="redButton", onclick = "jobEnable('api/schedule/jobs/enable', '{{ jobId }}', true )"">inactive</button>
+                            {{ m.disabledButton( "jobEnable('api/schedule/jobs/enable', '%s', true)" % (jobId) ) }}
                         {% endif %}
 
 
-                        <div class="jobText">
+                        <div class="jobText" id="{{ jobTextId }}">
                             <span class="nobr">every </span>
                             {% if 'every' in job %}
                                 <span class="nobr">{{ job['every'] }} {{ job['unit'] }}</span>

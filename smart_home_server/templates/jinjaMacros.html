@@ -141,3 +141,21 @@
         window.alert(`\nFMT Cheat Sheet: \n  {${values.join('}\n  {')}}`);
     }
 {% endmacro %}
+
+
+{% macro deleteButton(onclick) %}
+    <button class="redButton", onclick = "{{ onclick }}"">✕</button>
+{% endmacro %}
+
+{% macro enabledButton(onclick) %}
+    <button class="greenButton", onclick = "{{ onclick }}"">⏻</button>
+{% endmacro %}
+
+{% macro disabledButton(onclick) %}
+    <button class="redButton", onclick = "{{ onclick }}"">🛇</button>
+{% endmacro %}
+
+{% macro dropDownButton(dropDownId, elementId) %}
+    <button class="purpleButton", id="{{ dropDownId }}", onclick = "toggleDropDown('{{ dropDownId }}', '{{ elementId }}')"">⏷</button>
+{% endmacro %}
+
