@@ -6,7 +6,7 @@ import copy
 from smart_home_server.threads.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJob, getJob
 from smart_home_server.helpers import getAtTime, addDefault
 
-from smart_home_server.api import allJobsSchema, validateJob, nameSchema, idSchema
+from smart_home_server.api import allJobsSchema, validateJob, nameSchema, idSchema, patchNameSchema
 
 scheduleApi = Blueprint('scheduleApi', __name__)
 
@@ -36,34 +36,34 @@ postScheduledJobSchema = \
 @scheduleApi.route('/api/schedule', methods=['POST'])
 @expects_json(postScheduledJobSchema, check_formats=True)
 def postJob():
-    scheduledJob = json.loads(request.data)
+    data = json.loads(request.data)
 
-    addDefault(scheduledJob, 'enabled', True)
+    addDefault(data, 'enabled', True)
 
-    if 'every' in scheduledJob:
-        if scheduledJob['every'] > 1:
-            if scheduledJob['unit'] in weekdays:
+    if 'every' in data:
+        if data['every'] > 1:
+            if data['unit'] in weekdays:
                 return current_app.response_class("days of the week 'units' are incompatible with 'every' > 1", status=400)
         else:
-            scheduledJob.pop('every')
+            data.pop('every')
 
-    atTime = getAtTime(scheduledJob)
+    atTime = getAtTime(data)
     if atTime is not None:
-        scheduledJob['at'] = atTime
+        data['at'] = atTime
 
-    if 'at' in scheduledJob and scheduledJob['unit'] == 'week':
+    if 'at' in data and data['unit'] == 'week':
         return current_app.response_class("unit week is incompatible at times", status=400)
 
-    scheduledJob.pop('atHours', None)
-    scheduledJob.pop('atMinutes', None)
-    scheduledJob.pop('atSeconds', None)
+    data.pop('atHours', None)
+    data.pop('atMinutes', None)
+    data.pop('atSeconds', None)
 
     
-    invalid = validateJob(scheduledJob)
+    invalid = validateJob(data)
     if invalid:
         return current_app.response_class(invalid, status=400)
 
-    addJob(scheduledJob)
+    addJob(data)
     return current_app.response_class(status=200)
 
 
@@ -80,24 +80,14 @@ deleteJobSchema = \
 @scheduleApi.route('/api/schedule/jobs', methods=['DELETE'])
 @expects_json(deleteJobSchema)
 def deleteJob():
-    id = json.loads(request.data)['id']
+    data = json.loads(request.data)
+    id = data['id']
     removeJob(id)
     return current_app.response_class(status=200)
 
 
-# currently only updates name
-patchJobSchema = \
-{
-    "type": "object",
-    "properties":{
-        "id":        idSchema,
-        "name":      nameSchema, # defaults to job if empty
-    },
-    "required": ['id', 'name'],
-    'additionalProperties': False,
-}
 @scheduleApi.route('/api/schedule/jobs', methods=['PATCH'])
-@expects_json(patchJobSchema)
+@expects_json(patchNameSchema)
 def patchJob():
     patch = json.loads(request.data)
     id = patch['id']

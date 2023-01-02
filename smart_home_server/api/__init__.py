@@ -54,6 +54,17 @@ allJobsSchema = [
         'additionalProperties': False,
     } for name, schema in _schemas
 ]
+# currently only updates name
+patchNameSchema = \
+{
+    "type": "object",
+    "properties":{
+        "id":        idSchema,
+        "name":      nameSchema,
+    },
+    "required": ['id', 'name'],
+    'additionalProperties': False,
+}
 
 # additional sanatization not done by schema
 def validateJob(job:dict):

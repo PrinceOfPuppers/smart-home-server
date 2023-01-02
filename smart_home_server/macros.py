@@ -156,10 +156,17 @@ def _runMacroSequence(sequence, delay = 0):
             runJob({'do': item})
 
 def runMacro(id):
-    global _macroLock
     macro = getMacro(id)
     name = macro['name']
     sequence = macro['sequence']
     print(f"Running Macro: {name}")
     _runMacroSequence(sequence)
+
+def updateMacroName(id, name):
+    with _macroLock:
+        macro = getMacro(id, lock = False)
+        if macro['name'] == name:
+            return
+        macro['name'] = name
+        overwriteMacro(id, macro, lock=False)
 

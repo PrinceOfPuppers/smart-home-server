@@ -13,7 +13,7 @@ def _getTriggersPath(id:str):
     return f'{const.triggeredJobFolder}/{id}.json'
 
 class RunningTriggerData:
-    def __init__(self, triggerJob):
+    def __init__(self, triggerJob:dict):
         self.subscribed = False
         self.triggerJob = triggerJob
         id = str(uuid4()) if 'id' not in triggerJob else triggerJob['id']
@@ -246,7 +246,7 @@ def _getTrigger(id: str):
         return None
 
     t = _triggers[id]
-    return t
+    return t.triggerJob
 
 def _getTriggers():
     global _triggers

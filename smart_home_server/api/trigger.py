@@ -6,7 +6,7 @@ from smart_home_server.helpers import addDefault
 from smart_home_server.data_sources import dataSourceValues
 from smart_home_server.threads.triggerManager import addTrigger, updateTriggerName, removeTrigger, enableDisableTrigger, getTrigger, getTriggers
 
-from smart_home_server.api import allJobsSchema, validateJob, nameSchema, idSchema
+from smart_home_server.api import allJobsSchema, validateJob, nameSchema, idSchema, patchNameSchema
 
 triggerApi = Blueprint('triggerApi', __name__)
 
@@ -56,23 +56,23 @@ postTriggerSchema = \
 @triggerApi.route('/api/trigger', methods=['POST'])
 @expects_json(postTriggerSchema, check_formats=True)
 def postJob():
-    triggeredJob = json.loads(request.data)
-    addDefault(triggeredJob, 'negated', False)
-    addDefault(triggeredJob, 'enabled', True)
+    data = json.loads(request.data)
+    addDefault(data, 'negated', False)
+    addDefault(data, 'enabled', True)
 
-    firstVar = triggeredJob['firstVar']
+    firstVar = data['firstVar']
     if firstVar['value'] not in dataSourceValues:
         return current_app.response_class(f"Unknown Data Value: {firstVar['value']}", status=400)
 
-    secondVar = triggeredJob['secondVar']
+    secondVar = data['secondVar']
     if secondVar['type'] == 'dataSource' and secondVar['value'] not in dataSourceValues:
         return current_app.response_class(f"Unknown Data Value: {secondVar['value']}", status=400)
 
 
-    invalid = validateJob(triggeredJob)
+    invalid = validateJob(data)
     if invalid:
         return current_app.response_class(invalid, status=400)
-    addTrigger(triggeredJob)
+    addTrigger(data)
     return current_app.response_class(status=200)
 
 
@@ -89,27 +89,18 @@ deleteTriggerSchema = \
 @triggerApi.route('/api/trigger/jobs', methods=['DELETE'])
 @expects_json(deleteTriggerSchema)
 def deleteTrigger():
-    id = json.loads(request.data)['id']
+    data = json.loads(request.data)
+    id = data['id']
     removeTrigger(id)
     return current_app.response_class(status=200)
 
 
-# currently only updates name
-patchTriggerSchema = \
-{
-    "type": "object",
-    "properties":{
-        "id":        idSchema,
-        "name":      nameSchema,
-    },
-    "required": ['id', 'name'],
-    'additionalProperties': False,
-}
 @triggerApi.route('/api/trigger/jobs', methods=['PATCH'])
-@expects_json(patchTriggerSchema)
+@expects_json(patchNameSchema)
 def patchTrigger():
-    id = json.loads(request.data)['id']
-    name = json.loads(request.data)['name']
+    data = json.loads(request.data)
+    id = data['id']
+    name = data['name']
 
     oldTriggeredJob = getTrigger(id)
     if oldTriggeredJob is None:

@@ -105,7 +105,7 @@
                     <div class="macro" id="macro-{{ macroId }}">
                         {{ m.deleteButton( "macroDelete('api/macro', '%s')" % (macroId) ) }}
 
-                        <button class="blueButton">{{ macroName }}</button>
+                        <button class="blueButton" onclick="updateJobName('api/macro', '{{ macroId }}', '{{ macroName }}' )">{{ macroName }}</button>
 
                         {{ m.dropDownButton( dropDownId, macroItemsId ) }}
 

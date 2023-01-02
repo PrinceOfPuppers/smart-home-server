@@ -2,9 +2,9 @@ import json
 from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 
-from smart_home_server.api import allJobsSchema, nameSchema, idSchema
+from smart_home_server.api import allJobsSchema, nameSchema, idSchema, patchNameSchema
 
-from smart_home_server.macros import getMacro, saveMacro, addMacroSequenceItem, deleteMacro, runMacro, deleteMacroSequenceItem, \
+from smart_home_server.macros import getMacro, saveMacro, addMacroSequenceItem, deleteMacro, runMacro, deleteMacroSequenceItem, updateMacroName, \
                                      MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist
 
 macroApi = Blueprint('macroApi', __name__)
@@ -82,19 +82,38 @@ searchMacroSchema = \
 deleteMacroSchema = searchMacroSchema
 runMacroSchema = searchMacroSchema
 
+def _sanatizeMacroName(data):
+    name = 'macro' if not 'name' in data else data['name'].strip()
+    if not name:
+        name = 'Macro'
+    return name
+
 @macroApi.route('/api/macro', methods=['POST'])
 @expects_json(postMacroSchema, check_formats=True)
 def postMacroRoute():
     data = json.loads(request.data)
+    name = _sanatizeMacroName(data)
     try:
-        name = 'macro' if not 'name' in data else data['name'].strip()
-        if not name:
-            name = 'macro'
         sequence = [] if not 'sequence' in data else data['sequence']
         saveMacro({"name": name, "sequence": sequence})
         return current_app.response_class(status=200)
     except MacroAlreadyExists:
         return current_app.response_class("Macro With That ID Already Exists (should never occur)", status=400)
+    except:
+        return current_app.response_class(status=400)
+
+@macroApi.route('/api/macro', methods=['PATCH'])
+@expects_json(patchNameSchema)
+def patchTrigger():
+    data = json.loads(request.data)
+    id = data['id']
+    name = _sanatizeMacroName(data)
+
+    try:
+        updateMacroName(id, name)
+        return current_app.response_class(status=200)
+    except MacroDoesNotExist:
+        return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)
     except:
         return current_app.response_class(status=400)
 
