@@ -136,6 +136,7 @@
 
                         {{ m.dropDownButton( dropDownId, jobTextId ) }}
 
+
                         {% if job['enabled'] %}
                             {{ m.enabledButton( "jobEnable('api/schedule/jobs/enable', '%s', false)" % (jobId) ) }}
                         {% else %}
