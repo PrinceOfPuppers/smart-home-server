@@ -111,6 +111,12 @@ function processDoData(data, toSubmit){
 
 function tempChangeButton(element, newText, time=1){
     const text = element.textContent;
+
+    // double tap catch
+    if(text == newText){
+        return;
+    }
+
     element.textContent = newText;
     delay(time).then(()=>{
         element.textContent = text;

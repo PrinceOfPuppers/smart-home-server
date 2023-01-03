@@ -9,9 +9,6 @@
 <script>
     {{ m.lcdFmtCheatSheet(values) }}
 
-    // edit to re-enable polling
-    const polling = false;
-
     async function updateDashboardElement(name, element, url){
         var response;
         for(let i = 0; i < 3; i++){
@@ -28,14 +25,13 @@
             window.alert(`Dashboard Update Error \nStatus: ${response.status} \n${response.statusText}`);
             return;
         }
-        //element.textContent = response.body;
 
         await response.json().then((json)=>{
             element.textContent = json['str'];
         });
     }
 
-    async function pollDashboardElement(name, url, pollingPeriod){
+    function firstLoadDashboardElement(name, url){
         const element = document.getElementById(`dashboard-${name}`);
         const button = document.getElementById(`dashboardButton-${name}`);
         button.onclick = () => {
@@ -43,19 +39,6 @@
             updateDashboardElement(name, element, url);
         };
         updateDashboardElement(name, element, url);
-        if(!polling){
-            return
-        }
-
-        if(pollingPeriod == null || pollingPeriod == undefined || pollingPeriod < 1){
-            window.alert("Error: Invalid Polling Period");
-            return;
-        }
-        var cond = true;
-        while(cond){
-            await delay(pollingPeriod);
-            updateDashboardElement(name, element, url);
-        }
     }
 
     const days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
@@ -153,7 +136,7 @@
         clock('clock');
         getLCD()
         {% for element in dashboardElements %}
-            pollDashboardElement("{{ element['name'] }}", "{{ element['url'] }}", {{ element['pollingPeriod'] }});
+            firstLoadDashboardElement("{{ element['name'] }}", "{{ element['url'] }}");
         {% endfor %}
     }
 </script>
