@@ -9,6 +9,13 @@ from smart_home_server.handlers.subscribeManager import subscribe
 from typing import Dict
 
 
+class TriggerDoesNotExist(Exception):
+    pass
+
+class TriggerAlreadyExists(Exception):
+    pass
+
+
 def _getTriggersPath(id:str):
     return f'{const.triggeredJobFolder}/{id}.json'
 
@@ -48,6 +55,8 @@ class RunningTriggerData:
         self.serialize()
 
     def updateName(self, name):
+        if self.triggerJob['name'] == name:
+            return
         self.triggerJob['name'] = name
         self.serialize()
 
@@ -181,7 +190,11 @@ _triggers:Dict[str,RunningTriggerData] = {}
 def _addTrigger(triggerJob:dict):
     global _triggers
     t = RunningTriggerData.createNewTriggerAndStart(triggerJob)
-    _triggers[t.getId()] = t
+    id = t.getId()
+    if id in _triggers:
+        t.delete()
+        raise TriggerAlreadyExists()
+    _triggers[id] = t
 
 def _removeTrigger(id: str):
     global _triggers
@@ -194,7 +207,7 @@ def _removeTrigger(id: str):
 def _enableDisableTrigger(id: str, enable=True):
     global _triggers
     if not id in _triggers:
-        return
+        raise TriggerDoesNotExist()
     t = _triggers[id]
 
     if enable:
@@ -231,7 +244,8 @@ def _updateTriggerName(id: str, name:str):
         _loadTriggers()
 
     if not id in _triggers:
-        return
+        raise TriggerDoesNotExist()
+
     _triggers[id].updateName(name)
 
 
@@ -243,7 +257,7 @@ def _getTrigger(id: str):
         _loadTriggers()
 
     if id not in _triggers:
-        return None
+        raise TriggerDoesNotExist()
 
     t = _triggers[id]
     return t.triggerJob

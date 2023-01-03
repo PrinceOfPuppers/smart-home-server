@@ -4,7 +4,7 @@ from flask_expects_json import expects_json
 
 from smart_home_server.helpers import addDefault
 from smart_home_server.data_sources import dataSourceValues
-from smart_home_server.handlers.triggerManager import addTrigger, updateTriggerName, removeTrigger, enableDisableTrigger, getTrigger, getTriggers
+from smart_home_server.handlers.triggerManager import addTrigger, updateTriggerName, removeTrigger, enableDisableTrigger, getTrigger, getTriggers, TriggerDoesNotExist
 
 from smart_home_server.api import allJobsSchema, validateJob, nameSchema, idSchema, patchNameSchema
 
@@ -38,7 +38,7 @@ postTriggerSchema = \
 {
     "type": "object",
     "properties":{
-        "name":      nameSchema,
+        "name":      nameSchema,          # defaults to Trigger
         "enabled":   {"type": "boolean"}, # defaults to True
         'negated':   {"type": "boolean"}, # defaults to false
         'firstVar':  dataSourceSchema,
@@ -48,7 +48,7 @@ postTriggerSchema = \
         "do": {
             "oneOf": allJobsSchema},
     },
-    "required": ['name','firstVar', 'comparison', "secondVar", 'do'],
+    "required": ['firstVar', 'comparison', "secondVar", 'do'],
     'additionalProperties': False,
 }
 
@@ -59,6 +59,7 @@ def postJob():
     data = json.loads(request.data)
     addDefault(data, 'negated', False)
     addDefault(data, 'enabled', True)
+    addDefault(data, 'name', 'Trigger', checkCond=True, strip=True)
 
     firstVar = data['firstVar']
     if firstVar['value'] not in dataSourceValues:
@@ -100,16 +101,15 @@ def deleteTrigger():
 def patchTrigger():
     data = json.loads(request.data)
     id = data['id']
+    addDefault(data, 'name', 'Trigger', checkCond=True, strip=True)
     name = data['name']
 
-    oldTriggeredJob = getTrigger(id)
-    if oldTriggeredJob is None:
+    try:
+        updateTriggerName(id, name)
+    except TriggerDoesNotExist:
         return current_app.response_class(f"Triggered Job with ID: {id} Does Not Exist", status=400)
-
-    if oldTriggeredJob['name'] == name:
-        return current_app.response_class(status=200)
-
-    updateTriggerName(id, name)
+    except:
+        return current_app.response_class(status=400)
     return current_app.response_class(status=200)
 
 @triggerApi.route('/api/trigger/jobs', methods=['GET'])
@@ -134,6 +134,11 @@ enableTriggerSchema = \
 def enableTrigger():
     data = json.loads(request.data)
     addDefault(data, 'enabled', True)
-    enableDisableTrigger(data['id'], data['enable'])
+    try:
+        enableDisableTrigger(data['id'], data['enable'])
+    except TriggerDoesNotExist:
+        return current_app.response_class(f"Triggered Job with ID: {id} Does Not Exist", status=400)
+    except:
+        return current_app.response_class(status=400)
     return current_app.response_class(status=200)
 

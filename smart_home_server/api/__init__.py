@@ -65,11 +65,8 @@ patchNameSchema = \
     "required": ['id', 'name'],
     'additionalProperties': False,
 }
-
-# additional sanatization not done by schema
-def validateJob(job:dict):
+def validateDo(do:dict):
     try:
-        do   = job['do']
         type = do['type']
         data = do['data']
 
@@ -86,17 +83,25 @@ def validateJob(job:dict):
             return ""
         elif type == 'lcd':
             return ""
+        elif type == 'delay':
+            return ""
         else:
             print(f"Invalid Job Type '{do}'")
             return "Invalid Job Type"
     except:
-        return ""
+        return "Invalid Job"
+
+def validateJob(job:dict):
+    # adds additional sanatization not done by schema
+    if not 'do' in job:
+        return "Job Must Contain 'do'"
+    return validateDo(job['do'])
+
     
 
 
 def runJob(job:dict):
     # job must contain key 'do'
-
     if 'enabled' in job and not job['enabled']:
         return
 

@@ -2,7 +2,8 @@ import json
 from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 
-from smart_home_server.api import allJobsSchema, nameSchema, idSchema, patchNameSchema
+from smart_home_server.api import allJobsSchema, nameSchema, idSchema, patchNameSchema, validateDo
+from smart_home_server.helpers import addDefault
 
 from smart_home_server.handlers.macros import getMacro, saveMacro, addMacroSequenceItem, deleteMacro, runMacro, deleteMacroSequenceItem, updateMacroName, \
                                               MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist
@@ -82,19 +83,21 @@ searchMacroSchema = \
 deleteMacroSchema = searchMacroSchema
 runMacroSchema = searchMacroSchema
 
-def _sanatizeMacroName(data):
-    name = 'macro' if not 'name' in data else data['name'].strip()
-    if not name:
-        name = 'Macro'
-    return name
-
 @macroApi.route('/api/macro', methods=['POST'])
 @expects_json(postMacroSchema, check_formats=True)
 def postMacroRoute():
     data = json.loads(request.data)
-    name = _sanatizeMacroName(data)
+    addDefault(data, 'sequence', [])
+    addDefault(data, 'name', 'Macro', checkCond=True, strip=True)
+    sequence=data['sequence']
+    name = data['name']
+
     try:
-        sequence = [] if not 'sequence' in data else data['sequence']
+        for item in sequence:
+            invalid = validateDo(item)
+            if invalid:
+                return current_app.response_class(invalid, status=400)
+
         saveMacro({"name": name, "sequence": sequence})
         return current_app.response_class(status=200)
     except MacroAlreadyExists:
@@ -107,7 +110,8 @@ def postMacroRoute():
 def patchTrigger():
     data = json.loads(request.data)
     id = data['id']
-    name = _sanatizeMacroName(data)
+    addDefault(data, 'name', 'Macro', checkCond=True, strip=True)
+    name = data['name']
 
     try:
         updateMacroName(id, name)
@@ -121,11 +125,15 @@ def patchTrigger():
 @expects_json(addMacroSequenceItemSchema, check_formats=True)
 def addMacroSequenceItemRoute():
     data = json.loads(request.data)
-    id = data['id']
-    index = -1 if not 'index' in data else data['index']
+    addDefault(data, 'index', -1)
     item = data['do']
+
+    invalid = validateDo(item)
+    if invalid:
+        return current_app.response_class(invalid, status=400)
+
     try:
-        addMacroSequenceItem(id, item, index=index)
+        addMacroSequenceItem(data['id'], item, index=data['index'])
         return current_app.response_class(status=200)
     except MacroDoesNotExist:
         return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)

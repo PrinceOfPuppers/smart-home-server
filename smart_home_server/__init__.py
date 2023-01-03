@@ -1,7 +1,7 @@
 from threading import current_thread
 from signal import signal, SIGINT, Signals#,SIGABRT,SIGTERM
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 class InterruptTriggered(Exception):
     pass
@@ -26,7 +26,7 @@ class _NoInterrupt:
             self.interrupt()
 
     def interrupt(self):
-        raise InterruptTriggered
+        raise InterruptTriggered()
 
     def notInterruptible(self):
         return self.noInterruptDepth > 0

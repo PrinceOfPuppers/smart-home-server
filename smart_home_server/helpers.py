@@ -21,8 +21,13 @@ def padChar(s, c, length):
     res = f'{s}{c*(length - len(s))}' if len(s) < length else s
     return res
 
-def addDefault(data:dict, key:str, val):
+def addDefault(data:dict, key:str, val, checkCond=False, strip=False):
     if key not in data:
+        data[key] = val
+        return
+    if strip:
+        data[key].strip()
+    if checkCond and not data[key]:
         data[key] = val
 
 def getAtTime(scheduledJob:dict):

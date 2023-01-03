@@ -39,7 +39,7 @@ def getJobFromFile(id: str) -> Union[dict, None]:
         with open(path) as f:
             res = json.load(f)
         return res
-    raise JobDoesNotExist
+    raise JobDoesNotExist()
 
 def getJob(id:str):
     with _schedulerLock:

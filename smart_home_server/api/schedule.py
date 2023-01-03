@@ -101,7 +101,7 @@ def deleteJob():
 @expects_json(patchNameSchema)
 def patchJob():
     patch = json.loads(request.data)
-    addDefault(patch, 'name', 'job')
+    addDefault(patch, 'name', 'Job', checkCond=True, strip=True)
     id = patch['id']
     name = patch['name']
 

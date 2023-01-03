@@ -1,5 +1,5 @@
 from threading import Lock
-from smart_home_server.handlers.triggerManager.helpers import _addTrigger, _removeTrigger, _updateTriggerName, _enableDisableTrigger, _loadTriggers, _getTrigger, _getTriggers
+from smart_home_server.handlers.triggerManager.helpers import _addTrigger, _removeTrigger, _updateTriggerName, _enableDisableTrigger, _loadTriggers, _getTrigger, _getTriggers, TriggerDoesNotExist
 
 _triggerLock = Lock()
 

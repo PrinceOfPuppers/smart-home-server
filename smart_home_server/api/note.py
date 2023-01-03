@@ -2,6 +2,8 @@ import json
 from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 
+from smart_home_server.helpers import addDefault
+
 from smart_home_server.api import nameSchema, idSchema
 from smart_home_server.handlers.notes import getNote, deleteNote, updateNote, createNote, NoteAlreadyExists, NoteDoesNotExist
 
@@ -43,15 +45,11 @@ deleteNoteSchema = searchNoteSchema
 @expects_json(postNoteSchema, check_formats=True)
 def postNoteRoute():
     data = json.loads(request.data)
+    addDefault(data, 'name', 'Note', checkCond=True, strip=True)
+    addDefault(data, 'content', '')
 
-    if 'name' not in data or not data['name']:
-        name = 'Note'
-    else:
-        name = data['name']
-
-    content = '' if 'content' not in data else data['content']
     try:
-        createNote(name, content)
+        createNote(data['name'], data['content'])
         return current_app.response_class(status=200)
     except NoteAlreadyExists:
         return current_app.response_class("Note With That ID Already Exists (should never occur)", status=400)
@@ -61,15 +59,11 @@ def postNoteRoute():
 def patchNoteRoute():
     data = json.loads(request.data)
     id = data['id']
+    addDefault(data, 'name', None, checkCond=True, strip=True)
+    addDefault(data, 'content', '')
 
-    if 'name' not in data or not data['name']:
-        name = None
-    else:
-        name = data['name']
-
-    content = None if 'content' not in data else data['content']
     try:
-        updateNote(id, name = name, content = content)
+        updateNote(id, name = data['name'], content = data['content'])
         return current_app.response_class(status=200)
     except NoteDoesNotExist:
         return current_app.response_class(f"Note with ID:{id} Does Not Exist", status=400)
