@@ -3,7 +3,7 @@ from flask import jsonify, request, Blueprint, current_app
 from flask_expects_json import expects_json
 import copy
 
-from smart_home_server.handlers.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJob, getJob
+from smart_home_server.handlers.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJobName, getJob, JobDoesNotExist
 from smart_home_server.helpers import getAtTime, addDefault
 
 from smart_home_server.api import allJobsSchema, validateJob, nameSchema, idSchema, patchNameSchema
@@ -12,6 +12,7 @@ scheduleApi = Blueprint('scheduleApi', __name__)
 
 weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 timeUnits = ["second", "minute", "hour", "day", "week"] + weekdays
+
 postScheduledJobSchema = \
 {
     "type": "object",
@@ -32,12 +33,32 @@ postScheduledJobSchema = \
     'additionalProperties': False,
 }
 
+deleteJobSchema = \
+{
+    "type": "object",
+    "properties": {
+        "id": idSchema
+    },
+    "required": ["id"],
+    'additionalProperties': False,
+}
+
+enableJobSchema = \
+{
+    "type": "object",
+    "properties": {
+        "id": idSchema,
+        "enable": {"type": "boolean"} # defaults to True
+    },
+    "required": ['id'],
+    'additionalProperties': False,
+}
+
 
 @scheduleApi.route('/api/schedule', methods=['POST'])
 @expects_json(postScheduledJobSchema, check_formats=True)
 def postJob():
     data = json.loads(request.data)
-
     addDefault(data, 'enabled', True)
 
     if 'every' in data:
@@ -67,16 +88,6 @@ def postJob():
     return current_app.response_class(status=200)
 
 
-deleteJobSchema = \
-{
-    "type": "object",
-    "properties": {
-        "id": idSchema
-    },
-    "required": ["id"],
-    'additionalProperties': False,
-}
-
 @scheduleApi.route('/api/schedule/jobs', methods=['DELETE'])
 @expects_json(deleteJobSchema)
 def deleteJob():
@@ -90,41 +101,22 @@ def deleteJob():
 @expects_json(patchNameSchema)
 def patchJob():
     patch = json.loads(request.data)
+    addDefault(patch, 'name', 'job')
     id = patch['id']
     name = patch['name']
-    if not name:
-        name = 'job'
 
-    oldJob = getJob(id)
-    if oldJob is None:
+    try:
+        updateJobName(id, name)
+    except JobDoesNotExist:
         return current_app.response_class(f"ID: {id} Does Not Exist", status=400)
-
-    if oldJob['name'] == name:
-        return current_app.response_class(status=200)
-
-    newJob = copy.deepcopy(oldJob)
-
-    newJob['name'] = name
-
-    updateJob(id, newJob)
+    except Exception:
+        return current_app.response_class(status=400)
     return current_app.response_class(status=200)
 
 @scheduleApi.route('/api/schedule/jobs', methods=['GET'])
 def GetJobs():
     jobs = getJobs()
     return jsonify({"jobs": jobs})
-
-
-enableJobSchema = \
-{
-    "type": "object",
-    "properties": {
-        "id": idSchema,
-        "enable": {"type": "boolean"} # defaults to True
-    },
-    "required": ['id'],
-    'additionalProperties': False,
-}
 
 @scheduleApi.route('/api/schedule/jobs/enable', methods=['POST'])
 @expects_json(enableJobSchema)

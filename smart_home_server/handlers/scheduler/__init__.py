@@ -7,7 +7,8 @@ from datetime import datetime
 from time import sleep
 
 import smart_home_server.constants as const
-from smart_home_server.handlers.scheduler.helpers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath, _loadJobs, _getJobs, _getJob
+from smart_home_server.handlers.scheduler.helpers import _addJob, _removeJob, _enableDisableJob, _getJobPath, _loadJobs, _getJobs, _getJob, _updateJobName, \
+                                                         JobAlreadyExists, JobDoesNotExist
 
 _schedulerLoopCondition = False
 _schedulerThread        = None
@@ -23,9 +24,9 @@ def removeJob(id: str):
     with _schedulerLock:
         _removeJob(id)
 
-def updateJob(id: str, newScheduledJob:dict):
+def updateJobName(id: str, name:str):
     with _schedulerLock:
-        _updateJob(id, newScheduledJob)
+        _updateJobName(id, name)
 
 def loadJobs(clearExisting:bool, overwrite:bool):
     with _schedulerLock:
@@ -38,7 +39,7 @@ def getJobFromFile(id: str) -> Union[dict, None]:
         with open(path) as f:
             res = json.load(f)
         return res
-    return None
+    raise JobDoesNotExist
 
 def getJob(id:str):
     with _schedulerLock:

@@ -6,6 +6,11 @@ import json
 from smart_home_server.api import runJob
 import smart_home_server.constants as const
 
+class JobDoesNotExist(Exception):
+    pass
+
+class JobAlreadyExists(Exception):
+    pass
 
 def _getJobPath(id:str):
     return f'{const.schedulerJobFolder}/{id}.json'
@@ -82,12 +87,17 @@ def _removeJob(id: str):
         return
     schedule.clear(id)
 
-def _updateJob(id: str, newScheduledJob:dict):
+def _overwriteJob(id: str, newScheduledJob:dict):
     if 'id' in newScheduledJob:
         newScheduledJob['id'] = id
 
     _removeJob(id)
     _addJob(newScheduledJob)
+
+def _updateJobName(id:str, name:str):
+    job = _getJob(id)
+    job['name'] = name
+    _overwriteJob(id, job)
 
 def _enableDisableJob(id: str, enable:bool):
     jobs = schedule.get_jobs(id)
@@ -104,7 +114,7 @@ def _enableDisableJob(id: str, enable:bool):
         return
 
     scheduledJob['enabled'] = enable
-    _updateJob(id, scheduledJob)
+    _overwriteJob(id, scheduledJob)
 
 def _getJobs():
     res = []
@@ -118,9 +128,9 @@ def _getJob(id: str):
     jobs = schedule.get_jobs(id)
     if len(jobs) > 1:
         print("Schedule: Multiple jobs with same id")
-        return None
+        raise Exception()
     if len(jobs) == 0:
-        return None
+        raise JobDoesNotExist()
     job = jobs[0]
     assert job.job_func is not None
     return job.job_func.args[0]
