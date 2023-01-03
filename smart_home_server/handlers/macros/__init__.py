@@ -1,8 +1,8 @@
 from threading import Lock
 
-from smart_home_server.threads.macros.helpers import MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist, \
-                                                    _getMacro, _getMacros, _deleteMacro, _updateMacroName, _overwriteMacro, _saveMacro, \
-                                                    _deleteMacroSequenceItem, _addMacroSequenceItem, _runMacroSequence
+from smart_home_server.handlers.macros.helpers import MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist, \
+                                                     _getMacro, _getMacros, _deleteMacro, _updateMacroName, _overwriteMacro, _saveMacro, \
+                                                     _deleteMacroSequenceItem, _addMacroSequenceItem, _runMacroSequence
 
 _macroLock = Lock()
 

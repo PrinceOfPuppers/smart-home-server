@@ -3,7 +3,7 @@ from flask import request, Blueprint, current_app
 from flask_expects_json import expects_json
 
 from smart_home_server.api import postLCDSchema
-from smart_home_server.threads.lcd import toggleLCDBacklight, updateLCDFromJobData
+from smart_home_server.handlers.lcd import toggleLCDBacklight, updateLCDFromJobData
 
 dashboardApi = Blueprint('dashboardApi', __name__)
 

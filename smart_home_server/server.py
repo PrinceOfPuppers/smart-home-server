@@ -1,10 +1,10 @@
 from flask import Flask, send_from_directory, render_template, redirect
 
-from smart_home_server.threads.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
-from smart_home_server.threads.presser import startPresser, stopPresser, joinPresser
-from smart_home_server.threads.lcd import startUpdateLCD
-from smart_home_server.threads.triggerManager import getTriggers
-from smart_home_server.threads.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
+from smart_home_server.handlers.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
+from smart_home_server.handlers.presser import startPresser, stopPresser, joinPresser
+from smart_home_server.handlers.lcd import startUpdateLCD
+from smart_home_server.handlers.triggerManager import getTriggers
+from smart_home_server.handlers.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
 
 from smart_home_server import InterruptTriggered
 
@@ -16,8 +16,8 @@ from smart_home_server.api.trigger import triggerApi, triggerComparisons
 from smart_home_server.api.note import noteApi
 from smart_home_server.api.macro import macroApi
 from smart_home_server.data_sources import dataSources, dataSourceValues
-from smart_home_server.threads.notes import getNotes
-from smart_home_server.threads.macros import getMacros
+from smart_home_server.handlers.notes import getNotes
+from smart_home_server.handlers.macros import getMacros
 import smart_home_server.constants as const
 
 values = list(dataSourceValues)

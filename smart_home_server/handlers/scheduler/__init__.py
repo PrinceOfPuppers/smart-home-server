@@ -7,7 +7,7 @@ from datetime import datetime
 from time import sleep
 
 import smart_home_server.constants as const
-from smart_home_server.threads.scheduler.helpers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath, _loadJobs, _getJobs, _getJob
+from smart_home_server.handlers.scheduler.helpers import _addJob, _removeJob, _updateJob, _enableDisableJob, _getJobPath, _loadJobs, _getJobs, _getJob
 
 _schedulerLoopCondition = False
 _schedulerThread        = None

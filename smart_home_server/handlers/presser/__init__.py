@@ -5,7 +5,7 @@ from multiprocessing import Process, Queue
 
 import smart_home_server.constants as const
 from smart_home_server import InterruptTriggered
-from smart_home_server.threads.presser.helpers import _changeChannel, _initRfDevice, _destroyRfDevice
+from smart_home_server.handlers.presser.helpers import _changeChannel, _initRfDevice, _destroyRfDevice
 
 from typing import Union
 

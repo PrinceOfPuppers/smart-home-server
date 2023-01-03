@@ -3,7 +3,7 @@ from flask import jsonify, request, Blueprint, current_app
 from flask_expects_json import expects_json
 import copy
 
-from smart_home_server.threads.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJob, getJob
+from smart_home_server.handlers.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJob, getJob
 from smart_home_server.helpers import getAtTime, addDefault
 
 from smart_home_server.api import allJobsSchema, validateJob, nameSchema, idSchema, patchNameSchema

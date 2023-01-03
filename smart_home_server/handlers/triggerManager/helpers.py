@@ -4,7 +4,7 @@ import json
 
 from smart_home_server.api import runJob
 import smart_home_server.constants as const
-from smart_home_server.threads.subscribeManager import subscribe
+from smart_home_server.handlers.subscribeManager import subscribe
 
 from typing import Dict
 

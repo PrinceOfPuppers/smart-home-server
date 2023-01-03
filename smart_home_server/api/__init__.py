@@ -1,6 +1,6 @@
 import smart_home_server.constants as const
-from smart_home_server.threads.presser import presserAppend
-from smart_home_server.threads.lcd import updateLCDFromJobData
+from smart_home_server.handlers.presser import presserAppend
+from smart_home_server.handlers.lcd import updateLCDFromJobData
 from smart_home_server.hardware_interfaces.reboot import reboot
 
 nameSchema = {"type": "string", "minLength": 0, "maxLength": 20, "pattern": "^[^\n\r]*$"}

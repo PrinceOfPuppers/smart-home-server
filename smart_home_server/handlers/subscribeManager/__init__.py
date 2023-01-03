@@ -3,7 +3,7 @@ from threading import Thread
 from datetime import datetime
 
 from smart_home_server.data_sources import dataSourceValues, getSourceDict
-from smart_home_server.threads.subscribeManager.helpers import _processUnsubs, _publishUpdates, Subscriber, _processSub
+from smart_home_server.handlers.subscribeManager.helpers import _processUnsubs, _publishUpdates, Subscriber, _processSub
 import smart_home_server.constants as const
 
 _subThread = None

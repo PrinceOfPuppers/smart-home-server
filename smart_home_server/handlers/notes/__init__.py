@@ -1,7 +1,7 @@
 from threading import Lock
 
-from smart_home_server.threads.notes.helpers import _createNote, _deleteNote, _updateNote, _getNote, _getNotes, \
-                                                    NoteAlreadyExists, NoteDoesNotExist
+from smart_home_server.handlers.notes.helpers import _createNote, _deleteNote, _updateNote, _getNote, _getNotes, \
+                                                     NoteAlreadyExists, NoteDoesNotExist
 
 _noteLock = Lock()
 

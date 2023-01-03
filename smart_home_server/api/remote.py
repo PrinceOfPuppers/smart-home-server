@@ -3,7 +3,7 @@ from flask import request, Blueprint, current_app
 from flask_expects_json import expects_json
 
 from smart_home_server.helpers import addDefault
-from smart_home_server.threads.presser import presserAppend
+from smart_home_server.handlers.presser import presserAppend
 
 from smart_home_server.api import postRemoteSchema
 

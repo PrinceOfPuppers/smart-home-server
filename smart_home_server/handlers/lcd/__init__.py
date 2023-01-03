@@ -2,7 +2,7 @@ import string
 
 import smart_home_server.constants as const
 from smart_home_server.hardware_interfaces.lcd import setLCDFMT, printfLCD, toggleBacklight, getLCDFMT, setBacklight
-from smart_home_server.threads.subscribeManager import subscribe
+from smart_home_server.handlers.subscribeManager import subscribe
 
 # increment to unsub to from current subscribe
 _seq = 0
