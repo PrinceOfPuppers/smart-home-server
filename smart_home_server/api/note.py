@@ -3,7 +3,7 @@ from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 
 from smart_home_server.api import nameSchema, idSchema
-from smart_home_server.notes import getNote, deleteNote, updateNote, createNote, NoteAlreadyExists, NoteDoesNotExist
+from smart_home_server.threads.notes import getNote, deleteNote, updateNote, createNote, NoteAlreadyExists, NoteDoesNotExist
 
 noteApi = Blueprint('noteApi', __name__)
 

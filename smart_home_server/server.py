@@ -16,7 +16,7 @@ from smart_home_server.api.trigger import triggerApi, triggerComparisons
 from smart_home_server.api.note import noteApi
 from smart_home_server.api.macro import macroApi
 from smart_home_server.data_sources import dataSources, dataSourceValues
-from smart_home_server.notes import getNotes
+from smart_home_server.threads.notes import getNotes
 from smart_home_server.threads.macros import getMacros
 import smart_home_server.constants as const
 
