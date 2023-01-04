@@ -1,10 +1,7 @@
 from uuid import uuid4
 import os
 import json
-from time import sleep
-from threading import Thread
 import smart_home_server.constants as const
-from smart_home_server.api import runJob
 
 class MacroDoesNotExist(Exception):
     pass
@@ -18,6 +15,7 @@ class SequenceItemDoesNotExist(Exception):
 
 def _getMacroPath(id:str):
     return f'{const.macroFolder}/{id}'
+
 
 def _saveMacro(macro:dict, id=None):
     if id == None:
@@ -84,21 +82,6 @@ def _deleteMacroSequenceItem(macroId, sequenceItemId):
             _overwriteMacro(macro['id'], macro)
             return
     raise SequenceItemDoesNotExist()
-
-def _runMacroSequence(sequence, delay = 0):
-    if len(sequence) == 0:
-        return
-    if delay > 0:
-        sleep(delay)
-    for i,item in enumerate(sequence):
-        if item['type'] == 'delay':
-            data = item['data']
-            seconds = data['seconds'] + data['minutes']*60 + data['hours']*60*60
-            t = Thread(target= lambda: _runMacroSequence(sequence[i+1:], delay = seconds))
-            t.start()
-            break
-        else:
-            runJob({'do': item})
 
 def _updateMacroName(id, name):
     macro = _getMacro(id)

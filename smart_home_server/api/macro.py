@@ -2,10 +2,11 @@ import json
 from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 
-from smart_home_server.api import allJobsSchema, nameSchema, idSchema, patchNameSchema, validateDo
+from smart_home_server.api import allJobsSchema, nameSchema, idSchema, patchNameSchema
+from smart_home_server.handlers import validateDo, runMacro
 from smart_home_server.helpers import addDefault
 
-from smart_home_server.handlers.macros import getMacro, saveMacro, addMacroSequenceItem, deleteMacro, runMacro, deleteMacroSequenceItem, updateMacroName, \
+from smart_home_server.handlers.macros import getMacro, saveMacro, addMacroSequenceItem, deleteMacro, deleteMacroSequenceItem, updateMacroName, \
                                               MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist
 
 macroApi = Blueprint('macroApi', __name__)

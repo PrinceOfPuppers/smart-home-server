@@ -1,17 +1,19 @@
 
-{% macro jobFormDo(remotes, includeDelay=False) %}
-    <section>
+{% macro jobFormDo(remotes, macros, includeDelay=False) %}
+    <section id="jobFormHideUnhide">
         <div class="formDiv">
             <label for="do">Do:</label>
             <select id="do" name="do" required>
             <option value="press">press</option>
             <option value="lcd">lcd</option>
             <option value="reboot">reboot</option>
+            <option value="macro">macro</option>
             {% if includeDelay %}
                 <option value="delay">delay</option>
             {% endif %}
             </select>
         </div>
+
 
         <div id="pressDiv" class="formDiv">
             <label for="pressRemote" id="pressRemoteLabel">Remote:</label>
@@ -35,11 +37,11 @@
             </select>
         </div>
 
+
         <div id="lcdDiv" class="formDiv">
             <label for="lcdBacklight" id="lcdBacklightLabel">Light:</label>
             <input type="checkbox" id="lcdBacklight" name="lcdBacklight" value="true" checked="true">
         </div>
-        
 
         <br id="lcdBr"/>
 
@@ -71,6 +73,17 @@
             <button type="button" id="lcdHelp" class="whiteButton" onclick="lcdFmtCheatSheet()">?</button>
         </div>
 
+
+        <div id="macroDiv" class="formDiv">
+            <label for="macroIdDo" id="macroIdDoLabel">Macro:</label>
+            <select id="macroIdDo" name="macroIdDo">
+            {% for macro in macros %}
+                <option value="{{ macro['id'] }}">{{ macro['name'] }}</option>
+            {% endfor %}
+            </select>
+        </div>
+
+
         {% if includeDelay %}
             <div id="delayDiv" class="formDiv">
                 <label for="delaySeconds" id="delaySecondsLabel">Seconds:</label>
@@ -94,7 +107,7 @@
 
 
 
-{% macro jobRepr(type, data, br=True, cursor=True) %}
+{% macro jobRepr(type, data, macros, br=True, cursor=True) %}
     {% if br %}
         <br/>
     {% endif %}
@@ -116,6 +129,13 @@
         {% endif %}
     {% elif type == "reboot" %}
         <span class="nobr">reboot</span>
+    {% elif type == "macro" %}
+        {% set match = macros|selectattr("id", "==", data['id'])|list %}
+        {% if match|length == 0 %}
+            <span class="nobr">Run Macro: DELETED MACRO! </span>
+        {% else %}
+            <span class="nobr">Run Macro: {{ match[0]['name'] }}</span>
+        {% endif %}
     {% elif type == 'delay' %}
         <span class="nobr">delay for: </span>
         {% if 'hours' in data and data['hours']%}

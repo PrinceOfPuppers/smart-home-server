@@ -6,7 +6,8 @@ from smart_home_server.helpers import addDefault
 from smart_home_server.data_sources import dataSourceValues
 from smart_home_server.handlers.triggerManager import addTrigger, updateTriggerName, removeTrigger, enableDisableTrigger, getTrigger, getTriggers, TriggerDoesNotExist
 
-from smart_home_server.api import allJobsSchema, validateJob, nameSchema, idSchema, patchNameSchema
+from smart_home_server.api import allJobsSchema, nameSchema, idSchema, patchNameSchema
+from smart_home_server.handlers import validateJob
 
 triggerApi = Blueprint('triggerApi', __name__)
 

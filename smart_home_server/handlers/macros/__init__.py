@@ -1,8 +1,9 @@
 from threading import Lock
+import os
 
 from smart_home_server.handlers.macros.helpers import MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist, \
                                                      _getMacro, _getMacros, _deleteMacro, _updateMacroName, _overwriteMacro, _saveMacro, \
-                                                     _deleteMacroSequenceItem, _addMacroSequenceItem, _runMacroSequence
+                                                     _deleteMacroSequenceItem, _addMacroSequenceItem, _getMacroPath
 
 _macroLock = Lock()
 
@@ -41,10 +42,8 @@ def updateMacroName(id, name):
     with _macroLock:
         _updateMacroName(id, name)
 
-def runMacro(id):
-    macro = getMacro(id)
-    name = macro['name']
-    sequence = macro['sequence']
-    print(f"Running Macro: {name}")
-    _runMacroSequence(sequence)
-
+def macroExists(id):
+    path = _getMacroPath(id)
+    if os.path.exists(path):
+        return True
+    return False

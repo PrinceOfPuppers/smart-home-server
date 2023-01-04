@@ -160,7 +160,7 @@
                             {% endif %}
 
                             {% set do = job['do'] %}
-                            {{ m.jobRepr(do['type'], do['data']) }}
+                            {{ m.jobRepr(do['type'], do['data'], macros) }}
                         </div>
 
 
@@ -206,7 +206,7 @@
 
             <br style="clear:both;" />
 
-            {{ m.jobFormDo(remotes) }}
+            {{ m.jobFormDo(remotes, macros) }}
 
             <br style="clear:both;" />
 

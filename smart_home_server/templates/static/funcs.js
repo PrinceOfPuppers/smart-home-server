@@ -99,6 +99,9 @@ function processDoData(data, toSubmit){
     else if(data.do == "reboot"){
         toSubmit.do = {type:"reboot", data:{}};
     }
+    else if(data.do == "macro"){
+        toSubmit.do = {type:"macro", data:{id: data.macroIdDo}};
+    }
     else if(data.do == "delay"){
         toSubmit.do = {type:"delay", data:{seconds: Number(data.delaySeconds), minutes: Number(data.delayMinutes), hours: Number(data.delayHours)}};
     }
@@ -127,7 +130,8 @@ function hideUnhideJobForms(dropDown){
     // iterate over options in the drop down
     Array.from(dropDown.options).forEach((dropDownOption) => {
         // get all elements which match that option
-        const optionElements = document.querySelectorAll(`[id^='${dropDownOption.value}']`);
+        const form = document.getElementById("jobFormHideUnhide");
+        const optionElements = form.querySelectorAll(`[id^='${dropDownOption.value}']`);
 
         // see if they match the current value
         if (dropDown.value === dropDownOption.value) {

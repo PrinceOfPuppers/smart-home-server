@@ -2,7 +2,7 @@ from uuid import uuid4
 import os
 import json
 
-from smart_home_server.api import runJob
+from smart_home_server.handlers import runJob
 import smart_home_server.constants as const
 from smart_home_server.handlers.subscribeManager import subscribe
 

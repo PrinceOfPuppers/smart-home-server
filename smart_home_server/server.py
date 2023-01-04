@@ -55,11 +55,13 @@ def lightsGet():
 @app.route('/schedule')
 def scheduleGet():
     jobs = getJobs()
+    macros = getMacros()
 
     return render_template('schedule.html', 
                            remotes=const.remotes, 
                            jobs=jobs, 
                            timeUnits = timeUnits, 
+                           macros=macros,
                            values=values)
 
 @app.route('/dashboard')
@@ -80,7 +82,8 @@ def dashboardGet():
 @app.route('/trigger')
 def triggerGet():
     triggerJobs = getTriggers()
-    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, remotes=const.remotes)
+    macros = getMacros()
+    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, remotes=const.remotes, macros=macros)
 
 @app.route('/notes')
 def notesGet():

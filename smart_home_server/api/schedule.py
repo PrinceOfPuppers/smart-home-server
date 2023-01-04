@@ -6,7 +6,8 @@ import copy
 from smart_home_server.handlers.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJobName, getJob, JobDoesNotExist
 from smart_home_server.helpers import getAtTime, addDefault
 
-from smart_home_server.api import allJobsSchema, validateJob, nameSchema, idSchema, patchNameSchema
+from smart_home_server.api import allJobsSchema, nameSchema, idSchema, patchNameSchema
+from smart_home_server.handlers import validateJob
 
 scheduleApi = Blueprint('scheduleApi', __name__)
 
