@@ -56,6 +56,8 @@ sudo apt-get install pigpio
 sudo apt install python3-pip
 sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
+sudo systemctl enable systemd-time-wait-sync
+sudo systemctl start systemd-time-wait-sync
 pip3 install -e .
 
 # create update script
