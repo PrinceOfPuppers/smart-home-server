@@ -1,6 +1,6 @@
 [Unit]
 Description=smart home server
-After=pigpiod.service remote-fs.target nss-user-lookup.target systemd-time-wait-sync.service
+After=pigpiod.service remote-fs.target nss-user-lookup.target systemd-time-wait-sync.service time-sync.target systemd-timesyncd
                                         
 [Service]
 Type=simple
