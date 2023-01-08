@@ -15,7 +15,7 @@ triggerComparisons = ['>', '<', '=', '>=', '<=', 'contains']
 
 dataSourceSchema = \
 {
-    "type": "object", 
+    "type": "object",
     "properties":{
         "value": {"type": "string", "minLength": 1, "maxLength": 50},
     },
@@ -24,7 +24,7 @@ dataSourceSchema = \
 
 varSchema = \
 {
-    "type": "object", 
+    "type": "object",
     "properties":{
         "type":  {"enum": ['constant', 'dataSource']},
         "value": {"oneOf": [

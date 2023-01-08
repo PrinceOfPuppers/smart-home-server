@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, jsonify
 
 from smart_home_server.data_sources import dataSources
 
-# return format is 
+# return format is
 #example = {
 #    'data': {
 #        "temp": 123,

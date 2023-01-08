@@ -69,6 +69,56 @@
         sendData('api/macro', toSubmit, 'POST', reload=true);
     }
 
+    async function delayTimer(startTime, endTime, elementId, textId){
+        const delayElement = document.getElementById(elementId);
+        const delayText    = document.getElementById(textId);
+
+        const end = new Date(endTime);
+        const start = new Date(startTime);
+        const totalDuration = Math.floor((end - start)/1000);
+        // TODO: return if total duration is zero
+
+        var cond = true;
+
+        while(cond){
+            const now = new Date();
+            const diff = end - now;
+            if(diff <= 0){
+                delayElement.remove();
+                return;
+            }
+            var t = Math.floor(diff / 1000);
+            const percentCompleted = Math.floor((1.0 - t/totalDuration)*100);
+
+            const seconds = t % 60;
+            const minutes = Math.floor((t / 60)) % 60;
+            const hours = Math.floor((t / (60*60)));
+
+            var text = "Remaining: ";
+            if(hours > 0){
+                text += `${hours}h`
+            }
+            if(hours > 0 || minutes > 0){
+                text += `${minutes}m`
+            }
+            text += `${seconds}s\n`
+            text += `Complete: ${percentCompleted}%`
+            delayText.innerText = text;
+            await delay(1);
+        }
+    }
+
+    function skipCancelDelay(url, id, cancel=false){
+        const delayElement = document.getElementById(`delay-${id}`);
+        var data = {'id': id, 'cancel': cancel};
+
+        return sendData(url, data, 'DELETE').then((success)=>{
+            if(success){
+                delayElement.remove();
+            }
+        });
+    }
+
     window.onload = () => {
         document.getElementById('addToMacroForm').addEventListener('submit', addToMacroHandler);
         document.getElementById('newMacroForm').addEventListener('submit', newMacroHandler);
@@ -87,7 +137,7 @@
         <a href="/trigger">Trigger</a>
         <a href="/notes">Notes</a>
         <a class="active" href="/macros">Macros</a>
-    </div> 
+    </div>
 
     <h3>Current Macros:</h3>
         <ul>
@@ -178,5 +228,36 @@
             <br style="clear:both;" />
 
         </form>
+
+    {% if delays|length > 0 %}
+        <h3>Active Delays:</h3>
+            <ul>
+                {% for delayId in delays %}
+                    {% set delay     = delays[delayId] %}
+                    {% set delayName = delay['name'] %}
+                    {% set delayStart = delay['start'] %}
+                    {% set delayEnd   = delay['end'] %}
+                    {% set dropDownId =  'drop-down-button-%s' % (delayId) %}
+                    {% set delayDescriptionId = 'delay-description-%s' % (delayId) %}
+                    <li class="macro" id="delay-{{ delayId }}">
+                        <div class="delay" id="delay-cancel-button-{{ delayId }}">
+                            {{ m.deleteButton( "skipCancelDelay('api/macro/delay', '%s', cancel=true)" % (delayId) ) }}
+
+                            <button class="blueButton" >{{ delayName }}</button>
+
+                            {{ m.dropDownButton( dropDownId, delayDescriptionId ) }}
+
+                            <button class="greenButton", id="delay-skip-button-{{ delayId }}", onclick = "skipCancelDelay('api/macro/delay', '{{ delayId }}', cancel=false)"">⏵</button>
+
+                            <div class="jobText" id="{{ delayDescriptionId }}">
+                                <span id="{{ delayDescriptionId }}-text">Loading...</span>
+                            </div>
+                            <script>delayTimer("{{ delayStart }}", "{{ delayEnd }}", "delay-{{ delayId }}", "{{ delayDescriptionId }}-text")</script>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+    {% endif %}
+
   </body>
 </html>

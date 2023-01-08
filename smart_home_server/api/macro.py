@@ -3,7 +3,7 @@ from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 
 from smart_home_server.api import allJobsSchema, nameSchema, idSchema, patchNameSchema
-from smart_home_server.handlers import validateDo, runMacro
+from smart_home_server.handlers import validateDo, runMacro, cancelSkipDelay
 from smart_home_server.helpers import addDefault
 
 from smart_home_server.handlers.macros import getMacro, saveMacro, addMacroSequenceItem, deleteMacro, deleteMacroSequenceItem, updateMacroName, \
@@ -31,7 +31,7 @@ macroSequenceItemSchema = [
         },
         "required": ["type", "data"],
         'additionalProperties': False,
-    }, 
+    },
     *allJobsSchema,
 ]
 
@@ -83,6 +83,17 @@ searchMacroSchema = \
 }
 deleteMacroSchema = searchMacroSchema
 runMacroSchema = searchMacroSchema
+
+deleteDelaySchema = \
+{
+    "type": "object",
+    "properties": {
+        "id": idSchema,
+        "cancel": {"type": "boolean"} # defaults to False
+    },
+    'required': ['id'],
+    'additionalProperties': False,
+}
 
 @macroApi.route('/api/macro', methods=['POST'])
 @expects_json(postMacroSchema, check_formats=True)
@@ -194,6 +205,19 @@ def runMacroRoute():
         return current_app.response_class(status=200)
     except MacroDoesNotExist:
         return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)
+    except:
+        return current_app.response_class(status=400)
+
+@macroApi.route('/api/macro/delay', methods=['DELETE'])
+@expects_json(deleteDelaySchema, check_formats=True)
+def deleteDelayRoute():
+    data = json.loads(request.data)
+    addDefault(data, 'cancel', False)
+    id = data['id']
+    cancel = data['cancel']
+    try:
+        cancelSkipDelay(id, cancel)
+        return current_app.response_class(status=200)
     except:
         return current_app.response_class(status=400)
 

@@ -18,6 +18,7 @@ from smart_home_server.api.macro import macroApi
 from smart_home_server.data_sources import dataSources, dataSourceValues
 from smart_home_server.handlers.notes import getNotes
 from smart_home_server.handlers.macros import getMacros
+from smart_home_server.handlers import getDelays
 import smart_home_server.constants as const
 
 values = list(dataSourceValues)
@@ -95,7 +96,8 @@ def notesGet():
 def macrosGet():
     macros = getMacros()
     macros.sort(key = lambda element: element['name'])
-    return render_template('macros.html', macros=macros, remotes=const.remotes)
+    delays = getDelays()
+    return render_template('macros.html', macros=macros, remotes=const.remotes, delays=delays)
 
 
 def startServer():

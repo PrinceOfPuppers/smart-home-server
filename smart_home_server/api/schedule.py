@@ -80,7 +80,7 @@ def postJob():
     data.pop('atMinutes', None)
     data.pop('atSeconds', None)
 
-    
+
     invalid = validateJob(data)
     if invalid:
         return current_app.response_class(invalid, status=400)
