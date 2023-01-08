@@ -28,7 +28,7 @@ lcdTextFile = f'{storageFolder}/lcd.txt'
 if not os.path.exists(lcdTextFile):
     with open(lcdTextFile,"w") as f:
         f.write(
-            "{clock}{space} {wttrText}\n"
+            "{clock}{space} P:{wttrTotalPercip}mm\n"
             "T:{temp}/{wttrTemp}{space} H:{humid}/{wttrHumid}"
         )
 

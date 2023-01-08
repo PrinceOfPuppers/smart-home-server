@@ -126,9 +126,8 @@ def getCurrentWeather():
     if not r.ok:
         return None
 
-    _, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split('\n')
-    # text was removed, its inaccurate for some reason
-    #text = text.lower().replace("unknown precipitation", "precip")
+    text, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split('\n')
+    text = text.lower().replace("unknown precipitation", "precip")
 
     temp, feelsLike = int(temp[:-2]), int(feelsLike[:-2])
     humid = humid[:-1]
@@ -141,7 +140,7 @@ def getCurrentWeather():
         #'str': f'{text} {temp}C({feelsLike}C) {humid}%',
         'str': f'{temp}C({feelsLike}C) {humid}%',
         'data': {
-            #'text': text,
+            'text': text,
             'temp': temp,
             'feelsLike': feelsLike,
             'humid': humid,
@@ -160,13 +159,10 @@ def getWeatherImageLocal():
 
     lines = r.text.split('\n')[0:-1]
     s = '\n'.join(lines)
-    text = re.sub(r'[^a-zA-Z0-9\s]', '', lines[0]).strip()
 
     res = {
         'str': s,
-        'data': {
-            'text': text
-        },
+        'data': {},
     }
     return res
 
@@ -258,13 +254,9 @@ dataSources = [
         'pollingPeriod': 10*60,
 
         'dashboard':{
-            'enabled':True,
+            'enabled':False,
         },
         'values': {
-            'wttrText': {
-                'enabled': True,
-                'dataPath': ['data', 'text']
-            },
         }
     },
 
@@ -307,6 +299,10 @@ dataSources = [
         },
 
         'values': {
+            'wttrText': {
+                'enabled': True,
+                'dataPath': ['data', 'text']
+            },
             'wttrTemp': {
                 'enabled': True,
                 'dataPath': ['data', 'temp']
