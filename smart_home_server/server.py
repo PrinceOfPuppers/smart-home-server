@@ -103,9 +103,9 @@ def macrosGet():
 def startServer():
     global app
     try:
+        startScheduler()
         startSubscribeManager()
         startPresser()
-        startScheduler()
         startUpdateLCD(fromFile=True)
 
         if const.isRpi():
