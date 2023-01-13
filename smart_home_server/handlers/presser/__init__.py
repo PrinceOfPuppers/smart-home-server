@@ -1,4 +1,5 @@
 from time import sleep
+import os
 
 from queue import Empty
 from multiprocessing import Process, Queue
@@ -17,6 +18,11 @@ def _presserLoop():
     if _pressQueue is None:
         return
     _initRfDevice()
+
+    # presser needs to have maximum priority
+    if const.isRpi():
+        pid = os.getpid()
+        os.system("sudo renice -n -19 -p " + str(pid))
 
     while True:
         try:
