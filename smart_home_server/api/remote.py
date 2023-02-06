@@ -3,7 +3,7 @@ from flask import request, Blueprint, current_app
 from flask_expects_json import expects_json
 
 from smart_home_server.helpers import addDefault
-from smart_home_server.handlers.presser import presserAppend
+from smart_home_server.handlers import runJob
 
 from smart_home_server.api import postRemoteSchema
 
@@ -16,7 +16,7 @@ def changeLights():
 
     addDefault(press, 'channel', 0)
     addDefault(press, 'value', True)
-    presserAppend(press)
+    runJob({"do": {"type": "press", "data": press}})
 
     return current_app.response_class(status=200)
 

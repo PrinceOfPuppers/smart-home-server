@@ -1,6 +1,5 @@
 import requests
-import re
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from smart_home_server.hardware_interfaces.lcd import getLCDFMT
 from smart_home_server.hardware_interfaces.dht22 import getDHT
@@ -10,16 +9,16 @@ import smart_home_server.constants as const
 from smart_home_server.data_sources.caching import cached
 from smart_home_server import __version__
 
-from typing import Callable
-
 from smart_home_server.errors import currentErrors, getErrorStrAndBool
+from smart_home_server.handlers.jobLog import jobLog
+
 # return format is 
 #example = {
+#    'str': f'Temprature: 123 \nHumidity: 123',
 #    'data': {
 #        "temp": 123,
 #        "humid": 123
 #    },
-#    'str': f'Temprature: 123 \nHumidity: 123'
 #}
 
 def getErrors():
@@ -131,7 +130,7 @@ def getCurrentWeather():
 
     temp, feelsLike = int(temp[:-2]), int(feelsLike[:-2])
     humid = humid[:-1]
-    percip3h = percip3h[:-2]
+    percip3h = round(float(percip3h[:-2]), 2)
 
     sunrise = roundTimeStr(sunrise)
     sunset = roundTimeStr(sunset)
@@ -204,6 +203,17 @@ def getServerVersion():
     res = {
         'str': f'{__version__}',
         'data':{'version': __version__},
+    }
+    return res
+
+def getJobLog():
+    s = ""
+    for job in jobLog:
+        s += f'{job}\n'
+    print(s)
+    res = {
+        'str': s,
+        'data':{},
     }
     return res
 
@@ -411,6 +421,20 @@ dataSources = [
                 'enabled': False,
                 'dataPath': ['data', 'version']
             }
+        },
+    },
+    {
+        'name': 'Job Log',
+        'color': 'gray',
+        'url': '/api/data/job-log',
+        'local': getJobLog,
+        'pollingPeriod': 3*60,
+
+        'dashboard':{
+            'enabled':True,
+        },
+
+        'values': {
         },
     },
 

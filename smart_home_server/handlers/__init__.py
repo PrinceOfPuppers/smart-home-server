@@ -1,13 +1,15 @@
-import smart_home_server.constants as const
 from uuid import uuid4
+from threading import Thread, Lock, Event
+from datetime import datetime, timedelta
+
+import smart_home_server.constants as const
 from smart_home_server.handlers.presser import presserAppend
 from smart_home_server.handlers.lcd import updateLCDFromJobData
 from smart_home_server.hardware_interfaces.reboot import reboot
 from smart_home_server.handlers.macros import macroExists, getMacro
-from time import sleep
 from smart_home_server.errors import currentErrors
-from threading import Thread, Lock, Event
-from datetime import datetime, timedelta
+
+from smart_home_server.handlers.jobLog import jobLog
 
 def validateDo(do:dict):
     try:
@@ -48,9 +50,10 @@ def validateJob(job:dict):
     return validateDo(job['do'])
 
 
+
 def runJob(job:dict):
+    # job must contain key 'do' which must have 'type' and 'data'
     try:
-        # job must contain key 'do'
         if 'enabled' in job and not job['enabled']:
             return
 
@@ -68,10 +71,10 @@ def runJob(job:dict):
             runMacro(data['id'])
         else:
             raise Exception(f"Invalid Job Type '{do}'")
+        jobLog.append(f"{datetime.now().strftime('%b %d %H:%M:%S')} -> {type}\n  data: {data}")
     except Exception as e:
         print(f'Job Run Error:', repr(e))
         currentErrors['Last_Job_Run_Err'] = f'{datetime.now().strftime("%b %d %H:%M:%S")} {repr(e)}'
-
 
 
 _activeDelays:dict = {}
