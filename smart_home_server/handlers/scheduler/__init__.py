@@ -30,7 +30,7 @@ def updateJobName(id: str, name:str):
 
 def loadJobs(clearExisting:bool, overwrite:bool):
     with _schedulerLock:
-        _loadJobs(clearExisting=clearExisting, overwrite=overwrite)
+        Thread(target = lambda: _loadJobs(clearExisting=clearExisting, overwrite=overwrite)).start()
 
 
 def getJobFromFile(id: str) -> Union[dict, None]:

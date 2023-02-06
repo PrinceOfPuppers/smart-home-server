@@ -53,6 +53,7 @@ def validateJob(job:dict):
 
 def runJob(job:dict):
     # job must contain key 'do' which must have 'type' and 'data'
+
     try:
         if 'enabled' in job and not job['enabled']:
             return

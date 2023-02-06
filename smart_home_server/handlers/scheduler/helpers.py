@@ -2,6 +2,7 @@ import schedule
 from uuid import uuid4
 import os
 import json
+from time import sleep
 
 from smart_home_server.handlers import runJob
 import smart_home_server.constants as const
@@ -56,8 +57,14 @@ def _addJob(scheduledJob:dict, store:bool = True, newId:bool = True):
     s.tag(id)
     s.do(runJob, scheduledJob)
 
+_firstLoad = True
 
 def _loadJobs(clearExisting:bool, overwrite:bool):
+    global _firstLoad
+    if _firstLoad:
+        sleep(20)
+        _firstLoad = False
+
     if clearExisting:
         schedule.clear()
 

@@ -106,7 +106,7 @@ def getForecastLocal():
                 'high': high,
                 'low': low,
                 'uvIndex': uvIndex,
-                'percip': totalPercip,
+                'percip': round(totalPercip, 2),
             })
 
     except KeyError:
@@ -290,7 +290,7 @@ dataSources = [
                 'enabled': True,
                 'dataPath': ['data', 'days', 1, 'temp']
             },
-            'wttrTempPercip': {
+            'wttrTomorrowPercip': {
                 'enabled': True,
                 'dataPath': ['data', 'days', 1, 'percip']
             },
