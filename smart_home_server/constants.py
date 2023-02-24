@@ -13,7 +13,7 @@ def createIfNotExists(dir):
 
 modulePath = dirname(__file__)
 
-pressSpacing = 0.07
+#pressSpacing = 0.07
 pressRepeats = 4
 
 storageFolder = f'{modulePath}/storage'
