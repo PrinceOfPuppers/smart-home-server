@@ -6,13 +6,14 @@ postRemoteSchema = \
 {
     "type": "object",
     "properties": {
-        "remote": {"type": "string", "minLength": 0, "maxLength": 20, "pattern": "^[ -~]*$"}, # no default, any ascii string is valid
+        "id": idSchema,
         "channel": { "type": "integer", "minimum": 0 }, # defaults to 0, validated in function
         "value": { "type": "boolean" } # defaults to True
     },
     "required": ['remote'],
     'additionalProperties': False,
 }
+
 
 postLCDSchema = \
 {
@@ -60,6 +61,7 @@ allJobsSchema = [
         'additionalProperties': False,
     } for name, schema in _schemas
 ]
+
 # currently only updates name
 patchNameSchema = \
 {
@@ -71,3 +73,4 @@ patchNameSchema = \
     "required": ['id', 'name'],
     'additionalProperties': False,
 }
+

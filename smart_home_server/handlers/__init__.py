@@ -2,8 +2,7 @@ from uuid import uuid4
 from threading import Thread, Lock, Event
 from datetime import datetime, timedelta
 
-import smart_home_server.constants as const
-from smart_home_server.handlers.presser import presserAppend
+from smart_home_server.handlers.presser import presserAppend, getRemoteById
 from smart_home_server.handlers.lcd import updateLCDFromJobData
 from smart_home_server.hardware_interfaces.reboot import reboot
 from smart_home_server.handlers.macros import macroExists, getMacro
@@ -17,14 +16,15 @@ def validateDo(do:dict):
         data = do['data']
 
         if type == 'press':
-            remote = data['remote']
+            id = data['id']
             ch = data['channel']
-            if not remote in const.remotes:
+            remote = getRemoteById(id, throw=False)
+            if remote is None:
                 return False
-            max = len(const.remotes[remote]) - 1
+            max = len(remote['channels']) - 1
             min = 0
             if ch < min or ch > max:
-                return f"Invalid Channel: {ch} for Remote: {remote} (min: {min}, max: {max})"
+                return f"Invalid Channel: {ch} for Remote ID: {id} (min: {min}, max: {max})"
         elif type == 'reboot':
             return ""
         elif type == 'lcd':
