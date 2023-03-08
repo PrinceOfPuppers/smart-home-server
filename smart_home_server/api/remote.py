@@ -1,10 +1,10 @@
 import json
-from flask import request, Blueprint, current_app
+from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 
 from smart_home_server.helpers import addDefault
 from smart_home_server.handlers import runJob
-from smart_home_server.handlers.presser import newRemote, deleteChannel, writeChannelValue, deleteRemote, RemoteDoesNotExist
+from smart_home_server.handlers.presser import newRemote, deleteChannel, addChannel, readRemoteCode, deleteRemote, RemoteDoesNotExist, ChannelDoesNotExist
 
 from smart_home_server.api import postRemoteSchema, nameSchema, idSchema
 
@@ -28,13 +28,26 @@ deleteRemoteSchema = \
     'additionalProperties': False,
 }
 
-postEditChannelSchema = \
+channelCodeSchema = \
+{
+    "type": "object",
+    "properties": {
+        "code": { "type": "integer", "minimum": 0 },
+        "protocol": { "type": "integer", "minimum": 0 },
+        "pulseLength": { "type": "integer", "minimum": 0 },
+    },
+    "required": ['id'],
+    'additionalProperties': False,
+}
+
+postAddChannelSchema = \
 {
     "type": "object",
     "properties": {
         "id": idSchema,
-        "channel": { "type": "integer", "minimum": 0 }, # defaults to 0, validated in function
-        "value": { "type": "boolean" } # defaults to True
+        "channel": { "type": "integer", "minimum": -1 }, # defaults to -1, validated in function
+        "onCode": channelCodeSchema,
+        "offCode": channelCodeSchema,
     },
     "required": ['id'],
     'additionalProperties': False,
@@ -45,7 +58,7 @@ deleteChannelSchema = \
     "type": "object",
     "properties": {
         "id": idSchema,
-        "channel": { "type": "integer", "minimum": 0 },
+        "channel": { "type": "integer", "minimum": -1 },
     },
     "required": ['id', 'channel'],
     'additionalProperties': False,
@@ -93,21 +106,36 @@ def deleteRemoteRoute():
 
 
 @remoteApi.route('/api/remote/edit/channels', methods=['POST'])
-@expects_json(postEditChannelSchema)
-def writeChannelValueRoute():
-    remote = json.loads(request.data)
+@expects_json(postAddChannelSchema)
+def addChannelRoute():
+    data = json.loads(request.data)
+    addDefault(data, 'channel', -1)
 
-    addDefault(remote, 'channel', 0)
-    addDefault(remote, 'value', True)
+    id = data['id']
+    channel = data['channel']
+    onCode = data['onCode']
+    offCode = data['offCode']
 
     try:
-        code = writeChannelValue(remote['id'], remote['channel'], remote['value'])
+        addChannel(id, channel, onCode, offCode)
     except RemoteDoesNotExist:
-        return current_app.response_class(f"Remote with ID: {remote['id']} Does Not Exist",status=400)
+        return current_app.response_class(f"Remote with ID: {id} Does Not Exist",status=400)
+    except ChannelDoesNotExist as e:
+        return current_app.response_class(str(e) ,status=400)
     except Exception:
         return current_app.response_class(status=400)
 
-    return current_app.response_class(str(code), status=200)
+    return current_app.response_class(status=200)
+
+@remoteApi.route('/api/remote/code', methods=['GET'])
+def getRemoteCode():
+    try:
+        code = getRemoteCode()
+        if code is None:
+            return current_app.response_class("No Signal Recieved", status=408)
+        return jsonify(code)
+    except Exception:
+        return current_app.response_class(status=400)
 
 
 @remoteApi.route('/api/remote/edit/channels', methods=['DELETE'])

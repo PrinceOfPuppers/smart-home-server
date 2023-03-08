@@ -6,8 +6,8 @@ from typing import Union
 
 import smart_home_server.constants as const
 from smart_home_server import InterruptTriggered
-from smart_home_server.handlers.presser.helpers import _changeChannel, _initRfDevice, _destroyRfDevice, _writeChannelValue, _removeChannel, _loadRemotes, \
-                                                       _addRemote, _removeRemote, _remoteLock, RemoteDoesNotExist, _getRemoteById, _getRemotes
+from smart_home_server.handlers.presser.helpers import _changeChannel, _initRfDevice, _destroyRfDevice, _removeChannel, RemoteDoesNotExist, ChannelDoesNotExist, \
+                                                       _addRemote, _removeRemote, _remoteLock, _getRemoteById, _getRemotes, _getCode, _addChannel
 
 _pressQueue:Union[None, Queue] = None
 _presserThread:Union[None, Process] = None
@@ -18,7 +18,6 @@ def _presserLoop():
     if _pressQueue is None:
         return
     _initRfDevice()
-    print("post load: ", getRemotes())
 
     # presser needs to have maximum priority
     if const.isRpi():
@@ -77,9 +76,12 @@ def deleteRemote(id:str):
     with _remoteLock:
         _removeRemote(id)
 
-def writeChannelValue(id:str, channel: int, value: bool):
+def readRemoteCode() -> dict:
+    return _getCode()
+
+def addChannel(id:str, channel: int, onCode:dict, offCode:dict):
     with _remoteLock:
-        return _writeChannelValue(id, channel, value)
+        return _addChannel(id, channel, onCode, offCode)
 
 def deleteChannel(id:str, channel: int):
     with _remoteLock:

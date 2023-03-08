@@ -2,6 +2,7 @@ import os
 import json
 from uuid import uuid4
 from threading import Lock
+from time import time, sleep
 
 import smart_home_server.constants as const
 
@@ -14,7 +15,7 @@ _rfdevice = None
         {},
         {"on": 321, "off": 12321}
         ]
-     }, 
+     },
     {}
 ]
 
@@ -77,8 +78,45 @@ def _overwriteRemote(id:str, remote:dict):
     _removeRemote(id)
     _addRemote(remote, store=True, newId=False)
 
-def _getCode(timeout):
-    return 123
+if const.isRpi():
+    def _getCode(timeout = 10, repeats = 3):
+        if _rfdevice is None:
+            raise Exception("attempted to change button while presser thread is stopped")
+
+        start = time()
+        timestamp = None
+
+        currentRepeats = 0
+        currentCode = -1
+        currentProtocol = -1
+        currentPulseLength = 0
+
+        while True:
+            if time() > start + timeout:
+                return None
+
+            if _rfdevice.rx_code_timestamp != timestamp:
+                timestamp = _rfdevice.rx_code_timestamp
+                # signal recieved
+                if _rfdevice.rx_code != currentCode or _rfdevice.rx_proto != currentProtocol:
+                    # new signal
+                    currentRepeats = 1
+                    currentCode = _rfdevice.rx_code
+                    currentProtocol = _rfdevice.rx_proto
+                    currentPulseLength = _rfdevice.rx_pulselength
+                else:
+                    # repeat
+                    currentPulseLength += _rfdevice.rx_pulselength
+                    currentRepeats+=1
+
+                if currentRepeats > repeats:
+                    return {'code': currentCode, 'protocol': currentProtocol, 'pulseLength': round(currentPulseLength / currentRepeats)}
+
+            sleep(0.01)
+
+else:
+    def _getCode(timeout = 10, repeats = 3):
+        return {'code': 123, 'protocol': 123, 'pulseLength': 123}
 
 def _getRemoteById(id:str, throw:bool = True):
     global _remotes
@@ -98,21 +136,35 @@ def _removeChannel(id:str, channel: int):
     remote['channels'].pop(channel)
     _overwriteRemote(id, remote)
 
-def _writeChannelValue(id:str, channel: int, value: bool, timeout = 10) -> int:
+#def _writeChannelValue(id:str, channel: int, value: bool, timeout = 10):
+#    remote = _getRemoteById(id)
+#    assert remote is not None
+#
+#    if len(remote['channels']) <= channel:
+#        raise ChannelDoesNotExist(f"Max Channel for Remote ID: {id} is {len(remote['channels']-1)} which is < {channel}")
+#    if channel < 0:
+#        channel = -1
+#
+#    onOff = "on" if value else "off"
+#    code = _getCode(timeout)
+#
+#    remote['channels'][channel][onOff] = code
+#    _overwriteRemote(id, remote)
+#
+#    return code
+
+def _addChannel(id:str, channel:int, onCode:dict, offCode:dict):
     remote = _getRemoteById(id)
     assert remote is not None
 
-    # extend list to required range
-    for _ in range(len(remote['channels']), channel+1):
-        remote['channels'].append({})
+    if len(remote['channels']) <= channel:
+        raise ChannelDoesNotExist(f"Max Channel for Remote ID: {id} is {len(remote['channels']-1)} which is < {channel}")
+    if channel < 0:
+        channel = -1
 
-    onOff = "on" if value else "off"
-    code = _getCode(timeout)
-    remote['channels'][channel][onOff] = code
+    remote['channels'][channel]['on'] = onCode
+    remote['channels'][channel]['off'] = offCode
     _overwriteRemote(id, remote)
-
-    return code
-
 
 if const.isRpi():
     from rpi_rf import RFDevice
