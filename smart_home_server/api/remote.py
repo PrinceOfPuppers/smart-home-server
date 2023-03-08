@@ -128,9 +128,9 @@ def addChannelRoute():
     return current_app.response_class(status=200)
 
 @remoteApi.route('/api/remote/code', methods=['GET'])
-def getRemoteCode():
+def getRemoteCodeRoute():
     try:
-        code = getRemoteCode()
+        code = readRemoteCode()
         if code is None:
             return current_app.response_class("No Signal Recieved", status=408)
         return jsonify(code)

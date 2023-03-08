@@ -18,6 +18,92 @@
             }
         });
     }
+
+    onCode=undefined;
+    offCode=undefined;
+
+    function remoteOnEditCb(){
+        const checkbox = document.getElementById("remoteOnEditIndicator");
+
+        onCode = getData("/api/remote/code").then((response) => {
+            if (response) {
+                onCode = response;
+                checkbox.checked=true;
+                console.log(onCode);
+            }
+        });
+    }
+
+    function remoteOffEditCb() {
+        const checkbox = document.getElementById("remoteOffEditIndicator");
+
+        onCode = getData("/api/remote/code").then((response) => {
+            if (response) {
+                offCode = response;
+                checkbox.checked=true;
+                console.log(offCode);
+            }
+        });
+    }
+
+    function newRemoteHandler() {
+        event.preventDefault();
+        let form = event.currentTarget;
+        var data = formToObject(form);
+        const name = 'newRemoteName' in data ? data.newMacroName : ''
+        toSubmit = {name: name}
+        sendData('api/remote/edit', toSubmit, 'POST', reload=true);
+    }
+
+    function editRemoteHandler() {
+    }
+
+
+    var remoteEditHidden = false;
+    var channelAddHidden = false;
+
+    function _hideHelper() {
+        const channelSelect = document.querySelector(`[id=remoteChannelSelect]`);
+        const channelAdd = document.querySelector(`[id=remoteChannelAdd]`);
+
+        channelSelect.style.display = "block";
+        channelAdd.style.display = "block";
+
+        if (channelAddHidden) {
+            channelAdd.style.display = "none";
+        }
+
+        if (remoteEditHidden) {
+            channelSelect.style.display = "none";
+            channelAdd.style.display = "none";
+        }
+    }
+
+    function hideUnhideRemoteDo(dropDown){
+        remoteEditHidden = dropDown.value == "Delete";
+        _hideHelper();
+    }
+
+    function hideUnhideChannelDo(dropDown){
+        channelAddHidden = dropDown.value == "Delete"
+        _hideHelper();
+    }
+
+
+    window.onload = () => {
+        document.getElementById("remoteOnEditIndicator").checked=false;
+        document.getElementById("remoteOffEditIndicator").checked=false;
+
+        document.getElementById('editRemoteForm').addEventListener('submit', editRemoteHandler);
+        document.getElementById('newRemoteForm').addEventListener('submit', newRemoteHandler);
+
+        hideUnhideRemoteDo(document.querySelector('#remoteOperation'));
+        document.querySelector('#remoteOperation').addEventListener("change", function(dropDown) {hideUnhideRemoteDo(dropDown.target)});
+
+        hideUnhideRemoteDo(document.querySelector('#channelOperation'));
+        document.querySelector('#channelOperation').addEventListener("change", function(dropDown) {hideUnhideChannelDo(dropDown.target)});
+    }
+
 </script>
 
 <body>
@@ -56,7 +142,6 @@
 
 
 
-
     <h3>New Remote:</h3>
         <form id="newRemoteForm">
             <section>
@@ -80,7 +165,7 @@
         <form id="editRemoteForm">
             <section>
                 <div class="formDiv">
-                    <label for="remoteId" id="remoteIdLabel">Remote:</label>
+                    <label for="remoteId" id="remoteIdLabel">Rmt:</label>
                     <select id="remoteId" name="remoteId" required>
                     {% for remote in remotes %}
                         <option value="{{ remote['id'] }}">{{ remote['name'] }}</option>
@@ -89,14 +174,9 @@
                 </div>
 
                 <div class="formDiv">
-                    <label for="remoteChannel" id="remoteChannelLabel">Channel:</label>
-                    <input type="quantity" id="remoteChannel" name="remoteChannel" min="-1" max="100" size="3" value=-1 placeholder=0>
-                </div>
-
-                <div class="formDiv">
-                    <label for="remoteChannelOperation" id="remoteChannelOperationLabel">Do:</label>
-                    <select id="channelOperation" name="channelOperation" required>
-                        <option value="Edit">Add</option>
+                    <label for="remoteOperation" id="remoteOperationLabel">Do:</label>
+                    <select id="remoteOperation" name="remoteOperation" required>
+                        <option value="Edit">Edit</option>
                         <option value="Delete">Delete</option>
                     </select>
                 </div>
@@ -104,19 +184,32 @@
 
             <br style="clear:both;" />
 
-            <section>
+            <section id="remoteChannelSelect">
                 <div class="formDiv">
-                    <button type="button" id="remoteOnEdit" class="greenButton">On</button>
-                    <input type="quantity" id="remoteOnEditValue" name="remoteOnEditValue" min="-1" max="100" size="3" value=-1 placeholder=0>
+                    <label for="remoteChannel" id="remoteChannelLabel">Ch:</label>
+                    <input type="quantity" id="remoteChannel" name="remoteChannel" min="-1" max="100" size="4" value=-1 placeholder=0 />
                 </div>
 
                 <div class="formDiv">
-                    <button type="button" id="remoteOffEdit" class="redButton">Off</button>
-                    <input type="quantity" id="remoteOffEditValue" name="remoteOffEditValue" min="-1" max="100" size="3" value=-1 placeholder=0>
+                    <label for="remoteChannelOperation" id="remoteChannelOperationLabel">Do:</label>
+                    <select id="channelOperation" name="channelOperation" required>
+                        <option value="Add">Add</option>
+                        <option value="Delete">Delete</option>
+                    </select>
                 </div>
             </section>
 
-            <br style="clear:both;" />
+
+            <section id="remoteChannelAdd">
+                <div class="formDiv">
+                    <button type="button" id="remoteOnEdit" class="greenButton" onclick="remoteOnEditCb()">On</button>
+                    <input type="checkbox" style="display: inline-block" disabled="true" id="remoteOnEditIndicator"/>
+
+                    <button type="button" id="remoteOffEdit" class="redButton" onclick="remoteOffEditCb()">Off</button>
+                    <input type="checkbox" style="display: inline-block" disabled="true" id="remoteOffEditIndicator"/>
+                </div>
+            </section>
+
 
             <section>
                 <div class="formDiv">
