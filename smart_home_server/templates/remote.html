@@ -3,13 +3,15 @@
 <link rel="stylesheet" href = "style.css"></link>
 <script type="text/javascript" src="funcs.js"></script>
 
+{% import 'jinjaMacros.html' as m %}
+
 <html>
 <script>
-    function channelClick(remote, channelNum, onOff){
-        const id = `${onOff ? "on" : "off"}-button-${remote}-${channelNum}`
-        const saveButtonElement = document.getElementById(id);
+    function channelClick(id, channelNum, onOff){
+        const elementId = `${onOff ? "on" : "off"}-button-${id}-${channelNum}`
+        const saveButtonElement = document.getElementById(elementId);
 
-        var data = {'remote': remote, 'channel': channelNum, 'value': onOff}
+        var data = {'id': id, 'channel': channelNum, 'value': onOff}
         sendData('api/remote', data, 'POST').then((success)=>{
             if(success){
                 tempChangeButton(saveButtonElement, "O");
@@ -17,8 +19,6 @@
         });
     }
 </script>
-
-
 
 <body>
     <div class="topnav">
@@ -30,16 +30,21 @@
         <a href="/macros">Macros</a>
     </div> 
     <ul class="remotes">
+        {% if remotes|length == 0 %}
+            <center class="faintText">No Remotes Added</center>
+        {% endif %}
+
         {% for remote in remotes %}
+            {% set id = remote['id'] %}
             <li>
                 <ul class="remote">
-                    <center class="remoteChannelNum">{{ remote }}</center>
-                    {% for channel in remotes[remote] %}
+                    <center class="remoteChannelNum">{{ remote['name'] }}</center>
+                    {% for channel in remotes['channels'] %}
                         <li>
                             <div class="on-off-channel">
-                                <button id="off-button-{{remote}}-{{loop.index-1}}" class="redButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, false)"">-</button>
+                                <button id="off-button-{{id}}-{{loop.index-1}}" class="redButton", onclick = "channelClick('{{id}}', {{ loop.index - 1 }}, false)"">-</button>
                                 <span class="nobr" class="remoteChannelNum">{{ loop.index - 1 }}</span>
-                                <button id="on-button-{{remote}}-{{loop.index-1}}" class="greenButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, true)"">-</button>
+                                <button id="on-button-{{id}}-{{loop.index-1}}" class="greenButton", onclick = "channelClick('{{id}}', {{ loop.index - 1 }}, true)"">-</button>
                             </div>
                         </li>
                     {% endfor %}
@@ -47,5 +52,82 @@
             </li>
         {% endfor %}
     </ul>
+
+
+
+
+
+    <h3>New Remote:</h3>
+        <form id="newRemoteForm">
+            <section>
+                <div class="formDiv">
+                    <label for="newRemoteName" id="newRemoteNameLabel">Name:</label>
+                    <input type="text" id="newRemoteName" name="newRemoteName" maxLength = "20" size="10" required>
+                </div>
+
+                <br style="clear:both;" />
+
+                <div class="formDiv">
+                    <button type="submit" class="purpleButton">New Remote</button>
+                </div>
+
+                <br style="clear:both;" />
+            </section>
+        </form>
+
+    <h3>Edit Remote:</h3>
+
+        <form id="editRemoteForm">
+            <section>
+                <div class="formDiv">
+                    <label for="remoteId" id="remoteIdLabel">Remote:</label>
+                    <select id="remoteId" name="remoteId" required>
+                    {% for remote in remotes %}
+                        <option value="{{ remote['id'] }}">{{ remote['name'] }}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+
+                <div class="formDiv">
+                    <label for="remoteChannel" id="remoteChannelLabel">Channel:</label>
+                    <input type="quantity" id="remoteChannel" name="remoteChannel" min="-1" max="100" size="3" value=-1 placeholder=0>
+                </div>
+
+                <div class="formDiv">
+                    <label for="remoteChannelOperation" id="remoteChannelOperationLabel">Do:</label>
+                    <select id="channelOperation" name="channelOperation" required>
+                        <option value="Edit">Edit</option>
+                        <option value="Delete">Delete</option>
+                    </select>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+            <section>
+                <div class="formDiv">
+                    <button type="button" id="remoteOnEdit" class="greenButton">On</button>
+                    <input type="quantity" id="remoteOnEditValue" name="remoteOnEditValue" min="-1" max="100" size="3" value=-1 placeholder=0>
+                </div>
+
+                <div class="formDiv">
+                    <button type="button" id="remoteOffEdit" class="redButton">Off</button>
+                    <input type="quantity" id="remoteOffEditValue" name="remoteOffEditValue" min="-1" max="100" size="3" value=-1 placeholder=0>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+            <section>
+                <div class="formDiv">
+                    <button type="submit" class="greenButton">Submit</button>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+        </form>
+
+
   </body>
 </html>

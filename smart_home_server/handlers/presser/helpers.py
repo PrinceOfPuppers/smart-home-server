@@ -10,6 +10,7 @@ _rfdevice = None
 [
     {'name': 'asdf', 'id': "test", "channels": [
         {"on": 123, "off": 303123},
+        {"on": {}, "off": 303123},
         {},
         {"on": 321, "off": 12321}
         ]
@@ -17,7 +18,19 @@ _rfdevice = None
     {}
 ]
 
-remotes = []
+
+_remotes = []
+def _loadRemotes():
+    global _remotes
+    _remotes.clear()
+    dir = os.listdir(const.remoteFolder)
+    for p in dir:
+        path = f'{const.remoteFolder}/{p}'
+        print(path)
+        with open(path, 'r+') as f:
+            remote = json.load(f)
+            _remotes.append(remote)
+_loadRemotes()
 _remoteLock = Lock()
 
 
@@ -29,15 +42,9 @@ class RemoteDoesNotExist(Exception):
 def _getRemotePath(id):
     return f'{const.remoteFolder}/{id}'
 
-def _loadRemotes():
-    global remotes
-    remotes.clear()
-    dir = os.listdir(const.remoteFolder)
-    for p in dir:
-        path = f'{const.remoteFolder}/{p}'
-        with open(path, 'r+') as f:
-            remote = json.load(f)
-            remotes.append(remote)
+def _getRemotes():
+    global _remotes
+    return _remotes
 
 def _storeRemote(remote:dict, id: str):
     remote['id'] = id
@@ -46,18 +53,19 @@ def _storeRemote(remote:dict, id: str):
     return id
 
 def _addRemote(remote:dict, store:bool = True, newId:bool = True):
+    global _remotes
     id = str(uuid4()) if newId else remote['id']
     if store:
         _storeRemote(remote, id)
-    remotes.append(remote)
+    _remotes.append(remote)
 
 def _removeRemote(id: str):
-    global remotes
+    global _remotes
 
-    for i, remote in enumerate(remotes):
+    for i, remote in enumerate(_remotes):
         if remote["id"] != id:
             continue
-        remotes.pop(i)
+        _remotes.pop(i)
 
     path = _getRemotePath(id)
     if os.path.exists(path):
@@ -72,9 +80,9 @@ def _overwriteRemote(id:str, remote:dict):
 def _getCode(timeout):
     return 123
 
-def _getRemoteById(id:str, throw = True):
-    global remotes
-    for remote in remotes:
+def _getRemoteById(id:str, throw:bool = True):
+    global _remotes
+    for remote in _remotes:
         if remote['id'] != id:
             continue
         return remote
@@ -84,6 +92,7 @@ def _getRemoteById(id:str, throw = True):
 
 def _removeChannel(id:str, channel: int):
     remote = _getRemoteById(id)
+    assert remote is not None
     if channel >= len(remote['channels']):
         return
     remote['channels'].pop(channel)
@@ -91,6 +100,7 @@ def _removeChannel(id:str, channel: int):
 
 def _writeChannelValue(id:str, channel: int, value: bool, timeout = 10) -> int:
     remote = _getRemoteById(id)
+    assert remote is not None
 
     # extend list to required range
     for _ in range(len(remote['channels']), channel+1):
@@ -108,14 +118,16 @@ if const.isRpi():
     from rpi_rf import RFDevice
 
     def _changeChannel(remoteID: str, channel: int, value: bool):
-        global remotes
+        global _remotes
         global _remoteLock
         if _rfdevice is None:
             raise Exception("attempted to change button while presser thread is stopped")
 
         with _remoteLock:
-            ch = _getRemoteById(remoteID)[channel]
-            #ch = remotes[remote][channel]
+            remote = _getRemoteById(remoteID)
+            assert remote is not None
+            ch = remote[channel]
+            #ch = _remotes[remote][channel]
         code = ch.on if value else ch.off
 
         _rfdevice.tx_code(code, const.txProtocol, const.txPulseLength)

@@ -19,7 +19,7 @@
             <label for="pressRemote" id="pressRemoteLabel">Remote:</label>
             <select id="pressRemote" name="pressRemote">
             {% for remote in remotes %}
-                <option value="{{ remote }}">{{ remote }}</option>
+                <option value="{{ remote['id'] }}">{{ remote['name'] }}</option>
             {% endfor %}
             </select>
         </div>

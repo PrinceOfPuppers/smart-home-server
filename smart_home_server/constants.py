@@ -41,72 +41,71 @@ createIfNotExists(macroFolder)
 remoteFolder = f'{storageFolder}/remotes'
 createIfNotExists(remoteFolder)
 
-defaultRemoteFileA = f'{storageFolder}/remotes/A'
-if not os.path.exists(defaultRemoteFileA):
-    with open(defaultRemoteFileA,"w") as f:
-        f.write(
-            "A\n"
-            #extra channels (below remote)
-            f"{5264547}, {5264547+9}\n"
+# defaultRemoteFileA = f'{storageFolder}/remotes/A'
+# if not os.path.exists(defaultRemoteFileA):
+#     with open(defaultRemoteFileA,"w") as f:
+#         f.write(
+#             "A\n"
+#             #extra channels (below remote)
+#             f"{5264547}, {5264547+9}\n"
+# 
+#             #main channels
+#             f"{5264691}, {5264700}\n"
+#             f"{5264835}, {5264844}\n"
+#             f"{5265155}, {5265164}\n"
+#             f"{5266691}, {5266700}\n"
+#             f"{5272835}, {5272844}\n"
+# 
+#             # extra channels (above remote)
+#             f"{5282835}, {5282835+9}\n"
+#             f"{5292835}, {5292835+9}\n"
+#         )
+# 
+# defaultRemoteFileB = f'{storageFolder}/remotes/B'
+# if not os.path.exists(defaultRemoteFileB):
+#     with open(defaultRemoteFileB,"w") as f:
+#         f.write(
+#             "B\n"
+#             f"{8638540}, {8638532}\n"
+#             f"{8638538}, {8638530}\n"
+#             f"{8638537}, {8638529}\n"
+#             f"{8638541}, {8638533}\n"
+#             f"{8638539}, {8638531}\n"
+#         )
 
-            #main channels
-            f"{5264691}, {5264700}\n"
-            f"{5264835}, {5264844}\n"
-            f"{5265155}, {5265164}\n"
-            f"{5266691}, {5266700}\n"
-            f"{5272835}, {5272844}\n"
-
-            # extra channels (above remote)
-            f"{5282835}, {5282835+9}\n"
-            f"{5292835}, {5292835+9}\n"
-        )
-
-defaultRemoteFileB = f'{storageFolder}/remotes/B'
-if not os.path.exists(defaultRemoteFileB):
-    with open(defaultRemoteFileB,"w") as f:
-        f.write(
-            "B\n"
-            f"{8638540}, {8638532}\n"
-            f"{8638538}, {8638530}\n"
-            f"{8638537}, {8638529}\n"
-            f"{8638541}, {8638533}\n"
-            f"{8638539}, {8638531}\n"
-        )
-
-remotes = {}
+#remotes = {}
 # parse remotes
-def loadRemotes():
-    global remotes
-    dir = os.listdir(remoteFolder)
-    for p in dir:
-        path = f'{remoteFolder}/{p}'
-        f = open(path, 'r+')
-        try:
-            lines = f.readlines()
-            if len(lines) < 2:
-                f.close()
-                os.remove(path)
-                continue
-            name = lines[0].strip()
-            buttons = []
-            for line in lines[1:]:
-                try:
-                    on, off = line.split(',')
-                    on  = int(on.strip())
-                    off = int(off.strip())
-                except Exception as e:
-                    print(e)
-                    continue
-                buttons.append(TxChannel(on=on, off=off))
-            if len(buttons) < 1:
-                f.close()
-                os.remove(path)
-                continue
-            remotes[name] = buttons
-        finally:
-            f.close()
-
-loadRemotes()
+# def loadRemotes():
+#     global remotes
+#     dir = os.listdir(remoteFolder)
+#     for p in dir:
+#         path = f'{remoteFolder}/{p}'
+#         f = open(path, 'r+')
+#         try:
+#             lines = f.readlines()
+#             if len(lines) < 2:
+#                 f.close()
+#                 os.remove(path)
+#                 continue
+#             name = lines[0].strip()
+#             buttons = []
+#             for line in lines[1:]:
+#                 try:
+#                     on, off = line.split(',')
+#                     on  = int(on.strip())
+#                     off = int(off.strip())
+#                 except Exception as e:
+#                     print(e)
+#                     continue
+#                 buttons.append(TxChannel(on=on, off=off))
+#             if len(buttons) < 1:
+#                 f.close()
+#                 os.remove(path)
+#                 continue
+#             remotes[name] = buttons
+#         finally:
+#             f.close()
+#loadRemotes()
 
 templatesFolder = f'{modulePath}/templates'
 staticFolder = f'{templatesFolder}/static'
