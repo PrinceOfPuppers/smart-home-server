@@ -3,22 +3,132 @@
 <link rel="stylesheet" href = "style.css"></link>
 <script type="text/javascript" src="funcs.js"></script>
 
+{% import 'jinjaMacros.html' as m %}
+
 <html>
 <script>
-    function channelClick(remote, channelNum, onOff){
-        const id = `${onOff ? "on" : "off"}-button-${remote}-${channelNum}`
-        const saveButtonElement = document.getElementById(id);
+    function channelClick(id, channelNum, onOff){
+        const elementId = `${onOff ? "on" : "off"}-button-${id}-${channelNum}`
+        const saveButtonElement = document.getElementById(elementId);
 
-        var data = {'remote': remote, 'channel': channelNum, 'value': onOff}
+        var data = {'id': id, 'channel': channelNum, 'value': onOff}
         sendData('api/remote', data, 'POST').then((success)=>{
             if(success){
                 tempChangeButton(saveButtonElement, "O");
             }
         });
     }
+
+    var onCode=undefined;
+    var offCode=undefined;
+
+    function remoteOnEditCb(){
+        const checkbox = document.getElementById("remoteOnEditIndicator");
+
+        getData("/api/remote/code").then((response) => {
+            if (response) {
+                onCode = response;
+                checkbox.checked=true;
+                console.log(onCode);
+            }
+        });
+    }
+
+    function remoteOffEditCb() {
+        const checkbox = document.getElementById("remoteOffEditIndicator");
+
+        getData("/api/remote/code").then((response) => {
+            if (response) {
+                offCode = response;
+                checkbox.checked=true;
+                console.log(offCode);
+            }
+        });
+    }
+
+    function newRemoteHandler(event) {
+        event.preventDefault();
+        let form = event.currentTarget;
+        var data = formToObject(form);
+        const name = 'newRemoteName' in data ? data.newRemoteName : ''
+        const toSubmit = {"name": name}
+        sendData('api/remote/edit', toSubmit, 'POST', reload=true);
+    }
+
+    function editRemoteHandler(event) {
+        event.preventDefault();
+        let form = event.currentTarget;
+        var data = formToObject(form);
+
+        const remoteId = data.remoteId;
+
+        if (data.remoteOperation === "Delete"){
+            sendData('api/remote/edit', {"id": remoteId}, 'DELETE', reload=true);
+            return;
+        }
+
+        const channel = Number(data.remoteChannel);
+        console.log(channel);
+        if (data.channelOperation === "Delete"){
+            sendData('api/remote/edit/channels', {"id": remoteId, "channel": channel}, 'DELETE', reload=true);
+            return;
+        }
+
+        if ( (!onCode) || (!offCode) ) {
+            window.alert("On and Off Codes Are Required to Create New Channel!")
+            return;
+        }
+
+        sendData('api/remote/edit/channels', {"id": remoteId, "channel": channel, "onCode": onCode, "offCode": offCode}, 'POST', reload=true);
+    }
+
+
+    var remoteEditHidden = false;
+    var channelAddHidden = false;
+
+    function _hideHelper() {
+        const channelSelect = document.querySelector(`[id=remoteChannelSelect]`);
+        const channelAdd = document.querySelector(`[id=remoteChannelAdd]`);
+
+        channelSelect.style.display = "block";
+        channelAdd.style.display = "block";
+
+        if (channelAddHidden) {
+            channelAdd.style.display = "none";
+        }
+
+        if (remoteEditHidden) {
+            channelSelect.style.display = "none";
+            channelAdd.style.display = "none";
+        }
+    }
+
+    function hideUnhideRemoteDo(dropDown){
+        remoteEditHidden = dropDown.value == "Delete";
+        _hideHelper();
+    }
+
+    function hideUnhideChannelDo(dropDown){
+        channelAddHidden = dropDown.value == "Delete"
+        _hideHelper();
+    }
+
+
+    window.onload = () => {
+        document.getElementById("remoteOnEditIndicator").checked=false;
+        document.getElementById("remoteOffEditIndicator").checked=false;
+
+        document.getElementById('editRemoteForm').addEventListener('submit', editRemoteHandler);
+        document.getElementById('newRemoteForm').addEventListener('submit', newRemoteHandler);
+
+        hideUnhideRemoteDo(document.querySelector('#remoteOperation'));
+        document.querySelector('#remoteOperation').addEventListener("change", function(dropDown) {hideUnhideRemoteDo(dropDown.target)});
+
+        hideUnhideChannelDo(document.querySelector('#channelOperation'));
+        document.querySelector('#channelOperation').addEventListener("change", function(dropDown) {hideUnhideChannelDo(dropDown.target)});
+    }
+
 </script>
-
-
 
 <body>
     <div class="topnav">
@@ -30,16 +140,21 @@
         <a href="/macros">Macros</a>
     </div> 
     <ul class="remotes">
+        {% if remotes|length == 0 %}
+            <center class="faintText">No Remotes Added</center>
+        {% endif %}
+
         {% for remote in remotes %}
+            {% set id = remote['id'] %}
             <li>
                 <ul class="remote">
-                    <center class="remoteChannelNum">{{ remote }}</center>
-                    {% for channel in remotes[remote] %}
+                    <center class="remoteChannelNum">{{ remote['name'] }}</center>
+                    {% for channel in remote['channels'] %}
                         <li>
                             <div class="on-off-channel">
-                                <button id="off-button-{{remote}}-{{loop.index-1}}" class="redButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, false)"">-</button>
+                                <button id="off-button-{{id}}-{{loop.index-1}}" class="redButton", onclick = "channelClick('{{id}}', {{ loop.index - 1 }}, false)"">-</button>
                                 <span class="nobr" class="remoteChannelNum">{{ loop.index - 1 }}</span>
-                                <button id="on-button-{{remote}}-{{loop.index-1}}" class="greenButton", onclick = "channelClick('{{ remote }}', {{ loop.index - 1 }}, true)"">-</button>
+                                <button id="on-button-{{id}}-{{loop.index-1}}" class="greenButton", onclick = "channelClick('{{id}}', {{ loop.index - 1 }}, true)"">-</button>
                             </div>
                         </li>
                     {% endfor %}
@@ -47,5 +162,89 @@
             </li>
         {% endfor %}
     </ul>
+
+
+
+
+    <h3>New Remote:</h3>
+        <form id="newRemoteForm">
+            <section>
+                <div class="formDiv">
+                    <label for="newRemoteName" id="newRemoteNameLabel">Name:</label>
+                    <input type="text" id="newRemoteName" name="newRemoteName" maxLength = "20" size="10" required>
+                </div>
+
+                <br style="clear:both;" />
+
+                <div class="formDiv">
+                    <button type="submit" class="purpleButton">New Remote</button>
+                </div>
+
+                <br style="clear:both;" />
+            </section>
+        </form>
+
+    <h3>Edit Remote:</h3>
+
+        <form id="editRemoteForm">
+            <section>
+                <div class="formDiv">
+                    <label for="remoteId" id="remoteIdLabel">Rmt:</label>
+                    <select id="remoteId" name="remoteId" required>
+                    {% for remote in remotes %}
+                        <option value="{{ remote['id'] }}">{{ remote['name'] }}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+
+                <div class="formDiv">
+                    <label for="remoteOperation" id="remoteOperationLabel">Do:</label>
+                    <select id="remoteOperation" name="remoteOperation" required>
+                        <option value="Edit">Edit</option>
+                        <option value="Delete">Delete</option>
+                    </select>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+            <section id="remoteChannelSelect">
+                <div class="formDiv">
+                    <label for="remoteChannel" id="remoteChannelLabel">Ch:</label>
+                    <input type="quantity" id="remoteChannel" name="remoteChannel" min="-1" max="100" size="4" value=-1 placeholder=0 />
+                </div>
+
+                <div class="formDiv">
+                    <label for="remoteChannelOperation" id="remoteChannelOperationLabel">Do:</label>
+                    <select id="channelOperation" name="channelOperation" required>
+                        <option value="Add">Add</option>
+                        <option value="Delete">Delete</option>
+                    </select>
+                </div>
+            </section>
+
+
+            <section id="remoteChannelAdd">
+                <div class="formDiv">
+                    <button type="button" id="remoteOnEdit" class="greenButton" onclick="remoteOnEditCb()">On</button>
+                    <input type="checkbox" style="display: inline-block" disabled="true" id="remoteOnEditIndicator"/>
+
+                    <button type="button" id="remoteOffEdit" class="redButton" onclick="remoteOffEditCb()">Off</button>
+                    <input type="checkbox" style="display: inline-block" disabled="true" id="remoteOffEditIndicator"/>
+                </div>
+            </section>
+
+
+            <section>
+                <div class="formDiv">
+                    <button type="submit" class="greenButton">Submit</button>
+                </div>
+            </section>
+
+            <br style="clear:both;" />
+
+        </form>
+
+
   </body>
 </html>

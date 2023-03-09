@@ -160,7 +160,7 @@
                             {% endif %}
 
                             {% set do = job['do'] %}
-                            {{ m.jobRepr(do['type'], do['data'], macros) }}
+                            {{ m.jobRepr(do['type'], do['data'], macros, remotes) }}
                         </div>
 
 
@@ -198,7 +198,7 @@
 
                 <div class="formDiv">
                     <label for="at" id="atText">At:</label>
-                    <input type="number" class = "atInput" id="atHours" name="atHours" size="2" min="0" max="23" placeholder="HH">
+                    <input type="number" class="atInput" id="atHours" name="atHours" size="2" min="0" max="23" placeholder="HH">
                     <input type="number" class="atInput" id="atMinutes" name="atMinutes" size="2" min="0" max="59" placeholder="MM">
                     <input type="number" class="atInput" id="atSeconds" name="atSeconds" size="2" min="0" max="59" placeholder="SS">
                 </div>

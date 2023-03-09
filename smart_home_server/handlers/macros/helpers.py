@@ -14,7 +14,7 @@ class SequenceItemDoesNotExist(Exception):
 
 
 def _getMacroPath(id:str):
-    return f'{const.macroFolder}/{id}'
+    return f'{const.macroFolder}/{id}.json'
 
 
 def _saveMacro(macro:dict, id=None):
@@ -54,8 +54,8 @@ def _getMacro(id:str):
 def _getMacros():
     dir = os.listdir(const.macroFolder)
     macros = []
-    for id in dir:
-        macro = _getMacro(id)
+    for p in dir:
+        macro = _getMacro(p.strip(".json"))
         if macro is None:
             continue
         macros.append(macro)

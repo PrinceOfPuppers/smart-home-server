@@ -1,7 +1,7 @@
 from flask import Flask, send_from_directory, render_template, redirect
 
 from smart_home_server.handlers.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
-from smart_home_server.handlers.presser import startPresser, stopPresser, joinPresser
+from smart_home_server.handlers.presser import startPresser, stopPresser, joinPresser, getRemotes
 from smart_home_server.handlers.lcd import startUpdateLCD
 from smart_home_server.handlers.triggerManager import getTriggers
 from smart_home_server.handlers.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
@@ -33,14 +33,6 @@ app.register_blueprint(dataApi)
 app.register_blueprint(noteApi)
 app.register_blueprint(macroApi)
 
-def _getRemoteInfo():
-    numChannels = []
-    r = []
-    for remote in const.remotes:
-        r.append(remote)
-        numChannels.append(len(const.remotes[remote]))
-    return numChannels, r
-
 @app.route('/')
 def index():
     return redirect("/dashboard", code=302)
@@ -51,7 +43,7 @@ def send_templates(path):
 
 @app.route('/remote')
 def lightsGet():
-    return render_template('remote.html', remotes = const.remotes)
+    return render_template('remote.html', remotes = getRemotes())
 
 @app.route('/schedule')
 def scheduleGet():
@@ -59,7 +51,7 @@ def scheduleGet():
     macros = getMacros()
 
     return render_template('schedule.html', 
-                           remotes=const.remotes, 
+                           remotes=getRemotes(), 
                            jobs=jobs, 
                            timeUnits = timeUnits, 
                            macros=macros,
@@ -84,7 +76,7 @@ def dashboardGet():
 def triggerGet():
     triggerJobs = getTriggers()
     macros = getMacros()
-    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, remotes=const.remotes, macros=macros)
+    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, remotes=getRemotes(), macros=macros)
 
 @app.route('/notes')
 def notesGet():
@@ -97,7 +89,7 @@ def macrosGet():
     macros = getMacros()
     macros.sort(key = lambda element: element['name'])
     delays = getDelays()
-    return render_template('macros.html', macros=macros, remotes=const.remotes, delays=delays)
+    return render_template('macros.html', macros=macros, remotes=getRemotes(), delays=delays)
 
 
 def startServer():

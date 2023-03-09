@@ -1,17 +1,17 @@
-from time import sleep
 import os
 
 from queue import Empty
 from multiprocessing import Process, Queue
+from typing import Union
 
 import smart_home_server.constants as const
 from smart_home_server import InterruptTriggered
-from smart_home_server.handlers.presser.helpers import _changeChannel, _initRfDevice, _destroyRfDevice
-
-from typing import Union
+from smart_home_server.handlers.presser.helpers import _changeChannel, _initRfDevice, _destroyRfDevice, _removeChannel, RemoteDoesNotExist, ChannelDoesNotExist, \
+                                                       _addRemote, _removeRemote, _remoteLock, _getRemoteById, _getRemotes, _getCode, _addChannel
 
 _pressQueue:Union[None, Queue] = None
 _presserThread:Union[None, Process] = None
+
 
 def _presserLoop():
     global _pressQueue
@@ -27,16 +27,17 @@ def _presserLoop():
     while True:
         try:
             try:
-                press = _pressQueue.get(block=True, timeout = const.threadPollingPeriod)
+                op = _pressQueue.get(block=True, timeout = const.threadPollingPeriod)
             except Empty:
                 continue
 
             # None is stop singal
-            if press is None:
+            if op is None:
                 break
 
             for _ in range(const.pressRepeats+1):
-                _changeChannel(press['remote'], press['channel'], press['value'])
+                #_changeChannel(press['remote'], press['channel'], press['value'])
+                op()
                 #sleep(const.pressSpacing)
 
         except InterruptTriggered:
@@ -48,11 +49,53 @@ def _presserLoop():
 
     _destroyRfDevice()
 
+
+# API - start
 def presserAppend(press):
     global _pressQueue
     if _pressQueue is None:
         return
-    _pressQueue.put(press)
+
+    with _remoteLock:
+        _changeChannel(press['id'], press['channel'], press['value'])
+
+def newRemote(name:str):
+    global _pressQueue
+    if _pressQueue is None:
+        return
+
+    remote = {"name": name, "channels": []}
+    with _remoteLock:
+        _addRemote(remote)
+
+def deleteRemote(id:str):
+    global _pressQueue
+    if _pressQueue is None:
+        return
+
+    with _remoteLock:
+        _removeRemote(id)
+
+def readRemoteCode() -> dict:
+    return _getCode()
+
+def addChannel(id:str, channel: int, onCode:dict, offCode:dict):
+    with _remoteLock:
+        return _addChannel(id, channel, onCode, offCode)
+
+def deleteChannel(id:str, channel: int):
+    with _remoteLock:
+        _removeChannel(id, channel)
+
+def getRemoteById(id:str, throw=True):
+    with _remoteLock:
+        return _getRemoteById(id, throw=throw)
+
+def getRemotes():
+    return _getRemotes()
+
+# API - end
+
 
 def stopPresser():
     global _pressQueue
