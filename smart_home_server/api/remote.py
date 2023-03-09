@@ -99,8 +99,8 @@ def deleteRemoteRoute():
 
     try:
         deleteRemote(values['id'])
-    except Exception:
-        return current_app.response_class(status=400)
+    except Exception as e:
+        return current_app.response_class(str(e), status=400)
 
     return current_app.response_class(status=200)
 
@@ -132,7 +132,7 @@ def getRemoteCodeRoute():
     try:
         code = readRemoteCode()
         if code is None:
-            return current_app.response_class("No Signal Recieved", status=408)
+            return current_app.response_class("No Signal Recieved", status=404)
         return jsonify(code)
     except Exception as e:
         return current_app.response_class(str(e), status=400)
@@ -143,10 +143,11 @@ def getRemoteCodeRoute():
 def deleteChannelRoute():
     values = json.loads(request.data)
 
+    deleteChannel(values['id'], values['channel'])
     try:
-        deleteChannel(values['id'], values['channel'])
-    except Exception:
-        return current_app.response_class(status=400)
+        pass
+    except Exception as e:
+        return current_app.response_class(str(e), status=400)
 
     return current_app.response_class(status=200)
 

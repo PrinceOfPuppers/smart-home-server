@@ -24,8 +24,11 @@
 
     function remoteOnEditCb(){
         const checkbox = document.getElementById("remoteOnEditIndicator");
+        const button = document.getElementById("remoteOnEdit");
+        button.textContent = "--"
 
         getData("/api/remote/code").then((response) => {
+            button.textContent = "On";
             if (response) {
                 onCode = response;
                 checkbox.checked=true;
@@ -36,8 +39,11 @@
 
     function remoteOffEditCb() {
         const checkbox = document.getElementById("remoteOffEditIndicator");
+        const button = document.getElementById("remoteOffEdit");
+        button.textContent = "---"
 
         getData("/api/remote/code").then((response) => {
+            button.textContent = "Off";
             if (response) {
                 offCode = response;
                 checkbox.checked=true;
@@ -152,9 +158,9 @@
                     {% for channel in remote['channels'] %}
                         <li>
                             <div class="on-off-channel">
-                                <button id="off-button-{{id}}-{{loop.index-1}}" class="redButton", onclick = "channelClick('{{id}}', {{ loop.index - 1 }}, false)"">-</button>
-                                <span class="nobr" class="remoteChannelNum">{{ loop.index - 1 }}</span>
                                 <button id="on-button-{{id}}-{{loop.index-1}}" class="greenButton", onclick = "channelClick('{{id}}', {{ loop.index - 1 }}, true)"">-</button>
+                                <span class="nobr" class="remoteChannelNum">{{ loop.index - 1 }}</span>
+                                <button id="off-button-{{id}}-{{loop.index-1}}" class="redButton", onclick = "channelClick('{{id}}', {{ loop.index - 1 }}, false)"">-</button>
                             </div>
                         </li>
                     {% endfor %}

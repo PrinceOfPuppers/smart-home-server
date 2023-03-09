@@ -55,10 +55,7 @@ def _addRemote(remote:dict, store:bool = True, newId:bool = True):
 def _removeRemote(id: str):
     global _remotes
 
-    for i, remote in enumerate(_remotes):
-        if remote["id"] != id:
-            continue
-        _remotes.pop(id)
+    _remotes.pop(id)
 
     path = _getRemotePath(id)
     if os.path.exists(path):
@@ -136,7 +133,7 @@ def _addChannel(id:str, channel:int, onCode:dict, offCode:dict):
     if channel < 0 or len(remote['channels']) <= channel:
         remote['channels'].append(val)
     else:
-        remote['channels'].insert(3, val)
+        remote['channels'].insert(channel, val)
 
     _overwriteRemote(id, remote)
 
