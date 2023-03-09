@@ -45,11 +45,11 @@ postAddChannelSchema = \
     "type": "object",
     "properties": {
         "id": idSchema,
-        "channel": { "type": "integer", "minimum": -1 }, # defaults to -1, validated in function
+        "channel": { "type": "integer", "minimum": -1 }, # defaults to -1
         "onCode": channelCodeSchema,
         "offCode": channelCodeSchema,
     },
-    "required": ['id'],
+    "required": ['id', "channel", "onCode", "offCode"],
     'additionalProperties': False,
 }
 
@@ -143,9 +143,8 @@ def getRemoteCodeRoute():
 def deleteChannelRoute():
     values = json.loads(request.data)
 
-    deleteChannel(values['id'], values['channel'])
     try:
-        pass
+        deleteChannel(values['id'], values['channel'])
     except Exception as e:
         return current_app.response_class(str(e), status=400)
 
