@@ -41,7 +41,7 @@ class RemoteDoesNotExist(Exception):
     pass
 
 def _getRemotePath(id):
-    return f'{const.remoteFolder}/{id}'
+    return f'{const.remoteFolder}/{id}.json'
 
 def _getRemotes():
     global _remotes
@@ -157,13 +157,12 @@ def _addChannel(id:str, channel:int, onCode:dict, offCode:dict):
     remote = _getRemoteById(id)
     assert remote is not None
 
-    if len(remote['channels']) <= channel:
-        raise ChannelDoesNotExist(f"Max Channel for Remote ID: {id} is {len(remote['channels']-1)} which is < {channel}")
-    if channel < 0:
-        channel = -1
+    val = {'on': onCode, 'off': offCode}
+    if channel < 0 or len(remote['channels']) <= channel:
+        remote['channels'].append(val)
+    else:
+        remote['channels'].insert(3, val)
 
-    remote['channels'][channel]['on'] = onCode
-    remote['channels'][channel]['off'] = offCode
     _overwriteRemote(id, remote)
 
 if const.isRpi():

@@ -36,7 +36,7 @@ channelCodeSchema = \
         "protocol": { "type": "integer", "minimum": 0 },
         "pulseLength": { "type": "integer", "minimum": 0 },
     },
-    "required": ['id'],
+    "required": ['code', "protocol", "pulseLength"],
     'additionalProperties': False,
 }
 
@@ -122,8 +122,8 @@ def addChannelRoute():
         return current_app.response_class(f"Remote with ID: {id} Does Not Exist",status=400)
     except ChannelDoesNotExist as e:
         return current_app.response_class(str(e) ,status=400)
-    except Exception:
-        return current_app.response_class(status=400)
+    except Exception as e:
+        return current_app.response_class(str(e), status=400)
 
     return current_app.response_class(status=200)
 

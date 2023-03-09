@@ -10,7 +10,7 @@ class NoteAlreadyExists(Exception):
     pass
 
 def _getNotePath(id:str):
-    return f'{const.noteFolder}/{id}'
+    return f'{const.noteFolder}/{id}.json'
 
 def _createNote(name:str, content:str, id=None):
     if id == None:
@@ -57,8 +57,8 @@ def _getNote(id:str):
 def _getNotes():
     dir = os.listdir(const.noteFolder)
     notes = []
-    for id in dir:
-        note = _getNote(id)
+    for p in dir:
+        note = _getNote(p.strip('.json'))
         if note is None:
             continue
         notes.append(note)

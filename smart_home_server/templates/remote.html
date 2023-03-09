@@ -19,13 +19,13 @@
         });
     }
 
-    onCode=undefined;
-    offCode=undefined;
+    var onCode=undefined;
+    var offCode=undefined;
 
     function remoteOnEditCb(){
         const checkbox = document.getElementById("remoteOnEditIndicator");
 
-        onCode = getData("/api/remote/code").then((response) => {
+        getData("/api/remote/code").then((response) => {
             if (response) {
                 onCode = response;
                 checkbox.checked=true;
@@ -37,7 +37,7 @@
     function remoteOffEditCb() {
         const checkbox = document.getElementById("remoteOffEditIndicator");
 
-        onCode = getData("/api/remote/code").then((response) => {
+        getData("/api/remote/code").then((response) => {
             if (response) {
                 offCode = response;
                 checkbox.checked=true;
@@ -46,7 +46,7 @@
         });
     }
 
-    function newRemoteHandler() {
+    function newRemoteHandler(event) {
         event.preventDefault();
         let form = event.currentTarget;
         var data = formToObject(form);
@@ -55,7 +55,31 @@
         sendData('api/remote/edit', toSubmit, 'POST', reload=true);
     }
 
-    function editRemoteHandler() {
+    function editRemoteHandler(event) {
+        event.preventDefault();
+        let form = event.currentTarget;
+        var data = formToObject(form);
+
+        const remoteId = data.remoteId;
+
+        if (data.remoteOperation === "Delete"){
+            sendData('api/remote/edit', {"id": remoteId}, 'DELETE', reload=true);
+            return;
+        }
+
+        const channel = Number(data.remoteChannel);
+        console.log(channel);
+        if (data.channelOperation === "Delete"){
+            sendData('api/remote/edit/channels', {"id": remoteId, "channel": channel}, 'DELETE', reload=true);
+            return;
+        }
+
+        if ( (!onCode) || (!offCode) ) {
+            window.alert("On and Off Codes Are Required to Create New Channel!")
+            return;
+        }
+
+        sendData('api/remote/edit/channels', {"id": remoteId, "channel": channel, "onCode": onCode, "offCode": offCode}, 'POST', reload=true);
     }
 
 
