@@ -110,9 +110,8 @@ createIfNotExists(remoteFolder)
 templatesFolder = f'{modulePath}/templates'
 staticFolder = f'{templatesFolder}/static'
 
-txPulseLength = 171
-txProtocol = 1
 txGpio = 17
+rxGpio = 24
 
 #seconds
 threadPollingPeriod = 1

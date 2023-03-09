@@ -6,7 +6,8 @@ from time import time, sleep
 
 import smart_home_server.constants as const
 
-_rfdevice = None
+_txdevice = None
+_rxdevice = None
 
 _remotes = []
 def _loadRemotes():
@@ -67,7 +68,7 @@ def _overwriteRemote(id:str, remote:dict):
 
 if const.isRpi():
     def _getCode(timeout = 10, repeats = 3):
-        if _rfdevice is None:
+        if _rxdevice is None:
             raise Exception("attempted to change button while presser thread is stopped")
 
         start = time()
@@ -82,18 +83,18 @@ if const.isRpi():
             if time() > start + timeout:
                 return None
 
-            if _rfdevice.rx_code_timestamp != timestamp:
-                timestamp = _rfdevice.rx_code_timestamp
+            if _rxdevice.rx_code_timestamp != timestamp:
+                timestamp = _rxdevice.rx_code_timestamp
                 # signal recieved
-                if _rfdevice.rx_code != currentCode or _rfdevice.rx_proto != currentProtocol:
+                if _rxdevice.rx_code != currentCode or _rxdevice.rx_proto != currentProtocol:
                     # new signal
                     currentRepeats = 1
-                    currentCode = _rfdevice.rx_code
-                    currentProtocol = _rfdevice.rx_proto
-                    currentPulseLength = _rfdevice.rx_pulselength
+                    currentCode = _rxdevice.rx_code
+                    currentProtocol = _rxdevice.rx_proto
+                    currentPulseLength = _rxdevice.rx_pulselength
                 else:
                     # repeat
-                    currentPulseLength += _rfdevice.rx_pulselength
+                    currentPulseLength += _rxdevice.rx_pulselength
                     currentRepeats+=1
 
                 if currentRepeats > repeats:
@@ -141,7 +142,7 @@ if const.isRpi():
     def _changeChannel(remoteID: str, channel: int, value: bool):
         global _remotes
         global _remoteLock
-        if _rfdevice is None:
+        if _txdevice is None:
             raise Exception("attempted to change button while presser thread is stopped")
 
         for _ in range(const.pressRepeats+1):
@@ -154,30 +155,38 @@ if const.isRpi():
                 protocol = onOff['protocol']
                 pulseLength = onOff['pulseLength']
 
-            _rfdevice.tx_code(code, protocol, pulseLength)
+            _txdevice.tx_code(code, protocol, pulseLength)
 
-    def _initRfDevice():
-        global _rfdevice
-        _rfdevice = RFDevice(const.txGpio)
-        _rfdevice.enable_tx()
+    def _initRfDevices():
+        global _rxdevice
+        global _txdevice
+        _txdevice = RFDevice(const.txGpio)
+        _txdevice.enable_tx()
 
-    def _destroyRfDevice():
-        global _rfdevice
-        if _rfdevice is not None:
-            _rfdevice.cleanup()
+        _rxdevice = RFDevice(const.rxGpio)
+        _rxdevice.enable_rx()
 
-        _rfdevice = None
+    def _destroyRfDevices():
+        global _rxdevice
+        global _txdevice
 
+        if _txdevice is not None:
+            _txdevice.cleanup()
 
+        if _rxdevice is not None:
+            _rxdevice.cleanup()
+
+        _rxdevice = None
+        _txdevice = None
 
 else:
     def _changeChannel(remote:str, channel: int, value: bool):
         for _ in range(const.pressRepeats+1):
             print(f'remote={remote}', f'channel={channel}', f'value={value}', flush=True)
 
-    def _initRfDevice():
+    def _initRfDevices():
         pass
 
-    def _destroyRfDevice():
+    def _destroyRfDevices():
         pass
 

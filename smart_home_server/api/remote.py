@@ -134,8 +134,8 @@ def getRemoteCodeRoute():
         if code is None:
             return current_app.response_class("No Signal Recieved", status=408)
         return jsonify(code)
-    except Exception:
-        return current_app.response_class(status=400)
+    except Exception as e:
+        return current_app.response_class(str(e), status=400)
 
 
 @remoteApi.route('/api/remote/edit/channels', methods=['DELETE'])
