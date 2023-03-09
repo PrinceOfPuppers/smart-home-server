@@ -17,7 +17,6 @@ def _presserLoop():
     global _pressQueue
     if _pressQueue is None:
         return
-    _initRfDevices()
 
     # presser needs to have maximum priority
     if const.isRpi():
@@ -46,8 +45,6 @@ def _presserLoop():
         except Exception as e:
             print(f"Presser Exception: \n{repr(e)}", flush=True)
             continue
-
-    _destroyRfDevices()
 
 
 # API - start
@@ -103,6 +100,8 @@ def stopPresser():
         return
     _pressQueue.put(None)
 
+    _destroyRfDevices()
+
 def joinPresser():
     global _pressQueue
     global _presserThread
@@ -117,6 +116,7 @@ def startPresser():
 
     stopPresser()
     joinPresser()
+    _initRfDevices()
     _pressQueue = Queue()
     _presserThread = Process(target=_presserLoop)
     _presserThread.start()

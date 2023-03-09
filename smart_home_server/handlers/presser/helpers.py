@@ -170,11 +170,14 @@ if const.isRpi():
         global _rxdevice
         global _txdevice
 
-        if _txdevice is not None:
-            _txdevice.cleanup()
+        try:
+            if _txdevice is not None:
+                _txdevice.cleanup()
 
-        if _rxdevice is not None:
-            _rxdevice.cleanup()
+            if _rxdevice is not None:
+                _rxdevice.cleanup()
+        except Exception as e:
+            print("Error Cleaning Up RF Devices: ", e)
 
         _rxdevice = None
         _txdevice = None

@@ -111,7 +111,7 @@ templatesFolder = f'{modulePath}/templates'
 staticFolder = f'{templatesFolder}/static'
 
 txGpio = 17
-rxGpio = 24
+rxGpio = 25
 
 #seconds
 threadPollingPeriod = 1
