@@ -26,18 +26,15 @@ def _presserLoop():
     while True:
         try:
             try:
-                op = _pressQueue.get(block=True, timeout = const.threadPollingPeriod)
+                press = _pressQueue.get(block=True, timeout = const.threadPollingPeriod)
             except Empty:
                 continue
 
             # None is stop singal
-            if op is None:
+            if press is None:
                 break
 
-            for _ in range(const.pressRepeats+1):
-                #_changeChannel(press['remote'], press['channel'], press['value'])
-                op()
-                #sleep(const.pressSpacing)
+            _changeChannel(press['id'], press['channel'], press['value'])
 
         except InterruptTriggered:
             break
@@ -53,8 +50,7 @@ def presserAppend(press):
     if _pressQueue is None:
         return
 
-    with _remoteLock:
-        _changeChannel(press['id'], press['channel'], press['value'])
+    _pressQueue.put(press)
 
 def newRemote(name:str):
     global _pressQueue

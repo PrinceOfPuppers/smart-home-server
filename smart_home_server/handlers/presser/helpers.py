@@ -144,12 +144,17 @@ if const.isRpi():
         if _txdevice is None:
             raise Exception("attempted to change button while presser thread is stopped")
 
-        remote = _getRemoteById(remoteID)
-        assert remote is not None
-        ch = remote['channels'][channel]
-        onOff = ch['on'] if value else ch['off']
+        with _remoteLock:
+            remote = _getRemoteById(remoteID)
+            assert remote is not None
+            ch = remote['channels'][channel]
+            onOff = ch['on'] if value else ch['off']
+            code = onOff['code']
+            protocol = onOff['protocol']
+            pulseLength = onOff['pulseLength']
+
         for _ in range(const.pressRepeats+1):
-            _txdevice.tx_code(onOff['code'], onOff['protocol'], onOff['pulseLength'])
+            _txdevice.tx_code(code, protocol, pulseLength)
 
     def _initRfDevices():
         global _rxdevice
