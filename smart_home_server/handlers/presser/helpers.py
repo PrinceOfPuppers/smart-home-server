@@ -9,7 +9,8 @@ import smart_home_server.constants as const
 _txdevice = None
 _rxdevice = None
 
-_remotes = []
+_remotes = {}
+
 def _loadRemotes():
     global _remotes
     _remotes.clear()
@@ -18,7 +19,8 @@ def _loadRemotes():
         path = f'{const.remoteFolder}/{p}'
         with open(path, 'r+') as f:
             remote = json.load(f)
-            _remotes.append(remote)
+            id = remote['id']
+            _remotes[id] = remote
 _loadRemotes()
 _remoteLock = Lock()
 
@@ -33,7 +35,9 @@ def _getRemotePath(id):
 
 def _getRemotes():
     global _remotes
-    return _remotes
+    remoteList = [remote for remote in _remotes.values()]
+    remoteList.sort(key=lambda x: x['name'])
+    return remoteList
 
 def _storeRemote(remote:dict, id: str):
     remote['id'] = id
@@ -46,7 +50,7 @@ def _addRemote(remote:dict, store:bool = True, newId:bool = True):
     id = str(uuid4()) if newId else remote['id']
     if store:
         _storeRemote(remote, id)
-    _remotes.append(remote)
+    _remotes[id] = remote
 
 def _removeRemote(id: str):
     global _remotes
@@ -54,7 +58,7 @@ def _removeRemote(id: str):
     for i, remote in enumerate(_remotes):
         if remote["id"] != id:
             continue
-        _remotes.pop(i)
+        _remotes.pop(id)
 
     path = _getRemotePath(id)
     if os.path.exists(path):
@@ -62,9 +66,10 @@ def _removeRemote(id: str):
 
 
 def _overwriteRemote(id:str, remote:dict):
-    remote[id] = id
+    remote['id'] = id
     _removeRemote(id)
     _addRemote(remote, store=True, newId=False)
+
 
 if const.isRpi():
     def _getCode(timeout = 10, repeats = 3):
@@ -108,13 +113,12 @@ else:
 
 def _getRemoteById(id:str, throw:bool = True):
     global _remotes
-    for remote in _remotes:
-        if remote['id'] != id:
-            continue
-        return remote
-    if throw:
-        raise RemoteDoesNotExist(f'No Remote with ID: {id}')
-    return None
+    try:
+        return _remotes[id]
+    except KeyError:
+        if throw:
+            raise RemoteDoesNotExist(f'No Remote with ID: {id}')
+        return None
 
 def _removeChannel(id:str, channel: int):
     remote = _getRemoteById(id)

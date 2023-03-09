@@ -210,7 +210,6 @@ def getJobLog():
     s = ""
     for job in jobLog:
         s += f'{job}\n'
-    print(s)
     res = {
         'str': s,
         'data':{},
