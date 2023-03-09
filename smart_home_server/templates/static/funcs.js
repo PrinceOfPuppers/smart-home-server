@@ -85,7 +85,7 @@ function jobDelete(url, jobId){
 }
 function processDoData(data, toSubmit){
     if(data.do == "press"){
-        toSubmit.do = {type:"press", data:{remote: data.pressRemote, channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
+        toSubmit.do = {type:"press", data:{id: data.pressRemote, channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
     }
     else if(data.do == "lcd"){
         toSubmit.do = {type:"lcd", data:{backlight: Boolean(data.lcdBacklight)}};

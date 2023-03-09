@@ -8,18 +8,6 @@ import smart_home_server.constants as const
 
 _rfdevice = None
 
-[
-    {'name': 'asdf', 'id': "test", "channels": [
-        {"on": 123, "off": 303123},
-        {"on": {}, "off": 303123},
-        {},
-        {"on": 321, "off": 12321}
-        ]
-     },
-    {}
-]
-
-
 _remotes = []
 def _loadRemotes():
     global _remotes
@@ -27,7 +15,6 @@ def _loadRemotes():
     dir = os.listdir(const.remoteFolder)
     for p in dir:
         path = f'{const.remoteFolder}/{p}'
-        print(path)
         with open(path, 'r+') as f:
             remote = json.load(f)
             _remotes.append(remote)
@@ -136,23 +123,6 @@ def _removeChannel(id:str, channel: int):
     remote['channels'].pop(channel)
     _overwriteRemote(id, remote)
 
-#def _writeChannelValue(id:str, channel: int, value: bool, timeout = 10):
-#    remote = _getRemoteById(id)
-#    assert remote is not None
-#
-#    if len(remote['channels']) <= channel:
-#        raise ChannelDoesNotExist(f"Max Channel for Remote ID: {id} is {len(remote['channels']-1)} which is < {channel}")
-#    if channel < 0:
-#        channel = -1
-#
-#    onOff = "on" if value else "off"
-#    code = _getCode(timeout)
-#
-#    remote['channels'][channel][onOff] = code
-#    _overwriteRemote(id, remote)
-#
-#    return code
-
 def _addChannel(id:str, channel:int, onCode:dict, offCode:dict):
     remote = _getRemoteById(id)
     assert remote is not None
@@ -174,15 +144,17 @@ if const.isRpi():
         if _rfdevice is None:
             raise Exception("attempted to change button while presser thread is stopped")
 
-        with _remoteLock:
-            remote = _getRemoteById(remoteID)
-            assert remote is not None
-            ch = remote[channel]
-            #ch = _remotes[remote][channel]
-        code = ch.on if value else ch.off
+        for _ in range(const.pressRepeats+1):
+            with _remoteLock:
+                remote = _getRemoteById(remoteID)
+                assert remote is not None
+                ch = remote[channel]
+                onOff = ch['on'] if value else ch['off']
+                code = onOff['code']
+                protocol = onOff['protocol']
+                pulseLength = onOff['pulseLength']
 
-        _rfdevice.tx_code(code, const.txProtocol, const.txPulseLength)
-        #print(f'channel={channel}', f'value={value}', flush=True)
+            _rfdevice.tx_code(code, protocol, pulseLength)
 
     def _initRfDevice():
         global _rfdevice
@@ -200,7 +172,8 @@ if const.isRpi():
 
 else:
     def _changeChannel(remote:str, channel: int, value: bool):
-        print(f'remote={remote}', f'channel={channel}', f'value={value}', flush=True)
+        for _ in range(const.pressRepeats+1):
+            print(f'remote={remote}', f'channel={channel}', f'value={value}', flush=True)
 
     def _initRfDevice():
         pass

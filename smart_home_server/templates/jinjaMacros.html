@@ -119,9 +119,9 @@
 
         {% set match = remotes|selectattr("id", "==", data['id'])|list %}
         {% if match|length == 0 %}
-            <span class="nobr">switch remote: DELETED REMOTE! </span>
+            <span class="nobr">switch rmt: DELETED REMOTE! </span>
         {% else %}
-            <span class="nobr">switch remote: {{ match[0]['name'] }} ch: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
+            <span class="nobr">switch rmt: {{ match[0]['name'] }} ch: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
         {% endif %}
 
     {% elif type == "lcd" %}
