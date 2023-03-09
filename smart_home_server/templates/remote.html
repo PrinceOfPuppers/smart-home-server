@@ -50,8 +50,8 @@
         event.preventDefault();
         let form = event.currentTarget;
         var data = formToObject(form);
-        const name = 'newRemoteName' in data ? data.newMacroName : ''
-        toSubmit = {name: name}
+        const name = 'newRemoteName' in data ? data.newRemoteName : ''
+        const toSubmit = {"name": name}
         sendData('api/remote/edit', toSubmit, 'POST', reload=true);
     }
 
@@ -124,7 +124,7 @@
         hideUnhideRemoteDo(document.querySelector('#remoteOperation'));
         document.querySelector('#remoteOperation').addEventListener("change", function(dropDown) {hideUnhideRemoteDo(dropDown.target)});
 
-        hideUnhideRemoteDo(document.querySelector('#channelOperation'));
+        hideUnhideChannelDo(document.querySelector('#channelOperation'));
         document.querySelector('#channelOperation').addEventListener("change", function(dropDown) {hideUnhideChannelDo(dropDown.target)});
     }
 
@@ -149,7 +149,7 @@
             <li>
                 <ul class="remote">
                     <center class="remoteChannelNum">{{ remote['name'] }}</center>
-                    {% for channel in remotes['channels'] %}
+                    {% for channel in remote['channels'] %}
                         <li>
                             <div class="on-off-channel">
                                 <button id="off-button-{{id}}-{{loop.index-1}}" class="redButton", onclick = "channelClick('{{id}}', {{ loop.index - 1 }}, false)"">-</button>

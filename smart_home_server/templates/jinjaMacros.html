@@ -107,7 +107,7 @@
 
 
 
-{% macro jobRepr(type, data, macros, br=True, cursor=True) %}
+{% macro jobRepr(type, data, macros, remotes, br=True, cursor=True) %}
     {% if br %}
         <br/>
     {% endif %}
@@ -116,7 +116,14 @@
         <span class="nobr">> </span>
     {% endif %}
     {% if type == "press" %}
-        <span class="nobr">switch remote: {{data['remote']}} ch: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
+
+        {% set match = remotes|selectattr("id", "==", data['id'])|list %}
+        {% if match|length == 0 %}
+            <span class="nobr">switch remote: DELETED REMOTE! </span>
+        {% else %}
+            <span class="nobr">switch remote: {{ match[0]['name'] }} ch: {{ data['channel'] }} {{'on' if data['value'] else 'off' }}</span>
+        {% endif %}
+
     {% elif type == "lcd" %}
         <span class="nobr">Update LCD: Light: {{'on' if data['backlight'] else 'off' }}</span>
         {% if 'line1' in data %}

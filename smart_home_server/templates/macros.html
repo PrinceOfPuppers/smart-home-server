@@ -168,7 +168,7 @@
                                 {% set data   = item['data'] %}
                                 <li class="macroItem" id="macro-item-{{ macroId }}-{{ itemId }}">
                                     {{ m.deleteButton( "macroItemDelete('api/macro/item', '%s', '%s')" % (macroId, itemId) ) }}
-                                    {{ m.jobRepr(type, data, macros, br=False, cursor=False) }}
+                                    {{ m.jobRepr(type, data, macros, remotes, br=False, cursor=False) }}
                                 </li>
                             {% endfor %}
                         </ul>

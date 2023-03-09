@@ -85,7 +85,7 @@ def newRemoteRoute():
 
     addDefault(remote, 'name', 'New Remote')
     try:
-        newRemote(remote)
+        newRemote(remote['name'])
     except Exception:
         return current_app.response_class(status=400)
 

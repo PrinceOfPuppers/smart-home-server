@@ -117,7 +117,7 @@
                             {% endif %}
 
                             {% set do = job['do'] %}
-                            {{ m.jobRepr(do['type'], do['data'], macros) }}
+                            {{ m.jobRepr(do['type'], do['data'], macros, remotes) }}
                         </div>
 
                     </div>
