@@ -63,12 +63,45 @@ def _removeRemote(id: str):
 
 
 def _overwriteRemote(id:str, remote:dict):
+    global _remotes
+
     remote['id'] = id
     _removeRemote(id)
     _addRemote(remote, store=True, newId=False)
 
 
+def _getRemoteById(id:str, throw:bool = True):
+    global _remotes
+    try:
+        return _remotes[id]
+    except KeyError:
+        if throw:
+            raise RemoteDoesNotExist(f'No Remote with ID: {id}')
+        return None
+
+def _removeChannel(id:str, channel: int):
+    remote = _getRemoteById(id)
+    assert remote is not None
+    if channel >= len(remote['channels']):
+        return
+    remote['channels'].pop(channel)
+    _overwriteRemote(id, remote)
+
+def _addChannel(id:str, channel:int, onCode:dict, offCode:dict):
+    remote = _getRemoteById(id)
+    assert remote is not None
+
+    val = {'on': onCode, 'off': offCode}
+    if channel < 0 or len(remote['channels']) <= channel:
+        remote['channels'].append(val)
+    else:
+        remote['channels'].insert(channel, val)
+
+    _overwriteRemote(id, remote)
+
 if const.isRpi():
+    from rpi_rf import RFDevice
+
     def _getCode(timeout = 10, repeats = 3):
         if _rxdevice is None:
             raise Exception("attempted to change button while presser thread is stopped")
@@ -104,50 +137,11 @@ if const.isRpi():
 
             sleep(0.01)
 
-else:
-    def _getCode(timeout = 10, repeats = 3):
-        return {'code': 123, 'protocol': 123, 'pulseLength': 123}
-
-def _getRemoteById(id:str, throw:bool = True):
-    global _remotes
-    try:
-        return _remotes[id]
-    except KeyError:
-        if throw:
-            raise RemoteDoesNotExist(f'No Remote with ID: {id}')
-        return None
-
-def _removeChannel(id:str, channel: int):
-    remote = _getRemoteById(id)
-    assert remote is not None
-    if channel >= len(remote['channels']):
-        return
-    remote['channels'].pop(channel)
-    _overwriteRemote(id, remote)
-
-def _addChannel(id:str, channel:int, onCode:dict, offCode:dict):
-    remote = _getRemoteById(id)
-    assert remote is not None
-
-    val = {'on': onCode, 'off': offCode}
-    if channel < 0 or len(remote['channels']) <= channel:
-        remote['channels'].append(val)
-    else:
-        remote['channels'].insert(channel, val)
-
-    _overwriteRemote(id, remote)
-
-if const.isRpi():
-    from rpi_rf import RFDevice
-
-    def _changeChannel(remoteID: str, channel: int, value: bool):
-        global _remotes
+    def _changeChannel(remote: dict, channel: int, value: bool):
         if _txdevice is None:
             raise Exception("attempted to change button while presser thread is stopped")
 
         with _remoteLock:
-            remote = _getRemoteById(remoteID)
-            assert remote is not None
             ch = remote['channels'][channel]
             onOff = ch['on'] if value else ch['off']
             code = onOff['code']
@@ -183,7 +177,10 @@ if const.isRpi():
         _txdevice = None
 
 else:
-    def _changeChannel(remote:str, channel: int, value: bool):
+    def _getCode(timeout = 10, repeats = 3):
+        return {'code': 123, 'protocol': 123, 'pulseLength': 123}
+
+    def _changeChannel(remote:dict, channel: int, value: bool):
         for _ in range(const.pressRepeats+1):
             print(f'remote={remote}', f'channel={channel}', f'value={value}', flush=True)
 
