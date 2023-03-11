@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from smart_home_server.handlers.presser import presserAppend, getRemoteById
 from smart_home_server.handlers.lcd import updateLCDFromJobData
 from smart_home_server.hardware_interfaces.reboot import reboot
+from smart_home_server.hardware_interfaces.update import update
 from smart_home_server.handlers.macros import macroExists, getMacro
 from smart_home_server.errors import currentErrors
 
@@ -26,6 +27,8 @@ def validateDo(do:dict):
             if ch < min or ch > max:
                 return f"Invalid Channel: {ch} for Remote ID: {id} (min: {min}, max: {max})"
         elif type == 'reboot':
+            return ""
+        elif type == 'update':
             return ""
         elif type == 'lcd':
             return ""
@@ -68,6 +71,8 @@ def runJob(job:dict):
             updateLCDFromJobData(data)
         elif type == 'reboot':
             reboot()
+        elif type == 'update':
+            update()
         elif type == 'macro':
             runMacro(data['id'])
         else:

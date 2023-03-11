@@ -7,6 +7,7 @@
             <option value="press">press</option>
             <option value="lcd">lcd</option>
             <option value="reboot">reboot</option>
+            <option value="update">update</option>
             <option value="macro">macro</option>
             {% if includeDelay %}
                 <option value="delay">delay</option>
@@ -136,6 +137,8 @@
         {% endif %}
     {% elif type == "reboot" %}
         <span class="nobr">reboot</span>
+    {% elif type == "update" %}
+        <span class="nobr">update</span>
     {% elif type == "macro" %}
         {% set match = macros|selectattr("id", "==", data['id'])|list %}
         {% if match|length == 0 %}

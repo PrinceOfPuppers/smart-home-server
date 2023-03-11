@@ -84,30 +84,34 @@ function jobDelete(url, jobId){
     return sendData(url, data, 'DELETE', reload=true);
 }
 function processDoData(data, toSubmit){
-    if(data.do == "press"){
-        toSubmit.do = {type:"press", data:{id: data.pressRemote, channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
-    }
-    else if(data.do == "lcd"){
-        toSubmit.do = {type:"lcd", data:{backlight: Boolean(data.lcdBacklight)}};
-        if(data.lcdLine1Edit){
-            toSubmit.do.data.line1 = data.lcdLine1;
-        }
-        if(data.lcdLine2Edit){
-            toSubmit.do.data.line2 = data.lcdLine2;
-        }
-    }
-    else if(data.do == "reboot"){
-        toSubmit.do = {type:"reboot", data:{}};
-    }
-    else if(data.do == "macro"){
-        toSubmit.do = {type:"macro", data:{id: data.macroIdDo}};
-    }
-    else if(data.do == "delay"){
-        toSubmit.do = {type:"delay", data:{seconds: Number(data.delaySeconds), minutes: Number(data.delayMinutes), hours: Number(data.delayHours)}};
-    }
-    else{
-        window.alert(`Error: Invalid Job Type: ${data.do}`);
-        return false;
+    switch (data.do) {
+        case "press":
+            toSubmit.do = {type:"press", data:{id: data.pressRemote, channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
+            break;
+        case "lcd":
+            toSubmit.do = {type:"lcd", data:{backlight: Boolean(data.lcdBacklight)}};
+            if(data.lcdLine1Edit){
+                toSubmit.do.data.line1 = data.lcdLine1;
+            }
+            if(data.lcdLine2Edit){
+                toSubmit.do.data.line2 = data.lcdLine2;
+            }
+            break;
+        case "reboot":
+            toSubmit.do = {type:"reboot", data:{}};
+            break;
+        case "update":
+            toSubmit.do = {type:"update", data:{}};
+            break;
+        case "macro":
+            toSubmit.do = {type:"macro", data:{id: data.macroIdDo}};
+            break;
+        case "delay":
+            toSubmit.do = {type:"delay", data:{seconds: Number(data.delaySeconds), minutes: Number(data.delayMinutes), hours: Number(data.delayHours)}};
+            break;
+        default:
+            window.alert(`Error: Invalid Job Type: ${data.do}`);
+            return false;
     }
     return true;
 }

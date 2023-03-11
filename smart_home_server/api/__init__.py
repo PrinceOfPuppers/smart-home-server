@@ -33,6 +33,13 @@ rebootSchema = \
     "required": [],
     'additionalProperties': False,
 }
+updateSchema = \
+{
+    "type": "object",
+    "properties": {},
+    "required": [],
+    'additionalProperties': False,
+}
 macroJobSchema = \
 {
     "type": "object",
@@ -47,6 +54,7 @@ _schemas = [
     ('press', postRemoteSchema),
     ('lcd', postLCDSchema),
     ('reboot', rebootSchema),
+    ('update', updateSchema),
     ('macro', macroJobSchema),
 ]
 
