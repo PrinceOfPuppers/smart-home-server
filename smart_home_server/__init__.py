@@ -1,7 +1,7 @@
 from threading import current_thread
 from signal import signal, SIGINT, Signals#,SIGABRT,SIGTERM
 
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 
 class InterruptTriggered(Exception):
     pass
