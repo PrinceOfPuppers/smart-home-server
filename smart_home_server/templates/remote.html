@@ -73,8 +73,11 @@
             return;
         }
 
-        const channel = Number(data.remoteChannel);
-        console.log(channel);
+        var channel = Number(data.remoteChannel);
+        if (channel > 0) {
+            channel -= 1;
+        }
+
         if (data.channelOperation === "Delete"){
             sendData('api/remote/edit/channels', {"id": remoteId, "channel": channel}, 'DELETE', reload=true);
             return;
@@ -159,7 +162,7 @@
                         <li>
                             <div class="on-off-channel">
                                 <button id="on-button-{{id}}-{{loop.index-1}}" class="greenButton", onclick = "channelClick('{{id}}', {{ loop.index - 1 }}, true)"">-</button>
-                                <span class="nobr" class="remoteChannelNum">{{ loop.index - 1 }}</span>
+                                <span class="nobr" class="remoteChannelNum">{{ loop.index }}</span>
                                 <button id="off-button-{{id}}-{{loop.index-1}}" class="redButton", onclick = "channelClick('{{id}}', {{ loop.index - 1 }}, false)"">-</button>
                             </div>
                         </li>
@@ -217,7 +220,7 @@
             <section id="remoteChannelSelect">
                 <div class="formDiv">
                     <label for="remoteChannel" id="remoteChannelLabel">Ch:</label>
-                    <input type="quantity" id="remoteChannel" name="remoteChannel" min="-1" max="100" size="4" value=-1 placeholder=0 />
+                    <input type="quantity" id="remoteChannel" name="remoteChannel" min="-1" max="100" size="4" value=-1 />
                 </div>
 
                 <div class="formDiv">
@@ -250,7 +253,6 @@
             <br style="clear:both;" />
 
         </form>
-
 
   </body>
 </html>

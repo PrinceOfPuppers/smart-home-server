@@ -86,7 +86,7 @@ function jobDelete(url, jobId){
 function processDoData(data, toSubmit){
     switch (data.do) {
         case "press":
-            toSubmit.do = {type:"press", data:{id: data.pressRemote, channel: Number(data.pressChannel), value: Boolean(data.pressValue)}};
+            toSubmit.do = {type:"press", data:{id: data.pressRemote, channel: Number(data.pressChannel) - 1, value: Boolean(data.pressValue)}};
             break;
         case "lcd":
             toSubmit.do = {type:"lcd", data:{backlight: Boolean(data.lcdBacklight)}};
