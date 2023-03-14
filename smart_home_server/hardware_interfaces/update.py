@@ -8,7 +8,7 @@ def _update():
     # sleep to allow html request to update to return
     sleep(2)
     if const.isRpi():
-        os.system(f"git -C {const.modulePath}/.. pull && sudo systemctl restart smart-home-server.service")
+        os.system(f"git -C {const.modulePath}/.. pull && systemctl --user restart smart-home-server.service")
     else:
         os.system(f"git -C {const.modulePath}/.. pull")
         print('System Updated!')
