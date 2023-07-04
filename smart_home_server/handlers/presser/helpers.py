@@ -102,6 +102,7 @@ def _addChannel(id:str, channel:int, onCode:dict, offCode:dict):
 if const.isRpi():
     from rpi_rf import RFDevice
 
+    # timeout = -1 for inf
     def _getCode(timeout = 10, repeats = 3):
         if _rxdevice is None:
             raise Exception("attempted to change button while presser thread is stopped")
@@ -115,7 +116,7 @@ if const.isRpi():
         currentPulseLength = 0
 
         while True:
-            if time() > start + timeout:
+            if time() > start + timeout and timeout != -1:
                 return None
 
             if _rxdevice.rx_code_timestamp != timestamp:

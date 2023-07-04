@@ -12,6 +12,7 @@ class MacroAlreadyExists(Exception):
 class SequenceItemDoesNotExist(Exception):
     pass
 
+_macroCache = {}
 
 def _getMacroPath(id:str):
     return f'{const.macroFolder}/{id}.json'
@@ -20,6 +21,7 @@ def _getMacroPath(id:str):
 def _saveMacro(macro:dict, id=None):
     if id == None:
         id = str(uuid4())
+    _macroCache[id] = macro
 
     path = _getMacroPath(id)
     if os.path.exists(path):
@@ -30,6 +32,8 @@ def _saveMacro(macro:dict, id=None):
 
 
 def _deleteMacro(id: str):
+    if id in _macroCache:
+        _macroCache.pop(id)
     path = _getMacroPath(id)
     if os.path.exists(path):
         os.remove(path)
@@ -41,6 +45,9 @@ def _overwriteMacro(id:str, newMacro:dict):
     return _saveMacro(newMacro, id=id)
 
 def _getMacro(id:str):
+    if id in _macroCache:
+        return _macroCache[id]
+
     path = _getMacroPath(id)
     if not os.path.exists(path):
         raise MacroDoesNotExist()
@@ -49,6 +56,7 @@ def _getMacro(id:str):
         j = json.loads(f.read())
 
     j['id'] = id
+    _macroCache[id] = j
     return j
 
 def _getMacros():
@@ -89,4 +97,26 @@ def _updateMacroName(id, name):
         return
     macro['name'] = name
     _overwriteMacro(id, macro)
+
+
+def _addCodeToMacro(id, code):
+    macro = _getMacro(id)
+    if 'code' in macro and macro['code'] != code:
+        macro['code'] = code
+        _overwriteMacro(id, macro)
+
+def _deleteMacroCode(id):
+    macro = _getMacro(id)
+    if 'code' in macro:
+        macro.pop('code')
+        _overwriteMacro(id, macro)
+
+def _getMacroWithCode(code):
+    macros = _getMacros()
+    for macro in macros:
+        if 'code' not in macro:
+            continue
+        if code == macro['code']:
+            return macro
+    raise MacroDoesNotExist()
 
