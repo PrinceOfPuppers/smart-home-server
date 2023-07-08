@@ -1,4 +1,5 @@
 from threading import Lock
+from typing import Union
 import os
 
 from smart_home_server.handlers.macros.helpers import MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist, \
@@ -56,7 +57,7 @@ def deleteMacroCode(id):
     with _macroLock:
         _deleteMacroCode(id)
 
-def getMacroWithCode(code):
+def getMacroWithCode(code) -> Union[dict, None]:
     with _macroLock:
-        _getMacroWithCode(code)
+        return _getMacroWithCode(code)
 

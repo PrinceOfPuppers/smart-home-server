@@ -103,7 +103,7 @@ if const.isRpi():
     from rpi_rf import RFDevice
 
     # timeout = -1 for inf
-    def _getCode(timeout = 10, repeats = 3):
+    def _getCode(timeout, repeats, sleepTimer):
         if _rxdevice is None:
             raise Exception("attempted to change button while presser thread is stopped")
 
@@ -136,7 +136,7 @@ if const.isRpi():
                 if currentRepeats > repeats:
                     return {'code': currentCode, 'protocol': currentProtocol, 'pulseLength': round(currentPulseLength / currentRepeats)}
 
-            sleep(0.01)
+            sleep(sleepTimer)
 
     def _changeChannel(remote: dict, channel: int, value: bool):
         if _txdevice is None:
@@ -178,7 +178,7 @@ if const.isRpi():
         _txdevice = None
 
 else:
-    def _getCode(timeout = 10, repeats = 3):
+    def _getCode(timeout, repeats, sleepTimer):
         return {'code': 123, 'protocol': 123, 'pulseLength': 123}
 
     def _changeChannel(remote:dict, channel: int, value: bool):

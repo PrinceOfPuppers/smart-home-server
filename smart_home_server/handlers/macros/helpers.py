@@ -1,6 +1,9 @@
 from uuid import uuid4
 import os
+from time import time
 import json
+from typing import Union
+
 import smart_home_server.constants as const
 
 class MacroDoesNotExist(Exception):
@@ -13,6 +16,7 @@ class SequenceItemDoesNotExist(Exception):
     pass
 
 _macroCache = {}
+_rfMacroCodeLastAdded = None
 
 def _getMacroPath(id:str):
     return f'{const.macroFolder}/{id}.json'
@@ -100,6 +104,9 @@ def _updateMacroName(id, name):
 
 
 def _addCodeToMacro(id, code):
+    global _rfMacroCodeLastAdded
+    _rfMacroCodeLastAdded = time()
+
     macro = _getMacro(id)
     if 'code' in macro and macro['code'] != code:
         macro['code'] = code
@@ -111,12 +118,16 @@ def _deleteMacroCode(id):
         macro.pop('code')
         _overwriteMacro(id, macro)
 
-def _getMacroWithCode(code):
+def _getMacroWithCode(code) -> Union[dict, None]:
+    global _rfMacroCodeLastAdded
+    if _rfMacroCodeLastAdded != None and time() -_rfMacroCodeLastAdded < const.rfMacroAddDebounceTime:
+        return None
+
     macros = _getMacros()
     for macro in macros:
         if 'code' not in macro:
             continue
         if code == macro['code']:
             return macro
-    raise MacroDoesNotExist()
+    return None
 
