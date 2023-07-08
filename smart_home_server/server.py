@@ -5,6 +5,11 @@ from smart_home_server.handlers.presser import startPresser, stopPresser, joinPr
 from smart_home_server.handlers.lcd import startUpdateLCD
 from smart_home_server.handlers.triggerManager import getTriggers
 from smart_home_server.handlers.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
+from smart_home_server.handlers.rfMacros import startMac, stopMac, joinMac
+
+from smart_home_server.handlers.notes import getNotes
+from smart_home_server.handlers.macros import getMacros
+from smart_home_server.handlers import getDelays
 
 from smart_home_server import InterruptTriggered
 
@@ -16,9 +21,6 @@ from smart_home_server.api.trigger import triggerApi, triggerComparisons
 from smart_home_server.api.note import noteApi
 from smart_home_server.api.macro import macroApi
 from smart_home_server.data_sources import dataSources, dataSourceValues
-from smart_home_server.handlers.notes import getNotes
-from smart_home_server.handlers.macros import getMacros
-from smart_home_server.handlers import getDelays
 import smart_home_server.constants as const
 
 values = list(dataSourceValues)
@@ -99,6 +101,7 @@ def startServer():
         startSubscribeManager()
         startPresser()
         startUpdateLCD(fromFile=True)
+        startMac()
 
         if const.isRpi():
             from waitress import serve
@@ -113,8 +116,10 @@ def startServer():
         stopPresser()
         stopScheduler()
         stopSubscribeManager()
+        stopMac()
         joinPresser()
         joinScheduler()
+        joinMac()
 
 if __name__ == '__main__':
     startServer()

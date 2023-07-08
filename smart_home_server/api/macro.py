@@ -5,9 +5,10 @@ from flask_expects_json import expects_json
 from smart_home_server.api import allJobsSchema, nameSchema, idSchema, patchNameSchema
 from smart_home_server.handlers import validateDo, runMacro, cancelSkipDelay
 from smart_home_server.helpers import addDefault
+from smart_home_server.handlers.presser import readRemoteCode
 
 from smart_home_server.handlers.macros import getMacro, saveMacro, addMacroSequenceItem, deleteMacro, deleteMacroSequenceItem, updateMacroName, \
-                                              MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist
+                                              MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist, addCodeToMacro, deleteMacroCode
 
 macroApi = Blueprint('macroApi', __name__)
 
@@ -94,6 +95,8 @@ deleteDelaySchema = \
     'required': ['id'],
     'additionalProperties': False,
 }
+postMacroRfSchema = searchMacroSchema
+deleteMacroRfSchema = searchMacroSchema
 
 @macroApi.route('/api/macro', methods=['POST'])
 @expects_json(postMacroSchema, check_formats=True)
@@ -218,6 +221,37 @@ def deleteDelayRoute():
     try:
         cancelSkipDelay(id, cancel)
         return current_app.response_class(status=200)
+    except:
+        return current_app.response_class(status=400)
+
+
+@macroApi.route('/api/macro/rf', methods=['POST'])
+@expects_json(postMacroRfSchema, check_formats=True)
+def postMacroRfRoute():
+    data = json.loads(request.data)
+    id = data['id']
+    try:
+        code = readRemoteCode()
+        if code is None:
+            return current_app.response_class("Remote Read Timeout", status=408)
+
+        addCodeToMacro(id, code)
+        return current_app.response_class(status=200)
+    except MacroDoesNotExist:
+        return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)
+    except:
+        return current_app.response_class(status=400)
+
+@macroApi.route('/api/macro/rf', methods=['DELETE'])
+@expects_json(deleteMacroRfSchema, check_formats=True)
+def deleteMacroRfRoute():
+    data = json.loads(request.data)
+    id = data['id']
+    try:
+        deleteMacroCode(id)
+        return current_app.response_class(status=200)
+    except MacroDoesNotExist:
+        return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)
     except:
         return current_app.response_class(status=400)
 

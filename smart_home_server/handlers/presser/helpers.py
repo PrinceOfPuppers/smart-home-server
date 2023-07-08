@@ -179,6 +179,7 @@ if const.isRpi():
 
 else:
     def _getCode(timeout, repeats, sleepTimer):
+        input("Hit Enter to Send Psudo RF Code (timeout ignored)")
         return {'code': 123, 'protocol': 123, 'pulseLength': 123}
 
     def _changeChannel(remote:dict, channel: int, value: bool):
