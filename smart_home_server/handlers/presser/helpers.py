@@ -102,7 +102,8 @@ def _addChannel(id:str, channel:int, onCode:dict, offCode:dict):
 if const.isRpi():
     from rpi_rf import RFDevice
 
-    def _getCode(timeout = 10, repeats = 3):
+    # timeout = -1 for inf
+    def _getCode(timeout, repeats, sleepTimer):
         if _rxdevice is None:
             raise Exception("attempted to change button while presser thread is stopped")
 
@@ -115,7 +116,7 @@ if const.isRpi():
         currentPulseLength = 0
 
         while True:
-            if time() > start + timeout:
+            if time() > start + timeout and timeout != -1:
                 return None
 
             if _rxdevice.rx_code_timestamp != timestamp:
@@ -135,7 +136,7 @@ if const.isRpi():
                 if currentRepeats > repeats:
                     return {'code': currentCode, 'protocol': currentProtocol, 'pulseLength': round(currentPulseLength / currentRepeats)}
 
-            sleep(0.01)
+            sleep(sleepTimer)
 
     def _changeChannel(remote: dict, channel: int, value: bool):
         if _txdevice is None:
@@ -177,7 +178,21 @@ if const.isRpi():
         _txdevice = None
 
 else:
-    def _getCode(timeout = 10, repeats = 3):
+    # for testing
+    from threading import current_thread
+    testListener=False
+
+    def _getCode(timeout, repeats, sleepTimer):
+        if current_thread().name != "rfMac":
+            input("Web Thread: Hit Enter to Send Psudo RF Code (timeout ignored)")
+        else:
+            if testListener:
+                input("rfMac Thread: Hit Enter to Send Psudo RF Code (timeout ignored)")
+            else:
+                sleep(timeout)
+                return None
+
+
         return {'code': 123, 'protocol': 123, 'pulseLength': 123}
 
     def _changeChannel(remote:dict, channel: int, value: bool):

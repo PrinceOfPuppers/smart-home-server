@@ -159,6 +159,14 @@ dhtMaxRetry = 3
 dhtSamples = 2
 
 
+# in seconds
+rfMacroDebounceTime = 3
+# time after rf is added to macro to when macros can be triggered by rf again
+rfMacroAddDebounceTime = 1
+pulseLenthTolerance = 10
+
+
+
 WWO_CODE = {
     "113": "Sunny",
     "116": "PartlyCloudy",

@@ -119,6 +119,44 @@
         });
     }
 
+    function macroRfButton(id){
+        const rfButtonElement = document.getElementById(`macro-rf-button-${id}`);
+
+        // disable onclick
+        const onclick = rfButtonElement.getAttribute("onclick");
+        rfButtonElement.setAttribute( "onclick", "" );
+
+        var data = { 'id': id };
+        var method;
+        var initalText = rfButtonElement.textContent;
+        var newText;
+        var newClass;
+        if(rfButtonElement.classList.contains('redButton')){
+            // remove rf code button
+            method = 'DELETE';
+            newText = 'Add RF Code';
+            newClass = 'yellowButton';
+            // rfButtonElement.textContent = "Deleting Code";
+        } else { 
+            // add rf code button
+            method = 'POST';
+            newText = 'Remove RF Code';
+            newClass = 'redButton';
+            rfButtonElement.textContent = "Listening...";
+        }
+
+        sendData('api/macro/rf', data, method).then((success)=>{
+            if(success){
+                rfButtonElement.className = newClass;
+                rfButtonElement.textContent = newText;
+            } else {
+                rfButton.textContent = initalText;
+            }
+            // re-enable onclick
+            rfButtonElement.setAttribute("onclick", onclick);
+        });
+    }
+
     window.onload = () => {
         document.getElementById('addToMacroForm').addEventListener('submit', addToMacroHandler);
         document.getElementById('newMacroForm').addEventListener('submit', newMacroHandler);
@@ -171,6 +209,14 @@
                                     {{ m.jobRepr(type, data, macros, remotes, br=False, cursor=False) }}
                                 </li>
                             {% endfor %}
+
+                            <div style="padding-top: 5pt">
+                                {% if 'code' in macro %}
+                                    <button class="redButton", id="macro-rf-button-{{ macroId }}", onclick = "macroRfButton('{{ macroId }}')"">Remove RF Code</button>
+                                {% else %}
+                                    <button class="yellowButton", id="macro-rf-button-{{ macroId }}", onclick = "macroRfButton('{{ macroId }}')"">Add RF Code</button>
+                                {% endif %}
+                            </div>
                         </ul>
                     </div>
                 </li>

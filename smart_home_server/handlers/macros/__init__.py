@@ -1,9 +1,10 @@
 from threading import Lock
+from typing import Union
 import os
 
 from smart_home_server.handlers.macros.helpers import MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist, \
                                                      _getMacro, _getMacros, _deleteMacro, _updateMacroName, _overwriteMacro, _saveMacro, \
-                                                     _deleteMacroSequenceItem, _addMacroSequenceItem, _getMacroPath
+                                                     _deleteMacroSequenceItem, _addMacroSequenceItem, _getMacroPath, _addCodeToMacro, _getMacroWithCode, _deleteMacroCode
 
 _macroLock = Lock()
 
@@ -47,3 +48,16 @@ def macroExists(id):
     if os.path.exists(path):
         return True
     return False
+
+def addCodeToMacro(id, code):
+    with _macroLock:
+        _addCodeToMacro(id, code)
+
+def deleteMacroCode(id):
+    with _macroLock:
+        _deleteMacroCode(id)
+
+def getMacroWithCode(code) -> Union[dict, None]:
+    with _macroLock:
+        return _getMacroWithCode(code)
+

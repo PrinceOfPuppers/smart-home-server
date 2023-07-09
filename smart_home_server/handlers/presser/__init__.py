@@ -73,8 +73,8 @@ def deleteRemote(id:str):
     with _remoteLock:
         _removeRemote(id)
 
-def readRemoteCode() -> dict:
-    return _getCode()
+def readRemoteCode(timeout = 10, repeats = 3, sleepTimer = 0.01) -> Union[dict, None]:
+    return _getCode(timeout, repeats, sleepTimer)
 
 def addChannel(id:str, channel: int, onCode:dict, offCode:dict):
     with _remoteLock:
@@ -99,16 +99,19 @@ def stopPresser():
     if _pressQueue is None:
         return
     _pressQueue.put(None)
+    _pressQueue.close()
 
     _destroyRfDevices()
 
 def joinPresser():
     global _pressQueue
     global _presserThread
+
     if _presserThread is not None and _presserThread.is_alive():
-        if _pressQueue is not None:
-            _pressQueue.put(None)
         _presserThread.join()
+
+    if _pressQueue is not None:
+        _pressQueue.join_thread()
 
 def startPresser():
     global _pressQueue

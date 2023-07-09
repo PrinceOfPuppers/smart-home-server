@@ -1,6 +1,9 @@
 from uuid import uuid4
 import os
+from time import time
 import json
+from typing import Union
+
 import smart_home_server.constants as const
 
 class MacroDoesNotExist(Exception):
@@ -12,6 +15,8 @@ class MacroAlreadyExists(Exception):
 class SequenceItemDoesNotExist(Exception):
     pass
 
+_macroCache = {}
+_rfMacroCodeLastAdded = None
 
 def _getMacroPath(id:str):
     return f'{const.macroFolder}/{id}.json'
@@ -20,6 +25,7 @@ def _getMacroPath(id:str):
 def _saveMacro(macro:dict, id=None):
     if id == None:
         id = str(uuid4())
+    _macroCache[id] = macro
 
     path = _getMacroPath(id)
     if os.path.exists(path):
@@ -30,6 +36,8 @@ def _saveMacro(macro:dict, id=None):
 
 
 def _deleteMacro(id: str):
+    if id in _macroCache:
+        _macroCache.pop(id)
     path = _getMacroPath(id)
     if os.path.exists(path):
         os.remove(path)
@@ -41,6 +49,9 @@ def _overwriteMacro(id:str, newMacro:dict):
     return _saveMacro(newMacro, id=id)
 
 def _getMacro(id:str):
+    if id in _macroCache:
+        return _macroCache[id]
+
     path = _getMacroPath(id)
     if not os.path.exists(path):
         raise MacroDoesNotExist()
@@ -49,6 +60,7 @@ def _getMacro(id:str):
         j = json.loads(f.read())
 
     j['id'] = id
+    _macroCache[id] = j
     return j
 
 def _getMacros():
@@ -89,4 +101,39 @@ def _updateMacroName(id, name):
         return
     macro['name'] = name
     _overwriteMacro(id, macro)
+
+
+def _addCodeToMacro(id, code):
+    global _rfMacroCodeLastAdded
+    _rfMacroCodeLastAdded = time()
+
+    macro = _getMacro(id)
+    if 'code' not in macro or macro['code'] != code:
+        macro['code'] = code
+        _overwriteMacro(id, macro)
+
+def _deleteMacroCode(id):
+    macro = _getMacro(id)
+    if 'code' in macro:
+        macro.pop('code')
+        _overwriteMacro(id, macro)
+
+def _getMacroWithCode(code) -> Union[dict, None]:
+    global _rfMacroCodeLastAdded
+    if _rfMacroCodeLastAdded != None and time() -_rfMacroCodeLastAdded < const.rfMacroAddDebounceTime:
+        return None
+
+    macros = _getMacros()
+    for macro in macros:
+        if 'code' not in macro:
+            continue
+        macCode = macro['code']
+        if code['code'] != macCode['code']:
+            continue
+        if code['protocol'] != macCode['protocol']:
+            continue
+        if abs(macCode['pulseLength'] - code['pulseLength']) > const.pulseLenthTolerance:
+            continue
+        return macro
+    return None
 
