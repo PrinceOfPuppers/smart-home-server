@@ -73,7 +73,7 @@ def deleteRemote(id:str):
     with _remoteLock:
         _removeRemote(id)
 
-def readRemoteCode(timeout = 10, repeats = 3, sleepTimer = 0.01) -> Union[dict, None]:
+def readRemoteCode(timeout = 10, repeats = 2, sleepTimer = 0.01) -> Union[dict, None]:
     return _getCode(timeout, repeats, sleepTimer)
 
 def addChannel(id:str, channel: int, onCode:dict, offCode:dict):

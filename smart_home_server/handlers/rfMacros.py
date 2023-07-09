@@ -21,7 +21,7 @@ def _rfMacLoop():
     global _rfMacLastRan
 
     while _rfMacLoopCondition:
-        code = readRemoteCode(sleepTimer=0.1, timeout = const.threadPollingPeriod)
+        code = readRemoteCode(sleepTimer=0.05, timeout = const.threadPollingPeriod)
         if code is None:
             continue
         macro = getMacroWithCode(code)
