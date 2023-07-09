@@ -110,7 +110,8 @@ def startServer():
             app.run(host='0.0.0.0', port=5000)
 
     except InterruptTriggered:
-        pass
+        print("Interrupt Triggered, Shutting Down...")
+
     finally:
         joinSubscribeManager()
         stopPresser()
@@ -123,3 +124,4 @@ def startServer():
 
 if __name__ == '__main__':
     startServer()
+

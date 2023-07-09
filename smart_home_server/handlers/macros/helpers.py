@@ -108,7 +108,7 @@ def _addCodeToMacro(id, code):
     _rfMacroCodeLastAdded = time()
 
     macro = _getMacro(id)
-    if 'code' in macro and macro['code'] != code:
+    if 'code' not in macro or macro['code'] != code:
         macro['code'] = code
         _overwriteMacro(id, macro)
 
@@ -127,7 +127,13 @@ def _getMacroWithCode(code) -> Union[dict, None]:
     for macro in macros:
         if 'code' not in macro:
             continue
-        if code == macro['code']:
-            return macro
+        macCode = macro['code']
+        if code['code'] != macCode['code']:
+            continue
+        if code['protocol'] != macCode['protocol']:
+            continue
+        if abs(macCode['pulseLength'] - code['pulseLength']) > const.pulseLenthTolerance:
+            continue
+        return macro
     return None
 

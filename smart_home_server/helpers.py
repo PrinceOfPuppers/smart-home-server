@@ -1,11 +1,5 @@
-from queue import Queue
-import requests
-import string
 import time
-from multiprocessing import JoinableQueue
 
-import smart_home_server.constants as const
-from typing import Union
 
 def clearQueue(q):
     while not q.empty():

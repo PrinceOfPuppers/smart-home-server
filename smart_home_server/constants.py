@@ -163,6 +163,7 @@ dhtSamples = 2
 rfMacroDebounceTime = 3
 # time after rf is added to macro to when macros can be triggered by rf again
 rfMacroAddDebounceTime = 1
+pulseLenthTolerance = 10
 
 
 

@@ -99,16 +99,19 @@ def stopPresser():
     if _pressQueue is None:
         return
     _pressQueue.put(None)
+    _pressQueue.close()
 
     _destroyRfDevices()
 
 def joinPresser():
     global _pressQueue
     global _presserThread
+
     if _presserThread is not None and _presserThread.is_alive():
-        if _pressQueue is not None:
-            _pressQueue.put(None)
         _presserThread.join()
+
+    if _pressQueue is not None:
+        _pressQueue.join_thread()
 
 def startPresser():
     global _pressQueue

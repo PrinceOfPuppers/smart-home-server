@@ -178,8 +178,21 @@ if const.isRpi():
         _txdevice = None
 
 else:
+    # for testing
+    from threading import current_thread
+    testListener=False
+
     def _getCode(timeout, repeats, sleepTimer):
-        input("Hit Enter to Send Psudo RF Code (timeout ignored)")
+        if current_thread().name != "rfMac":
+            input("Web Thread: Hit Enter to Send Psudo RF Code (timeout ignored)")
+        else:
+            if testListener:
+                input("rfMac Thread: Hit Enter to Send Psudo RF Code (timeout ignored)")
+            else:
+                sleep(timeout)
+                return None
+
+
         return {'code': 123, 'protocol': 123, 'pulseLength': 123}
 
     def _changeChannel(remote:dict, channel: int, value: bool):

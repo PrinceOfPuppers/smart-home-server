@@ -21,8 +21,7 @@ def _rfMacLoop():
     global _rfMacLastRan
 
     while _rfMacLoopCondition:
-        sleep(0.01)
-        code = readRemoteCode(sleepTimer=0.1)
+        code = readRemoteCode(sleepTimer=0.1, timeout = const.threadPollingPeriod)
         if code is None:
             continue
         macro = getMacroWithCode(code)
@@ -50,7 +49,8 @@ def startMac():
 
     stopMac()
     joinMac()
-    _rfMacThread = Thread(target=_rfMacLoop)
+    _rfMacLoopCondition = True
+    _rfMacThread = Thread(target=_rfMacLoop, name="rfMac")
     _rfMacThread.start()
 
     print("rfMacros started")
