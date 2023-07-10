@@ -53,6 +53,8 @@ def validateJob(job:dict):
     return validateDo(job['do'])
 
 
+def logJob(type, data):
+    jobLog.append(f"{datetime.now().strftime('%b %d %H:%M:%S')} -> {type}\n  data: {data}")
 
 def runJob(job:dict):
     # job must contain key 'do' which must have 'type' and 'data'
@@ -77,7 +79,12 @@ def runJob(job:dict):
             runMacro(data['id'])
         else:
             raise Exception(f"Invalid Job Type '{do}'")
-        jobLog.append(f"{datetime.now().strftime('%b %d %H:%M:%S')} -> {type}\n  data: {data}")
+
+        # runMacro also logs
+        if type != 'macro':
+            logJob(type, data)
+
+        #jobLog.append(f"{datetime.now().strftime('%b %d %H:%M:%S')} -> {type}\n  data: {data}")
     except Exception as e:
         print(f'Job Run Error:', repr(e))
         currentErrors['Last_Job_Run_Err'] = f'{datetime.now().strftime("%b %d %H:%M:%S")} {repr(e)}'
@@ -145,6 +152,7 @@ def runMacro(id):
     name = macro['name']
     sequence = macro['sequence']
     print(f"Running Macro: {name}")
+    logJob('macro', {'name': name, 'id': id})
     _runMacroSequence(sequence, name)
 
 
