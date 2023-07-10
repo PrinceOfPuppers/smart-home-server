@@ -23,8 +23,9 @@ def _getMacroPath(id:str):
 
 
 def _saveMacro(macro:dict, id=None):
-    if id == None:
+    if id == None or id.strip() == '':
         id = str(uuid4())
+        macro['id'] = id
     _macroCache[id] = macro
 
     path = _getMacroPath(id)
