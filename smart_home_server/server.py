@@ -70,6 +70,7 @@ def dashboardGet():
                     'pollingPeriod': source['pollingPeriod'],
                     'color': source['color'],
                     'name': source['name'],
+                    'dashboard': source['dashboard']
                  }
             )
     return render_template('dashboard.html', dashboardElements=elements, values=values)

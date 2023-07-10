@@ -1,11 +1,13 @@
 from threading import Thread
 from typing import Union
+from datetime import datetime
 
 from time import time, sleep
 
 from smart_home_server.handlers.macros import getMacroWithCode
 from smart_home_server.handlers.presser import readRemoteCode
 from smart_home_server.handlers import runMacro
+from smart_home_server.handlers.logs import rfLog
 
 import smart_home_server.constants as const
 
@@ -24,6 +26,7 @@ def _rfMacLoop():
         code = readRemoteCode(sleepTimer=0.05, timeout = const.threadPollingPeriod)
         if code is None:
             continue
+        rfLog.append(f"{datetime.now().strftime('%b %d %H:%M:%S')}\n -> {code}")
         macro = getMacroWithCode(code)
         if macro is None or 'id' not in macro:
             continue

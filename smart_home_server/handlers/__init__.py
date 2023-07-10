@@ -9,7 +9,7 @@ from smart_home_server.hardware_interfaces.update import update
 from smart_home_server.handlers.macros import macroExists, getMacro
 from smart_home_server.errors import currentErrors
 
-from smart_home_server.handlers.jobLog import jobLog
+from smart_home_server.handlers.logs import jobLog
 
 def validateDo(do:dict):
     try:

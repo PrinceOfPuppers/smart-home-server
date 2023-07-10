@@ -10,7 +10,7 @@ from smart_home_server.data_sources.caching import cached
 from smart_home_server import __version__
 
 from smart_home_server.errors import currentErrors, getErrorStrAndBool
-from smart_home_server.handlers.jobLog import jobLog
+from smart_home_server.handlers.logs import jobLog, rfLog
 
 # return format is 
 #example = {
@@ -216,6 +216,16 @@ def getJobLog():
     }
     return res
 
+def getRfLog():
+    s = ""
+    for rf in rfLog:
+        s += f'{rf}\n'
+    res = {
+        'str': s,
+        'data':{},
+    }
+    return res
+
 dataSources = [
     {
         'name': 'USD → CAD',
@@ -278,6 +288,7 @@ dataSources = [
 
         'dashboard':{
             'enabled': True,
+            'hideable': True,
         },
 
         'values': {
@@ -431,6 +442,22 @@ dataSources = [
 
         'dashboard':{
             'enabled':True,
+            'hideable': True,
+        },
+
+        'values': {
+        },
+    },
+    {
+        'name': 'RF Log',
+        'color': 'gray',
+        'url': '/api/data/rf-log',
+        'local': getRfLog,
+        'pollingPeriod': 3*60,
+
+        'dashboard':{
+            'enabled':True,
+            'hideable': True,
         },
 
         'values': {

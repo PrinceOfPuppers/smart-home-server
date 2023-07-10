@@ -188,7 +188,7 @@
     <button class="redButton", onclick = "{{ onclick }}"">🛇</button>
 {% endmacro %}
 
-{% macro dropDownButton(dropDownId, elementId) %}
-    <button class="purpleButton", id="{{ dropDownId }}", onclick = "toggleDropDown('{{ dropDownId }}', '{{ elementId }}')"">⏷</button>
+{% macro dropDownButton(dropDownId, elementId, color="purple") %}
+    <button class="{{color}}Button", id="{{ dropDownId }}", onclick = "toggleDropDown('{{ dropDownId }}', '{{ elementId }}')"">⏷</button>
 {% endmacro %}
 

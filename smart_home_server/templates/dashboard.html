@@ -9,7 +9,7 @@
 <script>
     {{ m.lcdFmtCheatSheet(values) }}
 
-    async function updateDashboardElement(name, element, url){
+    async function updateDashboardElement(element, url){
         var response;
         for(let i = 0; i < 3; i++){
             response = await fetch(url, {method: "GET"});
@@ -36,9 +36,9 @@
         const button = document.getElementById(`dashboardButton-${name}`);
         button.onclick = () => {
             element.textContent = "";
-            updateDashboardElement(name, element, url);
+            updateDashboardElement(element, url);
         };
-        updateDashboardElement(name, element, url);
+        updateDashboardElement(element, url);
     }
 
     const days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
@@ -162,7 +162,17 @@
             {% set url           = element['url'] %}
             <div>
                 <button class="{{ color }}Button" id="dashboardButton-{{ name }}">{{ name }}</button>
-                <p id="dashboard-{{ name }}"></p>
+
+                {% if 'hideable' in element['dashboard'] and element['dashboard']['hideable'] %}
+                    {% set dropDownId =  'drop-down-button-%s' % (name) %}
+                    {% set dashboardElementId =  'dashboard-%s' % (name) %}
+                    {{ m.dropDownButton( dropDownId, dashboardElementId,color=color ) }}
+                    <p id="dashboard-{{ name }}" style="display:none;"></p>
+                {% else %}
+                    <p id="dashboard-{{ name }}"></p>
+
+                {% endif %}
+
             </div>
         {% endfor %}
         <div>
