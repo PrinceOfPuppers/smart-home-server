@@ -443,6 +443,12 @@ dataSources = [
         'dashboard':{
             'enabled':True,
             'hideable': True,
+            'buttons':[{
+                'text': 'Clear', 
+                'action':{ 
+                    'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'jobLog'}, 'reload': True,
+                 },
+            }],
         },
 
         'values': {
@@ -458,6 +464,12 @@ dataSources = [
         'dashboard':{
             'enabled':True,
             'hideable': True,
+            'buttons':[{
+                'text': 'Clear', 
+                'action':{ 
+                    'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'rfLog'}, 'reload': True,
+                 },
+            }],
         },
 
         'values': {

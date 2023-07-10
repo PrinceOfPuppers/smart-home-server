@@ -9,7 +9,9 @@
 <script>
     {{ m.lcdFmtCheatSheet(values) }}
 
-    async function updateDashboardElement(element, url){
+    async function updateDashboardElement(name, url){
+        const element = document.getElementById(`dashboard-${name}`);
+
         var response;
         for(let i = 0; i < 3; i++){
             response = await fetch(url, {method: "GET"});
@@ -36,9 +38,9 @@
         const button = document.getElementById(`dashboardButton-${name}`);
         button.onclick = () => {
             element.textContent = "";
-            updateDashboardElement(element, url);
+            updateDashboardElement(name, url);
         };
-        updateDashboardElement(element, url);
+        updateDashboardElement(name, url);
     }
 
     const days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
@@ -160,10 +162,25 @@
             {% set name          = element['name'] %}
             {% set color         = element['color'] %}
             {% set url           = element['url'] %}
+            {% set dashboard     = element['dashboard'] %}
             <div>
                 <button class="{{ color }}Button" id="dashboardButton-{{ name }}">{{ name }}</button>
+                {% if 'buttons' in dashboard %}
+                    {% for button in dashboard['buttons'] %}
+                            {% set action = button['action'] %}
+                            {% if action['type'] == 'request' %}
+                                {% set onclick = "sendData('%s', %s, '%s')" % (action['route'], action['data'], action['method']) %}
+                            {% endif %}
 
-                {% if 'hideable' in element['dashboard'] and element['dashboard']['hideable'] %}
+                            {% if 'reload' in action and action['reload'] %}
+                            {% set onclick = onclick + ".then(function() {updateDashboardElement('%s', '%s')})" % (name, url) %}
+                            {% endif %}
+
+                            <button class="{{ color }}Button" id="dashboardSubButton-{{ name }}-{{ button['text'] }}" onclick="{{ onclick }}">{{ button['text'] }}</button>
+                    {% endfor %}
+                {% endif %}
+
+                {% if 'hideable' in dashboard and dashboard['hideable'] %}
                     {% set dropDownId =  'drop-down-button-%s' % (name) %}
                     {% set dashboardElementId =  'dashboard-%s' % (name) %}
                     {{ m.dropDownButton( dropDownId, dashboardElementId,color=color ) }}
