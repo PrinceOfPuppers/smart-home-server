@@ -180,6 +180,9 @@
                                 {% elif action['type'] == 'reload' %}
                                     {% set x = "updateDashboardElement('%s', '%s')" % (name, url) %}
                                     {% do myList.append("function () {return %s}" % (x)) %}
+                                {% elif action['type'] == 'info' %}
+                                    {% set x = "window.alert(`%s`)" % (action['text']) %}
+                                    {% do myList.append("function () {return %s}" % (x)) %}
                                 {% endif %}
 
                             {% endfor %}

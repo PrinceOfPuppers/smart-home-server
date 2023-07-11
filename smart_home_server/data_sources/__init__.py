@@ -447,7 +447,7 @@ dataSources = [
                 'text': 'Clear', 
                 'actions':[
                     {'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'jobLog'}},
-                    {'type': 'reload'}
+                    {'type': 'reload'},
                  ],
             }],
         },
@@ -468,9 +468,9 @@ dataSources = [
             'buttons':[{
                 'text': 'Clear', 
                 'actions':[
-                       {'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'rfLog'}},
-                       {'type': 'reload'}
-                 ],
+                    {'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'rfLog'}},
+                    {'type': 'reload'},
+                ],
             }],
         },
 
