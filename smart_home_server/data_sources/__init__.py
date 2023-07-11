@@ -445,9 +445,10 @@ dataSources = [
             'hideable': True,
             'buttons':[{
                 'text': 'Clear', 
-                'action':{ 
-                    'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'jobLog'}, 'reload': True,
-                 },
+                'actions':[
+                    {'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'jobLog'}},
+                    {'type': 'reload'}
+                 ],
             }],
         },
 
@@ -466,9 +467,10 @@ dataSources = [
             'hideable': True,
             'buttons':[{
                 'text': 'Clear', 
-                'action':{ 
-                    'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'rfLog'}, 'reload': True,
-                 },
+                'actions':[
+                       {'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'rfLog'}},
+                       {'type': 'reload'}
+                 ],
             }],
         },
 

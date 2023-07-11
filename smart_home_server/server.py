@@ -34,6 +34,7 @@ app.register_blueprint(triggerApi)
 app.register_blueprint(dataApi)
 app.register_blueprint(noteApi)
 app.register_blueprint(macroApi)
+app.jinja_env.add_extension('jinja2.ext.do')
 
 @app.route('/')
 def index():

@@ -133,6 +133,8 @@
             }
         })
     }
+    async function noop(){
+    }
 
     window.onload = () => {
         clock('clock');
@@ -167,16 +169,24 @@
                 <button class="{{ color }}Button" id="dashboardButton-{{ name }}">{{ name }}</button>
                 {% if 'buttons' in dashboard %}
                     {% for button in dashboard['buttons'] %}
-                            {% set action = button['action'] %}
-                            {% if action['type'] == 'request' %}
-                                {% set onclick = "sendData('%s', %s, '%s')" % (action['route'], action['data'], action['method']) %}
-                            {% endif %}
+                            {% set actions = button['actions'] %}
+                            {% set myList = [] %}
 
-                            {% if 'reload' in action and action['reload'] %}
-                            {% set onclick = onclick + ".then(function() {updateDashboardElement('%s', '%s')})" % (name, url) %}
-                            {% endif %}
+                            {% for action in actions %}
 
+                                {% if action['type'] == 'request' %}
+                                    {% set x = "sendData('%s', %s, '%s')" % (action['route'], action['data'], action['method']) %}
+                                    {% do myList.append("function () {return %s}" % (x)) %}
+                                {% elif action['type'] == 'reload' %}
+                                    {% set x = "updateDashboardElement('%s', '%s')" % (name, url) %}
+                                    {% do myList.append("function () {return %s}" % (x)) %}
+                                {% endif %}
+
+                            {% endfor %}
+
+                            {% set onclick = "noop().then(%s)" % ( myList|join( ').then(' ) ) %}
                             <button class="{{ color }}Button" id="dashboardSubButton-{{ name }}-{{ button['text'] }}" onclick="{{ onclick }}">{{ button['text'] }}</button>
+
                     {% endfor %}
                 {% endif %}
 
