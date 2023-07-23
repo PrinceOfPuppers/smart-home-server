@@ -34,11 +34,11 @@ void setupServo(){
 #endif
 
 // Behaves like stub if servo is disabled
-void servoPress(bool on){
+void servoPress(bool up){
 #if DEBUG_SERIAL_ENABLED
     Serial.print("Servo Press: ");
-    Serial.println(on ? "ON" : "OFF");
-#endif
+    Serial.println(on ? "UP" : "DOWN");
+
 
 #if SERVO_ENABLED
     int angle = on ? INITAL_SERVO_POS + SERVO_PRESS_ANGLE_UP : 

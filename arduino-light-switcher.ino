@@ -29,20 +29,29 @@ void setup() {
     setupServo();
 #endif
 
+#if LIGHT_SENSOR_ENABLED
+    setupLightSensor();
+#endif
+
 #if DEBUG_SERIAL_ENABLED
     Serial.println("Setup Complete");
     Serial.flush();
 #endif
 }
 
+#if LIGHT_SENSOR_ENABLED
+static void (* lightPresser)(bool) = lightSensitiveSwitch;
+#else
+static void (* lightPresser)(bool) = servoPress;
+#endif
 
 void loop() {
 #if MOTION_SENSOR_ENABLED
-    motionOnOff(servoPress);
+    motionOnOff(lightPresser);
 #endif
 
 #if RX_ENABLED
-    runOnCodeMatch(servoPress);
+    runOnCodeMatch(lightPresser);
 #endif
 }
 
