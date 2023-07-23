@@ -1,9 +1,10 @@
-#define RX_ENABLED 1
-#define MOTION_SENSOR_ENABLED 0
+#define RX_ENABLED 0
+#define SERVO_ENABLED 0
+#define MOTION_SENSOR_ENABLED 1
 #define LIGHT_SENSOR_ENABLED 0
 
-#define DEBUG_LED_ENABLED 0
-#define DEBUG_SERIAL_ENABLED 0
+#define DEBUG_LED_ENABLED 1
+#define DEBUG_SERIAL_ENABLED 1
 
 void setup() {
 #if DEBUG_SERIAL_ENABLED
@@ -24,17 +25,20 @@ void setup() {
     setupMotionSensor();
 #endif
 
+#if SERVO_ENABLED
     setupServo();
+#endif
 
 #if DEBUG_SERIAL_ENABLED
     Serial.println("Setup Complete");
+    Serial.flush();
 #endif
 }
 
 
 void loop() {
 #if MOTION_SENSOR_ENABLED
-    motionStartStop();
+    motionOnOff(servoPress);
 #endif
 
 #if RX_ENABLED

@@ -6,7 +6,8 @@ RCSwitch rx = RCSwitch();
 #define PRESS_DEBOUNCE_MS 1000
 
 // pins
-#define RX_INT_PIN 0 // 0 = pin2, 1 = pin3
+// #define RX_INT_PIN 0 // 0 = pin2, 1 = pin3 (pin 3 is used by motion sensor)
+#define RX_PIN 2 // int pins are 2 and 3
 
 // rx defines
 #define PROTOCOL 1
@@ -54,7 +55,7 @@ unsigned long codeMatches(){
 }
 
 void setupRx(){
-    rx.enableReceive(RX_INT_PIN);
+    rx.enableReceive(digitalPinToInterrupt(RX_PIN));
 #if DEBUG_SERIAL_ENABLED
     Serial.println("RX Setup");
 #endif

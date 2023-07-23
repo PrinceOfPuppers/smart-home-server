@@ -1,7 +1,17 @@
 #if MOTION_SENSOR_ENABLED
+#include <LowPower.h>
 
-#define MOTION_SENSOR_PIN 5
+#define MOTION_SENSOR_PIN 3
+#define MOTION_INT_PIN digitalPinToInterrupt(MOTION_SENSOR_PIN)
 
+
+// interrupt cb for motion detector
+void motionInt(){
+#if DEBUG_SERIAL_ENABLED
+    Serial.println("Motion Interrupt Called");
+    Serial.flush();
+#endif
+}
 
 void setupMotionSensor(){
     pinMode(MOTION_SENSOR_PIN, INPUT);
@@ -12,39 +22,35 @@ void setupMotionSensor(){
 
 }
 
-// calls cb when motion starts (bool true) or stops (bool false)
-void motionStartStop(){
-    int prevState = LOW;
-    int state = LOW;
-
+void motionOnOff(void (* on_off_cb)(bool)){
     while(1){
-        state = digitalRead(MOTION_SENSOR_PIN);
+        attachInterrupt(MOTION_INT_PIN, motionInt, HIGH);
+        LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
+        detachInterrupt(MOTION_INT_PIN);
 
-        if(state == prevState){
-            // no change
-            continue;
-        }
-
-        if(state == HIGH){
-            // movement detected
-#if DEBUG_LED_ENABLED
-            digitalWrite(LED_BUILTIN, HIGH);
-#endif
+        on_off_cb(true);
 #if DEBUG_SERIAL_ENABLED
-            Serial.println("Motion Started");
+        Serial.println("Motion Detected");
+        Serial.flush();
 #endif
-        }
-        else {
-            // no movement detected
-#if DEBUG_LED_ENABLED
-            digitalWrite(LED_BUILTIN, LOW);
-#endif
-#if DEBUG_SERIAL_ENABLED
-            Serial.println("Motion Stopped");
-#endif
-        }
-        prevState = state;
 
+#if DEBUG_LED_ENABLED
+        digitalWrite(LED_BUILTIN, HIGH);
+#endif
+
+        attachInterrupt(MOTION_INT_PIN, motionInt, LOW);
+        LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
+        detachInterrupt(MOTION_INT_PIN);
+
+        on_off_cb(false);
+#if DEBUG_SERIAL_ENABLED
+        Serial.println("Motion Stopped");
+        Serial.flush();
+#endif
+
+#if DEBUG_LED_ENABLED
+        digitalWrite(LED_BUILTIN, LOW);
+#endif
     }
 }
 
