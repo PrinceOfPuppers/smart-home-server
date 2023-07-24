@@ -37,11 +37,12 @@ void setupServo(){
 void servoPress(bool up){
 #if DEBUG_SERIAL_ENABLED
     Serial.print("Servo Press: ");
-    Serial.println(on ? "UP" : "DOWN");
+    Serial.println(up ? "UP" : "DOWN");
+#endif
 
 
 #if SERVO_ENABLED
-    int angle = on ? INITAL_SERVO_POS + SERVO_PRESS_ANGLE_UP : 
+    int angle = up ? INITAL_SERVO_POS + SERVO_PRESS_ANGLE_UP : 
                      INITAL_SERVO_POS - SERVO_PRESS_ANGLE_DOWN;
     setServ(angle);
     setServ( INITAL_SERVO_POS );
