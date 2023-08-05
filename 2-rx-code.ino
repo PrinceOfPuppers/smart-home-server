@@ -19,11 +19,11 @@ RCSwitch rx = RCSwitch();
 /*
 void rxTest(){
     if(rx.available()){
-        Serial.print( rx.getReceivedValue() );      
-        Serial.print(" / ");     
-        Serial.print( rx.getReceivedBitlength() );      
-        Serial.print(" bit ");      
-        Serial.print(" Protocol: ");     
+        Serial.print( rx.getReceivedValue() );
+        Serial.print(" / ");
+        Serial.print( rx.getReceivedBitlength() );
+        Serial.print(" bit ");
+        Serial.print(" Protocol: ");
         Serial.println( rx.getReceivedProtocol() );
         rx.resetAvailable();
     }
@@ -33,7 +33,7 @@ void rxTest(){
 // helper macro
 #define returnReset(x) rx.resetAvailable(); return x
 
-// 0 for no match, ON_VALUE/OFF_VALUE for respective value 
+// 0 for no match, ON_VALUE/OFF_VALUE for respective value
 unsigned long codeMatches(){
     while(1){
         if(rx.available()){

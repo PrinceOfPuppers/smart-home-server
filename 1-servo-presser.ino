@@ -42,7 +42,7 @@ void servoPress(bool up){
 
 
 #if SERVO_ENABLED
-    int angle = up ? INITAL_SERVO_POS + SERVO_PRESS_ANGLE_UP : 
+    int angle = up ? INITAL_SERVO_POS + SERVO_PRESS_ANGLE_UP :
                      INITAL_SERVO_POS - SERVO_PRESS_ANGLE_DOWN;
     setServ(angle);
     setServ( INITAL_SERVO_POS );

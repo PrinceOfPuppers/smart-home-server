@@ -3,10 +3,22 @@
 #define LIGHT_SENSOR_ENABLE_PIN 4
 #define LIGHT_SENSOR_A_PIN A7
 
+// miliseconds
+#define LIGHT_SWITCH_RESPONSE_DELAY 100
+
 static int lightMid = 0;
 
+int readLightSensor() {
+    int x = analogRead(LIGHT_SENSOR_A_PIN);
+#if DEBUG_SERIAL_ENABLED
+    Serial.print("Light Sensor Reading: ");
+    Serial.println(x);
+#endif
+    return x;
+}
+
 void _lightSensitiveSwitch(bool on){
-    int inital = analogRead(LIGHT_SENSOR_A_PIN);
+    int inital = readLightSensor();
 
     bool isOn = inital > lightMid;
 
@@ -15,13 +27,15 @@ void _lightSensitiveSwitch(bool on){
     }
 
     servoPress(true);
-    int current = analogRead(LIGHT_SENSOR_A_PIN);
-    if ( 
+    delay(LIGHT_SWITCH_RESPONSE_DELAY);
+    int current = readLightSensor();
+    if (
         on  && current < lightMid || // light was successfully turned off
-        off && current > lightMid    // light was successfully turned on
+        !on && current > lightMid    // light was successfully turned on
     ) { return; }
 
     servoPress(false);
+    delay(LIGHT_SWITCH_RESPONSE_DELAY);
     return;
 }
 // turns light on/off depending on current state
@@ -36,17 +50,27 @@ void calibrate(){
     digitalWrite(LIGHT_SENSOR_ENABLE_PIN, HIGH);
 
     servoPress(true);
-    int a = analogRead(LIGHT_SENSOR_A_PIN);
+    int a = readLightSensor();
+    delay(LIGHT_SWITCH_RESPONSE_DELAY);
 
     servoPress(false);
-    int b = analogRead(LIGHT_SENSOR_A_PIN);
+    int b = readLightSensor();
+    delay(LIGHT_SWITCH_RESPONSE_DELAY);
 
     digitalWrite(LIGHT_SENSOR_ENABLE_PIN, LOW);
 
     int min = a < b ? a : b;
     int max = a < b ? b : a;
+    int delta = max - min;
 
-    lightMid = min + (max - min)/2;
+    lightMid = min + delta/2;
+
+#if DEBUG_SERIAL_ENABLED
+    if(delta < 50){
+        Serial.print("Warning: Light Sensor on/off Delta Small: ");
+        Serial.println(delta);
+    }
+#endif
 }
 
 void setupLightSensor(){
@@ -54,6 +78,9 @@ void setupLightSensor(){
     pinMode(LIGHT_SENSOR_A_PIN, INPUT);
 
     calibrate();
+#if DEBUG_SERIAL_ENABLED
+    Serial.println("Light Sensor Setup and Calibrated");
+#endif
 }
 
 #endif
