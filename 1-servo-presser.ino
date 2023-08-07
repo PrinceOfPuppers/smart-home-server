@@ -5,11 +5,14 @@
 
 #define SERVO_PIN 7
 #define INITAL_SERVO_POS 90
-#define SERVO_PRESS_ANGLE_UP 17
-#define SERVO_PRESS_ANGLE_DOWN 17
+#define SERVO_PRESS_ANGLE_UP 18
+#define SERVO_PRESS_ANGLE_DOWN 18
+// swaps up and down angles
+#define SERVO_INVERT 0
 
 static Servo serv;
 static int servPos = 0;
+
 
 void setServ(int pos){
 #if DEBUG_SERIAL_ENABLED
@@ -37,14 +40,33 @@ void setupServo(){
 void servoPress(bool up){
 #if DEBUG_SERIAL_ENABLED
     Serial.print("Servo Press: ");
-    Serial.println(up ? "UP" : "DOWN");
+    Serial.print(up ? "UP" : "DOWN");
+    Serial.println(SERVO_INVERT ? " (Inverted)" : "");
 #endif
 
 
 #if SERVO_ENABLED
-    int angle = up ? INITAL_SERVO_POS + SERVO_PRESS_ANGLE_UP :
-                     INITAL_SERVO_POS - SERVO_PRESS_ANGLE_DOWN;
+
+#if SERVO_INVERT
+    int angle = up ?
+            INITAL_SERVO_POS - SERVO_PRESS_ANGLE_UP :
+            INITAL_SERVO_POS + SERVO_PRESS_ANGLE_DOWN;
+#else
+    int angle = up ?
+            INITAL_SERVO_POS + SERVO_PRESS_ANGLE_UP :
+            INITAL_SERVO_POS - SERVO_PRESS_ANGLE_DOWN;
+#endif
+
     setServ(angle);
     setServ( INITAL_SERVO_POS );
 #endif
+}
+
+void testServo(){
+    while(1){
+        servoPress(1);
+        delay(1000);
+        servoPress(0);
+        delay(1000);
+    }
 }

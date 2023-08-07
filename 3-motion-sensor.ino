@@ -4,7 +4,6 @@
 #define MOTION_SENSOR_PIN 3
 #define MOTION_INT_PIN digitalPinToInterrupt(MOTION_SENSOR_PIN)
 
-
 // interrupt cb for motion detector
 void motionInt(){
 #if DEBUG_SERIAL_ENABLED
@@ -24,33 +23,22 @@ void setupMotionSensor(){
 
 void motionOnOff(void (* on_off_cb)(bool)){
     while(1){
-        attachInterrupt(MOTION_INT_PIN, motionInt, HIGH);
+        attachInterrupt(MOTION_INT_PIN, motionInt, CHANGE);
         LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
         detachInterrupt(MOTION_INT_PIN);
 
-        on_off_cb(true);
+        int x = digitalRead(MOTION_SENSOR_PIN);
 #if DEBUG_SERIAL_ENABLED
-        Serial.println("Motion Detected");
+        Serial.print("Motion Sensor: ");
+        Serial.println(x ? "Movement" : "Movement Stopped");
         Serial.flush();
 #endif
 
 #if DEBUG_LED_ENABLED
-        digitalWrite(LED_BUILTIN, HIGH);
+        digitalWrite(LED_BUILTIN, x);
 #endif
 
-        attachInterrupt(MOTION_INT_PIN, motionInt, LOW);
-        LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
-        detachInterrupt(MOTION_INT_PIN);
-
-        on_off_cb(false);
-#if DEBUG_SERIAL_ENABLED
-        Serial.println("Motion Stopped");
-        Serial.flush();
-#endif
-
-#if DEBUG_LED_ENABLED
-        digitalWrite(LED_BUILTIN, LOW);
-#endif
+        on_off_cb(x);
     }
 }
 

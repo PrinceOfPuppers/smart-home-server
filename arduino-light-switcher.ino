@@ -1,7 +1,7 @@
-#define RX_ENABLED 1
+#define RX_ENABLED 0
 #define SERVO_ENABLED 1
-#define MOTION_SENSOR_ENABLED 0
-#define LIGHT_SENSOR_ENABLED 1
+#define MOTION_SENSOR_ENABLED 1
+#define LIGHT_SENSOR_ENABLED 0
 
 #define DEBUG_LED_ENABLED 1
 #define DEBUG_SERIAL_ENABLED 1
@@ -50,6 +50,7 @@ static void (* lightPresser)(bool) = servoPress;
 #endif
 
 void loop() {
+    // testServo();
 #if MOTION_SENSOR_ENABLED
     motionOnOff(lightPresser);
 #endif
