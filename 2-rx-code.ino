@@ -3,7 +3,7 @@
 
 RCSwitch rx = RCSwitch();
 
-#define PRESS_DEBOUNCE_MS 1000
+#define PRESS_DEBOUNCE_MS 500
 
 // pins
 // #define RX_INT_PIN 0 // 0 = pin2, 1 = pin3 (pin 3 is used by motion sensor)

@@ -28,6 +28,7 @@ void setServ(int pos){
 void setupServo(){
     serv.attach(SERVO_PIN);
     setServ(INITAL_SERVO_POS);
+    serv.detach();
 
 #if DEBUG_SERIAL_ENABLED
     Serial.println("Servo Setup");
@@ -57,8 +58,10 @@ void servoPress(bool up){
             INITAL_SERVO_POS - SERVO_PRESS_ANGLE_DOWN;
 #endif
 
+    serv.attach(SERVO_PIN);
     setServ(angle);
     setServ( INITAL_SERVO_POS );
+    serv.detach();
 #endif
 }
 

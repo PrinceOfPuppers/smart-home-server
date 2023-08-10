@@ -3,10 +3,25 @@
 #define LIGHT_SENSOR_ENABLE_PIN 4
 #define LIGHT_SENSOR_A_PIN A7
 
+#define MIN_LIGHT_DELTA 50
+
 // miliseconds
-#define LIGHT_SWITCH_RESPONSE_DELAY 100
+#define LIGHT_SWITCH_RESPONSE_DELAY 150
 
 static int lightMid = 0;
+
+int getMid(int a, int b){
+    int min = a < b ? a : b;
+    int max = a < b ? b : a;
+    int delta = max - min;
+#if DEBUG_SERIAL_ENABLED
+    if(delta < MIN_LIGHT_DELTA){
+        Serial.print("Warning: Light Sensor on/off Delta Small: ");
+        Serial.println(delta);
+    }
+#endif
+    return min + delta/2;
+}
 
 int readLightSensor() {
     int x = analogRead(LIGHT_SENSOR_A_PIN);
@@ -18,9 +33,12 @@ int readLightSensor() {
 }
 
 void _lightSensitiveSwitch(bool on){
-    int inital = readLightSensor();
+    // for debugging
+    int initalMid = lightMid;
 
-    bool isOn = inital > lightMid;
+    int a = readLightSensor();
+
+    bool isOn = a > lightMid;
 
     if ( on == isOn ){
         return;
@@ -28,14 +46,49 @@ void _lightSensitiveSwitch(bool on){
 
     servoPress(true);
     delay(LIGHT_SWITCH_RESPONSE_DELAY);
-    int current = readLightSensor();
+    int b = readLightSensor();
+
+    // recalibrate if light changed
+    if (abs(a-b) > MIN_LIGHT_DELTA) {
+        lightMid = getMid(a,b);
+    }
+
     if (
-        on  && current < lightMid || // light was successfully turned off
-        !on && current > lightMid    // light was successfully turned on
+        !on && b < lightMid || // light was successfully turned off
+        on  && b > lightMid    // light was successfully turned on
     ) { return; }
 
     servoPress(false);
     delay(LIGHT_SWITCH_RESPONSE_DELAY);
+
+    int c = readLightSensor();
+    // recalibrate if light changed
+    if (abs(b - c) > MIN_LIGHT_DELTA) {
+        lightMid = getMid(b, c);
+    }
+
+    // catch errors
+    if (
+        !on && c < lightMid || // light was successfully turned off
+        on  && c > lightMid    // light was successfully turned on
+    ) { return; }
+
+    // inital position of light was correct, lightMid was incorrect
+    servoPress(true);
+
+#if DEBUG_SERIAL_ENABLED
+    Serial.print("Error: Light Sensitive Switch Was Miscalibrated\nInital lightMid: ");
+    Serial.println(initalMid);
+    Serial.print("Current lightMid: ");
+    Serial.println(lightMid);
+    Serial.print("a: ");
+    Serial.println(a);
+    Serial.print("b: ");
+    Serial.println(b);
+    Serial.print("c: ");
+    Serial.println(c);
+#endif
+
     return;
 }
 // turns light on/off depending on current state
@@ -46,31 +99,24 @@ void lightSensitiveSwitch(bool on){
 
 }
 
+int calibrateHelper(bool onOff){
+    servoPress(onOff);
+    int x = readLightSensor();
+    delay(LIGHT_SWITCH_RESPONSE_DELAY);
+    return x;
+}
+
+
 void calibrate(){
     digitalWrite(LIGHT_SENSOR_ENABLE_PIN, HIGH);
 
-    servoPress(true);
-    int a = readLightSensor();
-    delay(LIGHT_SWITCH_RESPONSE_DELAY);
-
-    servoPress(false);
-    int b = readLightSensor();
-    delay(LIGHT_SWITCH_RESPONSE_DELAY);
+    int a = calibrateHelper(true);
+    int b = calibrateHelper(false);
 
     digitalWrite(LIGHT_SENSOR_ENABLE_PIN, LOW);
 
-    int min = a < b ? a : b;
-    int max = a < b ? b : a;
-    int delta = max - min;
+    lightMid = getMid(a, b);
 
-    lightMid = min + delta/2;
-
-#if DEBUG_SERIAL_ENABLED
-    if(delta < 50){
-        Serial.print("Warning: Light Sensor on/off Delta Small: ");
-        Serial.println(delta);
-    }
-#endif
 }
 
 void setupLightSensor(){
@@ -81,6 +127,50 @@ void setupLightSensor(){
 #if DEBUG_SERIAL_ENABLED
     Serial.println("Light Sensor Setup and Calibrated");
 #endif
+}
+
+void testLightSensor(){
+    while(1){
+#if DEBUG_SERIAL_ENABLED
+        digitalWrite(LIGHT_SENSOR_ENABLE_PIN, HIGH);
+        Serial.println("Light Sensor Test Sequence Start");
+        Serial.println("Getting Light Sample a in...");
+        Serial.println("3");
+        delay(1000);
+        Serial.println("2");
+        delay(1000);
+        Serial.println("1");
+        delay(1000);
+        int a = calibrateHelper(true);
+        Serial.println("Sample a recieved!");
+        delay(1000);
+
+        Serial.println("Getting Light Sample B in...");
+        Serial.println("3");
+        delay(1000);
+        Serial.println("2");
+        delay(1000);
+        Serial.println("1");
+        delay(1000);
+        int b = calibrateHelper(false);
+        Serial.println("Sample b recieved!");
+        delay(1000);
+        digitalWrite(LIGHT_SENSOR_ENABLE_PIN, LOW);
+
+        Serial.print("Values \na: ");
+        Serial.print(a);
+        Serial.print(" b: ");
+        Serial.println(b);
+        Serial.print("Midpoint: ");
+        int x = getMid(a, b);
+        Serial.println(x);
+        delay(5000);
+#else
+        // requires serial debugging
+        delay(1000);
+#endif
+    }
+
 }
 
 #endif

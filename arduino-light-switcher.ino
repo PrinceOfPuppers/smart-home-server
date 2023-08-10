@@ -1,10 +1,10 @@
-#define RX_ENABLED 0
+#define RX_ENABLED 1
 #define SERVO_ENABLED 1
-#define MOTION_SENSOR_ENABLED 1
-#define LIGHT_SENSOR_ENABLED 0
+#define MOTION_SENSOR_ENABLED 0
+#define LIGHT_SENSOR_ENABLED 1
 
-#define DEBUG_LED_ENABLED 1
-#define DEBUG_SERIAL_ENABLED 1
+#define DEBUG_LED_ENABLED 0
+#define DEBUG_SERIAL_ENABLED 0
 
 #if MOTION_SENSOR_ENABLED && RX_ENABLED
     #error "RX Trigger and Motion Trigger are Mutually Exclusive"
@@ -51,6 +51,7 @@ static void (* lightPresser)(bool) = servoPress;
 
 void loop() {
     // testServo();
+    // testLightSensor();
 #if MOTION_SENSOR_ENABLED
     motionOnOff(lightPresser);
 #endif
