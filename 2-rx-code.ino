@@ -16,19 +16,22 @@ RCSwitch rx = RCSwitch();
 #define BIT_LENGTH 24
 #define NUM_REPEATS 3
 
-/*
-void rxTest(){
-    if(rx.available()){
-        Serial.print( rx.getReceivedValue() );
-        Serial.print(" / ");
-        Serial.print( rx.getReceivedBitlength() );
-        Serial.print(" bit ");
-        Serial.print(" Protocol: ");
-        Serial.println( rx.getReceivedProtocol() );
-        rx.resetAvailable();
+void testRx(){
+    while(1){
+#if DEBUG_SERIAL_ENABLED
+        if(rx.available()){
+            Serial.print( rx.getReceivedValue() );
+            Serial.print(" / ");
+            Serial.print( rx.getReceivedBitlength() );
+            Serial.print(" bit ");
+            Serial.print(" Protocol: ");
+            Serial.println( rx.getReceivedProtocol() );
+            rx.resetAvailable();
+        }
+#endif
+    delay(10);
     }
 }
-*/
 
 // helper macro
 #define returnReset(x) rx.resetAvailable(); return x

@@ -10,6 +10,10 @@
     #error "RX Trigger and Motion Trigger are Mutually Exclusive"
 #endif
 
+// pull either pin low and restart to enter test mode
+#define SERVO_TEST_PIN_1 11 // test with no on/off
+#define SERVO_TEST_PIN_2 12 // test with on/off
+
 void setup() {
 #if DEBUG_SERIAL_ENABLED
     Serial.begin(9600);
@@ -30,7 +34,19 @@ void setup() {
 #endif
 
 #if SERVO_ENABLED
+    pinMode(SERVO_TEST_PIN_1, INPUT_PULLUP);
+    pinMode(SERVO_TEST_PIN_2, INPUT_PULLUP);
     setupServo();
+    // servo tests
+    if(!digitalRead(SERVO_TEST_PIN_1)){
+        testServoPot();
+    }
+    if(!digitalRead(SERVO_TEST_PIN_2)){
+        testServo();
+    }
+    // disable pullups
+    pinMode(SERVO_TEST_PIN_1, INPUT);
+    pinMode(SERVO_TEST_PIN_2, INPUT);
 #endif
 
 #if LIGHT_SENSOR_ENABLED
@@ -51,7 +67,9 @@ static void (* lightPresser)(bool) = servoPress;
 
 void loop() {
     // testServo();
+    // testServoPot();
     // testLightSensor();
+    // testRx();
 #if MOTION_SENSOR_ENABLED
     motionOnOff(lightPresser);
 #endif
