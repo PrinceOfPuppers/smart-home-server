@@ -50,6 +50,7 @@ The base setup of this project requires:
 - potentiometer
 
 #### Base Schematic
+
 <img align="left" height="300" src="images/base_sch.jpg">
 <br clear="left"/>
 <br clear="left"/>
@@ -58,6 +59,7 @@ The base setup of this project requires:
 Thread 2 M2.5 screws through both mounting holes on the servo, attach 2 M2.5, female to male standoffs to either screw. The standoffs should be longer than the body of the servo with enough space to route cables underneath the servo case. 
 
 Drill 2 holes into the project box to mount the servo+standoffs onto it, the holes should be drilled at the midpoint of the boxes depth as shown below
+
 <img align="left" height="300" src="images/servo_pic.jpg">
 <br clear="left"/>
 <br clear="left"/>
@@ -83,6 +85,7 @@ Triggers the switch based on RF codes
 - 433 MHz antenna
 
 #### Rx Schematic
+
 <img align="left" height="300" src="images/rx_sch.jpg">
 <br clear="left"/>
 <br clear="left"/>
@@ -101,6 +104,7 @@ Triggers the module based on detected motion
 - twist ties
 
 #### Motion Sensor Schematic
+
 <img align="left" height="300" src="images/motion_sch.jpg">
 <br clear="left"/>
 <br clear="left"/>
@@ -139,7 +143,8 @@ If there are other lights in the room the device may occasionally flicker the li
 
 # EXAMPLE
 Here is an example of a Rx Triggered module with a light sensor. 
-<img align="left" height="300" src="images/internal_pic.jpg">
+
+<img align="left" height="300" src="images/interal_pic.jpg">
 <img align="left" height="300" src="images/photoresistor_pic.jpg">
 <img align="left" height="300" src="images/servo_pic.jpg">
 <br clear="left"/>
