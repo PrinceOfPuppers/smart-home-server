@@ -22,16 +22,16 @@ To flash and run the project on Linux, use:
 ``` 
 ./run.sh
 ```
-This will also get cat serial output of the Arduino to terminal for debugging, hit ctrl-c to close it. 
+This will also cat the serial output of the Arduino to terminal for debugging, hit ctrl-c to close it. 
 
-Pulling pin D11 or D12 low and resetting will run a live servo adjustment test, and a continuous presser test respectively (for more info read the configuration section of the base module).
+Pulling pin `D11` or `D12` low and resetting will run a live servo adjustment test, and a continuous presser test respectively (for more info read the configuration section of the base module).
 
 
 # CREATION
-I will divide this section into each module
+I will divide this section into each module.
 
 ## Base Module
-Includes the Arduino, power, and servo
+Includes the Arduino, power, and servo.
 
 #### Base Materials
 The base setup of this project requires:
@@ -51,14 +51,14 @@ The base setup of this project requires:
 
 #### Base Schematic
 
-<img align="left" height="300" src="images/base_sch.jpg">
+<img align="left" width="500" src="images/base_sch.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
 #### Base Assembly
-Thread 2 M2.5 screws through both mounting holes on the servo, attach 2 M2.5, female to male standoffs to either screw. The standoffs should be longer than the body of the servo with enough space to route cables underneath the servo case. 
+Thread 2 M2.5 screws through both mounting holes on the servo, attach 2 M2.5 female to male standoffs to either screw. The standoffs should be longer than the body of the servo with enough space to route cables underneath the servo case. 
 
-Drill 2 holes into the project box to mount the servo+standoffs onto it, the holes should be drilled at the midpoint of the boxes depth as shown below
+Drill 2 holes into the project box to mount the servo+standoffs onto it, the holes should be drilled at the midpoint of the boxes depth as shown below.
 
 <img align="left" height="300" src="images/servo_pic.jpg">
 <br clear="left"/>
@@ -66,19 +66,19 @@ Drill 2 holes into the project box to mount the servo+standoffs onto it, the hol
 
 Drill an additional hole between the previous 2 to run the servo cable beneath the servo case and into the project box.
 
-Attach a toothpick to the servo arm with some hot glue and trim the ends of the toothpick so it can press the upper and lower part of the light switch
+Attach a toothpick to the servo arm with some hot glue and trim the ends of the toothpick so it can press the upper and lower part of the light switch.
 
 #### Base Configuration
 If the switcher is going to be on the left side of the switch, enable `SERVO_INVERT` in `1-servo-presser.ino`.
 
-Set the potentiometer to its midpoint and turn on the module, wait for it to run through its startup sequence. Then add the servo arm so its parallel with the case (and hence the future wall). Note during normal operation, the potentiometer is only read on reset, adjusting it afterwards will have no effect till next reset (unless running one of the test modes mentioned below)
+Set the potentiometer to its midpoint and turn on the module, wait for it to run through its startup sequence. Then add the servo arm so its parallel with the case (and hence the future wall). Note during normal operation, the potentiometer is only read on reset, adjusting it afterwards will have no effect till next reset (unless running one of the test modes mentioned below).
 
-You adjust the servo neutral position live by pulling pin D11 low and resetting the module, reset again to end the test. Similarly, Pulling pin D12 low and resetting will run a test which presses up and down continuously, also with live servo neutral adjustments.
+You can adjust the servo neutral position live by pulling pin `D11` low and resetting the module, reset again to end the test. Similarly, Pulling pin `D12` low and resetting will run a test which presses up and down continuously, with live servo neutral adjustments aswell.
 
 Adjust `SERVO_PRESS_ANGLE_UP` and `SERVO_PRESS_ANGLE_DOWN` if the module is still having trouble hitting both sides of the light switch (default values should be good).
 
 ## Rx Module
-Triggers the switch based on RF codes
+Triggers the switch based on RF codes.
 
 #### Rx Materials
 - 433 MHz Rx Module
@@ -86,17 +86,17 @@ Triggers the switch based on RF codes
 
 #### Rx Schematic
 
-<img align="left" height="300" src="images/rx_sch.jpg">
+<img align="left" width="500" src="images/rx_sch.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
 #### Rx Configuration
 
-The Rx module can be configured in `2-rx-code.ino` by editing: `ON_VALUE`, `OFF_VALUE`, `BIT_LENGTH` and `PROTOCOL`. To get these values, uncomment `testRx();` in `loop()` of `arduino-light-switcher.ino` and see what codes your RF remote/transmitter is sending out.
+The Rx module can be configured in `2-rx-code.ino` by editing: `ON_VALUE`, `OFF_VALUE`, `BIT_LENGTH` and `PROTOCOL`. To get these values, uncomment `testRx();` in `loop()` of `arduino-light-switcher.ino` and see what codes your RF remote/transmitter is sending out (`ENABLE_DEBUG_SERIAL` must be enabled to see the output).
 
 
 ## Motion Sensor Module
-Triggers the module based on detected motion
+Triggers the switch based on detected motion.
 
 #### Motion Sensor Materials
 - HC-SR501 PIR motion sensor
@@ -105,16 +105,16 @@ Triggers the module based on detected motion
 
 #### Motion Sensor Schematic
 
-<img align="left" height="300" src="images/motion_sch.jpg">
+<img align="left" width="500" src="images/motion_sch.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
 #### Motion Sensor Assembly
-Set the motion sensor to repeat trigger mode (should be 3 pins with a pin jumper cover which can be moved), see your module's docs for more details
+Set the motion sensor to repeat trigger mode (there should be 3 pins with a pin jumper cover which can be moved), see your module's docs for more details.
 
 Drill 2 level holes in the project box lid with the same spacing as the motion sensor mounting holes, we will be mounting the sensor with its built in potentiometers facing up. Cut/Drill a slot in the project box case where the sensors pins will be once its mounted, with enough space for the future connectors to fit through it.
 
-Thread a twist tie through the front of one hole in the lid and back out the other. Thread the ties through the holes on the motion sensor mounting holes, and loop each around the outside of the PCB and back through the project box lid holes. Secure the twist ties on the inside of the lid with some tape. 
+Thread a twist tie through the front of one hole in the lid and back out the other. Thread either end of the twist tie through the mounting holes on the motion sensor, loop each end around the outside of the PCB and back through the project box lid holes. Secure the twist ties on the inside of the lid with some tape. 
 
 <img align="left" height="300" src="images/motion_pic_1.jpg">
 <img align="left" height="300" src="images/motion_pic_2.jpg">
@@ -123,11 +123,11 @@ Thread a twist tie through the front of one hole in the lid and back out the oth
 
 #### Motion Sensor Configuration
 
-Ensure the motion sensor is in repeat trigger mode as mentioned above. Adjust the potentiometers on the motion sensor for the desired sensitivity and on duration for your application (I find 2 minutes duration good for most purposes)
+Ensure the motion sensor is in repeat trigger mode as mentioned above. Adjust the potentiometers on the motion sensor for the desired sensitivity and on duration for your application (I find 2 minutes duration good for most purposes).
 
 
 ## Light Sensor Module
-Makes the device compatible with lights which have multiple switches on the same circuit
+Makes the device compatible with lights which have multiple switches on the same circuit.
 
 
 #### Light Sensor Materials
@@ -142,7 +142,7 @@ If there are other lights in the room the device may occasionally flicker the li
 
 
 # EXAMPLE
-Here is an example of a Rx Triggered module with a light sensor. 
+Here is an example of a Rx Triggered module with a light sensor:
 
 <img align="left" height="300" src="images/interal_pic.jpg">
 <img align="left" height="300" src="images/photoresistor_pic.jpg">
