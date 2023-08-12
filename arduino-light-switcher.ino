@@ -68,6 +68,7 @@ static void (* lightPresser)(bool) = servoPress;
 void loop() {
     // testServo();
     // testServoPot();
+    // testServoRange();
     // testLightSensor();
     // testRx();
 #if MOTION_SENSOR_ENABLED

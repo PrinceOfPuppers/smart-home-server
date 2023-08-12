@@ -3,7 +3,7 @@
 
 RCSwitch rx = RCSwitch();
 
-#define PRESS_DEBOUNCE_MS 500
+#define PRESS_DEBOUNCE_MS 700
 
 // pins
 // #define RX_INT_PIN 0 // 0 = pin2, 1 = pin3 (pin 3 is used by motion sensor)
@@ -95,10 +95,6 @@ void runOnCodeMatch(void (* on_off_cb)(bool)){
         }
 
         // we've heard the code enough times
-        count = 0;
-        prevVal = 0;
-        on_off_cb(val == ON_VALUE);
-
 #if DEBUG_LED_ENABLED
     digitalWrite(LED_BUILTIN, val == ON_VALUE ? HIGH : LOW);
 #endif
@@ -107,8 +103,13 @@ void runOnCodeMatch(void (* on_off_cb)(bool)){
     Serial.print("Matched Code: ");
     Serial.println(val == ON_VALUE ? "ON" : "OFF");
 #endif
+        count = 0;
+        prevVal = 0;
+        on_off_cb(val == ON_VALUE);
+
         // debounce
         delay(PRESS_DEBOUNCE_MS);
+        rx.resetAvailable();
     }
 }
 
