@@ -70,11 +70,11 @@ Drill an additional hole between the previous 2 to run the servo cable beneath t
 Attach a toothpick to the servo arm with some hot glue and trim the ends of the toothpick so it can press the upper and lower part of the light switch.
 
 #### Base Configuration
-If the switcher is going to be on the left side of the switch, enable `SERVO_INVERT` in `1-servo-presser.ino`.
+If the switcher is going to be on the left side of the switch, enable `servo-invert` by pulling pin `A0` low, this is only read on restart.
 
 Set the potentiometer to its midpoint and turn on the module, wait for it to run through its startup sequence. Then add the servo arm so it's parallel with the case (and hence the future wall). Note during normal operation, the potentiometer is only read on reset, adjusting it afterwards will have no effect till next reset (unless running one of the test modes mentioned below).
 
-You can adjust the servo neutral position live by pulling pin `D11` low and resetting the module, reset again to end the test. Similarly, pulling pin `D12` low and resetting will run a test which presses up and down continuously, with live servo neutral adjustments aswell.
+You can adjust the servo neutral position live by pulling pin `D11` low and resetting the module, reset again to end the test. Similarly, pulling pin `D12` low and resetting will run a test which presses up and down continuously, with live servo neutral and servo invert adjustments aswell.
 
 Adjust `SERVO_PRESS_ANGLE_UP` and `SERVO_PRESS_ANGLE_DOWN` if the module is still having trouble hitting both sides of the light switch (default values should be good).
 
