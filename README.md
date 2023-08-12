@@ -48,6 +48,7 @@ The base setup of this project requires:
 - 3m command strips (or some other method of wall attachment)
 - USB a power cable and wall adapter
 - potentiometer
+- toothpick
 
 #### Base Schematic
 
@@ -71,9 +72,9 @@ Attach a toothpick to the servo arm with some hot glue and trim the ends of the 
 #### Base Configuration
 If the switcher is going to be on the left side of the switch, enable `SERVO_INVERT` in `1-servo-presser.ino`.
 
-Set the potentiometer to its midpoint and turn on the module, wait for it to run through its startup sequence. Then add the servo arm so its parallel with the case (and hence the future wall). Note during normal operation, the potentiometer is only read on reset, adjusting it afterwards will have no effect till next reset (unless running one of the test modes mentioned below).
+Set the potentiometer to its midpoint and turn on the module, wait for it to run through its startup sequence. Then add the servo arm so it's parallel with the case (and hence the future wall). Note during normal operation, the potentiometer is only read on reset, adjusting it afterwards will have no effect till next reset (unless running one of the test modes mentioned below).
 
-You can adjust the servo neutral position live by pulling pin `D11` low and resetting the module, reset again to end the test. Similarly, Pulling pin `D12` low and resetting will run a test which presses up and down continuously, with live servo neutral adjustments aswell.
+You can adjust the servo neutral position live by pulling pin `D11` low and resetting the module, reset again to end the test. Similarly, pulling pin `D12` low and resetting will run a test which presses up and down continuously, with live servo neutral adjustments aswell.
 
 Adjust `SERVO_PRESS_ANGLE_UP` and `SERVO_PRESS_ANGLE_DOWN` if the module is still having trouble hitting both sides of the light switch (default values should be good).
 
@@ -123,7 +124,7 @@ Thread a twist tie through the front of one hole in the lid and back out the oth
 
 #### Motion Sensor Configuration
 
-Ensure the motion sensor is in repeat trigger mode as mentioned above. Adjust the potentiometers on the motion sensor for the desired sensitivity and on duration for your application (I find 2 minutes duration good for most purposes).
+Ensure the motion sensor is in repeat trigger mode as mentioned above. Adjust the potentiometers on the motion sensor for the desired sensitivity and `on` duration for your application (I find 2 minutes duration good for most purposes).
 
 
 ## Light Sensor Module
@@ -132,13 +133,19 @@ Makes the device compatible with lights which have multiple switches on the same
 
 #### Light Sensor Materials
 - photoresistor
-- resistor with a value around the midpoint of the photoresitor
+- resistor with a value around the midpoint of the photoresistor
 - clear tape
+  
+#### Light Sensor Schematic
+
+<img align="left" width="500" src="images/light_sch.jpg">
+<br clear="left"/>
+<br clear="left"/>
 
 #### Light Sensor Assembly
-Drill a hole in the project box in the direction of the light that is going to be switched, the hole needs to be large enough to fit the photoresistor. Apply a small square of tape over the hole, stick the photoresistor to the tape. Pot the photoresitor in hot glue, leaving the leads exposed.
+Drill a hole in the project box in the direction of the light that is going to be switched, the hole needs to be large enough to fit the photoresistor. Apply a small square of tape over the hole, stick the photoresistor to the tape. Pot the photoresistor in hot glue, leaving the leads exposed.
 
-If there are other lights in the room the device may occasionally flicker the light on and off when switching it, or assume the light is already on or off when it isn't and refuse to switch. To fix this you can create a light shade using some black tape. In extreme cases, create a small tube with black tape and direct it towards the light source which is being switched. the device will re-calibrate on restart, on whenever it presses both side of the light switch when switching. 
+If there are other lights in the room the device may occasionally flicker the light on and off when switching it, or assume the light is already on or off when it isn't and refuse to switch. To fix this you can create a light shade using some black tape. In extreme cases, create a small tube with black tape and direct it towards the light source which is being switched. The device will re-calibrate on restart, or whenever it presses both side of the light switch when switching. 
 
 
 # EXAMPLE
