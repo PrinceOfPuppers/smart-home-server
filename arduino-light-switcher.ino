@@ -1,7 +1,8 @@
 
 // triggers
-#define RX_ENABLED 1
+#define RX_ENABLED 0
 #define MOTION_SENSOR_ENABLED 0
+#define POWER_TRIGGER_ENABLED 1
 
 // actions
 #define TX_ENABLED 1
@@ -11,13 +12,13 @@
 #define LIGHT_SENSOR_ENABLED 0
 
 // debugging
-#define DEBUG_LED_ENABLED 0
+#define DEBUG_LED_ENABLED 1
 #define DEBUG_SERIAL_ENABLED 0
 
 
 // sanity checks
-#if MOTION_SENSOR_ENABLED && RX_ENABLED
-    #error "Rx Trigger and Motion Trigger are Mutually Exclusive"
+#if MOTION_SENSOR_ENABLED + RX_ENABLED + POWER_TRIGGER_ENABLED > 1
+    #error "Rx Trigger, Motion Trigger and Power Trigger are Mutually Exclusive"
 #endif
 #if TX_ENABLED && SERVO_ENABLED
     #error "Tx Action and Servo Action are Mutually Exclusive"
@@ -83,20 +84,10 @@ void setup() {
     digitalWrite(LED_BUILTIN, LOW);
 #endif
 
-
-#if RX_ENABLED
-    setupRx();
-#endif
-
+    // actions
 #if TX_ENABLED
     setupTx();
-#endif
-
-#if MOTION_SENSOR_ENABLED
-    setupMotionSensor();
-#endif
-
-#if SERVO_ENABLED
+#elif SERVO_ENABLED
     pinMode(SERVO_TEST_PIN_1, INPUT_PULLUP);
     pinMode(SERVO_TEST_PIN_2, INPUT_PULLUP);
     setupServo();
@@ -112,8 +103,18 @@ void setup() {
     pinMode(SERVO_TEST_PIN_2, INPUT);
 #endif
 
+    // mods
 #if LIGHT_SENSOR_ENABLED
     setupLightSensor(action);
+#endif
+
+    // triggers
+#if MOTION_SENSOR_ENABLED
+    setupMotionSensor();
+#elif RX_ENABLED
+    setupRx();
+#elif POWER_TRIGGER_ENABLED
+    setupPowerTrigger(modAction);
 #endif
 
 #if DEBUG_SERIAL_ENABLED
@@ -140,6 +141,8 @@ void loop() {
 
 #elif RX_ENABLED
     runOnCodeMatch(modAction);
+#elif POWER_TRIGGER_ENABLED
+    powerTrigger(modAction);
 #else
 #error "At Least 1 Trigger is Required"
 #endif

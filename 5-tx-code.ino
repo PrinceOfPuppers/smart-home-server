@@ -7,8 +7,10 @@ static RCSwitch tx = RCSwitch();
 
 // tx defines
 #define PROTOCOL 1
-#define ON_VALUE 9872890
-#define OFF_VALUE 9872882
+#define ON_VALUE 8638538
+#define OFF_VALUE 8638530
+//#define ON_VALUE 9872890
+//#define OFF_VALUE 9872882
 #define PULSE_LENGTH 195
 #define BIT_LENGTH 24
 #define NUM_REPEATS 10
