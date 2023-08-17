@@ -1,36 +1,35 @@
 # Arduino Light Switcher
 
 > A Modular Device for Smart Home Automation of Lights and More
-- [ABOUT](#ABOUT)
-- [SETUP](#SETUP)
-- [CREATION](#CREATION)
-- [EXAMPLES](#EXAMPLES)
+- [ABOUT](#about)
+- [SETUP](#setup)
+- [CREATION](#creation)
+  * [Servo Module (Action)](#servo-module)
+  * [Tx Module (Action)](#tx-module)
+  * [Power Trigger Module (Trigger)](#power-trigger-module)
+  * [Rx Module (Trigger)](#rx-module)
+  * [Motion Sensor Module (Trigger)](#motion-sensor-module)
+  * [Light Sensor Module (Modifier)](#light-sensor-module)
+- [EXAMPLES](#examples)
 
 
 # ABOUT
 This device is a set of modules, each of which fits within 1 of 3 categories: Triggers, Modifiers, Actions.
 
-#### Actions:
+### Actions:
 Press, Toggle, Transmit, etc. These modules preform 2 types of actions corresponding to the concepts of "on" or "off".
 
 Examples:
 - `servo module`: presses physical rocker switches.
 - `tx module`: transmits 2 different codes, one for on, one for off.
 
-#### Triggers:
+### Triggers:
 Triggers an action, either on or off.
 
 Examples:
 - `rx module`: receives 2 different codes, on and off.
 - `motion sensor module:` triggers on when movement is detected and off when movement stops.
 - `power module`: triggers on when device is powered on, off when device is powered off.
-
-
-#### Modifiers
-Stands between the trigger and the action, takes in the output of the trigger along with external data and controls the action.
-
-Examples:
-- `light sensor module`: used to control lights that have multiple switches on the same circuit, takes in light data and self calibrates.
 
 
 
@@ -66,8 +65,8 @@ The base setup of this project requires:
 
 
 
-## Servo Module (ACTION)
-Uses the servo to physically press rocker style light switches
+## Servo Module
+An Action. Uses the servo to physically press rocker style light switches
 
 #### Servo Materials
 - servo motor
@@ -106,8 +105,24 @@ Adjust `SERVO_PRESS_ANGLE_UP` and `SERVO_PRESS_ANGLE_DOWN` if the module is stil
 
 
 
-## Power Trigger Module (Trigger)
-Triggers `on` on when powered on, and `off` when power is lost
+
+## Tx Module
+An Action. Transmits `on/off` codes.
+
+#### Tx Materials
+- 433 MHz Tx Module
+
+#### Tx Schematic
+None needed, simply connect unit to 5v, GND and connect `DATA` to the Arduino's `D8` pin.
+
+#### Tx Configuration
+
+The Tx module can be configured in `5-tx-code.ino` by editing: `ON_VALUE`, `OFF_VALUE`, `PULSE_LENGTH`, `BIT_LENGTH` and `PROTOCOL`. To get these values, if you have an Rx module, you can uncomment `testRx();` in `loop()` of `arduino-light-switcher.ino` and see what codes your RF remote/transmitter is sending out (`ENABLE_DEBUG_SERIAL` must be enabled to see the output). 
+
+
+
+## Power Trigger Module
+A Trigger. Triggers `on` on when powered on, and `off` when power is lost
 
 #### Power Trigger Materials
 - $3V$ $1W$ zener diode
@@ -128,8 +143,8 @@ Note: This trigger is meant to be used with fast, low power actions (IE Tx Modul
 
 
 
-## Rx Module (TRIGGER)
-Triggers `on/off` based on programmed RF codes.
+## Rx Module
+A Trigger. Triggers `on/off` based on programmed RF codes.
 
 #### Rx Materials
 - 433 MHz Rx Module
@@ -147,23 +162,8 @@ The Rx module can be configured in `2-rx-code.ino` by editing: `ON_VALUE`, `OFF_
 
 
 
-## Tx Module (Action)
-Transmits `on/off` codes.
-
-#### Tx Materials
-- 433 MHz Tx Module
-
-#### Tx Schematic
-None needed, simply connect unit to 5v, GND and connect `DATA` to the Arduino's `D8` pin.
-
-#### Tx Configuration
-
-The Tx module can be configured in `5-tx-code.ino` by editing: `ON_VALUE`, `OFF_VALUE`, `PULSE_LENGTH`, `BIT_LENGTH` and `PROTOCOL`. To get these values, if you have an Rx module, you can uncomment `testRx();` in `loop()` of `arduino-light-switcher.ino` and see what codes your RF remote/transmitter is sending out (`ENABLE_DEBUG_SERIAL` must be enabled to see the output). 
-
-
-
-## Motion Sensor Module (TRIGGER)
-Triggers `on` when motion is detected, `off` after it stops (with adjustable delay).
+## Motion Sensor Module
+A Trigger. Triggers `on` when motion is detected, `off` after it stops (with adjustable delay).
 
 #### Motion Sensor Materials
 - HC-SR501 PIR motion sensor
@@ -194,8 +194,8 @@ Ensure the motion sensor is in repeat trigger mode as mentioned above. Adjust th
 
 
 
-## Light Sensor Module (MODIFIER)
-Makes the device able to control light sources which have multiple switches on the same circuit.
+## Light Sensor Module
+A Modifier. Makes the device able to control light sources which have multiple switches on the same circuit.
 
 
 #### Light Sensor Materials
