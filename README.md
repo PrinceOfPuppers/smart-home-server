@@ -110,9 +110,9 @@ Adjust `SERVO_PRESS_ANGLE_UP` and `SERVO_PRESS_ANGLE_DOWN` if the module is stil
 Triggers `on` on when powered on, and `off` when power is lost
 
 #### Power Trigger Materials
-- 3V 1W zener diode
-- 220\Omega zener diode
-- 220\muF capacitor (exact value depends on wall adapter)
+- $3V$ $1W$ zener diode
+- $220 \Omega$ resistor
+- $220 \mu F$  capacitor (exact value depends on wall adapter)
 
 #### Power Trigger Schematic
 
