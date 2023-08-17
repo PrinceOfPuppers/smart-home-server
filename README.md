@@ -66,7 +66,7 @@ The base setup of this project requires:
 
 
 ## Servo Module
-An Action. Uses the servo to physically press rocker style light switches
+An `Action`. Uses the servo to physically press rocker style light switches
 
 #### Servo Materials
 - servo motor
@@ -107,7 +107,7 @@ Adjust `SERVO_PRESS_ANGLE_UP` and `SERVO_PRESS_ANGLE_DOWN` if the module is stil
 
 
 ## Tx Module
-An Action. Transmits `on/off` codes.
+An `Action`. Transmits `on/off` codes.
 
 #### Tx Materials
 - 433 MHz Tx Module
@@ -122,7 +122,7 @@ The Tx module can be configured in `5-tx-code.ino` by editing: `ON_VALUE`, `OFF_
 
 
 ## Power Trigger Module
-A Trigger. Triggers `on` on when powered on, and `off` when power is lost
+A `Trigger`. Triggers `on` on when powered on, and `off` when power is lost
 
 #### Power Trigger Materials
 - $3V$ $1W$ zener diode
@@ -144,7 +144,7 @@ Note: This trigger is meant to be used with fast, low power actions (IE Tx Modul
 
 
 ## Rx Module
-A Trigger. Triggers `on/off` based on programmed RF codes.
+A `Trigger`. Triggers `on/off` based on programmed RF codes.
 
 #### Rx Materials
 - 433 MHz Rx Module
@@ -163,7 +163,7 @@ The Rx module can be configured in `2-rx-code.ino` by editing: `ON_VALUE`, `OFF_
 
 
 ## Motion Sensor Module
-A Trigger. Triggers `on` when motion is detected, `off` after it stops (with adjustable delay).
+A `Trigger`. Triggers `on` when motion is detected, `off` after it stops (with adjustable delay).
 
 #### Motion Sensor Materials
 - HC-SR501 PIR motion sensor
@@ -195,7 +195,7 @@ Ensure the motion sensor is in repeat trigger mode as mentioned above. Adjust th
 
 
 ## Light Sensor Module
-A Modifier. Makes the device able to control light sources which have multiple switches on the same circuit.
+A `Modifier`. Makes the device able to control light sources which have multiple switches on the same circuit.
 
 
 #### Light Sensor Materials
