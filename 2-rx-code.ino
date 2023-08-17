@@ -1,18 +1,19 @@
 #if RX_ENABLED
 #include <RCSwitch.h>
 
-RCSwitch rx = RCSwitch();
+static RCSwitch rx = RCSwitch();
 
 #define PRESS_DEBOUNCE_MS 700
 
 // pins
-// #define RX_INT_PIN 0 // 0 = pin2, 1 = pin3 (pin 3 is used by motion sensor)
 #define RX_PIN 2 // int pins are 2 and 3
 
 // rx defines
 #define PROTOCOL 1
 #define ON_VALUE 9872892
 #define OFF_VALUE 9872884
+// #define ON_VALUE 9872889
+// #define OFF_VALUE 9872881
 #define BIT_LENGTH 24
 #define NUM_REPEATS 3
 

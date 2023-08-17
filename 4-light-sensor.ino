@@ -3,7 +3,7 @@
 #define LIGHT_SENSOR_ENABLE_PIN 4
 #define LIGHT_SENSOR_A_PIN A7
 
-#define MIN_LIGHT_DELTA 50
+#define MIN_LIGHT_DELTA 100
 
 // miliseconds
 #define LIGHT_SWITCH_RESPONSE_DELAY 150
@@ -32,7 +32,7 @@ int readLightSensor() {
     return x;
 }
 
-void _lightSensitiveSwitch(bool on){
+void _lightSensitiveSwitch(bool on, void(*action)(bool)){
     // for debugging
     int initalMid = lightMid;
 
@@ -44,7 +44,7 @@ void _lightSensitiveSwitch(bool on){
         return;
     }
 
-    servoPress(true);
+    (*action)(true);
     delay(LIGHT_SWITCH_RESPONSE_DELAY);
     int b = readLightSensor();
 
@@ -58,23 +58,23 @@ void _lightSensitiveSwitch(bool on){
         on  && b > lightMid    // light was successfully turned on
     ) { return; }
 
-    servoPress(false);
+    (*action)(false);
     delay(LIGHT_SWITCH_RESPONSE_DELAY);
 
+    // catch errors
     int c = readLightSensor();
     // recalibrate if light changed
     if (abs(b - c) > MIN_LIGHT_DELTA) {
         lightMid = getMid(b, c);
     }
 
-    // catch errors
     if (
         !on && c < lightMid || // light was successfully turned off
         on  && c > lightMid    // light was successfully turned on
     ) { return; }
 
     // inital position of light was correct, lightMid was incorrect
-    servoPress(true);
+    (*action)(true);
 
 #if DEBUG_SERIAL_ENABLED
     Serial.print("Error: Light Sensitive Switch Was Miscalibrated\nInital lightMid: ");
@@ -92,26 +92,26 @@ void _lightSensitiveSwitch(bool on){
     return;
 }
 // turns light on/off depending on current state
-void lightSensitiveSwitch(bool on){
+void lightSensitiveSwitch(bool on, void(*action)(bool)){
     digitalWrite(LIGHT_SENSOR_ENABLE_PIN, HIGH);
-    _lightSensitiveSwitch(on);
+    _lightSensitiveSwitch(on, action);
     digitalWrite(LIGHT_SENSOR_ENABLE_PIN, LOW);
 
 }
 
-int calibrateHelper(bool onOff){
-    servoPress(onOff);
+int calibrateHelper(bool onOff, void(*action)(bool)){
+    (*action)(onOff);
     int x = readLightSensor();
     delay(LIGHT_SWITCH_RESPONSE_DELAY);
     return x;
 }
 
 
-void calibrate(){
+void calibrate(void(*action)(bool)){
     digitalWrite(LIGHT_SENSOR_ENABLE_PIN, HIGH);
 
-    int a = calibrateHelper(true);
-    int b = calibrateHelper(false);
+    int a = calibrateHelper(true, action);
+    int b = calibrateHelper(false, action);
 
     digitalWrite(LIGHT_SENSOR_ENABLE_PIN, LOW);
 
@@ -119,17 +119,17 @@ void calibrate(){
 
 }
 
-void setupLightSensor(){
+void setupLightSensor(void(*action)(bool)){
     pinMode(LIGHT_SENSOR_ENABLE_PIN, OUTPUT);
     pinMode(LIGHT_SENSOR_A_PIN, INPUT);
 
-    calibrate();
+    calibrate(action);
 #if DEBUG_SERIAL_ENABLED
     Serial.println("Light Sensor Setup and Calibrated");
 #endif
 }
 
-void testLightSensor(){
+void testLightSensor(void(*action)(bool)){
     while(1){
 #if DEBUG_SERIAL_ENABLED
         digitalWrite(LIGHT_SENSOR_ENABLE_PIN, HIGH);
@@ -141,7 +141,7 @@ void testLightSensor(){
         delay(1000);
         Serial.println("1");
         delay(1000);
-        int a = calibrateHelper(true);
+        int a = calibrateHelper(true, action);
         Serial.println("Sample a recieved!");
         delay(1000);
 
@@ -152,7 +152,7 @@ void testLightSensor(){
         delay(1000);
         Serial.println("1");
         delay(1000);
-        int b = calibrateHelper(false);
+        int b = calibrateHelper(false, action);
         Serial.println("Sample b recieved!");
         delay(1000);
         digitalWrite(LIGHT_SENSOR_ENABLE_PIN, LOW);

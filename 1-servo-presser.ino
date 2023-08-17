@@ -170,19 +170,5 @@ void testServoRange(){
 
 }
 
-#else
-// stubs
-void servoPress(bool up){
-#if DEBUG_SERIAL_ENABLED
-    Serial.print("Servo Press: ");
-    Serial.println(up ? "UP" : "DOWN");
-#endif
-}
-void servoReset(){
-#if DEBUG_SERIAL_ENABLED
-    Serial.println("Servo Resetting");
-#endif
-
-}
 
 #endif

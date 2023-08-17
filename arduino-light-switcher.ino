@@ -1,18 +1,78 @@
-#define RX_ENABLED 1
-#define SERVO_ENABLED 1
-#define MOTION_SENSOR_ENABLED 0
-#define LIGHT_SENSOR_ENABLED 1
 
-#define DEBUG_LED_ENABLED 0
+// triggers
+#define RX_ENABLED 0
+#define MOTION_SENSOR_ENABLED 0
+#define POWER_TRIGGER_ENABLED 1
+
+// actions
+#define TX_ENABLED 1
+#define SERVO_ENABLED 0
+
+// modifiers
+#define LIGHT_SENSOR_ENABLED 0
+
+// debugging
+#define DEBUG_LED_ENABLED 1
 #define DEBUG_SERIAL_ENABLED 0
 
-#if MOTION_SENSOR_ENABLED && RX_ENABLED
-    #error "RX Trigger and Motion Trigger are Mutually Exclusive"
+
+// sanity checks
+#if MOTION_SENSOR_ENABLED + RX_ENABLED + POWER_TRIGGER_ENABLED > 1
+    #error "Rx Trigger, Motion Trigger and Power Trigger are Mutually Exclusive"
 #endif
+#if TX_ENABLED && SERVO_ENABLED
+    #error "Tx Action and Servo Action are Mutually Exclusive"
+#endif
+
+
 
 // pull either pin low and restart to enter test mode
 #define SERVO_TEST_PIN_1 11 // test with no on/off
 #define SERVO_TEST_PIN_2 12 // test with on/off
+
+
+
+////////////
+// action //
+////////////
+
+#if SERVO_ENABLED
+#define action(up) servoPress(up)
+#define action servoPress
+#elif TX_ENABLED
+#define action(up) txTransmit(up)
+#define action txTransmit
+#else
+// stub
+void action(bool up){
+#if DEBUG_SERIAL_ENABLED
+    Serial.print("Action Stub: ");
+    Serial.println(up ? "UP" : "DOWN");
+#endif
+#if DEBUG_LED_ENABLED
+    digitalWrite(LED_BUILTIN, 1);
+#endif
+}
+#endif
+
+
+
+
+
+//////////////////////
+// action modifiers //
+//////////////////////
+#if LIGHT_SENSOR_ENABLED
+void modAction(bool up){
+    lightSensitiveSwitch(up, action);
+}
+#else
+#define modAction(up) action(up)
+#define modAction action
+#endif
+
+
+
 
 void setup() {
 #if DEBUG_SERIAL_ENABLED
@@ -24,16 +84,10 @@ void setup() {
     digitalWrite(LED_BUILTIN, LOW);
 #endif
 
-
-#if RX_ENABLED
-    setupRx();
-#endif
-
-#if MOTION_SENSOR_ENABLED
-    setupMotionSensor();
-#endif
-
-#if SERVO_ENABLED
+    // actions
+#if TX_ENABLED
+    setupTx();
+#elif SERVO_ENABLED
     pinMode(SERVO_TEST_PIN_1, INPUT_PULLUP);
     pinMode(SERVO_TEST_PIN_2, INPUT_PULLUP);
     setupServo();
@@ -49,8 +103,18 @@ void setup() {
     pinMode(SERVO_TEST_PIN_2, INPUT);
 #endif
 
+    // mods
 #if LIGHT_SENSOR_ENABLED
-    setupLightSensor();
+    setupLightSensor(action);
+#endif
+
+    // triggers
+#if MOTION_SENSOR_ENABLED
+    setupMotionSensor();
+#elif RX_ENABLED
+    setupRx();
+#elif POWER_TRIGGER_ENABLED
+    setupPowerTrigger(modAction);
 #endif
 
 #if DEBUG_SERIAL_ENABLED
@@ -59,24 +123,28 @@ void setup() {
 #endif
 }
 
-#if LIGHT_SENSOR_ENABLED
-static void (* lightPresser)(bool) = lightSensitiveSwitch;
-#else
-static void (* lightPresser)(bool) = servoPress;
-#endif
+
 
 void loop() {
+    // tests:
     // testServo();
     // testServoPot();
     // testServoRange();
-    // testLightSensor();
+    // testLightSensor(action);
     // testRx();
-#if MOTION_SENSOR_ENABLED
-    motionOnOff(lightPresser);
-#endif
 
-#if RX_ENABLED
-    runOnCodeMatch(lightPresser);
+    //////////////
+    // triggers //
+    //////////////
+#if MOTION_SENSOR_ENABLED
+    motionOnOff(modAction);
+
+#elif RX_ENABLED
+    runOnCodeMatch(modAction);
+#elif POWER_TRIGGER_ENABLED
+    powerTrigger(modAction);
+#else
+#error "At Least 1 Trigger is Required"
 #endif
 }
 
