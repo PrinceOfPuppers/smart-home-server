@@ -166,6 +166,9 @@ rfMacroAddDebounceTime = 1
 pulseLenthTolerance = 10
 
 
+# use bme280 instead of dht22
+useBME = True
+
 
 WWO_CODE = {
     "113": "Sunny",

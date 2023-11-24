@@ -3,6 +3,7 @@ from datetime import datetime
 
 from smart_home_server.hardware_interfaces.lcd import getLCDFMT
 from smart_home_server.hardware_interfaces.dht22 import getDHT
+from smart_home_server.hardware_interfaces.bme280 import getBME
 from smart_home_server.helpers import padChar, roundTimeStr
 import smart_home_server.constants as const
 
@@ -173,21 +174,38 @@ def getLCDLocal():
     }
     return res
 
-def getIndoorClimateLocal():
-    data = getDHT()
-    if data is None:
-        s = f'Temprature: N/A \nHumidity: N/A'
-        res = {
-            'str':s,
-            'data':{},
-        }
-    else:
-        s = f'Temprature: {data.temp} \nHumidity: {data.humid}'
-        res = {
-            'str':s,
-            'data':{'temp':round(data.temp), 'humid': round(data.humid)},
-        }
-    return res
+if const.useBME:
+    def getIndoorClimateLocal():
+        data = getBME()
+        if data is None:
+            s = f'Temprature: N/A \nHumidity:   N/A \nPressure:   N/A'
+            res = {
+                'str':s,
+                'data':{},
+            }
+        else:
+            s = f'Temprature: {data.temp} \nHumidity:   {data.humid} \nPressure:   {data.pressure}'
+            res = {
+                'str':s,
+                'data':{'temp':round(data.temp), 'humid': round(data.humid), 'pressure': round(pressure)},
+            }
+        return res
+else:
+    def getIndoorClimateLocal():
+        data = getDHT()
+        if data is None:
+            s = f'Temprature: N/A \nHumidity: N/A'
+            res = {
+                'str':s,
+                'data':{},
+            }
+        else:
+            s = f'Temprature: {data.temp} \nHumidity: {data.humid}'
+            res = {
+                'str':s,
+                'data':{'temp':round(data.temp), 'humid': round(data.humid)},
+            }
+        return res
 
 def getClockLocal():
     now = datetime.now()
@@ -379,6 +397,19 @@ dataSources = [
         },
 
         'values': {
+            'temp': {
+                'dataPath': ['data', 'temp'],
+                'enabled': True,
+            },
+            'humid': {
+                'dataPath': ['data', 'humid'],
+                'enabled': True,
+            },
+            'pressure': {
+                'dataPath': ['data', 'pressure'],
+                'enabled': True,
+            }
+        } if const.useBME else {
             'temp': {
                 'dataPath': ['data', 'temp'],
                 'enabled': True,

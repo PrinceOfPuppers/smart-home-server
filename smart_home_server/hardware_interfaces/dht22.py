@@ -19,7 +19,7 @@ def _clearError():
     global currentErrors
     currentErrors[s] = 0
 
-if const.isRpi():
+if const.isRpi() and not const.useBME:
     from pigpio_dht import DHT22
     import pigpio
     from time import sleep
