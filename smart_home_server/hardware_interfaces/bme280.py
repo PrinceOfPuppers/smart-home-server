@@ -28,7 +28,7 @@ if const.isRpi() and const.useBME:
 
     def getBME() -> Union[BMEData, None]:
         try:
-            t = bme280.get_temprature()
+            t = bme280.get_temperature()
             h = bme280.get_humidity()
             p = bme280.get_pressure()
             val = BMEData(temp = t, humid = h, pressure = p)

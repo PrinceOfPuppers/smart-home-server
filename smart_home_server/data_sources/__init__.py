@@ -194,13 +194,13 @@ else:
     def getIndoorClimateLocal():
         data = getDHT()
         if data is None:
-            s = f'Temprature: N/A \nHumidity: N/A'
+            s = f'Temprature: N/A \nHumidity:   N/A'
             res = {
                 'str':s,
                 'data':{},
             }
         else:
-            s = f'Temprature: {data.temp} \nHumidity: {data.humid}'
+            s = f'Temprature: {data.temp} \nHumidity:   True{data.humid}'
             res = {
                 'str':s,
                 'data':{'temp':round(data.temp), 'humid': round(data.humid)},
