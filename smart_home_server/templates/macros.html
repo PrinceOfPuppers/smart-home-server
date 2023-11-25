@@ -112,10 +112,12 @@
         const delayElement = document.getElementById(`delay-${id}`);
         var data = {'id': id, 'cancel': cancel};
 
-        return sendData(url, data, 'DELETE').then((success)=>{
+        return sendData(url, data, 'DELETE', reload=true).then((success)=>{
+            /*
             if(success){
                 delayElement.remove();
             }
+            */
         });
     }
 
