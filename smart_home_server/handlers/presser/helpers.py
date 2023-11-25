@@ -99,6 +99,12 @@ def _addChannel(id:str, channel:int, onCode:dict, offCode:dict):
 
     _overwriteRemote(id, remote)
 
+def _renameRemote(id:str, newName:str):
+    remote = _getRemoteById(id)
+    assert remote is not None
+    remote['name'] = newName
+    _overwriteRemote(id, remote)
+
 if const.isRpi():
     from rpi_rf import RFDevice
 

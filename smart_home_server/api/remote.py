@@ -4,7 +4,7 @@ from flask_expects_json import expects_json
 
 from smart_home_server.helpers import addDefault
 from smart_home_server.handlers import runJob
-from smart_home_server.handlers.presser import newRemote, deleteChannel, addChannel, readRemoteCode, deleteRemote, RemoteDoesNotExist, ChannelDoesNotExist
+from smart_home_server.handlers.presser import newRemote, deleteChannel, addChannel, renameRemote, readRemoteCode, deleteRemote, RemoteDoesNotExist, ChannelDoesNotExist
 
 from smart_home_server.api import postRemoteSchema, nameSchema, idSchema
 
@@ -23,6 +23,17 @@ deleteRemoteSchema = \
     "type": "object",
     "properties": {
         "id": idSchema,
+    },
+    "required": ['id'],
+    'additionalProperties': False,
+}
+
+patchRemoteNameSchema = \
+{
+    "type": "object",
+    "properties": {
+        "id": idSchema,
+        "name": nameSchema,
     },
     "required": ['id'],
     'additionalProperties': False,
@@ -99,6 +110,21 @@ def deleteRemoteRoute():
 
     try:
         deleteRemote(values['id'])
+    except Exception as e:
+        return current_app.response_class(str(e), status=400)
+
+    return current_app.response_class(status=200)
+
+@remoteApi.route('/api/remote/edit', methods=['PATCH'])
+@expects_json(patchRemoteNameSchema)
+def renameRemoteRoute():
+    values = json.loads(request.data)
+    addDefault(values, 'name', 'New Remote')
+
+    try:
+        renameRemote(values['id'], values['name'])
+    except RemoteDoesNotExist:
+        return current_app.response_class(f"Remote with ID: {id} Does Not Exist",status=400)
     except Exception as e:
         return current_app.response_class(str(e), status=400)
 

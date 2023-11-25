@@ -7,7 +7,7 @@ from typing import Union
 import smart_home_server.constants as const
 from smart_home_server import InterruptTriggered
 from smart_home_server.handlers.presser.helpers import _changeChannel, _initRfDevices, _destroyRfDevices, _removeChannel, RemoteDoesNotExist, ChannelDoesNotExist, \
-                                                       _addRemote, _removeRemote, _remoteLock, _getRemoteById, _getRemotes, _getCode, _addChannel
+                                                       _addRemote, _removeRemote, _remoteLock, _getRemoteById, _getRemotes, _getCode, _addChannel, _renameRemote
 
 _pressQueue:Union[None, Queue] = None
 _presserThread:Union[None, Process] = None
@@ -72,6 +72,10 @@ def deleteRemote(id:str):
 
     with _remoteLock:
         _removeRemote(id)
+
+def renameRemote(id:str, newName:str):
+    with _remoteLock:
+        _renameRemote(id, newName)
 
 def readRemoteCode(timeout = 10, repeats = 2, sleepTimer = 0.01) -> Union[dict, None]:
     return _getCode(timeout, repeats, sleepTimer)

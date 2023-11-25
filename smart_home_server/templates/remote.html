@@ -72,6 +72,11 @@
             sendData('api/remote/edit', {"id": remoteId}, 'DELETE', reload=true);
             return;
         }
+        if (data.remoteOperation == "Rename"){
+            const newName = data.newName;
+            sendData('api/remote/edit', {"id": remoteId, "name": newName}, 'PATCH', reload=true);
+            return;
+        }
 
         var channel = Number(data.remoteChannel);
         if (channel > 0) {
@@ -93,32 +98,52 @@
 
 
     var remoteEditHidden = false;
+    var remoteRenameHidden = false;
     var channelAddHidden = false;
 
     function _hideHelper() {
         const channelSelect = document.querySelector(`[id=remoteChannelSelect]`);
         const channelAdd = document.querySelector(`[id=remoteChannelAdd]`);
+        const remoteRename = document.querySelector(`[id=remoteRename]`);
 
         channelSelect.style.display = "block";
         channelAdd.style.display = "block";
+        remoteRename.style.display = "block";
 
         if (channelAddHidden) {
             channelAdd.style.display = "none";
         }
 
+
         if (remoteEditHidden) {
             channelSelect.style.display = "none";
             channelAdd.style.display = "none";
         }
+
+        if (remoteRenameHidden) {
+            remoteRename.style.display = "none";
+        }
     }
 
     function hideUnhideRemoteDo(dropDown){
-        remoteEditHidden = dropDown.value == "Delete";
+        if ( dropDown.value == "Delete"){
+            remoteEditHidden = true;
+            remoteRenameHidden = true;
+        }
+        else if (dropDown.value == "Rename"){
+            remoteEditHidden = true;
+            remoteRenameHidden = false;
+        }
+        else {
+            remoteEditHidden = false;
+            remoteRenameHidden = true;
+        }
+
         _hideHelper();
     }
 
     function hideUnhideChannelDo(dropDown){
-        channelAddHidden = dropDown.value == "Delete"
+        channelAddHidden = dropDown.value == "Delete" || dropDown.value == "Rename";
         _hideHelper();
     }
 
@@ -211,11 +236,19 @@
                     <select id="remoteOperation" name="remoteOperation" required>
                         <option value="Edit">Edit</option>
                         <option value="Delete">Delete</option>
+                        <option value="Rename">Rename</option>
                     </select>
                 </div>
             </section>
 
             <br style="clear:both;" />
+
+            <section id="remoteRename">
+                <div class="formDiv">
+                    <label for="newName" id="remoteRenameLabel">Name:</label>
+                    <input type="text" id="newName" name="newName" maxLength = "20" size="10" required>
+                </div>
+            </section>
 
             <section id="remoteChannelSelect">
                 <div class="formDiv">
