@@ -187,7 +187,7 @@ if const.useBME:
             s = f'Temprature: {data.temp} \nHumidity:   {data.humid} \nPressure:   {data.pressure}'
             res = {
                 'str':s,
-                'data':{'temp':round(data.temp), 'humid': round(data.humid), 'pressure': round(pressure)},
+                'data':{'temp':round(data.temp), 'humid': round(data.humid), 'pressure': round(data.pressure)},
             }
         return res
 else:

@@ -38,6 +38,7 @@ if const.isRpi() and const.useBME:
             print("BME Read Error: \n", e)
             _addError()
             val = None
+        return val
 
     # first call is usually off
     getBME()
