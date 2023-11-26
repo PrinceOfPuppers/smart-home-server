@@ -179,13 +179,13 @@ if const.useBME:
     def getIndoorClimateLocal():
         data = getBME()
         if data is None:
-            s = f'Temprature: N/A \nHumidity:   N/A \nPressure:   N/A'
+            s = f'T: N/A \nH: N/A \nP: N/A'
             res = {
                 'str':s,
                 'data':{},
             }
         else:
-            s = f'Temprature: {data.temp} \nHumidity:   {data.humid} \nPressure:   {data.pressure}'
+            s = f'T: {data.temp} \nH: {data.humid} \nP: {data.pressure}'
             res = {
                 'str':s,
                 'data':{'temp':round(data.temp), 'humid': round(data.humid), 'pressure': round(data.pressure)},
@@ -195,13 +195,13 @@ else:
     def getIndoorClimateLocal():
         data = getDHT()
         if data is None:
-            s = f'Temprature: N/A \nHumidity:   N/A'
+            s = f'Temprature: N/A \nHumidity: N/A'
             res = {
                 'str':s,
                 'data':{},
             }
         else:
-            s = f'Temprature: {data.temp} \nHumidity:   True{data.humid}'
+            s = f'T: {data.temp} \nH: {data.humid}'
             res = {
                 'str':s,
                 'data':{'temp':round(data.temp), 'humid': round(data.humid)},
@@ -212,13 +212,13 @@ def getOutdoorClimateLocal():
     data = getWeatherServerData()
 
     if data is None:
-        s = f'Temprature: N/A \nHumidity:   N/A \nPressure:   N/A'
+        s = f'T: N/A \nH: N/A \nP: N/A'
         res = {
             'str':s,
             'data':{},
         }
     else:
-        s = f'Temprature: {data.temp} \nHumidity:   {data.humid} \nPressure:   {data.pressure}'
+        s = f'T: {data.temp} \nH: {data.humid} \nP: {data.pressure}'
         res = {
             'str':s,
             'data':{'temp':round(data.temp), 'humid': round(data.humid), 'pressure': round(data.pressure)},
@@ -300,6 +300,67 @@ dataSources = [
 
     },
 
+    {
+        'name': 'Indoor',
+        'color': 'blue',
+        'url': f'/api/data/temp-humid',
+        'local': lambda: cached(getIndoorClimateLocal,30//2),
+        'pollingPeriod': 30,
+
+        'dashboard':{
+            'enabled': True,
+        },
+
+        'values': {
+            'temp': {
+                'dataPath': ['data', 'temp'],
+                'enabled': True,
+            },
+            'humid': {
+                'dataPath': ['data', 'humid'],
+                'enabled': True,
+            },
+            'pressure': {
+                'dataPath': ['data', 'pressure'],
+                'enabled': True,
+            }
+        } if const.useBME else {
+            'temp': {
+                'dataPath': ['data', 'temp'],
+                'enabled': True,
+            },
+            'humid': {
+                'dataPath': ['data', 'humid'],
+                'enabled': True,
+            }
+        }
+    },
+    {
+        'name': 'Outdoor',
+        'color': 'yellow',
+        'url': f'/api/data/outdoor-temp-humid',
+        'local': lambda: cached(getOutdoorClimateLocal,(5*60)//2),
+        'pollingPeriod': 5*60,
+
+        'dashboard':{
+            'enabled': True,
+        },
+
+        'values': {
+            'outdoorTemp': {
+                'dataPath': ['data', 'temp'],
+                'enabled': True,
+            },
+            'outdoorHumid': {
+                'dataPath': ['data', 'humid'],
+                'enabled': True,
+            },
+            'outdoorPressure': {
+                'dataPath': ['data', 'pressure'],
+                'enabled': True,
+            }
+        }
+    },
 
     {
         'name': 'Weather',
@@ -317,7 +378,7 @@ dataSources = [
 
     {
         'name': 'Forecast',
-        'color': 'blue',
+        'color': 'purple',
         'url': f'/api/data/forecast',
         'local': lambda: cached(getForecastLocal, 10*60//2),
         'pollingPeriod': 10*60,
@@ -403,67 +464,6 @@ dataSources = [
     },
 
 
-    {
-        'name': 'Indoor Climate',
-        'color': 'yellow',
-        'url': f'/api/data/temp-humid',
-        'local': lambda: cached(getIndoorClimateLocal,30//2),
-        'pollingPeriod': 30,
-
-        'dashboard':{
-            'enabled': True,
-        },
-
-        'values': {
-            'temp': {
-                'dataPath': ['data', 'temp'],
-                'enabled': True,
-            },
-            'humid': {
-                'dataPath': ['data', 'humid'],
-                'enabled': True,
-            },
-            'pressure': {
-                'dataPath': ['data', 'pressure'],
-                'enabled': True,
-            }
-        } if const.useBME else {
-            'temp': {
-                'dataPath': ['data', 'temp'],
-                'enabled': True,
-            },
-            'humid': {
-                'dataPath': ['data', 'humid'],
-                'enabled': True,
-            }
-        }
-    },
-    {
-        'name': 'Outdoor Climate',
-        'color': 'orange',
-        'url': f'/api/data/outdoor-temp-humid',
-        'local': lambda: cached(getOutdoorClimateLocal,(5*60)//2),
-        'pollingPeriod': 5*60,
-
-        'dashboard':{
-            'enabled': True,
-        },
-
-        'values': {
-            'outdoorTemp': {
-                'dataPath': ['data', 'temp'],
-                'enabled': True,
-            },
-            'outdoorHumid': {
-                'dataPath': ['data', 'humid'],
-                'enabled': True,
-            },
-            'outdoorPressure': {
-                'dataPath': ['data', 'pressure'],
-                'enabled': True,
-            }
-        }
-    },
     {
         'name': 'Errors',
         'color': 'red',

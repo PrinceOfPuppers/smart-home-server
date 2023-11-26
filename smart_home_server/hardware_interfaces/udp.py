@@ -30,9 +30,9 @@ def getWeatherServerData() -> Union[BMEData, None]:
         res = udpPromptRead(const.weatherServerIp, const.weatherServerPort)
         t, h, p = res.split(',')
         val = BMEData(
-                temp     = round(float(t),2), 
-                humid    = round(float(h),2), 
-                pressure = round(float(p),2))
+                temp     = round(float(t),2),     # in C
+                humid    = round(float(h),2),     # in RH %
+                pressure = round(float(p)/100,2)) # convert to hPa
         _clearError()
 
     except Exception as e:
