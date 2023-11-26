@@ -170,6 +170,11 @@ pulseLenthTolerance = 10
 useBME = True
 
 
+#udp
+udpTimeout = 5
+weatherServerIp = "192.168.2.151"
+weatherServerPort = 6831
+
 WWO_CODE = {
     "113": "Sunny",
     "116": "PartlyCloudy",

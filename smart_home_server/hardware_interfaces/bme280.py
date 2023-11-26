@@ -1,14 +1,9 @@
-from dataclasses import dataclass
 from typing import Union
 
 import smart_home_server.constants as const
 from smart_home_server.errors import currentErrors
+from smart_home_server.hardware_interfaces import BMEData
 
-@dataclass
-class BMEData:
-    temp: float
-    humid: float
-    pressure: float
 
 s = 'Conseq_BME_Read_Err'
 def _addError():

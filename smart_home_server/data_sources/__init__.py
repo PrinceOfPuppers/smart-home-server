@@ -4,6 +4,7 @@ from datetime import datetime
 from smart_home_server.hardware_interfaces.lcd import getLCDFMT
 from smart_home_server.hardware_interfaces.dht22 import getDHT
 from smart_home_server.hardware_interfaces.bme280 import getBME
+from smart_home_server.hardware_interfaces.udp import getWeatherServerData
 from smart_home_server.helpers import padChar, roundTimeStr
 import smart_home_server.constants as const
 
@@ -206,6 +207,23 @@ else:
                 'data':{'temp':round(data.temp), 'humid': round(data.humid)},
             }
         return res
+
+def getOutdoorClimateLocal():
+    data = getWeatherServerData()
+
+    if data is None:
+        s = f'Temprature: N/A \nHumidity:   N/A \nPressure:   N/A'
+        res = {
+            'str':s,
+            'data':{},
+        }
+    else:
+        s = f'Temprature: {data.temp} \nHumidity:   {data.humid} \nPressure:   {data.pressure}'
+        res = {
+            'str':s,
+            'data':{'temp':round(data.temp), 'humid': round(data.humid), 'pressure': round(data.pressure)},
+        }
+    return res
 
 def getClockLocal():
     now = datetime.now()
@@ -416,6 +434,32 @@ dataSources = [
             },
             'humid': {
                 'dataPath': ['data', 'humid'],
+                'enabled': True,
+            }
+        }
+    },
+    {
+        'name': 'Outdoor Climate',
+        'color': 'orange',
+        'url': f'/api/data/outdoor-temp-humid',
+        'local': lambda: cached(getOutdoorClimateLocal,(5*60)//2),
+        'pollingPeriod': 5*60,
+
+        'dashboard':{
+            'enabled': True,
+        },
+
+        'values': {
+            'outdoorTemp': {
+                'dataPath': ['data', 'temp'],
+                'enabled': True,
+            },
+            'outdoorHumid': {
+                'dataPath': ['data', 'humid'],
+                'enabled': True,
+            },
+            'outdoorPressure': {
+                'dataPath': ['data', 'pressure'],
                 'enabled': True,
             }
         }
