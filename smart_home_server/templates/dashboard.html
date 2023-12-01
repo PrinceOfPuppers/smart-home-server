@@ -93,7 +93,7 @@
         var lines = text.split('\n')
 
         lines = lines.slice(0,{{ lcdLines }})
-        var data = {'lines': line};
+        var data = {'lines': lines};
 
         sendData('api/dashboard/lcd', data, 'POST').then( (success) => {
             if(success){

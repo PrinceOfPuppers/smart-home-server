@@ -49,7 +49,9 @@ def updateLCDFromJobData(data:dict):
     if not 'lines' in data:
         return
 
-    for i in range(min(len(lines), const.lcdLines)):
+    numLines = min(len(data['lines']), const.lcdLines)
+
+    for i in range(numLines):
         s += data['lines'][i].replace('\n', '')
         s += "\n"
 
