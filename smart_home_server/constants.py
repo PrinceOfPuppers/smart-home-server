@@ -172,6 +172,13 @@ pulseLenthTolerance = 10
 useBME = True
 
 
+# server buttons
+buttonPins = []
+# in seconds, applies to all button interfaces
+buttonDebounce = 0.8
+buttonMacroAddDebounceTime = 1
+
+
 #udp
 udpTimeout = 5
 weatherServerIp = "192.168.2.151"

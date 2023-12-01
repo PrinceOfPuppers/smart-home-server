@@ -8,7 +8,10 @@ from smart_home_server.helpers import addDefault
 from smart_home_server.handlers.presser import readRemoteCode
 
 from smart_home_server.handlers.macros import getMacro, saveMacro, addMacroSequenceItem, deleteMacro, deleteMacroSequenceItem, updateMacroName, \
-                                              MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist, addCodeToMacro, deleteMacroCode
+                                              MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist, addCodeToMacro, deleteMacroCode, \
+                                              addButtonToMacro, deleteMacroButton
+
+from smart_home_server.handlers.buttonMacros import getButtonPressed
 
 macroApi = Blueprint('macroApi', __name__)
 
@@ -97,6 +100,9 @@ deleteDelaySchema = \
 }
 postMacroRfSchema = searchMacroSchema
 deleteMacroRfSchema = searchMacroSchema
+
+postMacroButtonSchema = searchMacroSchema
+deleteMacroButtonSchema = searchMacroSchema
 
 @macroApi.route('/api/macro', methods=['POST'])
 @expects_json(postMacroSchema, check_formats=True)
@@ -230,10 +236,11 @@ def deleteDelayRoute():
 def postMacroRfRoute():
     data = json.loads(request.data)
     id = data['id']
+    from time import sleep
     try:
         code = readRemoteCode()
         if code is None:
-            return current_app.response_class("Remote Read Timeout", status=408)
+            return current_app.response_class("Remote Read Timeout", status=400)
 
         addCodeToMacro(id, code)
         return current_app.response_class(status=200)
@@ -249,6 +256,36 @@ def deleteMacroRfRoute():
     id = data['id']
     try:
         deleteMacroCode(id)
+        return current_app.response_class(status=200)
+    except MacroDoesNotExist:
+        return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)
+    except:
+        return current_app.response_class(status=400)
+
+@macroApi.route('/api/macro/button', methods=['POST'])
+@expects_json(postMacroRfSchema, check_formats=True)
+def postMacroButtonRoute():
+    data = json.loads(request.data)
+    id = data['id']
+    try:
+        pin = getButtonPressed()
+        if pin is None:
+            return current_app.response_class("Button Press Timeout", status=400)
+
+        addButtonToMacro(id, pin)
+        return current_app.response_class(status=200)
+    except MacroDoesNotExist:
+        return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)
+    except:
+        return current_app.response_class(status=400)
+
+@macroApi.route('/api/macro/button', methods=['DELETE'])
+@expects_json(deleteMacroRfSchema, check_formats=True)
+def deleteMacroButtonRoute():
+    data = json.loads(request.data)
+    id = data['id']
+    try:
+        deleteMacroButton(id)
         return current_app.response_class(status=200)
     except MacroDoesNotExist:
         return current_app.response_class(f"Macro with ID:{id} Does Not Exist", status=400)

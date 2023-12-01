@@ -4,7 +4,8 @@ import os
 
 from smart_home_server.handlers.macros.helpers import MacroAlreadyExists, MacroDoesNotExist, SequenceItemDoesNotExist, \
                                                      _getMacro, _getMacros, _deleteMacro, _updateMacroName, _overwriteMacro, _saveMacro, \
-                                                     _deleteMacroSequenceItem, _addMacroSequenceItem, _getMacroPath, _addCodeToMacro, _getMacroWithCode, _deleteMacroCode
+                                                     _deleteMacroSequenceItem, _addMacroSequenceItem, _getMacroPath, _addCodeToMacro, _getMacroWithCode, _deleteMacroCode, \
+                                                     _addButtonToMacro, _deleteMacroButton, _getMacroWithButton
 
 _macroLock = Lock()
 
@@ -52,6 +53,19 @@ def macroExists(id):
 def addCodeToMacro(id, code):
     with _macroLock:
         _addCodeToMacro(id, code)
+
+def addButtonToMacro(id, pin):
+    with _macroLock:
+        _addButtonToMacro(id, pin)
+
+def deleteMacroButton(id):
+    with _macroLock:
+        _deleteMacroButton(id)
+
+def getMacroWithButton(pin):
+    with _macroLock:
+        return _getMacroWithButton(pin)
+
 
 def deleteMacroCode(id):
     with _macroLock:
