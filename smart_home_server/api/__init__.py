@@ -1,3 +1,4 @@
+import smart_home_server.constants as const
 
 nameSchema = {"type": "string", "minLength": 0, "maxLength": 20, "pattern": "^[^\n\r]*$"}
 idSchema   = {"type": "string", "minLength": 0, "maxLength": 50, "pattern": "^[^\n\r]*$"}
@@ -19,8 +20,11 @@ postLCDSchema = \
 {
     "type": "object",
     "properties": {
-        "line1":      {"type": "string", "minLength": 0, "maxLength": 70}, # defaults to no change
-        "line2":      {"type": "string", "minLength": 0, "maxLength": 70}, # defaults to no change
+        "lines":      {
+            "type": "array",
+            "items": {"type": "string", "minLength": 0, "maxLength": 40},
+            "maxItems": const.lcdLines
+            }, # defaults to no change
         "backlight":  {"type": "boolean"}
     },
     "required": [],

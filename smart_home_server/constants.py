@@ -29,7 +29,9 @@ if not os.path.exists(lcdTextFile):
     with open(lcdTextFile,"w") as f:
         f.write(
             "{clock}{space} P:{wttrTotalPercip}mm\n"
-            "T:{temp}/{wttrTemp}{space} H:{humid}/{wttrHumid}"
+            "T:{temp}/{wttrTemp}{space} H:{humid}/{wttrHumid}\n"
+            "\n"
+            ""
         )
 
 noteFolder = f'{storageFolder}/notes'
@@ -149,8 +151,8 @@ googleExchangeRateDiv = re.compile(r"<div[^>]+data-exchange-rate\s?=\s?[\"\'](.*
 fakeUserAgentHeaders = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0"}
 
 lcdI2CAddress = 0x27
-lcdLines = 2
-lcdWidth = 16
+lcdLines = 4
+lcdWidth = 20
 
 dhtGpio = 22
 dhtGpioPwr = 18

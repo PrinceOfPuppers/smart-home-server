@@ -40,18 +40,18 @@ def setLCDBacklight(on: bool):
     setBacklight(on)
 
 def updateLCDFromJobData(data:dict):
+    if 'backlight' in data:
+        setLCDBacklight(data['backlight'])
+
     s = ""
     last = getLCDFMT().split('\n')
-    if 'line1' in data:
-        s += data['line1']
-    else:
-        if len(last) > 0:
-            s += last[0]
-    if 'line2' in data:
-        s += f'\n{data["line2"]}'
-    else:
-        if len(last) > 1:
-            s += f'\n{last[1]}'
+
+    if not 'lines' in data:
+        return
+
+    for i in range(min(len(lines), const.lcdLines)):
+        s += data['lines'][i].replace('\n', '')
+        s += "\n"
 
     try:
         s.encode('ascii')
@@ -59,7 +59,5 @@ def updateLCDFromJobData(data:dict):
         return False
 
     startUpdateLCD(s)
-    if 'backlight' in data:
-        setLCDBacklight(data['backlight'])
 
     return True
