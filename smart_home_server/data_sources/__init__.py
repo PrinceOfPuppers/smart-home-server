@@ -61,7 +61,11 @@ def getForecastLocal():
     if not r.ok:
         return None
 
-    j = r.json()
+    try:
+        j = r.json()
+    except:
+        return None
+
     days = []
     try:
         data = {

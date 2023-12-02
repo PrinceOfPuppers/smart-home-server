@@ -134,7 +134,7 @@ def isRpi():
     return _isRpi
 
 requestTimeout = 5
-_city = "Waterloo+Canada"
+_city = "43.4652699,-80.5222961" # Waterloo Canada
 fullForecastUrl   = f'http://wttr.in/{_city}'
 fullforecastUrlV2 = f'http://v2d.wttr.in/{_city}'
 #graphical forcast
