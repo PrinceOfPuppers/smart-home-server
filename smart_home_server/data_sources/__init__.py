@@ -227,11 +227,12 @@ def getOutdoorClimateLocal():
 
 def getClockLocal():
     now = datetime.now()
-    clock = now.strftime("%I:%M")
+    clock = now.strftime("%I:%M %p")
     date =  now.strftime("%b %-d")
+    day =  now.strftime("%a")
     res = {
         'str': f'{clock} {date}',
-        'data':{'clock': clock, 'date': date},
+        'data':{'clock': clock, 'date': date, 'day': day},
     }
     return res
 
@@ -294,6 +295,10 @@ dataSources = [
             },
             'date': {
                 'dataPath': ['data', 'date'],
+                'enabled': True,
+            },
+            'day': {
+                'dataPath': ['data', 'day'],
                 'enabled': True,
             }
         }

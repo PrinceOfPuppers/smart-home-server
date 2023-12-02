@@ -22,7 +22,7 @@ postLCDSchema = \
     "properties": {
         "lines":      {
             "type": "array",
-            "items": {"type": "string", "minLength": 0, "maxLength": 40},
+            "items": {"type": "string", "minLength": 0, "maxLength": 100},
             "maxItems": const.lcdLines
             }, # defaults to no change
         "backlight":  {"type": "boolean"}

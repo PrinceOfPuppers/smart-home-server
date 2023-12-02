@@ -49,11 +49,12 @@ if const.isRpi():
             for i in range(len(_lastWritten)):
                 if lines[i] != _lastWritten[i]:
                     same=False
-                _lastWritten[i] = lines[i]
+                    break
 
         if same:
             return
 
+        _lastWritten = lines.copy()
         _lcd.clear()
         for line in lines:
             _lcd.write_string(line)

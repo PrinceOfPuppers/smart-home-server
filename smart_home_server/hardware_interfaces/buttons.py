@@ -25,11 +25,11 @@ if const.isRpi():
         _lastCalled[pin] = t
         _callback(pin)
 
-    pi = pigpio.pi()
+    _pi = pigpio.pi()
     for pin in const.buttonPins:
         _lastCalled[pin] = 0
-        pi.set_pull_up_down(pin, pigpio.PUD_ON)
-        pi.callback( pin, pi.FALLING_EDGE, _target )
+        _pi.set_pull_up_down(pin, pigpio.PUD_UP)
+        _pi.callback( pin, pigpio.FALLING_EDGE, _target )
 
 
     def registerCallback(func):
