@@ -15,11 +15,10 @@ from smart_home_server.data_sources import dataSources
 dataApi = Blueprint('dataApi', __name__)
 
 def route(source):
-    dash = source['dashboard']
     res = source['local']()
 
     if not res:
-        return current_app.response_class(f"Error Getting: {dash['name']}", status=400, mimetype="text/plain")
+        return current_app.response_class(f"Error Getting: {source['name']}", status=400, mimetype="text/plain")
     return jsonify(res)
 
 view_maker = lambda source: (lambda: route(source))

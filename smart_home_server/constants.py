@@ -144,7 +144,8 @@ wttrApiUrl        = f'http://wttr.in/{_city}?format=j1'
 # used for weather image
 weatherUrl        = f'http://wttr.in/{_city}?TQ0n'
 #used for current condition data
-wttrCurrentData   = f'http://wttr.in/{_city}?format=%C\n%t\n%f\n%h\n%p\n%u\n%S\n%s'
+#wttrCurrentData   = f'http://wttr.in/{_city}?format=%C\n%t\n%f\n%h\n%p\n%u\n%S\n%s'
+wttrCurrentData   = f'http://wttr.in/{_city}?format=%C\n%t\n%f\n%h\n%p\n%u\n'
 
 #google scraping for dashboard
 googleExchangeRateDiv = re.compile(r"<div[^>]+data-exchange-rate\s?=\s?[\"\'](.*?)[\"\'][^>]?>")

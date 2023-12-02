@@ -131,15 +131,16 @@ def getCurrentWeather():
     if not r.ok:
         return None
 
-    text, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split('\n')
+    text, temp, feelsLike, humid, percip3h, uv = r.text.split('\n')
+    #text, temp, feelsLike, humid, percip3h, uv, sunrise, sunset = r.text.split('\n')
     text = text.lower().replace("unknown precipitation", "precip")
 
     temp, feelsLike = int(temp[:-2]), int(feelsLike[:-2])
     humid = humid[:-1]
     percip3h = round(float(percip3h[:-2]), 2)
 
-    sunrise = roundTimeStr(sunrise)
-    sunset = roundTimeStr(sunset)
+    #sunrise = roundTimeStr(sunrise)
+    #sunset = roundTimeStr(sunset)
 
     res = {
         #'str': f'{text} {temp}C({feelsLike}C) {humid}%',
@@ -151,8 +152,8 @@ def getCurrentWeather():
             'humid': humid,
             'percip3h': percip3h,
             'uv': uv,
-            'sunrise': sunrise,
-            'sunset': sunset,
+            #'sunrise': sunrise,
+            #'sunset': sunset,
             },
     }
     return res
@@ -449,14 +450,14 @@ dataSources = [
                 'enabled': True,
                 'dataPath': ['data', 'feelsLike']
             },
-            'wttrSunrise': {
-                'enabled': True,
-                'dataPath': ['data', 'sunrise']
-            },
-            'wttrSunset': {
-                'enabled': True,
-                'dataPath': ['data', 'sunset']
-            },
+            #'wttrSunrise': {
+            #    'enabled': True,
+            #    'dataPath': ['data', 'sunrise']
+            #},
+            #'wttrSunset': {
+            #    'enabled': True,
+            #    'dataPath': ['data', 'sunset']
+            #},
         },
     },
 
