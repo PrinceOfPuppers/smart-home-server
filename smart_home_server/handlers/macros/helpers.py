@@ -5,6 +5,7 @@ import json
 from typing import Union
 
 import smart_home_server.constants as const
+from smart_home_server.hardware_interfaces.buttons import registerCallback
 
 class MacroDoesNotExist(Exception):
     pass
@@ -17,6 +18,7 @@ class SequenceItemDoesNotExist(Exception):
 
 _macroCache = {}
 _rfMacroCodeLastAdded = None
+_macroButtonLastAdded = None
 
 def _getMacroPath(id:str):
     return f'{const.macroFolder}/{id}.json'
@@ -138,3 +140,27 @@ def _getMacroWithCode(code) -> Union[dict, None]:
         return macro
     return None
 
+def _addButtonToMacro(id, pin):
+    global _macroButtonLastAdded
+    _macroButtonLastAdded = time()
+    macro = _getMacro(id)
+    if 'pin' not in macro or macro['pin'] != pin:
+        macro['pin'] = pin
+        _overwriteMacro(id, macro)
+
+def _deleteMacroButton(id):
+    macro = _getMacro(id)
+    if 'pin' in macro:
+        macro.pop('pin')
+        _overwriteMacro(id, macro)
+
+def _getMacroWithButton(pin) -> Union[dict, None]:
+    global _macroButtonLastAdded
+    if _macroButtonLastAdded != None and time() -_macroButtonLastAdded < const.buttonMacroAddDebounceTime:
+        return None
+
+    macros = _getMacros()
+    for macro in macros:
+        if 'pin' in macro and macro['pin'] == pin:
+            return macro
+    return None

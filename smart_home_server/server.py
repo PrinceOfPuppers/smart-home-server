@@ -74,7 +74,7 @@ def dashboardGet():
                     'dashboard': source['dashboard']
                  }
             )
-    return render_template('dashboard.html', dashboardElements=elements, values=values)
+    return render_template('dashboard.html', dashboardElements=elements, values=values, lcdLines = const.lcdLines)
 
 @app.route('/trigger')
 def triggerGet():

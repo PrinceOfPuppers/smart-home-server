@@ -6,7 +6,7 @@ from smart_home_server.api import postLCDSchema
 from smart_home_server.handlers.lcd import toggleLCDBacklight, updateLCDFromJobData
 from smart_home_server.handlers.logs import logs
 
-from smart_home_server.api import nameSchema 
+from smart_home_server.api import nameSchema
 
 dashboardApi = Blueprint('dashboardApi', __name__)
 

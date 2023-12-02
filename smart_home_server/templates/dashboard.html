@@ -85,34 +85,25 @@
         }
     }
 
-    async function editLCD(){
-        const element = document.getElementById(`dashboard-LCD`);
+    async function saveLCD(){
+        const element = document.getElementById(`dashboard-LCD-content`);
+        const saveButtonElement = document.getElementById(`dashboardButton-LCD-Save`);
+
         const text = element.textContent;
-        const lines = text.split('\n')
-        oldLine1 = lines.length > 0 ? lines[0] : ""
-        oldLine2 = lines.length > 0 ? lines[1] : ""
+        var lines = text.split('\n')
 
-        const line1 = window.prompt("LCD Line 1:", oldLine1);
-        if(line1 === null){
-            return;
-        }
-        const line2 = window.prompt("LCD Line 2:", oldLine2);
+        lines = lines.slice(0,{{ lcdLines }})
+        var data = {'lines': lines};
 
-        var data = {'line1': line1};
-        var newText = line1;
-        if(line2 !== null){
-            data['line2'] = line2;
-            newText += '\n' + line2;
-        }
-
-        ok = await sendData('api/dashboard/lcd', data, 'POST');
-        if(ok){
-            element.textContent = newText;
-        }
+        sendData('api/dashboard/lcd', data, 'POST').then( (success) => {
+            if(success){
+                tempChangeButton(saveButtonElement, "Saved!");
+            }
+        })
     }
 
     function getLCD(){
-        const element = document.getElementById(`dashboard-LCD`);
+        const element = document.getElementById(`dashboard-LCD-content`);
         fetch('api/data/lcd', {method: "GET"})
         .then((response) => {
             if(!response.ok){
@@ -207,10 +198,10 @@
         {% endfor %}
         <div>
             <button id="dashboardButton-LCD" class="purpleButton" onclick="getLCD()">LCD</button>
-            <button id="dashboardButton-LCD-Edit" class="purpleButton" onclick="editLCD()">Edit</button>
-            <button class="purpleButton" onclick="lcdFmtCheatSheet()">?</button>
             <button id="dashboardButton-LCD-Backlight" class="purpleButton" onclick="toggleLCDBacklight()">Light</button>
-            <p id="dashboard-LCD"></p>
+            <button class="purpleButton" onclick="lcdFmtCheatSheet()">?</button>
+            <button id="dashboardButton-LCD-Save" class="purpleButton" onclick="saveLCD()">Save</button>
+            <p class="entry" id="dashboard-LCD-content" contentEditable="true" spellcheck="false"></p>
         </div>
   </body>
 </html>

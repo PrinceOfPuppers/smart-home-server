@@ -155,6 +155,3 @@ def runMacro(id):
     logJob('macro', {'name': name, 'id': id})
     _runMacroSequence(sequence, name)
 
-
-
-

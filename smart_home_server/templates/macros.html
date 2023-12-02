@@ -121,8 +121,9 @@
         });
     }
 
-    function macroRfButton(id){
-        const rfButtonElement = document.getElementById(`macro-rf-button-${id}`);
+    // used for both rf and pin macro hookup
+    function macroButton(id, rf = true){
+        const rfButtonElement = document.getElementById(`macro-${ rf ? "rf" : "pin" }-button-${id}`);
 
         // disable onclick
         const onclick = rfButtonElement.getAttribute("onclick");
@@ -136,23 +137,25 @@
         if(rfButtonElement.classList.contains('redButton')){
             // remove rf code button
             method = 'DELETE';
-            newText = 'Add RF Code';
-            newClass = 'yellowButton';
+            newText = rf ? 'Add RF' : 'Add Button';
+            newClass = rf ? 'yellowButton' : "orangeButton";
             // rfButtonElement.textContent = "Deleting Code";
         } else { 
             // add rf code button
             method = 'POST';
-            newText = 'Remove RF Code';
+            newText = rf ? 'Remove RF' : 'Remove Button';
             newClass = 'redButton';
-            rfButtonElement.textContent = "Listening...";
+            rfButtonElement.textContent = rf ? "Listening..." : "awaiting Press...";
         }
 
-        sendData('api/macro/rf', data, method).then((success)=>{
+        const url = rf ? 'api/macro/rf' : 'api/macro/button'
+
+        sendData(url, data, method).then((success)=>{
             if(success){
                 rfButtonElement.className = newClass;
                 rfButtonElement.textContent = newText;
             } else {
-                rfButton.textContent = initalText;
+                rfButtonElement.textContent = initalText;
             }
             // re-enable onclick
             rfButtonElement.setAttribute("onclick", onclick);
@@ -214,11 +217,18 @@
 
                             <div style="padding-top: 5pt">
                                 {% if 'code' in macro %}
-                                    <button class="redButton", id="macro-rf-button-{{ macroId }}", onclick = "macroRfButton('{{ macroId }}')"">Remove RF Code</button>
+                                    <button class="redButton", id="macro-rf-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', true)"">Remove RF</button>
                                 {% else %}
-                                    <button class="yellowButton", id="macro-rf-button-{{ macroId }}", onclick = "macroRfButton('{{ macroId }}')"">Add RF Code</button>
+                                    <button class="yellowButton", id="macro-rf-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', true)"">Add RF</button>
+                                {% endif %}
+
+                                {% if 'pin' in macro %}
+                                    <button class="redButton", id="macro-pin-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', false)"">Remove Button</button>
+                                {% else %}
+                                    <button class="orangeButton", id="macro-pin-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', false)"">Add Button</button>
                                 {% endif %}
                             </div>
+
                         </ul>
                     </div>
                 </li>
