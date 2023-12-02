@@ -3,7 +3,8 @@ include <../../../openscad/libs/NopSCADlib/lib.scad>
 fanWidth = 30;
 fanHeight = 7.8;
 fanHoleWall = 1.6;
-m3Hole = 3.1;
+m3Hole = 3.3;
+fanHoleOffset = m3Hole/2 + fanHoleWall;
 
 bbLength = 86;
 bbWidth = 46.5;
@@ -76,6 +77,22 @@ lcdRelZero = lcdZero - piZero;
 
 fanZero = [wallThickness_calc + bbWidth/2 - fanWidth/2, wallThickness_calc + bbLength/4 - fanWidth / 2,0];
 fanRelZero = fanZero - piZero;
+
+/*
+translate([10.3,244.1,5]){
+    difference(){
+        cube([fanWidth, fanWidth, 7.75]);
+        translate([fanHoleWall+3.12/2, fanHoleWall+3.12/2,-6])
+            #cylinder(d=3.12, h=2*7,75);
+        translate([fanWidth-fanHoleWall-3.12/2, fanHoleWall+3.12/2,-6])
+            #cylinder(d=3.12, h=2*7,75);
+        translate([fanWidth-fanHoleWall-3.12/2, fanWidth - fanHoleWall-3.12/2,-6])
+            #cylinder(d=3.12, h=2*7,75);
+        translate([fanHoleWall+3.12/2, fanWidth - fanHoleWall-3.12/2,-6])
+            #cylinder(d=3.12, h=2*7,75);
+    }
+}
+*/
 
 /*
 translate(lcdZero){
@@ -226,10 +243,10 @@ cutoutsBase =   [
 // (n) = { yappCenter }
 cutoutsLid  =   [
                     // fan screw holes
-                    [fanRelZero[0], fanRelZero[1], m3Hole, 24, 0, yappCircle],
-                    [fanRelZero[0]+fanWidth-2*fanHoleWall, fanRelZero[1], m3Hole, 0, 0, yappCircle],
-                    [fanRelZero[0]+fanWidth-2*fanHoleWall, fanRelZero[1]+fanWidth-2*fanHoleWall, m3Hole, 0, 0, yappCircle],
-                    [fanRelZero[0], fanRelZero[1]+fanWidth-2*fanHoleWall, m3Hole, 0, 0, yappCircle],
+                    [fanRelZero[0] + fanHoleOffset,            fanRelZero[1] + fanHoleOffset,            m3Hole, 0, 0, yappCircle],
+                    [fanRelZero[0] + fanHoleOffset,            fanRelZero[1] + fanWidth - fanHoleOffset, m3Hole, 0, 0, yappCircle],
+                    [fanRelZero[0] + fanWidth - fanHoleOffset, fanRelZero[1] + fanWidth - fanHoleOffset, m3Hole, 0, 0, yappCircle],
+                    [fanRelZero[0] + fanWidth - fanHoleOffset, fanRelZero[1] + fanHoleOffset,            m3Hole, 0, 0, yappCircle],
 
                     [lcdRelZero[0], lcdRelZero[1]+ lcdWidth/2 - lcdScreenVertical/2, lcdScreenVertical, lcdLength, 0, yappRectangle],
                 ];
@@ -246,7 +263,7 @@ cutoutsLid  =   [
 // (8) = {polygon points}}
 
 cutoutsGrill = [
-                   [fanRelZero[0], fanRelZero[1]+m3Hole/2, fanWidth-2*m3Hole, fanWidth-3*m3Hole/2, 2, 1.6,  0, "lid"]
+                   [fanRelZero[0]+1.5*fanHoleOffset, 1.5*fanRelZero[1]+fanHoleOffset, fanWidth-3*fanHoleOffset, fanWidth-3*fanHoleOffset, 2, 1.4,  45, "lid"]
                ];
 
 
