@@ -25,11 +25,9 @@ from smart_home_server.handlers.logs import jobLog, rfLog
 
 def getErrors():
     s, anyErr = getErrorStrAndBool()
-    d = currentErrors.copy()
-    d['anyErrors'] = anyErr
     res = {
         'str': s,
-        'data': d,
+        'data': {'anyErrors' : anyErr},
     }
     return res
 
@@ -490,14 +488,6 @@ dataSources = [
                 'enabled': True,
                 'dataPath': ['data', 'anyErrors']
             },
-            'DHTReadErr': {
-                'enabled': True,
-                'dataPath': ['data', 'Conseq_DHT_Read_Err']
-            },
-            'LCDWriteErr': {
-                'enabled': True,
-                'dataPath': ['data', 'Conseq_LCD_Write_Err']
-            },
         },
     },
     {
@@ -574,8 +564,7 @@ for source in dataSources:
 dataSourceValues = set()
 dataSourceDict = {}
 for source in dataSources:
-    if 'name' not in source:
-        continue
+    assert 'name' in source
     dataSourceDict[source['name']] = source
     if 'values' not in source:
         continue

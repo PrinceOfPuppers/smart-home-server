@@ -8,6 +8,8 @@ currentErrors = {
 
     'Last_Job_Run_Err': '',
     'Misc_Errs': [],              # for testing
+    'Subscribe_Manager_None': set(),  # for when a datasource returns none in subscribe manager
+    'Dashboard_None': set()          # for when a datasource returns none on the dashboard
 }
 
 def getErrorStrAndBool():
@@ -29,6 +31,12 @@ def getErrorStrAndBool():
         s += f"{currentErrors['Last_Job_Run_Err']}\n"
     for err in currentErrors['Misc_Errs']:
         s += f"{err}\n"
+
+    for name in currentErrors['Subscribe_Manager_None']:
+        s += f"Sub Source Err: {name}\n"
+
+    for name in currentErrors['Dashboard_None']:
+        s += f"Dash Source Err: {name}\n"
 
     if not s:
         return 'No Errors', False

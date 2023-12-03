@@ -7,6 +7,7 @@ from math import ceil
 import traceback
 
 from smart_home_server.data_sources import dataSourceDict
+from smart_home_server.errors import currentErrors
 
 def _dataFromDataPath(x, dataPath):
     y = x
@@ -15,10 +16,17 @@ def _dataFromDataPath(x, dataPath):
     return y
 
 def _updateToSend(source, toSend):
+    global currentErrors
     func = source['local']
     res = func()
     if res is None:
+        # add error
+        currentErrors['Subscribe_Manager_None'].add(source['name'])
         return
+
+    # remove error if it exists
+    currentErrors['Subscribe_Manager_None'].discard(source['name'])
+
     for key,value in source['values'].items():
         # we do not check if enabled, its only used for frontend filtering
         #if value['enabled']:
