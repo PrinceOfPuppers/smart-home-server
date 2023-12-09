@@ -211,7 +211,6 @@ def getIndoorClimateDHTLocal():
     return res
 
 def getWeatherServerLocal(ip:str):
-    print(ip)
     data = getWeatherServerData(ip)
 
     if data is None:
@@ -313,11 +312,11 @@ dataSources = [
         'color': 'blue',
         'url': f'/api/data/temp-humid/indoor',
         'local':
-            (lambda: cached(getIndoorClimateBMELocal,30//2)) if const.useBME else
-            (lambda: cached(getIndoorClimateDHTLocal,30//2)) if const.useDht22 else
-            (lambda: cached(lambda: getWeatherServerLocal(const.indoorWeatherServerIp),(5*60)//2))
+            ( lambda: cached(getIndoorClimateBMELocal,30//2) ) if const.useBME else
+            ( lambda: cached(getIndoorClimateDHTLocal,30//2) ) if const.useDht22 else
+            ( lambda: cached(getWeatherServerLocal,(3*60)//2, ip=const.indoorWeatherServerIp) )
             ,
-        'pollingPeriod': 30 if const.useBME or const.useDht22 else 5*60,
+        'pollingPeriod': 30 if const.useBME or const.useDht22 else 3*60,
 
         'dashboard':{
             'enabled': True,
@@ -351,8 +350,8 @@ dataSources = [
         'name': 'Outdoor',
         'color': 'yellow',
         'url': f'/api/data/temp-humid/outdoor',
-        'local': lambda: cached(lambda: getWeatherServerLocal(const.outdoorWeatherServerIp),(5*60)//2),
-        'pollingPeriod': 5*60,
+        'local': lambda: cached(getWeatherServerLocal,(3*60)//2, ip = const.outdoorWeatherServerIp),
+        'pollingPeriod': 3*60,
 
         'dashboard':{
             'enabled': True,
@@ -377,8 +376,8 @@ dataSources = [
         'name': 'Printer',
         'color': 'gray',
         'url': f'/api/data/temp-humid/printer',
-        'local': lambda: cached(lambda: getWeatherServerLocal(const.printChamberWeatherServerIp),(2*60)//2),
-        'pollingPeriod': 2*60,
+        'local': lambda: cached(getWeatherServerLocal,(60)//2, ip=const.printChamberWeatherServerIp),
+        'pollingPeriod': 60,
 
         'dashboard':{
             'enabled': True,
