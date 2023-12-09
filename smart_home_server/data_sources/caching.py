@@ -10,13 +10,15 @@ def cached(func:Callable, cacheDuration:float, **kwargs):
     global _cache
     global _cacheLock
 
+    rep = str(id(func)) + str(sorted(kwargs.items()))
+
     # use cache lock to aquire specific func lock
     _cacheLock.acquire()
-    if func in _cache:
-        lock = _cache[func]['lock']
+    if rep in _cache:
+        lock = _cache[rep]['lock']
     else:
         lock = Lock()
-        _cache[func] = {'lock': lock}
+        _cache[rep] = {'lock': lock}
     _cacheLock.release()
 
 
@@ -24,9 +26,9 @@ def cached(func:Callable, cacheDuration:float, **kwargs):
     try:
         now = datetime.now()
 
-        if 'lastUpdate' in _cache[func]:
-            lastUpdate = _cache[func]['lastUpdate']
-            oldVal = _cache[func]['val']
+        if 'lastUpdate' in _cache[rep]:
+            lastUpdate = _cache[rep]['lastUpdate']
+            oldVal = _cache[rep]['val']
 
             cacheExprDT = timedelta(seconds=cacheDuration)
             timeTillExprDT = cacheExprDT + lastUpdate - now
@@ -34,12 +36,12 @@ def cached(func:Callable, cacheDuration:float, **kwargs):
                 val = oldVal
             else:
                 val = func(**kwargs)
-                _cache[func]['lastUpdate'] = now
-                _cache[func]['val'] = val
+                _cache[rep]['lastUpdate'] = now
+                _cache[rep]['val'] = val
         else:
             val = func(**kwargs)
-            _cache[func]['val'] = val
-            _cache[func]['lastUpdate'] = now
+            _cache[rep]['val'] = val
+            _cache[rep]['lastUpdate'] = now
 
     finally:
         lock.release()

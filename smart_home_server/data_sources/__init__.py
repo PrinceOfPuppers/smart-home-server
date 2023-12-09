@@ -384,17 +384,17 @@ dataSources = [
         },
 
         'values': {
-            'outdoorTemp': {
+            'printerTemp': {
                 'dataPath': ['data', 'temp'],
                 'enabled': True,
             },
-            'outdoorHumid': {
+            'printerHumid': {
                 'dataPath': ['data', 'humid'],
                 'enabled': True,
             },
-            'outdoorPressure': {
+            'printerPressure': {
                 'dataPath': ['data', 'pressure'],
-                'enabled': True,
+                'enabled': False,
             }
         }
     },
