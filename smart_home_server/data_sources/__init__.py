@@ -178,41 +178,41 @@ def getLCDLocal():
     }
     return res
 
-if const.useBME:
-    def getIndoorClimateLocal():
-        data = getBME()
-        if data is None:
-            s = f'T: N/A \nH: N/A \nP: N/A'
-            res = {
-                'str':s,
-                'data':{},
-            }
-        else:
-            s = f'T: {data.temp} \nH: {data.humid} \nP: {data.pressure}'
-            res = {
-                'str':s,
-                'data':{'temp':round(data.temp), 'humid': round(data.humid), 'pressure': round(data.pressure)},
-            }
-        return res
-else:
-    def getIndoorClimateLocal():
-        data = getDHT()
-        if data is None:
-            s = f'Temprature: N/A \nHumidity: N/A'
-            res = {
-                'str':s,
-                'data':{},
-            }
-        else:
-            s = f'T: {data.temp} \nH: {data.humid}'
-            res = {
-                'str':s,
-                'data':{'temp':round(data.temp), 'humid': round(data.humid)},
-            }
-        return res
+def getIndoorClimateBMELocal():
+    data = getBME()
+    if data is None:
+        s = f'T: N/A \nH: N/A \nP: N/A'
+        res = {
+            'str':s,
+            'data':{},
+        }
+    else:
+        s = f'T: {data.temp} \nH: {data.humid} \nP: {data.pressure}'
+        res = {
+            'str':s,
+            'data':{'temp':round(data.temp), 'humid': round(data.humid), 'pressure': round(data.pressure)},
+        }
+    return res
 
-def getOutdoorClimateLocal():
-    data = getWeatherServerData()
+def getIndoorClimateDHTLocal():
+    data = getDHT()
+    if data is None:
+        s = f'Temprature: N/A \nHumidity: N/A'
+        res = {
+            'str':s,
+            'data':{},
+        }
+    else:
+        s = f'T: {data.temp} \nH: {data.humid}'
+        res = {
+            'str':s,
+            'data':{'temp':round(data.temp), 'humid': round(data.humid)},
+        }
+    return res
+
+def getWeatherServerLocal(ip:str):
+    print(ip)
+    data = getWeatherServerData(ip)
 
     if data is None:
         s = f'T: N/A \nH: N/A \nP: N/A'
@@ -312,8 +312,12 @@ dataSources = [
         'name': 'Indoor',
         'color': 'blue',
         'url': f'/api/data/temp-humid',
-        'local': lambda: cached(getIndoorClimateLocal,30//2),
-        'pollingPeriod': 30,
+        'local':
+            (lambda: cached(getIndoorClimateBMELocal,30//2)) if const.useBME else
+            (lambda: cached(getIndoorClimateDHTLocal,30//2)) if const.useDht22 else
+            (lambda: cached(lambda: getWeatherServerLocal(const.indoorWeatherServerIp),(5*60)//2))
+            ,
+        'pollingPeriod': 30 if const.useBME or const.useDht22 else 5*60,
 
         'dashboard':{
             'enabled': True,
@@ -332,7 +336,7 @@ dataSources = [
                 'dataPath': ['data', 'pressure'],
                 'enabled': True,
             }
-        } if const.useBME else {
+        } if const.useBME or not const.useDht22 else {
             'temp': {
                 'dataPath': ['data', 'temp'],
                 'enabled': True,
@@ -347,7 +351,7 @@ dataSources = [
         'name': 'Outdoor',
         'color': 'yellow',
         'url': f'/api/data/outdoor-temp-humid',
-        'local': lambda: cached(getOutdoorClimateLocal,(5*60)//2),
+        'local': lambda: cached(lambda: getWeatherServerLocal(const.outdoorWeatherServerIp),(5*60)//2),
         'pollingPeriod': 5*60,
 
         'dashboard':{

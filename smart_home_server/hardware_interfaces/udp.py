@@ -25,9 +25,9 @@ def _clearError():
     global currentErrors
     currentErrors[s] = 0
 
-def getWeatherServerData() -> Union[BMEData, None]:
+def getWeatherServerData(ip:str) -> Union[BMEData, None]:
     try:
-        res = udpPromptRead(const.weatherServerIp, const.weatherServerPort)
+        res = udpPromptRead(ip, const.weatherServerPort)
         t, h, p = res.split(',')
         val = BMEData(
                 temp     = round(float(t),2),     # in C

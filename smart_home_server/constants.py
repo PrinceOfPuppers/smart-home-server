@@ -169,8 +169,10 @@ rfMacroAddDebounceTime = 1
 pulseLenthTolerance = 10
 
 
-# use bme280 instead of dht22
-useBME = True
+# for indoor climate measuring, if neither dht or bme, indoorWeatherServer will be used
+useDht22 = False
+useBME = False
+assert not (useDht22 and useBME)
 
 
 # server buttons
@@ -182,7 +184,8 @@ buttonMacroAddDebounceTime = 1
 
 #udp
 udpTimeout = 5
-weatherServerIp = "192.168.2.151"
+outdoorWeatherServerIp = "192.168.2.151"
+indoorWeatherServerIp  = "192.168.2.152"
 weatherServerPort = 6831
 
 WWO_CODE = {
