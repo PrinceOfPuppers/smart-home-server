@@ -1,8 +1,9 @@
 include <../../../openscad/libs/NopSCADlib/lib.scad>
 
-fanWidth = 30;
+fanWidth = 40;
+fanBladeWidth = 38;
 fanHeight = 7.8;
-fanHoleWall = 1.6;
+fanHoleWall = 1.9;
 m3Hole = 3.3;
 fanHoleOffset = m3Hole/2 + fanHoleWall;
 
@@ -75,11 +76,11 @@ lcdZero = [containerWidth-lcdLength+wallThickness_calc - 4,
            bottomTopThickness];
 lcdRelZero = lcdZero - piZero;
 
-fanZero = [wallThickness_calc + bbWidth/2 - fanWidth/2, wallThickness_calc + bbLength/4 - fanWidth / 2,0];
+fanZero = [wallThickness_calc+generalPadding, wallThickness_calc + generalPadding,0];
 fanRelZero = fanZero - piZero;
 
 /*
-translate([10.3,244.1,5]){
+translate([5.3,239.4,5]){
     difference(){
         cube([fanWidth, fanWidth, 7.75]);
         translate([fanHoleWall+3.12/2, fanHoleWall+3.12/2,-6])
@@ -92,9 +93,7 @@ translate([10.3,244.1,5]){
             #cylinder(d=3.12, h=2*7,75);
     }
 }
-*/
 
-/*
 translate(lcdZero){
     #cube([lcdLength, lcdWidth, lcdStandoffHeight+lcdPCBThickness+lcdTopPinHeight]);
     translate([0,lcdWidth/2-lcdScreenVertical/2,0])
@@ -262,9 +261,23 @@ cutoutsLid  =   [
 // (7) = plane {"base" | "lid" }
 // (8) = {polygon points}}
 
+/*
 cutoutsGrill = [
-                   [fanRelZero[0]+1.5*fanHoleOffset, 1.5*fanRelZero[1]+fanHoleOffset, fanWidth-3*fanHoleOffset, fanWidth-3*fanHoleOffset, 2, 1.4,  45, "lid"]
-               ];
+                   [fanRelZero[0]+1.5*fanHoleOffset, fanRelZero[1]+1.5*fanHoleOffset, fanWidth-3*fanHoleOffset, fanWidth-3*fanHoleOffset, 2, 1.4,  45, "lid", 
+                   [for (a = [0 : 50]) 0.5*fanWidth*[ cos(a*360/50)+1/2, sin(a * 360 / 50)+1/2 ]]
+               ]];
+*/
+cutoutsGrill = [
+                   [
+                       fanRelZero[0], fanRelZero[1], fanWidth, fanWidth, 3, 1.6,  45, "lid", 
+                       [for (a = [0 : 50]) 0.5*fanBladeWidth*[ cos(a*360/50), sin(a * 360 / 50) ] + [fanWidth/2,fanWidth/2]]
+                   ],
+                   /*
+                   [
+                       rpiLength-22, 0, rpiWidth, 20, 3, 1.6,  -45, "lid", 
+                   ]
+                   */
+                ];
 
 
 //-- front plane  -- origin is pcb[0,0,0]
