@@ -311,7 +311,7 @@ dataSources = [
     {
         'name': 'Indoor',
         'color': 'blue',
-        'url': f'/api/data/temp-humid',
+        'url': f'/api/data/temp-humid/indoor',
         'local':
             (lambda: cached(getIndoorClimateBMELocal,30//2)) if const.useBME else
             (lambda: cached(getIndoorClimateDHTLocal,30//2)) if const.useDht22 else
@@ -350,9 +350,35 @@ dataSources = [
     {
         'name': 'Outdoor',
         'color': 'yellow',
-        'url': f'/api/data/outdoor-temp-humid',
+        'url': f'/api/data/temp-humid/outdoor',
         'local': lambda: cached(lambda: getWeatherServerLocal(const.outdoorWeatherServerIp),(5*60)//2),
         'pollingPeriod': 5*60,
+
+        'dashboard':{
+            'enabled': True,
+        },
+
+        'values': {
+            'outdoorTemp': {
+                'dataPath': ['data', 'temp'],
+                'enabled': True,
+            },
+            'outdoorHumid': {
+                'dataPath': ['data', 'humid'],
+                'enabled': True,
+            },
+            'outdoorPressure': {
+                'dataPath': ['data', 'pressure'],
+                'enabled': True,
+            }
+        }
+    },
+    {
+        'name': 'Printer',
+        'color': 'gray',
+        'url': f'/api/data/temp-humid/printer',
+        'local': lambda: cached(lambda: getWeatherServerLocal(const.printChamberWeatherServerIp),(2*60)//2),
+        'pollingPeriod': 2*60,
 
         'dashboard':{
             'enabled': True,
