@@ -3,6 +3,8 @@ notepad*
 smart_home_server.egg-info
 smart_home_server/storage
 smart-home-update
+network-info.h
+.ccls-cache
 
 /build
 /dist
