@@ -56,6 +56,23 @@ def getForexLocal(src,dest, decimal=3):
 
 def getForecastLocal():
     r = requests.get(const.wttrApiUrl, timeout=const.requestTimeout)
+
+    # calculate marked bar (denotes the current time)
+    n = datetime.now()
+    currentDay = n.date().day
+    currentHour:float = float(n.hour) + float(n.minute) / 60
+    timeStep = 3/4
+
+    x = list("────────────────────────────────")
+
+    index = round(currentHour/timeStep)
+    index = index if index < len(x) else len(x) - 1
+
+    x[index] = "┰"
+    markedTBar = "─┬" + "".join(x) + "\n"
+    x[index] = "┸"
+    markedBBar = "─┴" + "".join(x)
+
     if not r.ok:
         return None
 
@@ -75,6 +92,7 @@ def getForecastLocal():
             date = day['date'].split('-')
             m = const.months[int(date[1])-1]
             d = date[2]
+            dInt = int(d)
 
             average = day["avgtempC"]
             high = day["maxtempC"]
@@ -83,11 +101,15 @@ def getForecastLocal():
 
             s = f"{m} {d}: {high}/{average}/{low}℃ - UV:{uvIndex}\n"
 
-            s +=  "─┬───────────────────────────────\n"
-            l =  ["H│",
-                  "I│",
-                  "T│",
-                  "P│"]
+
+            tBar = "─┬────────────────────────────────\n" if dInt != currentDay else markedTBar
+            l =   ["H│",
+                   "I│",
+                   "T│",
+                   "P│"]
+            bBar = "─┴────────────────────────────────" if dInt != currentDay else markedBBar
+
+            s +=  tBar
 
             totalPercip = 0
             for hour in day['hourly']:
@@ -103,7 +125,7 @@ def getForecastLocal():
                 totalPercip += float(mm)
 
             s += '\n'.join(l) + '\n'
-            s +=  "─┴───────────────────────────────"
+            s +=  bBar
             days.append(s)
             data['days'].append({
                 'temp': average,
