@@ -437,7 +437,7 @@ module mount(){
     md = 1.7*caseExternalHeight;
     baseWidth = caseExternalWidth + 2*mt+0.2;
 
-    holeHeight = 0.8*sqrt(MountHoleHeight^2 + standoffDiameter^2);
+    holeHeight = 1*sqrt(MountHoleHeight^2 + standoffDiameter^2);
 
     cube([baseWidth,md,mt]);
 

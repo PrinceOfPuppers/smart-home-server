@@ -110,17 +110,18 @@ void ack(){
     udp.endPacket();
 }
 
+static String localIP;
 void setup_udp(){
     WiFi.begin(NETWORK_NAME, NETWORK_PASS);
 
-    write_lcd("Connecting\nWifi...");
+    write_lcd("Connecting Wifi...");
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
     }
-    write_lcd("WiFi Up! IP:\n" + WiFi.localIP().toString());
-    delay(1000);
-
+    localIP = WiFi.localIP().toString();
+    write_lcd("WiFi Up!\nIP: " + localIP);
     udp.begin(localudpPort);
+    delay(1000);
 }
 
 // blocking, returns expected return interval
@@ -131,7 +132,7 @@ long subscribe_lcd(uint8_t lcdNum){
 
 
     while(1){
-        write_lcd(SERVER_IP "\nAttempt: " + String(attempt) );
+        write_lcd("Conn Attempt: " + String(attempt) + "\nL: " + localIP + "\nR: " + SERVER_IP "\nLCD Num: " + lcdNumStr);
         udp.beginPacket(SERVER_IP, remoteudpPort);
         udp.write(lcdNumStr.c_str(), lcdNumStr.length());
         udp.endPacket();
@@ -214,8 +215,8 @@ void setup(){
     Serial.begin(SERIAL_BAUD);
     while(!Serial) {}
 #endif
-    setup_udp();
     setup_lcd();
+    setup_udp();
     getLCDNum();
 }
 
