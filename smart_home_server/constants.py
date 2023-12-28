@@ -43,6 +43,9 @@ createIfNotExists(macroFolder)
 remoteFolder = f'{storageFolder}/remotes'
 createIfNotExists(remoteFolder)
 
+lcdsFolder = f'{storageFolder}/lcds'
+createIfNotExists(lcdsFolder)
+
 # defaultRemoteFileA = f'{storageFolder}/remotes/A'
 # if not os.path.exists(defaultRemoteFileA):
 #     with open(defaultRemoteFileA,"w") as f:
@@ -188,6 +191,8 @@ outdoorWeatherServerIp = "192.168.2.151"
 indoorWeatherServerIp  = "192.168.2.152"
 printChamberWeatherServerIp  = "192.168.2.153"
 weatherServerPort = 6831
+lcdListenerPort = 6832
+
 
 WWO_CODE = {
     "113": "Sunny",

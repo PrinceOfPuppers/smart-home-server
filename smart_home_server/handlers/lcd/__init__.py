@@ -1,48 +1,52 @@
 import string
+from typing import Union
+from threading import Lock, Thread
+from datetime import datetime
 
 import smart_home_server.constants as const
-from smart_home_server.hardware_interfaces.lcd import setLCDFMT, printfLCD, toggleBacklight, getLCDFMT, setBacklight
+from smart_home_server.handlers.lcd.helpers import printfLCD
 from smart_home_server.handlers.subscribeManager import subscribe
+from smart_home_server.hardware_interfaces.udp import udpListener
 
-# increment to unsub to from current subscribe
-_seq = 0
+lcdLock = Lock()
+_lcdListenLoopCondition = False
+_lcdListenThread        = None
 
-def _startLCD():
-    args = [tup[1] for tup in string.Formatter().parse(getLCDFMT()) if tup[1] is not None]
-    current = _seq
+def addLcd(ip, port, lcdNumStr):
+    # must return expected polling period
+    pass
 
-    subscribe(\
-         args, 
-         lambda values:printfLCD(values), 
-         lambda: current != _seq, 
-         lambda e: print(f"LCD Exception: \n{repr(e)}", flush=True)
-     )
+def stopLcdListener():
+    global _lcdListenerLoopCondition
+    _lcdListenerLoopCondition = False
 
-def startUpdateLCD(fmt = "", fromFile = False):
-    global _seq
-    _seq += 1
+def joinLcdListener():
+    global _lcdListenerLoopCondition
+    global _lcdListenerThread
 
-    if fromFile:
-        with open(const.lcdTextFile,"r") as f:
-            fmt = f.read()
+    if _lcdListenerThread is not None and _lcdListenerThread.is_alive():
+        _lcdListenerLoopCondition = False
+        _lcdListenerThread.join()
     else:
-        with open(const.lcdTextFile,"w") as f:
-            f.write(fmt)
+        _lcdListenerLoopCondition = False
 
-    setLCDFMT(fmt)
-    _startLCD()
-    print("lcd started")
+def startLcdListener():
+    global _lcdListenerLoopCondition
+    global _lcdListenerThread
+    if _lcdListenerLoopCondition:
+        raise Exception("LcdListener Already Running")
 
-def toggleLCDBacklight():
-    toggleBacklight()
+    joinLcdListener()
 
-def setLCDBacklight(on: bool):
-    setBacklight(on)
+    print(f"LcdListener Load Time: {datetime.now()}")
+    _lcdListenerLoopCondition = True
+    _lcdListenerThread = Thread(target=lambda: udpListener(const.lcdListenerPort, addLcd, lambda: _lcdListenLoopCondition))
+    _lcdListenerThread.start()
+    print("lcdListener started")
+
+
 
 def updateLCDFromJobData(data:dict):
-    if 'backlight' in data:
-        setLCDBacklight(data['backlight'])
-
     s = ""
     last = getLCDFMT().split('\n')
 
