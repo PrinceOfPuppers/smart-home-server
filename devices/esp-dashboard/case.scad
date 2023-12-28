@@ -37,9 +37,12 @@ espBottomClearance = 5;
 espHoleDiameter = 2.7;
 espHoleWall = 0.8;
 
-m2Hole = 2.1;
-m3Hole = 3.3;
-m4Hole = 4.1;
+m2Hole = 2.2;
+m3Hole = 3.4;
+m4Hole = 4.2;
+
+m4Hex = 7.7 + 0.45;
+m4HexDepth = 3.1;
 
 usbMicroWidth = 12;
 usbMicroHeight = 7;
@@ -400,9 +403,9 @@ module case(){
             }
             // mountBlocks
             translate([wallThickness_calc, wallThickness_calc, bottomTopThickness])
-                cube([standoffDiameter + paddingBack_calc, standoffDiameter+paddingLeft_calc, MountHoleHeight + m4Hole]);
-            translate([wallThickness_calc+containerWidth - paddingFront_calc - standoffDiameter, wallThickness_calc, bottomTopThickness])
-                cube([standoffDiameter + paddingFront_calc, standoffDiameter+paddingLeft_calc, MountHoleHeight + m4Hole]);
+                cube([standoffDiameter + paddingBack_calc + m4HexDepth, standoffDiameter+paddingLeft_calc, MountHoleHeight + m4Hole]);
+            translate([wallThickness_calc+containerWidth - paddingFront_calc - standoffDiameter-m4HexDepth, wallThickness_calc, bottomTopThickness])
+                cube([standoffDiameter + paddingFront_calc + m4HexDepth, standoffDiameter+paddingLeft_calc, MountHoleHeight + m4Hole]);
 
         } // end union
 
@@ -427,6 +430,10 @@ module case(){
         // mount Holes
         translate([-2,standoffDiameter,MountHoleHeight]) rotate([0,90,0])
             cylinder(d = m4Hole, h =containerWidth + 2*wallThickness_calc + 4);
+
+        translate([standoffDiameter+paddingBack_calc+wallThickness_calc, standoffDiameter, MountHoleHeight]) rotate([0,90,0])
+            cylinder($fn = 6, h = containerWidth-2*standoffDiameter-paddingBack_calc-paddingFront_calc, d = m4Hex,  center = false);
+
     }
 }
 

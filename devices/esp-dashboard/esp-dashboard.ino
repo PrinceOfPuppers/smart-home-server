@@ -59,7 +59,7 @@ void write_lcd(const String &s){
     }
 }
 
-static uint8_t lcdNum = 1;
+static uint8_t lcdNum = 0;
 #define LCD_NUM_PIN_1 14 //D5
 #define LCD_NUM_PIN_2 12 //D6
 #define LCD_NUM_PIN_3 13 //D7
@@ -71,11 +71,10 @@ void getLCDNum(){
 
     lcdNum = 0;
     lcdNum |= (!digitalRead(LCD_NUM_PIN_1)) << 0;
-    debugln(lcdNum);
     lcdNum |= (!digitalRead(LCD_NUM_PIN_2)) << 1;
-    debugln(lcdNum);
     lcdNum |= (!digitalRead(LCD_NUM_PIN_3)) << 2;
-    debugln(lcdNum);
+    // lcd num 0 is one attached to server
+    lcdNum+=1;
 
     write_lcd("LCD Number: " + String(lcdNum));
     delay(1000);
