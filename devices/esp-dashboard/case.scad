@@ -364,9 +364,9 @@ baseMounts   =  [
 // (n) = yappLeft / yappRight / yappFront / yappBack (one or more)
 // (n) = { yappSymmetric }
 snapJoins   =   [
-                  [(1*containerHeight/4), 5, yappBack, yappSymmetric],
+                  [(1*containerWidth/4), 5, yappLeft, yappSymmetric],
                   [(1*containerWidth/4), 5, yappRight, yappSymmetric],
-                  [(containerWidth/2), 5, yappLeft],
+                  [(containerHeight/2), 5, yappBack],
                   [(containerHeight/2), 5, yappFront],
                 ];
                
