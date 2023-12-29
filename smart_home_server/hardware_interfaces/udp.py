@@ -143,3 +143,9 @@ def writeLcdRemote(ip:str, port:int, lines:list, updatePeroid:int, maxAckMiss = 
 
     return True
 
+def writeLcdUpdatePeriod(ip:str, port:int, updatePeriod:int) -> bool:
+    for _ in range(0,3):
+        ack = udpWriteAck(ip, port, str(updatePeriod))
+        if ack:
+            return True
+    return False

@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from typing import Union
 import string
 
-from smart_home_server.errors import currentErrors 
+from smart_home_server.errors import currentErrors
 from smart_home_server.hardware_interfaces.lcd import writeLCD
-from smart_home_server.hardware_interfaces.udp import writeLcdRemote, udpWriteAck
+from smart_home_server.hardware_interfaces.udp import writeLcdRemote, writeLcdUpdatePeriod
 import smart_home_server.constants as const
 from smart_home_server.handlers.subscribeManager import subscribe
 
@@ -43,27 +43,26 @@ def fillSpacesAndClamp(lines):
     return res
 
 # writeCb takes in lines list
-def printfLCD(writeCb, fmt, replacements):
+def _printfLCD(writeCb, fmt, replacements):
     try:
         text = fmt.format_map(IgnoreMissingDict(replacements))
         lines = text.split('\n')
         lines = fillSpacesAndClamp(lines)
     except Exception as e:
         print(f"LCD Format Error: \n{e}")
-        currentErrors['Conseq_LCD_Write_Err'] += 1 
+        currentErrors['Conseq_LCD_Write_Err'] += 1
         return
 
     try:
         ok = writeCb(lines)
     except Exception as e:
         print(f"LCD Write Error: \n{e}")
-        currentErrors['Conseq_LCD_Write_Err'] += 1 
+        currentErrors['Conseq_LCD_Write_Err'] += 1
         return
 
     if not ok:
         raise LcdStopSig
     currentErrors['Conseq_LCD_Write_Err'] = 0
- 
 
 
 @dataclass
@@ -131,20 +130,36 @@ def _subscribeErrCB(num, e:Exception):
         print(f"LCD Exception: \n{repr(e)}", flush=True)
 
 
+def _notifyNotHookedup(num, ip, port):
+    defaultLines = ["Open Dashboard to", "Set LCD Format"]
+    if num == 0:
+        writeLCD(defaultLines)
+        return True
 
-def startLcd(num, ip = None, port = None):
+    return writeLcdRemote(ip, port, defaultLines, int(0.8*const.lcdDashReconnectTime))
+
+
+def _startLcd(num, ip = None, port = None):
     global _activeLcds
 
     # shutdown previous running lcd
     _stopLcd(num)
 
-    lcd = _getLcd(num)
-    fmt = lcd['fmt']
 
     # if remote lcd, require port and ip
     if num != 0:
         assert ip != None
         assert port != None
+        if not writeLcdUpdatePeriod(ip, port, const.lcdDashReconnectTime):
+            return
+
+    try:
+        lcd = _getLcd(num)
+    except LcdDoesNotExist:
+        _notifyNotHookedup(num, ip, port)
+        return
+
+    fmt = lcd['fmt']
 
     if num in _activeLcds:
         _activeLcds[num].ip = ip
@@ -165,30 +180,18 @@ def startLcd(num, ip = None, port = None):
 
         writeCb = lambda lines: writeLcdRemote(ip, port, lines, int(0.8*const.lcdDashReconnectTime))
 
-        ack = False
-        for _ in range(0,3):
-            ack = udpWriteAck(ip, port, str(const.lcdDashReconnectTime))
-            if ack:
-                break
-
-        # not able to send update period, connection bad
-        if not ack:
-            return
-
-        # update period sent successfully
-
     subscribe(\
-         args, 
-         lambda values:printfLCD(writeCb, fmt, values), 
-         lambda: current != _activeLcds[num].seq, 
+         args,
+         lambda values:_printfLCD(writeCb, fmt, values),
+         lambda: current != _activeLcds[num].seq,
          lambda e: _subscribeErrCB(num, e) # process errs and printfLCD WriteCB returning false
      )
 
-def restartLcd(num):
+def _restartLcd(num):
     global _activeLcds
 
     if num in _activeLcds:
-        startLcd(num, _activeLcds[num].ip, _activeLcds[num].port)
+        _startLcd(num, _activeLcds[num].ip, _activeLcds[num].port)
 
 
 def _saveLcd(num:int, lcd:dict):
@@ -204,7 +207,7 @@ def _saveLcd(num:int, lcd:dict):
     with open(path, "w") as f:
         f.write(json.dumps(lcd))
 
-    restartLcd(num)
+    _restartLcd(num)
 
 def _deleteLcd(num: int):
     if num in _lcdCache:
