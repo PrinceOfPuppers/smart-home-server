@@ -1,7 +1,6 @@
 import requests
 from datetime import datetime
 
-from smart_home_server.hardware_interfaces.lcd import getLCDFMT
 from smart_home_server.hardware_interfaces.dht22 import getDHT
 from smart_home_server.hardware_interfaces.bme280 import getBME
 from smart_home_server.hardware_interfaces.udp import getWeatherServerData
@@ -170,13 +169,15 @@ def getWeatherImageLocal():
     }
     return res
 
-def getLCDLocal():
-    s = getLCDFMT()
-    res = {
-        'str': s,
-        'data': {},
-    }
-    return res
+
+# TODO: remove this when done with lcd stuff
+#def getLCDLocal():
+#    s = getLCDFMT()
+#    res = {
+#        'str': s,
+#        'data': {},
+#    }
+#    return res
 
 def getIndoorClimateBMELocal():
     data = getBME()
@@ -488,17 +489,18 @@ dataSources = [
         },
     },
 
-    {
-        'name': 'LCD',
-        'color': 'purple',
-        'url': f'/api/data/lcd',
-        'local': getLCDLocal,
-        'pollingPeriod': 10*60,
+    # TODO: remove this when done with lcd stuff
+    #{
+    #    'name': 'LCD',
+    #    'color': 'purple',
+    #    'url': f'/api/data/lcd',
+    #    'local': getLCDLocal,
+    #    'pollingPeriod': 10*60,
 
-        'dashboard':{
-            'enabled': False, #handled in frontend
-        }
-    },
+    #    'dashboard':{
+    #        'enabled': False, #handled in frontend
+    #    }
+    #},
 
 
     {

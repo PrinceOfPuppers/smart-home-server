@@ -4,17 +4,19 @@ from threading import Lock, Thread
 from datetime import datetime
 
 import smart_home_server.constants as const
-from smart_home_server.handlers.lcd.helpers import printfLCD
-from smart_home_server.handlers.subscribeManager import subscribe
+from smart_home_server.handlers.lcd.helpers import startLcd
 from smart_home_server.hardware_interfaces.udp import udpListener
 
 lcdLock = Lock()
 _lcdListenLoopCondition = False
-_lcdListenThread        = None
 
 def addLcd(ip, port, lcdNumStr):
     # must return expected polling period
-    pass
+    try: 
+        lcdNum = int(lcdNumStr)
+        startLcd(lcdNum, ip, port)
+    except:
+        return
 
 def stopLcdListener():
     global _lcdListenerLoopCondition
@@ -44,26 +46,3 @@ def startLcdListener():
     _lcdListenerThread.start()
     print("lcdListener started")
 
-
-
-def updateLCDFromJobData(data:dict):
-    s = ""
-    last = getLCDFMT().split('\n')
-
-    if not 'lines' in data:
-        return
-
-    numLines = min(len(data['lines']), const.lcdLines)
-
-    for i in range(numLines):
-        s += data['lines'][i].replace('\n', '')
-        s += "\n"
-
-    try:
-        s.encode('ascii')
-    except UnicodeEncodeError:
-        return False
-
-    startUpdateLCD(s)
-
-    return True

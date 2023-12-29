@@ -101,7 +101,7 @@ const String server_ip = SERVER_IP;
 #define SERVER_RETRY_TIME_MS 5000
 
 // will wait this times the expected update interval before reconnecting
-#define SERVER_RECONNECT_TIME_FACTOR_MS 3
+#define SERVER_RECONNECT_TIME_FACTOR_MS 1
 
 void ack(){
     udp.beginPacket(SERVER_IP, remoteudpPort);

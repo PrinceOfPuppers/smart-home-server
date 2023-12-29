@@ -2,27 +2,30 @@ import json
 from flask import request, Blueprint, current_app
 from flask_expects_json import expects_json
 
-from smart_home_server.api import postLCDSchema
-from smart_home_server.handlers.lcd import toggleLCDBacklight, updateLCDFromJobData
+# TODO: replace these
+#from smart_home_server.api import postLCDSchema
+#from smart_home_server.handlers.lcd import toggleLCDBacklight, updateLCDFromJobData
+
 from smart_home_server.handlers.logs import logs
 
 from smart_home_server.api import nameSchema
 
 dashboardApi = Blueprint('dashboardApi', __name__)
 
-@dashboardApi.route('/api/dashboard/lcd', methods=['POST'])
-@expects_json(postLCDSchema, check_formats=True)
-def postLCDRoute():
-    data = json.loads(request.data)
-    if not updateLCDFromJobData(data):
-        return current_app.response_class(f"String Must be ASCII", status=400, mimetype="text/plain")
-    return current_app.response_class(f"", status=200)
-
-
-@dashboardApi.route('/api/dashboard/lcd/toggle', methods=['POST'])
-def postLCDToggleBacklightRoute():
-    toggleLCDBacklight()
-    return current_app.response_class(status=200)
+# TODO: replace these
+#@dashboardApi.route('/api/dashboard/lcd', methods=['POST'])
+#@expects_json(postLCDSchema, check_formats=True)
+#def postLCDRoute():
+#    data = json.loads(request.data)
+#    if not updateLCDFromJobData(data):
+#        return current_app.response_class(f"String Must be ASCII", status=400, mimetype="text/plain")
+#    return current_app.response_class(f"", status=200)
+#
+#
+#@dashboardApi.route('/api/dashboard/lcd/toggle', methods=['POST'])
+#def postLCDToggleBacklightRoute():
+#    toggleLCDBacklight()
+#    return current_app.response_class(status=200)
 
 
 deleteLogsSchema = \

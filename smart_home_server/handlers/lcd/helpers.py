@@ -6,10 +6,9 @@ import string
 
 from smart_home_server.errors import currentErrors 
 from smart_home_server.hardware_interfaces.lcd import writeLCD
-from smart_home_server.hardware_interfaces.udp import udpWriteAck
+from smart_home_server.hardware_interfaces.udp import writeLcdRemote, udpWriteAck
 import smart_home_server.constants as const
 from smart_home_server.handlers.subscribeManager import subscribe
-
 
 class LcdDoesNotExist(Exception):
     pass
@@ -157,12 +156,26 @@ def startLcd(num, ip = None, port = None):
 
     args = [tup[1] for tup in string.Formatter().parse(fmt) if tup[1] is not None]
 
-    if num == 0:
+    if num == 0: # if lcd is integrated one
         writeCb = lambda lines: writeLCD(lines)
-    else:
+
+    else: # if lcd is remote
         assert ip != None
         assert port != None
-        writeCb = lambda lines: udpWriteAck(ip, port, lines)
+
+        writeCb = lambda lines: writeLcdRemote(ip, port, lines, int(0.8*const.lcdDashReconnectTime))
+
+        ack = False
+        for _ in range(0,3):
+            ack = udpWriteAck(ip, port, str(const.lcdDashReconnectTime))
+            if ack:
+                break
+
+        # not able to send update period, connection bad
+        if not ack:
+            return
+
+        # update period sent successfully
 
     subscribe(\
          args, 

@@ -2,7 +2,6 @@ from flask import Flask, send_from_directory, render_template, redirect
 
 from smart_home_server.handlers.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
 from smart_home_server.handlers.presser import startPresser, stopPresser, joinPresser, getRemotes
-from smart_home_server.handlers.lcd import startUpdateLCD
 from smart_home_server.handlers.triggerManager import getTriggers
 from smart_home_server.handlers.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
 from smart_home_server.handlers.rfMacros import startMac, stopMac, joinMac
@@ -102,7 +101,8 @@ def startServer():
         startScheduler()
         startSubscribeManager()
         startPresser()
-        startUpdateLCD(fromFile=True)
+        # TODO: replace this with new startLCD
+        #startUpdateLCD(fromFile=True)
         startMac()
 
         if const.isRpi():

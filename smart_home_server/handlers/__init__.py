@@ -3,7 +3,6 @@ from threading import Thread, Lock, Event
 from datetime import datetime, timedelta
 
 from smart_home_server.handlers.presser import presserAppend, getRemoteById
-from smart_home_server.handlers.lcd import updateLCDFromJobData
 from smart_home_server.hardware_interfaces.reboot import reboot
 from smart_home_server.hardware_interfaces.update import update
 from smart_home_server.handlers.macros import macroExists, getMacro
@@ -69,8 +68,10 @@ def runJob(job:dict):
 
         if type == 'press':
             presserAppend(data)
-        elif type == 'lcd':
-            updateLCDFromJobData(data)
+
+        # TODO: add different job for this
+        #elif type == 'lcd':
+        #    updateLCDFromJobData(data)
         elif type == 'reboot':
             reboot()
         elif type == 'update':

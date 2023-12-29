@@ -1,6 +1,7 @@
 import socket
 from typing import Union, Callable
 from dataclasses import dataclass
+from time import time
 
 from smart_home_server.errors import currentErrors
 import smart_home_server.constants as const
@@ -105,31 +106,34 @@ def getWeatherServerData(ip:str) -> Union[BMEData, None]:
 class LCDCacheEntry:
     conseqAckMiss:int
     lastWritten:str
+    lastWrittenTime:float
 
 _lcdCache = {}
 
-# if acks hits maxAckMiss, returns false
-def writeLCD(ip:str, port:str, lines:list, maxAckMiss = 3):
+# if acks hits maxAckMiss, returns false, updatePeroid will foce writeLcdRemote to send update, even if string is the same
+def writeLcdRemote(ip:str, port:int, lines:list, updatePeroid:int, maxAckMiss = 3):
     global _lcdCache
 
+    now = time()
+
     s = "".join(lines)
-    cs = ip + port #cache string
+    cs = ip + str(port) #cache string
 
     if cs in _lcdCache:
-        if _lcdCache[cs].lastWritten == s:
+        if _lcdCache[cs].lastWritten == s and now - _lcdCache[cs].lastWrittenTime  < updatePeroid:
             #cache hit
             return True
 
     ack = udpWriteAck(ip, port, s)
 
     if ack:
-        _lcdCache[cs] = LCDCacheEntry(0,s)
+        _lcdCache[cs] = LCDCacheEntry(0,s, now)
         return True
 
     #no ack
 
     if cs not in _lcdCache: # first send was no ack
-        _lcdCache[cs] = LCDCacheEntry(1,"")
+        _lcdCache[cs] = LCDCacheEntry(1,"", 0)
     else:
         _lcdCache[cs].conseqAckMiss +=1
 
