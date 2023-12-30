@@ -17,7 +17,7 @@ if const.isRpi():
         charmap = 'A00'
         i2c_expander = 'PCF8574'
         _lcd = i2c.CharLCD(i2c_expander, const.lcdI2CAddress, port=port, charmap=charmap,
-                          cols=const.lcdWidth, rows=const.lcdLines)
+                          cols=const.lcdWidth, rows=const.localLcdLines)
     def stopLCD():
         global _lcd
         if _lcd is not None:
@@ -50,13 +50,15 @@ if const.isRpi():
                     break
 
         if same:
-            return
+            return True
 
         _lastWritten = lines.copy()
         _lcd.clear()
         for line in lines:
             _lcd.write_string(line)
             _lcd.crlf()
+
+        return True
 
     def toggleBacklight():
         global _lcd
@@ -81,6 +83,7 @@ else:
     def writeLCD(lines):
         s = '\n'.join(lines)
         print(f"Write LCD:\n{s}\n", flush=True)
+        return True
 
     def toggleBacklight():
         print("LCD Backlight Toggled\n", flush=True)

@@ -29,7 +29,7 @@ noSpace = IgnoreMissingDict({spaceFormat:""})
 oneSpace = IgnoreMissingDict({spaceFormat:" "})
 def fillSpacesAndClamp(lines):
     res = []
-    for i in range(min(len(lines), const.lcdLines)):
+    for i in range(min(len(lines), const.maxLcdLines)):
         line = lines[i]
         size = len(line.format_map(noSpace))
         numSpaces = len(line.format_map(oneSpace)) - size

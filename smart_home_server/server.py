@@ -5,7 +5,7 @@ from smart_home_server.handlers.presser import startPresser, stopPresser, joinPr
 from smart_home_server.handlers.triggerManager import getTriggers
 from smart_home_server.handlers.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
 from smart_home_server.handlers.rfMacros import startMac, stopMac, joinMac
-from smart_home_server.handlers.lcd import getLcds
+from smart_home_server.handlers.lcd import getLcds, startLcdListener, stopLcdListener, joinLcdListener
 
 from smart_home_server.handlers.notes import getNotes
 from smart_home_server.handlers.macros import getMacros
@@ -20,6 +20,7 @@ from smart_home_server.api.data import dataApi
 from smart_home_server.api.trigger import triggerApi, triggerComparisons
 from smart_home_server.api.note import noteApi
 from smart_home_server.api.macro import macroApi
+from smart_home_server.api.lcd import lcdApi
 from smart_home_server.data_sources import dataSources, dataSourceValues
 import smart_home_server.constants as const
 
@@ -34,6 +35,7 @@ app.register_blueprint(triggerApi)
 app.register_blueprint(dataApi)
 app.register_blueprint(noteApi)
 app.register_blueprint(macroApi)
+app.register_blueprint(lcdApi)
 app.jinja_env.add_extension('jinja2.ext.do')
 
 @app.route('/')
@@ -76,7 +78,7 @@ def dashboardGet():
                     'dashboard': source['dashboard']
                  }
             )
-    return render_template('dashboard.html', dashboardElements=elements, values=values)
+    return render_template('dashboard.html', dashboardElements=elements)
 
 @app.route('/trigger')
 def triggerGet():
@@ -105,7 +107,7 @@ def macrosGet():
 def lcdsGet():
     lcds = getLcds()
     lcds.sort(key=lambda element: element['num'])
-    return render_template('lcds.html', lcds=lcds)
+    return render_template('lcds.html', lcds=lcds, values=values)
 
 
 def startServer():
@@ -114,8 +116,7 @@ def startServer():
         startScheduler()
         startSubscribeManager()
         startPresser()
-        # TODO: replace this with new startLCD
-        #startUpdateLCD(fromFile=True)
+        startLcdListener()
         startMac()
 
         if const.isRpi():
@@ -132,6 +133,7 @@ def startServer():
         stopPresser()
         stopScheduler()
         stopSubscribeManager()
+        stopLcdListener()
         stopMac()
         joinPresser()
         joinScheduler()

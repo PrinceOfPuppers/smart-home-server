@@ -8,7 +8,8 @@ from smart_home_server.handlers.lcd.helpers import _startLcd, _stopLcd, _overwri
 from smart_home_server.hardware_interfaces.udp import udpListener
 
 lcdLock = Lock()
-_lcdListenLoopCondition = False
+_lcdListenerLoopCondition = False
+_lcdListenerThread        = None
 
 #######
 # api #
@@ -31,7 +32,7 @@ def overwriteLcd(num:int, data:dict):
         if "fmt" not in data:
             data["fmt"] = lcd["fmt"]
 
-        _overwriteLcd(num, lcd)
+        _overwriteLcd(num, data)
 
 
 def saveLcd(num:int, lcd:dict):
@@ -97,7 +98,7 @@ def startLcdListener():
 
     print(f"LcdListener Load Time: {datetime.now()}")
     _lcdListenerLoopCondition = True
-    _lcdListenerThread = Thread(target=lambda: udpListener(const.lcdListenerPort, _addLcd, lambda: _lcdListenLoopCondition))
+    _lcdListenerThread = Thread(target=lambda: udpListener(const.lcdListenerPort, _addLcd, lambda: _lcdListenerLoopCondition))
     _lcdListenerThread.start()
     print("lcdListener started")
 

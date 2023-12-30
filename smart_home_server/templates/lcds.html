@@ -7,52 +7,53 @@
 
 <html>
 <script>
-     function newLcd(){
-        const numElement = document.getElementById(`lcd-new-num`);
-        const nameElement = document.getElementById(`lcd-new-name`);
-        const fmtElement = document.getElementById(`lcd-new-fmt`);
+    {{ m.lcdFmtCheatSheet(values) }}
 
-        const num = parseInt(numElement.textContent);
+    function newLcd(){
+       const numElement = document.getElementById(`lcd-new-num`);
+       const nameElement = document.getElementById(`lcd-new-name`);
+       const fmtElement = document.getElementById(`lcd-new-fmt`);
 
-        if(isNan(num) || num < 0){
-            window.alert(`Invalid Lcd Num: ${numElement.textContent}`);
-            return;
-        }
+       const num = parseInt(numElement.textContent);
 
-        const name = nameElement.textContent;
-        const fmt = fmtElement.innerHTML.replace(/<br>/g, "\n");
-         var data = {
-            'num': num,
-            'name': name,
-            'fmt': fmt,
-        };
-        sendData('/api/lcd', data, 'POST', reload=true);
-    }
-    function saveNote(num){
-        const nameElement = document.getElementById(`lcd-name-${num}`);
-        const fmtElement = document.getElementById(`lcd-fmt-${num}`);
-        const saveButtonElement = document.getElementById(`lcd-edit-${num}`);
+       if(isNaN(num) || num < 0){
+           window.alert(`Invalid Lcd Num: ${numElement.textContent}`);
+           return;
+       }
 
-        const name = nameElement.textContent;
-        const fmt = fmtElement.innerHTML.replace(/<br>/g, "\n");
-         var data = {
-            'num': num,
-            'name': name,
-            'fmt': fmt,
-        };
-        sendData('/api/lcd', data, 'PATCH', reload=true);
-        sendData('/api/lcd', data, 'PATCH').then((success)=>{
-             if(success){
-                tempChangeButton(saveButtonElement, "Saved!");
-            }
-        });
-    }
-    function deleteLcd(num){
-        const element = document.getElementById(`lcd-element-${num}`);
-        var data = {'num': num};
-        sendData('/api/lcd', data, 'DELETE')
-            .then((success)=>{element.remove()});
-    }
+       const name = nameElement.textContent;
+       const fmt = fmtElement.innerHTML.replace(/<br>/g, "\n");
+        var data = {
+           'num': num,
+           'name': name,
+           'fmt': fmt,
+       };
+       sendData('/api/lcd', data, 'POST', reload=true);
+   }
+   function saveLcd(num){
+       const nameElement = document.getElementById(`lcd-name-${num}`);
+       const fmtElement = document.getElementById(`lcd-fmt-${num}`);
+       const saveButtonElement = document.getElementById(`lcd-edit-${num}`);
+
+       const name = nameElement.textContent;
+       const fmt = fmtElement.innerHTML.replace(/<br>/g, "\n");
+        var data = {
+           'num': num,
+           'name': name,
+           'fmt': fmt,
+       };
+       sendData('/api/lcd', data, 'PATCH').then((success)=>{
+            if(success){
+               tempChangeButton(saveButtonElement, "Saved!");
+           }
+       });
+   }
+   function deleteLcd(num){
+       const element = document.getElementById(`lcd-element-${num}`);
+       var data = {'num': num};
+       sendData('/api/lcd', data, 'DELETE')
+           .then((success)=>{element.remove()});
+   }
 </script>
 
 <body>
@@ -68,9 +69,9 @@
 
     <div class="dashboardList">
         {% for lcd in lcds %}
-            {% set num  = note['num'] %}
-            {% set name = note['name'] %}
-            {% set fmt  = note['content'] %}
+            {% set num  = lcd['num'] %}
+            {% set name = lcd['name'] %}
+            {% set fmt  = lcd['fmt'] %}
             <div id="lcd-element-{{ num }}">
                 <span class="buttonBar">
                     {{ m.deleteButton( "deleteLcd(%s)" % (num) ) }}
@@ -88,9 +89,10 @@
             <button id="lcd-new" class="yellowButton" onclick="newLcd()">Create</button>
             <p class="entry" id="lcd-new-fmt" contentEditable="true" data-placeholder="Format" spellcheck="false"></p>
         </div>
+
     </div> 
     <div>
-        <button class="purpleButton" onclick="lcdFmtCheatSheet()">?</button>
+        <button class="purpleButton" onclick="lcdFmtCheatSheet()">Format Cheat Sheet</button>
     </div> 
   </body>
 </html>
