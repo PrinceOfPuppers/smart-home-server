@@ -155,8 +155,9 @@ googleExchangeRateDiv = re.compile(r"<div[^>]+data-exchange-rate\s?=\s?[\"\'](.*
 fakeUserAgentHeaders = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0"}
 
 lcdI2CAddress = 0x27
-lcdLines = 4
+maxLcdLines = 4
 lcdWidth = 20
+lcdDefaultName = "New Lcd"
 
 dhtGpio = 22
 dhtGpioPwr = 18

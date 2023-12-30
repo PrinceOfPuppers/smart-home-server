@@ -4,7 +4,7 @@ from threading import Lock, Thread
 from datetime import datetime
 
 import smart_home_server.constants as const
-from smart_home_server.handlers.lcd.helpers import _startLcd, _stopLcd, _overwriteLcd, _getLcd, _getLcds, _deleteLcd
+from smart_home_server.handlers.lcd.helpers import _startLcd, _stopLcd, _overwriteLcd, _getLcd, _getLcds, _deleteLcd, _saveLcd, LcdAlreadyExists, LcdDoesNotExist
 from smart_home_server.hardware_interfaces.udp import udpListener
 
 lcdLock = Lock()
@@ -21,9 +21,23 @@ def stopLcd(num:int):
     with lcdLock:
         _stopLcd(num)
 
-def overwriteLcd(num:int, lcd:dict):
+def overwriteLcd(num:int, data:dict):
     with lcdLock:
+        lcd = _getLcd(data["num"])
+
+        # if name or fmt not included, leave them unchanged
+        if "name" not in data:
+            data["name"] = lcd["name"]
+        if "fmt" not in data:
+            data["fmt"] = lcd["fmt"]
+
         _overwriteLcd(num, lcd)
+
+
+def saveLcd(num:int, lcd:dict):
+    with lcdLock:
+        _saveLcd(num, lcd)
+
 
 def getLcd(num:int)->dict:
     with lcdLock:

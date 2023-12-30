@@ -197,6 +197,8 @@ def _restartLcd(num):
 def _saveLcd(num:int, lcd:dict):
     global _lcdCache
     lcd["num"] = num
+    if not "name" in lcd:
+        lcd["name"] = const.lcdDefaultName
 
     _lcdCache[num] = lcd
 

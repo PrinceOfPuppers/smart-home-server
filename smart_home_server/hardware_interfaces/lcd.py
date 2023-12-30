@@ -2,7 +2,7 @@ import smart_home_server.constants as const
 
 # Generally 27 is the address;Find yours using: i2cdetect -y 1
 
-_lastWritten = const.lcdLines * [""]
+_lastWritten = [""]
 
 if const.isRpi():
     _lcd = None
