@@ -89,12 +89,12 @@ function processDoData(data, toSubmit){
             toSubmit.do = {type:"press", data:{id: data.pressRemote, channel: Number(data.pressChannel) - 1, value: Boolean(data.pressValue)}};
             break;
         case "lcd":
-            toSubmit.do = {type:"lcd", data:{backlight: Boolean(data.lcdBacklight)}};
-            if(data.lcdLine1Edit){
-                toSubmit.do.data.line1 = data.lcdLine1;
+            toSubmit.do = {type:"lcd", data:{num: Boolean(data.lcdNum)}};
+            if(data.lcdFmtEdit){
+                toSubmit.do.data.fmt = data.lcdFmt;
             }
-            if(data.lcdLine2Edit){
-                toSubmit.do.data.line2 = data.lcdLine2;
+            if(data.lcdNameEdit){
+                toSubmit.do.data.name = data.lcdName;
             }
             break;
         case "reboot":

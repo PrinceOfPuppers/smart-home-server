@@ -5,6 +5,7 @@ from smart_home_server.handlers.presser import startPresser, stopPresser, joinPr
 from smart_home_server.handlers.triggerManager import getTriggers
 from smart_home_server.handlers.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
 from smart_home_server.handlers.rfMacros import startMac, stopMac, joinMac
+from smart_home_server.handlers.lcd import getLcds
 
 from smart_home_server.handlers.notes import getNotes
 from smart_home_server.handlers.macros import getMacros
@@ -51,12 +52,14 @@ def lightsGet():
 def scheduleGet():
     jobs = getJobs()
     macros = getMacros()
+    lcds = getLcds()
 
     return render_template('schedule.html', 
                            remotes=getRemotes(), 
                            jobs=jobs, 
                            timeUnits = timeUnits, 
                            macros=macros,
+                           lcds=lcds,
                            values=values)
 
 @app.route('/dashboard')
@@ -73,13 +76,15 @@ def dashboardGet():
                     'dashboard': source['dashboard']
                  }
             )
-    return render_template('dashboard.html', dashboardElements=elements, values=values, lcdLines = const.lcdLines)
+    return render_template('dashboard.html', dashboardElements=elements, values=values)
 
 @app.route('/trigger')
 def triggerGet():
     triggerJobs = getTriggers()
     macros = getMacros()
-    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, remotes=getRemotes(), macros=macros)
+    lcds = getLcds()
+    remotes = getRemotes()
+    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, remotes=remotes, macros=macros, lcds=lcds)
 
 @app.route('/notes')
 def notesGet():
@@ -92,7 +97,9 @@ def macrosGet():
     macros = getMacros()
     macros.sort(key = lambda element: element['name'])
     delays = getDelays()
-    return render_template('macros.html', macros=macros, remotes=getRemotes(), delays=delays)
+    lcds = getLcds()
+    remotes=getRemotes()
+    return render_template('macros.html', macros=macros, remotes=remotes, delays=delays, lcds=lcds)
 
 
 def startServer():
