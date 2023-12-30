@@ -199,6 +199,8 @@ def _saveLcd(num:int, lcd:dict):
     lcd["num"] = num
     if not "name" in lcd:
         lcd["name"] = const.lcdDefaultName
+    if not "fmt" in lcd:
+        lcd["fmt"] = ""
 
     _lcdCache[num] = lcd
 

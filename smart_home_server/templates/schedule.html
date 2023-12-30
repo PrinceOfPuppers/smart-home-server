@@ -112,8 +112,9 @@
         <a href="/remote">Remote</a>
         <a class="active" href="/schedule">Schedule</a>
         <a href="/trigger">Trigger</a>
-        <a href="/notes">Notes</a>
-        <a href="/macros">Macros</a>
+        <a href="/notes">Note</a>
+        <a href="/macros">Macro</a>
+        <a href="/lcds">Lcd</a>
     </div> 
 
     <h3>Current Schedule:</h3>
@@ -160,7 +161,7 @@
                             {% endif %}
 
                             {% set do = job['do'] %}
-                            {{ m.jobRepr(do['type'], do['data'], macros, remotes) }}
+                            {{ m.jobRepr(do['type'], do['data'], macros, remotes, lcds) }}
                         </div>
 
 
@@ -206,7 +207,7 @@
 
             <br style="clear:both;" />
 
-            {{ m.jobFormDo(remotes, macros) }}
+            {{ m.jobFormDo(remotes, macros, lcds) }}
 
             <br style="clear:both;" />
 

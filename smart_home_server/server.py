@@ -101,6 +101,12 @@ def macrosGet():
     remotes=getRemotes()
     return render_template('macros.html', macros=macros, remotes=remotes, delays=delays, lcds=lcds)
 
+@app.route('/lcds')
+def lcdsGet():
+    lcds = getLcds()
+    lcds.sort(key=lambda element: element['num'])
+    return render_template('lcds.html', lcds=lcds)
+
 
 def startServer():
     global app

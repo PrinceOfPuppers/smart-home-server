@@ -18,6 +18,7 @@ postLcdSchema = \
     "properties": {
         "num": { "type": "integer", "minimum": 0 },
         "name": nameSchema, # defaults to New Lcd
+        "fmt": {"type": "string", "minLength": 0, "maxLength": 200}, # defaults to empty string
     },
     "required": ["num"],
     'additionalProperties': False,

@@ -1,17 +1,17 @@
 
-{% macro jobFormDo(remotes, macros, includeDelay=False) %}
+{% macro jobFormDo(remotes, macros, lcds, includeDelay=False) %}
     <section id="jobFormHideUnhide">
         <div class="formDiv">
             <label for="do">Do:</label>
             <select id="do" name="do" required>
-            <option value="press">press</option>
-            <option value="lcd">lcd</option>
-            <option value="reboot">reboot</option>
-            <option value="update">update</option>
-            <option value="macro">macro</option>
-            {% if includeDelay %}
-                <option value="delay">delay</option>
-            {% endif %}
+                <option value="press">press</option>
+                <option value="lcd">lcd</option>
+                <option value="reboot">reboot</option>
+                <option value="update">update</option>
+                <option value="macro">macro</option>
+                {% if includeDelay %}
+                    <option value="delay">delay</option>
+                {% endif %}
             </select>
         </div>
 
@@ -33,8 +33,8 @@
         <div id="pressDiv"  class="formDiv">
             <label for="pressValue" id="pressValueLabel">Value:</label>
             <select id="pressValue" name="pressValue">
-            <option value="1">on</option>
-            <option value="">off</option>
+                <option value="1">on</option>
+                <option value="">off</option>
             </select>
         </div>
 
@@ -47,35 +47,33 @@
             </select>
         </div>
 
-        <br id="lcdBr"/>
+        <div id="lcdDiv" class="formDiv">
+            <button type="button" id="lcdHelp" class="whiteButton" onclick="lcdFmtCheatSheet()">?</button>
+        </div>
+
+        <div id="lcdBr" class="clear"></div>
 
         <div id="lcdDiv" class="formDiv">
             <label for="lcdName" id="lcdNameLabel">Name:</label>
-            <input type="text" id="lcdName" name="lcdName" maxLength = "40" size="20">
+            <input type="text" id="lcdName" name="lcdName" maxLength = "40" size="25">
         </div>
+
+        <br id="lcdBr"/>
 
         <div id="lcdDiv" class="formDiv">
             <label for="lcdNameEdit" id="lcdNameEdit">Edit:</label>
             <input type="checkbox" id="lcdNameEdit" name="lcdNameEdit" value="true" checked="true">
         </div>
 
-        <br id="lcdBr"/>
-
 
         <div id="lcdDiv" class="formDiv">
             <label for="lcdFmt" id="lcdFmtLabel">Format:</label>
-            <textarea rows="4" cols="50" id="lcdFmt" name="lcdFmt">
+            <textarea rows="4" cols="25" id="lcdFmt" name="lcdFmt"></textarea>
         </div>
 
         <div id="lcdDiv" class="formDiv">
             <label for="lcdFmtEdit" id="lcdFmtEdit">Edit:</label>
             <input type="checkbox" id="lcdFmtEdit" name="lcdFmtEdit" value="true" checked="true">
-        </div>
-
-        <br id="lcdBr"/>
-
-        <div id="lcdDiv" class="formDiv">
-            <button type="button" id="lcdHelp" class="whiteButton" onclick="lcdFmtCheatSheet()">?</button>
         </div>
 
 
@@ -105,14 +103,12 @@
                 <input type="number" id="delaySeconds" name="delaySeconds" size="5" value="0">
             </div>
         {% endif %}
-
-
     </section>
 {% endmacro %}
 
 
 
-{% macro jobRepr(type, data, macros, remotes, br=True, cursor=True) %}
+{% macro jobRepr(type, data, macros, remotes, lcds, br=True, cursor=True) %}
     {% if br %}
         <br/>
     {% endif %}
@@ -130,15 +126,23 @@
         {% endif %}
 
     {% elif type == "lcd" %}
-        <span class="nobr">Update LCD: Light: {{'on' if data['backlight'] else 'off' }}</span>
-        {% if 'line1' in data %}
-        <br/>
-                <span class="nobr">→ Line 1: {{ data['line1'] }}</span>
+        {% set match = lcds|selectattr("num", "==", data['num'])|list %}
+        {% if match|length == 0 %}
+            <span class="nobr">Update LCD {{ data['num'] }}: DELETED! </span>
+        {% else %}
+            <span class="nobr">Update LCD {{ data['num'] }}: {{ match[0]['name'] }}</span>
         {% endif %}
-        {% if 'line2' in data %}
+
+        {% if 'name' in data %}
         <br/>
-            <span class="nobr">→ Line 2: {{data['line2']}}</span>
+            <span class="nobr">→ New Name: {{data['name']}}</span>
         {% endif %}
+        {% if 'fmt' in data %}
+        <br/>
+                <span class="nobr">→ New Format:</span>
+                <p>{{ data['fmt'] }}</p>
+        {% endif %}
+
     {% elif type == "reboot" %}
         <span class="nobr">reboot</span>
     {% elif type == "update" %}

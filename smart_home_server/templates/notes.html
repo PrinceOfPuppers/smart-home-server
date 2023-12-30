@@ -63,8 +63,9 @@
         <a href="/remote">Remote</a>
         <a href="/schedule">Schedule</a>
         <a href="/trigger">Trigger</a>
-        <a class="active" href="/notes">Notes</a>
-        <a href="/macros">Macros</a>
+        <a class="active" href="/notes">Note</a>
+        <a href="/macros">Macro</a>
+        <a href="/lcds">Lcd</a>
     </div> 
 
     <div class="dashboardList">
@@ -75,7 +76,7 @@
             <div id="note-element-{{ id }}">
                 <span class="buttonBar">
                     {{ m.deleteButton( "deleteNote('%s')" % (id) ) }}
-                    <span id="note-name-{{ id }}" class="entry" id="note-new-name" contentEditable="true" spellcheck="false">{{ name }}</span>
+                    <span id="note-name-{{ id }}" class="entry" contentEditable="true" spellcheck="false">{{ name }}</span>
                     <button id="note-edit-{{ id }}" class="yellowButton" onclick="saveNote('{{ id }}')">Save</button>
                 </span>
                 <p id="note-content-{{ id }}" contentEditable="true" spellcheck="false">{{ content }}</p>

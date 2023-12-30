@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href = "style.css"></link>
+<script type="text/javascript" src="funcs.js"></script>
+
+{% import 'jinjaMacros.html' as m %}
+
+<html>
+<script>
+     function newLcd(){
+        const numElement = document.getElementById(`lcd-new-num`);
+        const nameElement = document.getElementById(`lcd-new-name`);
+        const fmtElement = document.getElementById(`lcd-new-fmt`);
+
+        const num = parseInt(numElement.textContent);
+
+        if(isNan(num) || num < 0){
+            window.alert(`Invalid Lcd Num: ${numElement.textContent}`);
+            return;
+        }
+
+        const name = nameElement.textContent;
+        const fmt = fmtElement.innerHTML.replace(/<br>/g, "\n");
+         var data = {
+            'num': num,
+            'name': name,
+            'fmt': fmt,
+        };
+        sendData('/api/lcd', data, 'POST', reload=true);
+    }
+    function saveNote(num){
+        const nameElement = document.getElementById(`lcd-name-${num}`);
+        const fmtElement = document.getElementById(`lcd-fmt-${num}`);
+        const saveButtonElement = document.getElementById(`lcd-edit-${num}`);
+
+        const name = nameElement.textContent;
+        const fmt = fmtElement.innerHTML.replace(/<br>/g, "\n");
+         var data = {
+            'num': num,
+            'name': name,
+            'fmt': fmt,
+        };
+        sendData('/api/lcd', data, 'PATCH', reload=true);
+        sendData('/api/lcd', data, 'PATCH').then((success)=>{
+             if(success){
+                tempChangeButton(saveButtonElement, "Saved!");
+            }
+        });
+    }
+    function deleteLcd(num){
+        const element = document.getElementById(`lcd-element-${num}`);
+        var data = {'num': num};
+        sendData('/api/lcd', data, 'DELETE')
+            .then((success)=>{element.remove()});
+    }
+</script>
+
+<body>
+    <div class="topnav">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/remote">Remote</a>
+        <a href="/schedule">Schedule</a>
+        <a href="/trigger">Trigger</a>
+        <a href="/notes">Note</a>
+        <a href="/macros">Macro</a>
+        <a class="active" href="/lcds">Lcd</a>
+    </div> 
+
+    <div class="dashboardList">
+        {% for lcd in lcds %}
+            {% set num  = note['num'] %}
+            {% set name = note['name'] %}
+            {% set fmt  = note['content'] %}
+            <div id="lcd-element-{{ num }}">
+                <span class="buttonBar">
+                    {{ m.deleteButton( "deleteLcd(%s)" % (num) ) }}
+                    <span id="lcd-name-{{ num }}" class="entry" contentEditable="true" spellcheck="false">{{ name }}</span>
+                    <span id="lcd-num-{{ num }}" class="entry" contentEditable="false" spellcheck="false">{{ num }}</span>
+                    <button id="lcd-edit-{{ num }}" class="yellowButton" onclick="saveLcd({{ num }})">Save</button>
+                </span>
+                <p id="lcd-fmt-{{ num }}" contentEditable="true" spellcheck="false">{{ fmt }}</p>
+            </div>
+        {% endfor %}
+        <div>
+            {{ m.deleteButton( "" ) }}
+            <span class="entry" id="lcd-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
+            <span class="entry" id="lcd-new-num" contentEditable="true" data-placeholder="Num" spellcheck="false"></span>
+            <button id="lcd-new" class="yellowButton" onclick="newLcd()">Create</button>
+            <p class="entry" id="lcd-new-fmt" contentEditable="true" data-placeholder="Format" spellcheck="false"></p>
+        </div>
+    </div> 
+    <div>
+        <button class="purpleButton" onclick="lcdFmtCheatSheet()">?</button>
+    </div> 
+  </body>
+</html>
