@@ -77,7 +77,7 @@
                     {{ m.deleteButton( "deleteLcd(%s)" % (num) ) }}
                     <span id="lcd-name-{{ num }}" class="entry" contentEditable="true" spellcheck="false">{{ name }}</span>
                     <span id="lcd-num-{{ num }}" class="entry" contentEditable="false" spellcheck="false">{{ num }}</span>
-                    <button id="lcd-edit-{{ num }}" class="yellowButton" onclick="saveLcd({{ num }})">Save</button>
+                    <button id="lcd-edit-{{ num }}" class="greenButton" onclick="saveLcd({{ num }})">Save</button>
                 </span>
                 <p id="lcd-fmt-{{ num }}" contentEditable="true" spellcheck="false">{{ fmt }}</p>
             </div>
@@ -86,13 +86,13 @@
             {{ m.deleteButton( "" ) }}
             <span class="entry" id="lcd-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
             <span class="entry" id="lcd-new-num" contentEditable="true" data-placeholder="Num" spellcheck="false"></span>
-            <button id="lcd-new" class="yellowButton" onclick="newLcd()">Create</button>
+            <button id="lcd-new" class="greenButton" onclick="newLcd()">Create</button>
             <p class="entry" id="lcd-new-fmt" contentEditable="true" data-placeholder="Format" spellcheck="false"></p>
         </div>
 
     </div> 
     <div>
-        <button class="purpleButton" onclick="lcdFmtCheatSheet()">Format Cheat Sheet</button>
+        <button class="yellowButton" onclick="lcdFmtCheatSheet()">Cheat Sheet</button>
     </div> 
   </body>
 </html>

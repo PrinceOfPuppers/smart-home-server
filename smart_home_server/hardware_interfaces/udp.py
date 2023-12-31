@@ -1,8 +1,6 @@
 import socket
-from typing import Union, Callable
-from dataclasses import dataclass
-from time import time
 
+from typing import Union
 from smart_home_server.errors import currentErrors
 import smart_home_server.constants as const
 from smart_home_server.hardware_interfaces import BMEData
@@ -15,12 +13,13 @@ def udpErr(err):
 
 def udpPromptRead(ip, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.connect((ip,port))
     sock.settimeout(const.udpTimeout)
     try:
         # data sent is arbitrary
-        sock.sendto(b"1", (ip, port))
+        sock.send(b"1")
 
-        data, addr = sock.recvfrom(256)
+        data = sock.recv(256)
         d = data.decode("utf-8")
         udpErr(False)
         return d
@@ -28,47 +27,6 @@ def udpPromptRead(ip, port):
         udpErr(True)
 
 
-# cb types: str cb(ip:str, port:int, request: str) where returned str is response
-def udpListener(port:int, cb:Callable, continueCb:Callable):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.settimeout(1) # so we check continue cb periodically
-    sock.bind(('', port))
-    while continueCb():
-        try:
-            # get request
-            data, addr = sock.recvfrom(256)
-            d = data.decode("utf-8")
-            ip = addr[0]
-            port = addr[1]
-
-            # send response
-            res = cb(ip,port,d)
-            sock.sendto(res.encode("utf-8"), (ip, port))
-
-            udpErr(False)
-        except socket.timeout:
-            continue
-        except:
-            udpErr(True)
-
-# write s and wait for ack
-def udpWriteAck(ip:str, port: int, s:str) -> bool:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.settimeout(const.udpTimeout)
-    try:
-        # data sent is arbitrary
-        sock.sendto(s.encode("utf-8"), (ip, port))
-        ack, addr = sock.recvfrom(256)
-        #d = ack.decode("utf-8")
-        udpErr(False)
-        return True
-    except socket.timeout:
-        udpErr(False)
-        return False
-    except:
-        udpErr(True)
-
-    return False
 
 
 # weather server specific
@@ -98,54 +56,3 @@ def getWeatherServerData(ip:str) -> Union[BMEData, None]:
         val = None
     return val
 
-
-# remote lcd specific
-
-# records previous written strings
-@dataclass
-class LCDCacheEntry:
-    conseqAckMiss:int
-    lastWritten:str
-    lastWrittenTime:float
-
-_lcdCache = {}
-
-# if acks hits maxAckMiss, returns false, updatePeroid will foce writeLcdRemote to send update, even if string is the same
-def writeLcdRemote(ip:str, port:int, lines:list, updatePeroid:int, maxAckMiss = 3):
-    global _lcdCache
-
-    now = time()
-
-    s = "".join(lines)
-    cs = ip + str(port) #cache string
-
-    if cs in _lcdCache:
-        if _lcdCache[cs].lastWritten == s and now - _lcdCache[cs].lastWrittenTime  < updatePeroid:
-            #cache hit
-            return True
-
-    ack = udpWriteAck(ip, port, s)
-
-    if ack:
-        _lcdCache[cs] = LCDCacheEntry(0,s, now)
-        return True
-
-    #no ack
-
-    if cs not in _lcdCache: # first send was no ack
-        _lcdCache[cs] = LCDCacheEntry(1,"", 0)
-    else:
-        _lcdCache[cs].conseqAckMiss +=1
-
-    # check for max number of Ack Misses
-    if _lcdCache[cs].conseqAckMiss >= maxAckMiss:
-        return False
-
-    return True
-
-def writeLcdUpdatePeriod(ip:str, port:int, updatePeriod:int) -> bool:
-    for _ in range(0,3):
-        ack = udpWriteAck(ip, port, str(updatePeriod))
-        if ack:
-            return True
-    return False

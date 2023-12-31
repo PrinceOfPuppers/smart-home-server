@@ -3,10 +3,11 @@ import json
 from dataclasses import dataclass
 from typing import Union
 import string
+import socket
 
 from smart_home_server.errors import currentErrors
 from smart_home_server.hardware_interfaces.lcd import writeLCD
-from smart_home_server.hardware_interfaces.udp import writeLcdRemote, writeLcdUpdatePeriod
+from smart_home_server.hardware_interfaces.tcp import tcpSendPacket
 import smart_home_server.constants as const
 from smart_home_server.handlers.subscribeManager import subscribe
 
@@ -61,21 +62,30 @@ def _printfLCD(writeCb, fmt, replacements):
         return
 
     if not ok:
+        print("LCD Stop Sig Triggered")
         raise LcdStopSig
     currentErrors['Conseq_LCD_Write_Err'] = 0
 
 
 @dataclass
 class ActiveLcd:
-    ip:Union[str,None]
-    port:Union[int, None]
+    c:Union[socket.socket, None]
     num:int
+    prevSent:str
     seq:int = 0
 
 # sequence numbers for each lcd
 _activeLcds = {}
 
 _lcdCache = {}
+
+def writeLcdRemote(num, c, lines):
+    s = "\n".join(lines)
+    if num in _activeLcds:
+        if s == _activeLcds[num].prevSent:
+            return True
+        _activeLcds[num].prevSent = s
+    return tcpSendPacket(c, "\n".join(lines))
 
 def _getLcdPath(num:int):
     return f'{const.lcdsFolder}/{num}.json'
@@ -118,54 +128,63 @@ def _getLcds():
     return lcds
 
 
-def _stopLcd(num):
+def _stopLcd(num, c: Union[socket.socket,None] = None):
     global _activeLcds
     if num in _activeLcds:
+        print("Stopping LCD:", num)
         _activeLcds[num].seq += 1
+        x = _activeLcds[num].c
+        if x is not None:
+            x.close()
+    if c is not None:
+        c.close()
 
-def _subscribeErrCB(num, e:Exception):
-    if isinstance(e, LcdStopSig):
+def _stopAllLcds():
+    for num in _activeLcds:
         _stopLcd(num)
+
+def _subscribeErrCB(num, c, e:Exception):
+    if isinstance(e, LcdStopSig):
+        print("LCD Stop Sig Caught")
+        _stopLcd(num, c)
     else:
         print(f"LCD Exception: \n{repr(e)}", flush=True)
 
 
-def _notifyNotHookedup(num, ip, port):
+def _notifyNotHookedup(num, c):
+    print(f"Notifying LCD: {num} of no hookup")
     defaultLines = ["Open Dashboard to", "Set LCD Format"]
     if num == 0:
         writeLCD(defaultLines)
         return True
 
-    return writeLcdRemote(ip, port, defaultLines, int(0.8*const.lcdDashReconnectTime))
+    return writeLcdRemote(num ,c, defaultLines)
 
 
-def _startLcd(num, ip = None, port = None):
+def _startLcd(num, c:Union[socket.socket,None] = None):
     global _activeLcds
+    print(f"Starting LCD: {num}")
 
     # shutdown previous running lcd
     _stopLcd(num)
 
-
     # if remote lcd, require port and ip
     if num != 0:
-        assert ip != None
-        assert port != None
-        if not writeLcdUpdatePeriod(ip, port, const.lcdDashReconnectTime):
-            return
+        assert c != None
 
     try:
         lcd = _getLcd(num)
     except LcdDoesNotExist:
-        _notifyNotHookedup(num, ip, port)
+        _notifyNotHookedup(num, c)
         return
 
     fmt = lcd['fmt']
 
     if num in _activeLcds:
-        _activeLcds[num].ip = ip
-        _activeLcds[num].port = port
+        _activeLcds[num].c = c
+        _activeLcds[num].prevSent = ""
     else:
-        _activeLcds[num] = ActiveLcd(ip, port, num, 0)
+        _activeLcds[num] = ActiveLcd(c, num, "", 0)
 
     current = _activeLcds[num].seq
 
@@ -175,23 +194,20 @@ def _startLcd(num, ip = None, port = None):
         writeCb = lambda lines: writeLCD(lines)
 
     else: # if lcd is remote
-        assert ip != None
-        assert port != None
-
-        writeCb = lambda lines: writeLcdRemote(ip, port, lines, int(0.8*const.lcdDashReconnectTime))
+        writeCb = lambda lines: writeLcdRemote(num, c, lines)
 
     subscribe(\
          args,
          lambda values:_printfLCD(writeCb, fmt, values),
          lambda: current != _activeLcds[num].seq,
-         lambda e: _subscribeErrCB(num, e) # process errs and printfLCD WriteCB returning false
+         lambda e: _subscribeErrCB(num, c, e) # process errs and printfLCD WriteCB returning false
      )
 
 def _restartLcd(num):
     global _activeLcds
 
     if num in _activeLcds:
-        _startLcd(num, _activeLcds[num].ip, _activeLcds[num].port)
+        _startLcd(num, _activeLcds[num].c)
 
 
 def _saveLcd(num:int, lcd:dict):
@@ -213,13 +229,17 @@ def _saveLcd(num:int, lcd:dict):
 
     _restartLcd(num)
 
-def _deleteLcd(num: int):
+def _deleteLcd(num: int, restart = False):
     if num in _lcdCache:
         _lcdCache.pop(num)
     path = _getLcdPath(num)
     if os.path.exists(path):
         os.remove(path)
+        if restart:
+            _restartLcd(num)
         return
+    if restart:
+        _restartLcd(num)
     raise LcdDoesNotExist()
 
 

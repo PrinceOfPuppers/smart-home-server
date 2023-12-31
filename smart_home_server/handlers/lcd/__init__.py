@@ -1,11 +1,12 @@
-import string
 from typing import Union
 from threading import Lock, Thread
 from datetime import datetime
+import socket
 
 import smart_home_server.constants as const
-from smart_home_server.handlers.lcd.helpers import _startLcd, _stopLcd, _overwriteLcd, _getLcd, _getLcds, _deleteLcd, _saveLcd, LcdAlreadyExists, LcdDoesNotExist
-from smart_home_server.hardware_interfaces.udp import udpListener
+from smart_home_server.handlers.lcd.helpers import _startLcd, _stopLcd, _overwriteLcd, _getLcd, _getLcds, _deleteLcd, _saveLcd, LcdAlreadyExists, LcdDoesNotExist, _stopAllLcds
+from smart_home_server.hardware_interfaces.tcp import tcpListener, tcpRecievePacket
+
 
 lcdLock = Lock()
 _lcdListenerLoopCondition = False
@@ -14,13 +15,13 @@ _lcdListenerThread        = None
 #######
 # api #
 #######
-def startLcd(num:int, ip:Union[str,None] = None, port:Union[int, None] = None):
+def startLcd(num:int, c:Union[socket.socket, None] = None):
     with lcdLock:
-        _startLcd(num, ip, port)
+        _startLcd(num, c)
 
-def stopLcd(num:int):
+def stopLcd(num:int, c:Union[socket.socket, None] = None):
     with lcdLock:
-        _stopLcd(num)
+        _stopLcd(num, c)
 
 def overwriteLcd(num:int, data:dict):
     with lcdLock:
@@ -50,19 +51,25 @@ def getLcds()->list[dict]:
 
 def deleteLcd(num:int):
     with lcdLock:
-        _deleteLcd(num)
+        _deleteLcd(num, restart = True)
 
 
 ###################
 # listener target #
 ###################
-def _addLcd(ip, port, lcdNumStr):
-    # must return expected polling period
+def _listenerTarget(c:socket.socket, addr):
+    lcdNumStr = tcpRecievePacket(c)
     try:
         lcdNum = int(lcdNumStr)
-        startLcd(lcdNum, ip, port)
+        if(lcdNum < 1):
+            raise Exception()
     except:
+        print("Ignoring Invalid LCD Num: ", lcdNumStr)
         return
+
+    print("LCD:" , lcdNum, "Connected on Address:", addr)
+
+    startLcd(lcdNum, c)
 
 ####################
 # listener controls#
@@ -71,8 +78,7 @@ def stopLcdListener():
     global _lcdListenerLoopCondition
     _lcdListenerLoopCondition = False
 
-    # stop integrated lcd
-    stopLcd(0)
+    _stopAllLcds()
 
 def joinLcdListener():
     global _lcdListenerLoopCondition
@@ -98,7 +104,7 @@ def startLcdListener():
 
     print(f"LcdListener Load Time: {datetime.now()}")
     _lcdListenerLoopCondition = True
-    _lcdListenerThread = Thread(target=lambda: udpListener(const.lcdListenerPort, _addLcd, lambda: _lcdListenerLoopCondition))
+    _lcdListenerThread = Thread(target=lambda: tcpListener(const.lcdListenerPort, _listenerTarget, lambda: _lcdListenerLoopCondition), daemon=True)
     _lcdListenerThread.start()
     print("lcdListener started")
 

@@ -194,6 +194,7 @@ indoorWeatherServerIp  = "192.168.2.152"
 printChamberWeatherServerIp  = "192.168.2.153"
 weatherServerPort = 6831
 lcdListenerPort = 6832
+lcdUpdatePort = 6833
 
 # when should remote lcds attempt reconnect
 lcdDashReconnectTime = 20*60;

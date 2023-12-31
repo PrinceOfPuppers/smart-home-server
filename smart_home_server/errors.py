@@ -12,6 +12,7 @@ currentErrors = {
     'Dashboard_None': set(),          # for when a datasource returns none on the dashboard
 
     'UDP_Err': 0,
+    'TCP_Err': 0,
 }
 
 def getErrorStrAndBool():
@@ -30,6 +31,8 @@ def getErrorStrAndBool():
         s += f'Scheduler Err Chain: {currentErrors["Conseq_Scheduler_Err"]}\n'
     if currentErrors['UDP_Err'] > 0:
         s += f'UDP Err Chain: {currentErrors["UDP_Err"]}\n'
+    if currentErrors['TCP_Err'] > 0:
+        s += f'TCP Err Chain: {currentErrors["TCP_Err"]}\n'
 
     if currentErrors['Last_Job_Run_Err']:
         s += f"{currentErrors['Last_Job_Run_Err']}\n"

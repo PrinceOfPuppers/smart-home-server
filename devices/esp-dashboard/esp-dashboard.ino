@@ -2,7 +2,6 @@
 #include <Wire.h>
 
 #include <ESP8266WiFi.h>
-#include <WiFiUdp.h>
 
 #include "network-info.h"
 
@@ -85,124 +84,97 @@ void getLCDNum(){
     pinMode(LCD_NUM_PIN_3, INPUT);
 }
 
-
 ///////////////
-// UDP stuff //
+// TCP stuff //
 ///////////////
-WiFiUDP udp;
-unsigned int localudpPort = 6832;
-unsigned int remoteudpPort = 6832;
-char incomingPacket[LCD_WIDTH*LCD_LINES + 1];
-char replyPacket[256];
 
 #define SERVER_IP "192.168.2.16"
 const String server_ip = SERVER_IP;
+static String localIP;
+#define PORT 6832
 
-#define SERVER_RETRY_TIME_MS 5000
+WiFiClient client;
 
-// will wait this times the expected update interval before reconnecting
-#define SERVER_RECONNECT_TIME_FACTOR_MS 1
+// does not include delimiter \0
+#define MAX_PACKET_LEN LCD_WIDTH*LCD_LINES 
 
-void ack(){
-    udp.beginPacket(SERVER_IP, remoteudpPort);
-    udp.write("A", 1);
-    udp.endPacket();
+char incomingPacket[MAX_PACKET_LEN + 1];
+
+void send_packet_tcp(String s){
+    client.print(s);
+    client.write('\0');
 }
 
-static String localIP;
-void setup_udp(){
+String get_packet_tcp(){
+    size_t len = 0;
+    char x;
+    while(1){
+        if(len >= MAX_PACKET_LEN){
+            break;
+        }
+
+        // wait for rest of packet data
+        if(!client.available()){
+            delay(1);
+            continue;
+        }
+
+        x = client.read();
+        if(x == '\0'){
+            break;
+        }
+
+        incomingPacket[len] = x;
+        len++;
+    }
+    incomingPacket[len] = '\0';
+    return String(incomingPacket);
+}
+
+void setup_tcp(){
     WiFi.begin(NETWORK_NAME, NETWORK_PASS);
 
     write_lcd("Connecting Wifi...");
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
     }
+
     localIP = WiFi.localIP().toString();
-    write_lcd("WiFi Up!\nIP: " + localIP);
-    udp.begin(localudpPort);
-    delay(1000);
 }
 
-// blocking, returns expected return interval
-// (how frequently serer ought to return info)
-long subscribe_lcd(uint8_t lcdNum){
-    size_t attempt = 1;
+// blocks until connection is established
+void connect_server(uint8_t lcdNum){
+    long attempt = 0;
     String lcdNumStr = String(lcdNum);
-
 
     while(1){
         write_lcd("Conn Attempt: " + String(attempt) + "\nL: " + localIP + "\nR: " + SERVER_IP "\nLCD Num: " + lcdNumStr);
-        udp.beginPacket(SERVER_IP, remoteudpPort);
-        udp.write(lcdNumStr.c_str(), lcdNumStr.length());
-        udp.endPacket();
-
-        attempt++;
-
-        for(int i = 0; i < SERVER_RETRY_TIME_MS; i++){
-            int packetSize = udp.parsePacket();
-            if(!packetSize){
-                delay(1);
-                continue;
-            }
-
-            // response received
-            write_lcd("Connected!");
-
-            int len = udp.read(incomingPacket, LCD_WIDTH*LCD_LINES);
-            if(len < 0){
-                write_lcd("Response\nToo Large!");
-                delay(5000);
-                break;
-            }
-
-            incomingPacket[len] = '\0';
-            String d = String(incomingPacket);
-            long interval = d.toInt();
-            if(interval == 0){
-                write_lcd("Invalid Update\nInterval!");
-                delay(5000);
-                break;
-            }
-
-            ack();
-
-            return interval;
-        }
-    }
-}
-
-bool get_lcd_update(long interval){
-    for(int i = 0; i < interval*SERVER_RECONNECT_TIME_FACTOR_MS; i++){
-        int packetSize = udp.parsePacket();
-        if(!packetSize){
-            delay(1);
-            continue;
-        }
-
-        if(udp.remoteIP().toString() != server_ip){
-            write_lcd("Recieved Data\nFrom Unknown IP");
-            delay(1);
-            continue;
-        }
-
-        int len = udp.read(incomingPacket, LCD_WIDTH*LCD_LINES);
-        if(len < 0){
-            write_lcd("Response\nToo Large!");
-            delay(5000);
+        if(client.connect(server_ip, PORT)){
             break;
         }
-
-        incomingPacket[len] = '\0';
-        String d = String(incomingPacket);
-        write_lcd(d);
-
-        ack();
-        return true;
+        
+        attempt++;
+        delay(3000);
     }
+    write_lcd("Connected!");
+
+    send_packet_tcp(lcdNumStr);
+}
+
+// blocks until connection is lost
+void listen_for_updates(){
+
+    while(client.connected()){
+        if(client.available()){
+            write_lcd(get_packet_tcp());
+        }
+        delay(1);
+    }
+
+    client.stop();
+
     write_lcd("Server Lost!");
     delay(5000);
-
-    return false;
 }
 
 
@@ -215,14 +187,13 @@ void setup(){
     while(!Serial) {}
 #endif
     setup_lcd();
-    setup_udp();
+    setup_tcp();
     getLCDNum();
 }
 
 void loop(){
-    long interval = subscribe_lcd(lcdNum);
-    while(get_lcd_update(interval)){
-    }
+    connect_server(lcdNum);
+    listen_for_updates();
 }
 
 
