@@ -7,7 +7,7 @@ import socket
 
 from smart_home_server.errors import currentErrors
 from smart_home_server.hardware_interfaces.lcd import writeLCD
-from smart_home_server.hardware_interfaces.tcp import tcpSendPacket
+from smart_home_server.hardware_interfaces.tcp import tcpSendPacket, disconnectSocket
 import smart_home_server.constants as const
 from smart_home_server.handlers.subscribeManager import subscribe
 
@@ -142,11 +142,11 @@ def _disconnectLcd(num, c: Union[socket.socket,None] = None):
         _activeLcds[num].seq += 1
         x = _activeLcds[num].c
         if x is not None:
-            x.close()
+            disconnectSocket(x)
 
     # redundant check of c, but harmless
     if c is not None:
-        c.close()
+        disconnectSocket(c)
 
 
 def _disconnectAllLcds():
@@ -173,13 +173,14 @@ def _notifyNotHookedup(num, c):
 
 def _startLcd(num, c:Union[socket.socket,None] = None, disconnect = True):
     global _activeLcds
-    print(f"Starting LCD: {num}")
 
     # shutdown previous running lcd
     if disconnect:
         _disconnectLcd(num)
     else:
         _stopLcd(num)
+
+    print(f"Starting LCD: {num}")
 
     # if remote lcd, require port and ip
     if num != 0:

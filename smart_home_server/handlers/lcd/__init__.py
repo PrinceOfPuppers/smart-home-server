@@ -101,8 +101,7 @@ def startLcdListener():
     print(f"LcdListener Load Time: {datetime.now()}")
     _lcdListenerLoopCondition = True
 
-    # TODO: should not be daemon, make tcpListener stop when loop condition is false
-    _lcdListenerThread = Thread(target=lambda: tcpListener(const.lcdListenerPort, _listenerTarget, lambda: _lcdListenerLoopCondition), daemon=True)
+    _lcdListenerThread = Thread(target=lambda: tcpListener(const.lcdListenerPort, _listenerTarget, lambda: _lcdListenerLoopCondition))
     _lcdListenerThread.start()
     print("lcdListener started")
 
