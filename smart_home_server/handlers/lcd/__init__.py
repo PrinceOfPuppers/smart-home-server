@@ -4,7 +4,7 @@ from datetime import datetime
 import socket
 
 import smart_home_server.constants as const
-from smart_home_server.handlers.lcd.helpers import _startLcd, _stopLcd, _overwriteLcd, _getLcd, _getLcds, _deleteLcd, _saveLcd, LcdAlreadyExists, LcdDoesNotExist, _stopAllLcds
+from smart_home_server.handlers.lcd.helpers import _startLcd, _stopLcd, _overwriteLcd, _getLcd, _getLcds, _deleteLcd, _saveLcd, LcdAlreadyExists, LcdDoesNotExist, _disconnectAllLcds
 from smart_home_server.hardware_interfaces.tcp import tcpListener, tcpRecievePacket
 
 
@@ -18,10 +18,6 @@ _lcdListenerThread        = None
 def startLcd(num:int, c:Union[socket.socket, None] = None):
     with lcdLock:
         _startLcd(num, c)
-
-def stopLcd(num:int, c:Union[socket.socket, None] = None):
-    with lcdLock:
-        _stopLcd(num, c)
 
 def overwriteLcd(num:int, data:dict):
     with lcdLock:
@@ -78,7 +74,7 @@ def stopLcdListener():
     global _lcdListenerLoopCondition
     _lcdListenerLoopCondition = False
 
-    _stopAllLcds()
+    _disconnectAllLcds()
 
 def joinLcdListener():
     global _lcdListenerLoopCondition
@@ -104,6 +100,8 @@ def startLcdListener():
 
     print(f"LcdListener Load Time: {datetime.now()}")
     _lcdListenerLoopCondition = True
+
+    # TODO: should not be daemon, make tcpListener stop when loop condition is false
     _lcdListenerThread = Thread(target=lambda: tcpListener(const.lcdListenerPort, _listenerTarget, lambda: _lcdListenerLoopCondition), daemon=True)
     _lcdListenerThread.start()
     print("lcdListener started")

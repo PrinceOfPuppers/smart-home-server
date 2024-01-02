@@ -7,7 +7,7 @@
 
 #define SERIAL_BAUD 115200
 
-#define DEBUG_ENABLED
+// #define DEBUG_ENABLED
 
 #ifdef DEBUG_ENABLED
 #define debug(msg) Serial.print(msg)

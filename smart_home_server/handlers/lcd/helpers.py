@@ -128,32 +128,42 @@ def _getLcds():
     return lcds
 
 
-def _stopLcd(num, c: Union[socket.socket,None] = None):
+
+def _stopLcd(num):
     global _activeLcds
     if num in _activeLcds:
         print("Stopping LCD:", num)
         _activeLcds[num].seq += 1
+
+def _disconnectLcd(num, c: Union[socket.socket,None] = None):
+    global _activeLcds
+    if num in _activeLcds:
+        print("Disconneting LCD:", num)
+        _activeLcds[num].seq += 1
         x = _activeLcds[num].c
         if x is not None:
             x.close()
+
+    # redundant check of c, but harmless
     if c is not None:
         c.close()
 
-def _stopAllLcds():
+
+def _disconnectAllLcds():
     for num in _activeLcds:
-        _stopLcd(num)
+        _disconnectLcd(num)
 
 def _subscribeErrCB(num, c, e:Exception):
     if isinstance(e, LcdStopSig):
         print("LCD Stop Sig Caught")
-        _stopLcd(num, c)
+        _disconnectLcd(num, c)
     else:
         print(f"LCD Exception: \n{repr(e)}", flush=True)
 
 
 def _notifyNotHookedup(num, c):
     print(f"Notifying LCD: {num} of no hookup")
-    defaultLines = ["Open Dashboard to", "Set LCD Format"]
+    defaultLines = ["Open Dashboard to", f"Set LCD {num} Format"]
     if num == 0:
         writeLCD(defaultLines)
         return True
@@ -161,16 +171,26 @@ def _notifyNotHookedup(num, c):
     return writeLcdRemote(num ,c, defaultLines)
 
 
-def _startLcd(num, c:Union[socket.socket,None] = None):
+def _startLcd(num, c:Union[socket.socket,None] = None, disconnect = True):
     global _activeLcds
     print(f"Starting LCD: {num}")
 
     # shutdown previous running lcd
-    _stopLcd(num)
+    if disconnect:
+        _disconnectLcd(num)
+    else:
+        _stopLcd(num)
 
     # if remote lcd, require port and ip
     if num != 0:
         assert c != None
+
+
+    if num in _activeLcds:
+        _activeLcds[num].c = c
+        _activeLcds[num].prevSent = ""
+    else:
+        _activeLcds[num] = ActiveLcd(c, num, "", 0)
 
     try:
         lcd = _getLcd(num)
@@ -179,12 +199,6 @@ def _startLcd(num, c:Union[socket.socket,None] = None):
         return
 
     fmt = lcd['fmt']
-
-    if num in _activeLcds:
-        _activeLcds[num].c = c
-        _activeLcds[num].prevSent = ""
-    else:
-        _activeLcds[num] = ActiveLcd(c, num, "", 0)
 
     current = _activeLcds[num].seq
 
@@ -195,6 +209,8 @@ def _startLcd(num, c:Union[socket.socket,None] = None):
 
     else: # if lcd is remote
         writeCb = lambda lines: writeLcdRemote(num, c, lines)
+
+    writeCb(fmt.split("\n"))
 
     subscribe(\
          args,
@@ -207,7 +223,7 @@ def _restartLcd(num):
     global _activeLcds
 
     if num in _activeLcds:
-        _startLcd(num, _activeLcds[num].c)
+        _startLcd(num, _activeLcds[num].c, disconnect=False)
 
 
 def _saveLcd(num:int, lcd:dict):
