@@ -36,30 +36,11 @@ def tcpRecievePacket(c:socket.socket):
     return x.decode()
 
 
-def is_socket_closed(sock: socket.socket) -> bool:
-    try:
-        # this will try to read bytes without blocking and also without removing them from buffer (peek only)
-        data = sock.recv(16, socket.MSG_DONTWAIT | socket.MSG_PEEK)
-        if len(data) == 0:
-            return True
-    except BlockingIOError:
-        return False  # socket is open and reading from it would block
-    except ConnectionResetError:
-        return True  # socket was closed for some other reason
-    except Exception as e:
-        print("unexpected exception when checking if a socket is closed")
-        return False
-    return False
-
-
 # packets are null terminated
 def tcpSendPacket(c:socket.socket, s:str):
-    print("is closed: ", is_socket_closed(c))
     try:
-        print("sending: ", s)
-        print(c.send(s.encode()))
-        print(c.send(b'\x00'))
-        print("sent!")
+        c.send(s.encode())
+        c.send(b'\x00')
     except Exception as e:
         print(e)
         return False

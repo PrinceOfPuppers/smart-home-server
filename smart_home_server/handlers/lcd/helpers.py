@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Union
 import string
 import socket
+from threading import Lock
 
 from smart_home_server.errors import currentErrors
 from smart_home_server.hardware_interfaces.lcd import writeLCD
@@ -76,15 +77,23 @@ class ActiveLcd:
 
 # sequence numbers for each lcd
 _activeLcds = {}
+_activeLcdsLock = Lock()
 
 _lcdCache = {}
 
-def writeLcdRemote(num, c, lines):
+def writeLcdRemote(num, c, lines, lock=True):
+    global _activeLcds
     s = "\n".join(lines)
-    if num in _activeLcds:
-        if s == _activeLcds[num].prevSent:
-            return True
-        _activeLcds[num].prevSent = s
+    if lock:
+        _activeLcdsLock.acquire()
+    try:
+        if num in _activeLcds:
+            if s == _activeLcds[num].prevSent:
+                return True
+            _activeLcds[num].prevSent = s
+    finally:
+        if lock:
+            _activeLcdsLock.release()
     return tcpSendPacket(c, "\n".join(lines))
 
 def _getLcdPath(num:int):
@@ -129,20 +138,37 @@ def _getLcds():
 
 
 
-def _stopLcd(num):
+def _stopLcd(num, lock = True):
     global _activeLcds
-    if num in _activeLcds:
-        print("Stopping LCD:", num)
-        _activeLcds[num].seq += 1
+    if lock:
+        _activeLcdsLock.acquire()
+    try:
+        if num in _activeLcds:
+            print("Stopping LCD:", num)
+            _activeLcds[num].seq += 1
+    finally:
+        if lock:
+            _activeLcdsLock.release()
 
-def _disconnectLcd(num, c: Union[socket.socket,None] = None):
+def _disconnectLcd(num, c: Union[socket.socket,None] = None, lock = True):
     global _activeLcds
-    if num in _activeLcds:
-        print("Disconneting LCD:", num)
-        _activeLcds[num].seq += 1
-        x = _activeLcds[num].c
-        if x is not None:
-            disconnectSocket(x)
+
+    if lock:
+        _activeLcdsLock.acquire()
+    try:
+        if num in _activeLcds:
+
+            if c is not None and _activeLcds[num].c != c:
+                pass # we are dealing with an old connection, no longer in _activeLcds
+            else:
+                print("Disconneting LCD:", num)
+                _activeLcds[num].seq += 1
+                if _activeLcds[num].c is not None:
+                    disconnectSocket(_activeLcds[num].c)
+
+    finally:
+        if lock:
+            _activeLcdsLock.release()
 
     # redundant check of c, but harmless
     if c is not None:
@@ -150,7 +176,8 @@ def _disconnectLcd(num, c: Union[socket.socket,None] = None):
 
 
 def _disconnectAllLcds():
-    for num in _activeLcds:
+    global _activeLcds
+    for num in list(_activeLcds.keys()):
         _disconnectLcd(num)
 
 def _subscribeErrCB(num, c, e:Exception):
@@ -168,63 +195,72 @@ def _notifyNotHookedup(num, c):
         writeLCD(defaultLines)
         return True
 
-    return writeLcdRemote(num ,c, defaultLines)
+    return writeLcdRemote(num ,c, defaultLines, lock=False)
 
 
-def _startLcd(num, c:Union[socket.socket,None] = None, disconnect = True):
+def _startLcd(num, c:Union[socket.socket,None] = None, disconnect = True, lock = True):
     global _activeLcds
-
-    # shutdown previous running lcd
-    if disconnect:
-        _disconnectLcd(num)
-    else:
-        _stopLcd(num)
-
-    print(f"Starting LCD: {num}")
-
-    # if remote lcd, require port and ip
-    if num != 0:
-        assert c != None
-
-
-    if num in _activeLcds:
-        _activeLcds[num].c = c
-        _activeLcds[num].prevSent = ""
-    else:
-        _activeLcds[num] = ActiveLcd(c, num, "", 0)
-
+    if lock:
+        _activeLcdsLock.acquire()
     try:
-        lcd = _getLcd(num)
-    except LcdDoesNotExist:
-        _notifyNotHookedup(num, c)
-        return
+        # shutdown previous running lcd
+        if disconnect:
+            _disconnectLcd(num, lock=False)
+        else:
+            _stopLcd(num, lock=False)
 
-    fmt = lcd['fmt']
+        print(f"Starting LCD: {num}")
 
-    current = _activeLcds[num].seq
+        # if remote lcd, require port and ip
+        if num != 0:
+            assert c != None
 
-    args = [tup[1] for tup in string.Formatter().parse(fmt) if tup[1] is not None]
 
-    if num == 0: # if lcd is integrated one
-        writeCb = lambda lines: writeLCD(lines)
+        if num in _activeLcds:
+            _activeLcds[num].c = c
+            _activeLcds[num].prevSent = ""
+        else:
+            _activeLcds[num] = ActiveLcd(c, num, "", 0)
 
-    else: # if lcd is remote
-        writeCb = lambda lines: writeLcdRemote(num, c, lines)
+        try:
+            lcd = _getLcd(num)
+        except LcdDoesNotExist:
+            _notifyNotHookedup(num, c)
+            return
 
-    writeCb(fmt.split("\n"))
+        fmt = lcd['fmt']
+        firstMessage = fmt.split("\n")
 
-    subscribe(\
-         args,
-         lambda values:_printfLCD(writeCb, fmt, values),
-         lambda: current != _activeLcds[num].seq,
-         lambda e: _subscribeErrCB(num, c, e) # process errs and printfLCD WriteCB returning false
-     )
+        current = _activeLcds[num].seq
+
+        args = [tup[1] for tup in string.Formatter().parse(fmt) if tup[1] is not None]
+
+        if num == 0: # if lcd is integrated one
+            writeCb = lambda lines: writeLCD(lines)
+            writeLCD(firstMessage)
+
+        else: # if lcd is remote
+            writeCb = lambda lines: writeLcdRemote(num, c, lines)
+            writeLcdRemote(num, c, firstMessage, lock=False)
+
+        subscribe(\
+             args,
+             lambda values:_printfLCD(writeCb, fmt, values),
+             lambda: current != _activeLcds[num].seq,
+             lambda e: _subscribeErrCB(num, c, e) # process errs and printfLCD WriteCB returning false
+         )
+    finally:
+        if lock:
+            _activeLcdsLock.release()
+
 
 def _restartLcd(num):
     global _activeLcds
 
-    if num in _activeLcds:
-        _startLcd(num, _activeLcds[num].c, disconnect=False)
+    with _activeLcdsLock:
+        if num in _activeLcds:
+            print(f"Restarting LCD: {num}")
+            _startLcd(num, _activeLcds[num].c, disconnect=False, lock = False)
 
 
 def _saveLcd(num:int, lcd:dict):
