@@ -88,15 +88,15 @@ void getLCDNum(){
 // TCP stuff //
 ///////////////
 
-#define SERVER_IP "192.168.2.16"
+#define SERVER_IP "192.168.2.23"
 const String server_ip = SERVER_IP;
 static String localIP;
 #define PORT 6832
 
 WiFiClient client;
 
-// does not include delimiter \0
-#define MAX_PACKET_LEN LCD_WIDTH*LCD_LINES 
+// does not include delimiter \0, extra LCD_LINES if for newlines
+#define MAX_PACKET_LEN LCD_WIDTH*LCD_LINES + LCD_LINES
 
 char incomingPacket[MAX_PACKET_LEN + 1];
 

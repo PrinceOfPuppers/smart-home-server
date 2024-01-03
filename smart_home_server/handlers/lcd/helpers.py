@@ -229,7 +229,7 @@ def _startLcd(num, c:Union[socket.socket,None] = None, disconnect = True, lock =
             return
 
         fmt = lcd['fmt']
-        firstMessage = fmt.split("\n")
+        firstMessage = fillSpacesAndClamp(fmt.split("\n"))
 
         current = _activeLcds[num].seq
 

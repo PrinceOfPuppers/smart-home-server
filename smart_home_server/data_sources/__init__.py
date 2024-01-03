@@ -301,7 +301,7 @@ dataSources = [
         },
 
         'values': {
-            'usd->cad': {
+            'usd-cad': {
                 'enabled': True,
                 'dataPath': ['data', 'rate']
             }
