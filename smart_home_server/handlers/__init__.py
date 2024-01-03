@@ -3,10 +3,10 @@ from threading import Thread, Lock, Event
 from datetime import datetime, timedelta
 
 from smart_home_server.handlers.presser import presserAppend, getRemoteById
-from smart_home_server.handlers.lcd import updateLCDFromJobData
 from smart_home_server.hardware_interfaces.reboot import reboot
 from smart_home_server.hardware_interfaces.update import update
 from smart_home_server.handlers.macros import macroExists, getMacro
+from smart_home_server.handlers.lcd import getLcd, overwriteLcd, LcdDoesNotExist
 from smart_home_server.errors import currentErrors
 
 from smart_home_server.handlers.logs import jobLog
@@ -31,6 +31,11 @@ def validateDo(do:dict):
         elif type == 'update':
             return ""
         elif type == 'lcd':
+            num = data["num"]
+            try:
+                getLcd(num)
+            except LcdDoesNotExist:
+                return f"Lcd: {data['num']} Does Not Exist"
             return ""
         elif type == 'delay':
             return ""
@@ -69,8 +74,9 @@ def runJob(job:dict):
 
         if type == 'press':
             presserAppend(data)
+
         elif type == 'lcd':
-            updateLCDFromJobData(data)
+            overwriteLcd(data["num"], data)
         elif type == 'reboot':
             reboot()
         elif type == 'update':

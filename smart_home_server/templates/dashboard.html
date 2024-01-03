@@ -85,51 +85,11 @@
         }
     }
 
-    async function saveLCD(){
-        const element = document.getElementById(`dashboard-LCD-content`);
-        const saveButtonElement = document.getElementById(`dashboardButton-LCD-Save`);
-
-        const text = element.textContent;
-        var lines = text.split('\n')
-
-        lines = lines.slice(0,{{ lcdLines }})
-        var data = {'lines': lines};
-
-        sendData('api/dashboard/lcd', data, 'POST').then( (success) => {
-            if(success){
-                tempChangeButton(saveButtonElement, "Saved!");
-            }
-        })
-    }
-
-    function getLCD(){
-        const element = document.getElementById(`dashboard-LCD-content`);
-        fetch('api/data/lcd', {method: "GET"})
-        .then((response) => {
-            if(!response.ok){
-                window.alert(`Dashboard LCD Update Error \nStatus: ${response.status} \n${response.statusText}`);
-                return;
-            }
-            //element.textContent = response.body;
-            response.json().then((json)=>{element.textContent = json['str']});
-        })
-    }
-
-    function toggleLCDBacklight(){
-        fetch('api/dashboard/lcd/toggle', {method: "POST"})
-        .then((response) => {
-            if(!response.ok){
-                window.alert(`Dashboard LCD ToggleBacklight Error \nStatus: ${response.status} \n${response.statusText}`);
-                return;
-            }
-        })
-    }
     async function noop(){
     }
 
     window.onload = () => {
         clock('clock');
-        getLCD()
         {% for element in dashboardElements %}
             firstLoadDashboardElement("{{ element['name'] }}", "{{ element['url'] }}");
         {% endfor %}
@@ -142,8 +102,9 @@
         <a href="/remote">Remote</a>
         <a href="/schedule">Schedule</a>
         <a href="/trigger">Trigger</a>
-        <a href="/notes">Notes</a>
-        <a href="/macros">Macros</a>
+        <a href="/notes">Note</a>
+        <a href="/macros">Macro</a>
+        <a href="/lcds">Lcd</a>
     </div> 
 
     <div class="dashboardList">
@@ -196,12 +157,5 @@
 
             </div>
         {% endfor %}
-        <div>
-            <button id="dashboardButton-LCD" class="purpleButton" onclick="getLCD()">LCD</button>
-            <button id="dashboardButton-LCD-Backlight" class="purpleButton" onclick="toggleLCDBacklight()">Light</button>
-            <button class="purpleButton" onclick="lcdFmtCheatSheet()">?</button>
-            <button id="dashboardButton-LCD-Save" class="purpleButton" onclick="saveLCD()">Save</button>
-            <p class="entry" id="dashboard-LCD-content" contentEditable="true" spellcheck="false"></p>
-        </div>
   </body>
 </html>

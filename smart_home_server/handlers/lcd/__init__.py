@@ -1,65 +1,107 @@
-import string
+from typing import Union
+from threading import Lock, Thread
+from datetime import datetime
+import socket
 
 import smart_home_server.constants as const
-from smart_home_server.hardware_interfaces.lcd import setLCDFMT, printfLCD, toggleBacklight, getLCDFMT, setBacklight
-from smart_home_server.handlers.subscribeManager import subscribe
+from smart_home_server.handlers.lcd.helpers import _startLcd, _stopLcd, _overwriteLcd, _getLcd, _getLcds, _deleteLcd, _saveLcd, LcdAlreadyExists, LcdDoesNotExist, _disconnectAllLcds
+from smart_home_server.hardware_interfaces.tcp import tcpListener, tcpRecievePacket
 
-# increment to unsub to from current subscribe
-_seq = 0
 
-def _startLCD():
-    args = [tup[1] for tup in string.Formatter().parse(getLCDFMT()) if tup[1] is not None]
-    current = _seq
+lcdLock = Lock()
+_lcdListenerLoopCondition = False
+_lcdListenerThread        = None
 
-    subscribe(\
-         args, 
-         lambda values:printfLCD(values), 
-         lambda: current != _seq, 
-         lambda e: print(f"LCD Exception: \n{repr(e)}", flush=True)
-     )
+#######
+# api #
+#######
+def startLcd(num:int, c:Union[socket.socket, None] = None):
+    with lcdLock:
+        _startLcd(num, c)
 
-def startUpdateLCD(fmt = "", fromFile = False):
-    global _seq
-    _seq += 1
+def overwriteLcd(num:int, data:dict):
+    with lcdLock:
+        lcd = _getLcd(data["num"])
 
-    if fromFile:
-        with open(const.lcdTextFile,"r") as f:
-            fmt = f.read()
-    else:
-        with open(const.lcdTextFile,"w") as f:
-            f.write(fmt)
+        # if name or fmt not included, leave them unchanged
+        if "name" not in data:
+            data["name"] = lcd["name"]
+        if "fmt" not in data:
+            data["fmt"] = lcd["fmt"]
 
-    setLCDFMT(fmt)
-    _startLCD()
-    print("lcd started")
+        _overwriteLcd(num, data)
 
-def toggleLCDBacklight():
-    toggleBacklight()
 
-def setLCDBacklight(on: bool):
-    setBacklight(on)
+def saveLcd(num:int, lcd:dict):
+    with lcdLock:
+        _saveLcd(num, lcd)
 
-def updateLCDFromJobData(data:dict):
-    if 'backlight' in data:
-        setLCDBacklight(data['backlight'])
 
-    s = ""
-    last = getLCDFMT().split('\n')
+def getLcd(num:int)->dict:
+    with lcdLock:
+        return _getLcd(num)
 
-    if not 'lines' in data:
+def getLcds()->list[dict]:
+    with lcdLock:
+        return _getLcds()
+
+def deleteLcd(num:int):
+    with lcdLock:
+        _deleteLcd(num, restart = True)
+
+
+###################
+# listener target #
+###################
+def _listenerTarget(c:socket.socket, addr):
+    lcdNumStr = tcpRecievePacket(c)
+    try:
+        lcdNum = int(lcdNumStr)
+        if(lcdNum < 1):
+            raise Exception()
+    except:
+        print("Ignoring Invalid LCD Num: ", lcdNumStr)
         return
 
-    numLines = min(len(data['lines']), const.lcdLines)
+    print("LCD:" , lcdNum, "Connected on Address:", addr)
 
-    for i in range(numLines):
-        s += data['lines'][i].replace('\n', '')
-        s += "\n"
+    startLcd(lcdNum, c)
 
-    try:
-        s.encode('ascii')
-    except UnicodeEncodeError:
-        return False
+####################
+# listener controls#
+####################
+def stopLcdListener():
+    global _lcdListenerLoopCondition
+    _lcdListenerLoopCondition = False
 
-    startUpdateLCD(s)
+    _disconnectAllLcds()
 
-    return True
+def joinLcdListener():
+    global _lcdListenerLoopCondition
+    global _lcdListenerThread
+
+    if _lcdListenerThread is not None and _lcdListenerThread.is_alive():
+        _lcdListenerLoopCondition = False
+        _lcdListenerThread.join()
+    else:
+        _lcdListenerLoopCondition = False
+
+def startLcdListener():
+    global _lcdListenerLoopCondition
+    global _lcdListenerThread
+    if _lcdListenerLoopCondition:
+        raise Exception("LcdListener Already Running")
+
+
+    joinLcdListener()
+
+    # start integrated lcd
+    startLcd(0)
+
+    print(f"LcdListener Load Time: {datetime.now()}")
+    _lcdListenerLoopCondition = True
+
+    _lcdListenerThread = Thread(target=lambda: tcpListener(const.lcdListenerPort, _listenerTarget, lambda: _lcdListenerLoopCondition))
+    _lcdListenerThread.start()
+    print("lcdListener started")
+

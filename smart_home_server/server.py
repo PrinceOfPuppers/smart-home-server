@@ -2,10 +2,10 @@ from flask import Flask, send_from_directory, render_template, redirect
 
 from smart_home_server.handlers.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
 from smart_home_server.handlers.presser import startPresser, stopPresser, joinPresser, getRemotes
-from smart_home_server.handlers.lcd import startUpdateLCD
 from smart_home_server.handlers.triggerManager import getTriggers
 from smart_home_server.handlers.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
 from smart_home_server.handlers.rfMacros import startMac, stopMac, joinMac
+from smart_home_server.handlers.lcd import getLcds, startLcdListener, stopLcdListener, joinLcdListener
 
 from smart_home_server.handlers.notes import getNotes
 from smart_home_server.handlers.macros import getMacros
@@ -20,6 +20,7 @@ from smart_home_server.api.data import dataApi
 from smart_home_server.api.trigger import triggerApi, triggerComparisons
 from smart_home_server.api.note import noteApi
 from smart_home_server.api.macro import macroApi
+from smart_home_server.api.lcd import lcdApi
 from smart_home_server.data_sources import dataSources, dataSourceValues
 import smart_home_server.constants as const
 
@@ -34,6 +35,7 @@ app.register_blueprint(triggerApi)
 app.register_blueprint(dataApi)
 app.register_blueprint(noteApi)
 app.register_blueprint(macroApi)
+app.register_blueprint(lcdApi)
 app.jinja_env.add_extension('jinja2.ext.do')
 
 @app.route('/')
@@ -52,12 +54,14 @@ def lightsGet():
 def scheduleGet():
     jobs = getJobs()
     macros = getMacros()
+    lcds = getLcds()
 
     return render_template('schedule.html', 
                            remotes=getRemotes(), 
                            jobs=jobs, 
                            timeUnits = timeUnits, 
                            macros=macros,
+                           lcds=lcds,
                            values=values)
 
 @app.route('/dashboard')
@@ -74,13 +78,15 @@ def dashboardGet():
                     'dashboard': source['dashboard']
                  }
             )
-    return render_template('dashboard.html', dashboardElements=elements, values=values, lcdLines = const.lcdLines)
+    return render_template('dashboard.html', dashboardElements=elements)
 
 @app.route('/trigger')
 def triggerGet():
     triggerJobs = getTriggers()
     macros = getMacros()
-    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, remotes=getRemotes(), macros=macros)
+    lcds = getLcds()
+    remotes = getRemotes()
+    return render_template('trigger.html', values=values, comparisons=triggerComparisons, triggerJobs=triggerJobs, remotes=remotes, macros=macros, lcds=lcds)
 
 @app.route('/notes')
 def notesGet():
@@ -93,7 +99,15 @@ def macrosGet():
     macros = getMacros()
     macros.sort(key = lambda element: element['name'])
     delays = getDelays()
-    return render_template('macros.html', macros=macros, remotes=getRemotes(), delays=delays)
+    lcds = getLcds()
+    remotes=getRemotes()
+    return render_template('macros.html', macros=macros, remotes=remotes, delays=delays, lcds=lcds)
+
+@app.route('/lcds')
+def lcdsGet():
+    lcds = getLcds()
+    lcds.sort(key=lambda element: element['num'])
+    return render_template('lcds.html', lcds=lcds, values=values)
 
 
 def startServer():
@@ -102,7 +116,7 @@ def startServer():
         startScheduler()
         startSubscribeManager()
         startPresser()
-        startUpdateLCD(fromFile=True)
+        startLcdListener()
         startMac()
 
         if const.isRpi():
@@ -119,6 +133,7 @@ def startServer():
         stopPresser()
         stopScheduler()
         stopSubscribeManager()
+        stopLcdListener()
         stopMac()
         joinPresser()
         joinScheduler()

@@ -46,7 +46,7 @@ class Subscriber:
     cbUnsub: Callable
     cbError: Callable
 
-def _filterAndCall(toSend:dict, values:set, f:Callable):
+def _filterAndCall(toSend:dict, values:set, f:Callable, errorCb:Callable):
     s = {}
     for key in toSend:
         if key in values:
@@ -56,6 +56,7 @@ def _filterAndCall(toSend:dict, values:set, f:Callable):
     except Exception as e:
         print(f'SubLoop _filterAndCall Error: \n{e}')
         print(f"Trace:\n{traceback.format_exc()}")
+        errorCb(e)
     
 
 def _processSub(now:datetime, sub, subscribers, lastUpdates):
@@ -117,6 +118,6 @@ def _publishUpdates(now: datetime, subscribers, lastUpdates, toSend):
     for sub in subscribers:
         for name in sub.sourcesDict:
             if name in lastUpdates and lastUpdates[name]==now:
-                _filterAndCall(toSend, sub.values, sub.cb)
+                _filterAndCall(toSend, sub.values, sub.cb, sub.cbError)
                 break
 

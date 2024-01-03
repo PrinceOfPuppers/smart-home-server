@@ -43,6 +43,9 @@ createIfNotExists(macroFolder)
 remoteFolder = f'{storageFolder}/remotes'
 createIfNotExists(remoteFolder)
 
+lcdsFolder = f'{storageFolder}/lcds'
+createIfNotExists(lcdsFolder)
+
 # defaultRemoteFileA = f'{storageFolder}/remotes/A'
 # if not os.path.exists(defaultRemoteFileA):
 #     with open(defaultRemoteFileA,"w") as f:
@@ -152,8 +155,10 @@ googleExchangeRateDiv = re.compile(r"<div[^>]+data-exchange-rate\s?=\s?[\"\'](.*
 fakeUserAgentHeaders = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0"}
 
 lcdI2CAddress = 0x27
-lcdLines = 4
+maxLcdLines = 4  # max lines supported for all lcds
+localLcdLines = 4
 lcdWidth = 20
+lcdDefaultName = "New Lcd"
 
 dhtGpio = 22
 dhtGpioPwr = 18
@@ -188,6 +193,15 @@ outdoorWeatherServerIp = "192.168.2.151"
 indoorWeatherServerIp  = "192.168.2.152"
 printChamberWeatherServerIp  = "192.168.2.153"
 weatherServerPort = 6831
+
+
+#tcp
+tcpTimeout = 20
+lcdListenerPort = 6832
+
+# when should remote lcds attempt reconnect
+lcdDashReconnectTime = 20*60;
+
 
 WWO_CODE = {
     "113": "Sunny",

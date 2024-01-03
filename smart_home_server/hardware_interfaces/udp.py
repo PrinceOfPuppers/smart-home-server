@@ -1,18 +1,33 @@
 import socket
-from typing import Union
 
+from typing import Union
 from smart_home_server.errors import currentErrors
 import smart_home_server.constants as const
 from smart_home_server.hardware_interfaces import BMEData
 
+def udpErr(err):
+    if err:
+        currentErrors['UDP_Err'] += 1
+    else:
+        currentErrors['UDP_Err'] = 0
+
 def udpPromptRead(ip, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.connect((ip,port))
     sock.settimeout(const.udpTimeout)
-    # data sent is arbitrary
-    sock.sendto(b"1", (ip, port))
+    try:
+        # data sent is arbitrary
+        sock.send(b"1")
 
-    data, addr = sock.recvfrom(256)
-    return data.decode("utf-8")
+        data = sock.recv(256)
+        d = data.decode("utf-8")
+        udpErr(False)
+        return d
+    except:
+        udpErr(True)
+
+
+
 
 # weather server specific
 
@@ -40,3 +55,4 @@ def getWeatherServerData(ip:str) -> Union[BMEData, None]:
         _addError()
         val = None
     return val
+

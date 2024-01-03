@@ -7,9 +7,12 @@ currentErrors = {
     'Conseq_Scheduler_Err': 0,
 
     'Last_Job_Run_Err': '',
-    'Misc_Errs': [],              # for testing
+    'Misc_Errs': [],                  # for testing
     'Subscribe_Manager_None': set(),  # for when a datasource returns none in subscribe manager
-    'Dashboard_None': set()          # for when a datasource returns none on the dashboard
+    'Dashboard_None': set(),          # for when a datasource returns none on the dashboard
+
+    'UDP_Err': 0,
+    'TCP_Err': 0,
 }
 
 def getErrorStrAndBool():
@@ -26,6 +29,10 @@ def getErrorStrAndBool():
         s += f'LCD Write Err Chain: {currentErrors["Conseq_LCD_Write_Err"]}\n'
     if currentErrors['Conseq_Scheduler_Err'] > 0:
         s += f'Scheduler Err Chain: {currentErrors["Conseq_Scheduler_Err"]}\n'
+    if currentErrors['UDP_Err'] > 0:
+        s += f'UDP Err Chain: {currentErrors["UDP_Err"]}\n'
+    if currentErrors['TCP_Err'] > 0:
+        s += f'TCP Err Chain: {currentErrors["TCP_Err"]}\n'
 
     if currentErrors['Last_Job_Run_Err']:
         s += f"{currentErrors['Last_Job_Run_Err']}\n"

@@ -15,21 +15,19 @@ postRemoteSchema = \
     'additionalProperties': False,
 }
 
-
-postLCDSchema = \
+patchLcdSchema = \
 {
     "type": "object",
     "properties": {
-        "lines":      {
-            "type": "array",
-            "items": {"type": "string", "minLength": 0, "maxLength": 100},
-            "maxItems": const.lcdLines
-            }, # defaults to no change
-        "backlight":  {"type": "boolean"}
+        "num": { "type": "integer", "minimum": 0 },
+        "name": nameSchema, # defaults to no change
+        "fmt": {"type": "string", "minLength": 0, "maxLength": 200}, # defaults to no change
     },
-    "required": [],
+    "required": ["num"],
     'additionalProperties': False,
 }
+
+
 rebootSchema = \
 {
     "type": "object",
@@ -56,7 +54,7 @@ macroJobSchema = \
 
 _schemas = [
     ('press', postRemoteSchema),
-    ('lcd', postLCDSchema),
+    ('lcd',   patchLcdSchema),
     ('reboot', rebootSchema),
     ('update', updateSchema),
     ('macro', macroJobSchema),

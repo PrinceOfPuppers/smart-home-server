@@ -178,9 +178,10 @@
         <a href="/remote">Remote</a>
         <a href="/schedule">Schedule</a>
         <a href="/trigger">Trigger</a>
-        <a href="/notes">Notes</a>
-        <a class="active" href="/macros">Macros</a>
-    </div>
+        <a href="/notes">Note</a>
+        <a class="active" href="/macros">Macro</a>
+        <a href="/lcds">Lcd</a>
+    </div> 
 
     <h3>Current Macros:</h3>
         <ul>
@@ -211,7 +212,7 @@
                                 {% set data   = item['data'] %}
                                 <li class="macroItem" id="macro-item-{{ macroId }}-{{ itemId }}">
                                     {{ m.deleteButton( "macroItemDelete('api/macro/item', '%s', '%s')" % (macroId, itemId) ) }}
-                                    {{ m.jobRepr(type, data, macros, remotes, br=False, cursor=False) }}
+                                    {{ m.jobRepr(type, data, macros, remotes, lcds, br=False, cursor=False) }}
                                 </li>
                             {% endfor %}
 
@@ -273,7 +274,7 @@
 
             <br style="clear:both;" />
 
-            {{ m.jobFormDo(remotes, macros, includeDelay=True) }}
+            {{ m.jobFormDo(remotes, macros, lcds, includeDelay=True) }}
 
             <br style="clear:both;" />
 

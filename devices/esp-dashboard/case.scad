@@ -1,83 +1,94 @@
 include <../../../../openscad/libs/NopSCADlib/lib.scad>
 
-fanWidth = 40;
-fanBladeWidth = 38;
-fanHeight = 7.8;
-fanHoleWall = 1.9;
-m3Hole = 3.3;
-fanHoleOffset = m3Hole/2 + fanHoleWall;
 
-bbLength = 86;
-bbWidth = 46.5;
-bbMinHeight = 26;
-bbThickness = 9.6;
+/*
+--
+topBottomThickness
+--
+generalPadding
+--
+lcdTopPinHeight
+--
+lcdPCBThickness
+--
+lcdBottomClearance // not needed
+--
+generalPadding // not needed
+--
+espMinHeight
+-- 
+espPcbThickness
+--
+espBottomClearance
+--
+topBottomThickness
+-- 
+*/
 
-bbButtonX = 26;
-// relative to bottomLeft of bb
-bbButton1Y = 58.2;
-bbButton2Y = 76;
-bbButtonZ = 14.12;
 
-bbPadding = 5;
+generalPadding = 4;
 
-rpiLength = 85;
-rpiWidth = 56;
+espMinHeight = 20;
+espPCBThickness = 1.45;
+espLength = 48;
+espWidth = 25.7;
+espBottomClearance = 5;
 
-rpiHoleDiameter = 2.5;
-rpiHoleWall = 2.3;
-rpiMinHeight = 22;
-rpiStandoffHeight = 5;
-rpiPCBThickness = 1.5;
-// amount ports stick out
-rpiPortDepth = 3;
-rpiPortWidth = 32;
-rpiPortHeight = 15.6;
-usbcWidth = 15;
-usbcHeight = 9;
+espHoleDiameter = 2.7;
+espHoleWall = 0.8;
+
+m2Hole = 2.2;
+m3Hole = 3.4;
+m4Hole = 4.2;
+
+m4Hex = 7.7 + 0.45;
+m4HexDepth = 3.1;
+
+usbMicroWidth = 12;
+usbMicroHeight = 7;
+usbMicroY = 1.4; // from pcb
 
 lcdHoleDiameter = 3.37;
 lcdHoleWall = 1;
 lcdLength = 99;
 lcdWidth = 60;
-lcdStandoffHeight = 18; // min is 10
+lcdBottomClearance = 12.5;
+lcdStandoffHeight = espBottomClearance+espPCBThickness+espMinHeight/*+generalPadding+lcdBottomClearance */;
 lcdPCBThickness = 1.6;
 lcdTopPinHeight = 4.9; // pins coming up through the pcb
 lcdLeftClearance = 7.4; // i2c interface jumpers
+
+// must be larger than lcdTopPinHeight
+lcdTopStandoffHeight = 10;
 
 lcdScreenVertical = 40;
 lcdScreenHeight = 9.5;
 
 wallThickness_calc = 2.0;
 bottomTopThickness = 2.0;
-generalPadding = 4;
-paddingBack_calc         = lcdLength - rpiLength + bbWidth + generalPadding + bbPadding;
-paddingFront_calc        = rpiPortDepth - wallThickness_calc+1;
-paddingRight_calc        = lcdWidth + 3*generalPadding;
+paddingBack_calc         = generalPadding + lcdLeftClearance;
+paddingFront_calc        = generalPadding;
+paddingRight_calc        = generalPadding;
 paddingLeft_calc         = generalPadding;
 
-containerWidth = paddingBack_calc + rpiLength + paddingFront_calc;
-containerHeight = paddingLeft_calc + paddingRight_calc + rpiWidth;
-
-/*
-translate([wallThickness_calc,wallThickness_calc,bottomTopThickness]){
-    //cube([bbWidth, bbLength, bbMinHeight]);
-    translate([bbButtonX, bbButton1Y,0])
-        cylinder(d=3.6,h=bbButtonZ);
-    translate([bbButtonX, bbButton2Y,0])
-        cylinder(d=3.6,h=bbButtonZ);
-}
-*/
+containerWidth = paddingBack_calc + lcdLength + paddingFront_calc;
+containerHeight = paddingLeft_calc + lcdWidth + paddingRight_calc;
+containerVertical = lcdStandoffHeight + lcdPCBThickness + lcdTopStandoffHeight;
 
 
-piZero = [wallThickness_calc + paddingBack_calc, wallThickness_calc + paddingLeft_calc, bottomTopThickness];
 
-lcdZero = [containerWidth-lcdLength+wallThickness_calc - 4,
-           rpiWidth+wallThickness_calc+2 + 2*generalPadding,
-           bottomTopThickness];
-lcdRelZero = lcdZero - piZero;
+lcdZero = [wallThickness_calc + paddingBack_calc, wallThickness_calc + paddingLeft_calc, bottomTopThickness];
+lcdRelZero = [0,0,0];
 
-fanZero = [wallThickness_calc+generalPadding, wallThickness_calc + generalPadding,0];
-fanRelZero = fanZero - piZero;
+espZero = [
+    wallThickness_calc + paddingBack_calc + lcdLength - espLength - generalPadding, 
+    wallThickness_calc + paddingLeft_calc + lcdWidth/2 - espWidth/2,
+    bottomTopThickness
+];
+espRelZero = espZero - lcdZero;
+
+// distance from back
+MountHoleHeight = 1/3*containerVertical;
 
 /*
 translate([5.3,239.4,5]){
@@ -94,13 +105,16 @@ translate([5.3,239.4,5]){
     }
 }
 
+translate(espZero + [0,0,espBottomClearance]){
+    #cube([espLength, espWidth, espPCBThickness]);
+}
+
 translate(lcdZero){
-    #cube([lcdLength, lcdWidth, lcdStandoffHeight+lcdPCBThickness+lcdTopPinHeight]);
+    translate([0,0,lcdStandoffHeight])
+    #cube([lcdLength, lcdWidth, lcdPCBThickness+lcdTopPinHeight]);
     translate([0,lcdWidth/2-lcdScreenVertical/2,0])
         #cube([lcdLength, lcdScreenVertical, lcdStandoffHeight+lcdPCBThickness+lcdScreenHeight]);
 }
-translate(piZero + [rpiLength/2, rpiWidth/2 ,standoffHeight])
-    pcb(RPI4);
 */
 
 include <../../../../openscad/libs/YAPP_Box/library/YAPPgenerator_v21.scad>
@@ -139,9 +153,9 @@ printLidShell         = true;
 printSwitchExtenders  = true;
 
 //-- pcb dimensions -- very important!!!
-pcbLength           = rpiLength;
-pcbWidth            = rpiWidth;
-pcbThickness        = rpiPCBThickness;
+pcbLength           = lcdLength;
+pcbWidth            = lcdWidth;
+pcbThickness        = lcdPCBThickness;
                             
 //-- padding between pcb and inside wall
 paddingFront        = paddingFront_calc;
@@ -163,8 +177,8 @@ roundRadius         = 2.0;
 
 //-- How much the PCB needs to be raised from the base
 //-- to leave room for solderings and whatnot
-standoffHeight      = 5.0;  //-- only used for showPCB
-standoffPinDiameter = rpiHoleDiameter;
+standoffHeight      = 0.0;  //-- only used for showPCB
+standoffPinDiameter = lcdHoleDiameter;
 standoffHoleSlack   = 0.4;
 standoffDiameter    = 2*lcdHoleDiameter;
 
@@ -173,7 +187,7 @@ standoffDiameter    = 2*lcdHoleDiameter;
 //-- space between pcb and lidPlane :=
 //--      (bottonWallHeight+lidWallHeight) - (standoffHeight+pcbThickness)
 lidWallHeight       = 3;
-baseWallHeight      = bbMinHeight - 3 + generalPadding;
+baseWallHeight      = containerVertical - 3;
 
 //-- D E B U G -----------------//-> Default ---------
 showSideBySide      = true;     //-> true
@@ -207,18 +221,20 @@ inspectButtons      = 0;        //-> { -1 | 0 | 1 }
 // (n) = { yappAddFillet }
 
 pcbStands =    [
-                   // rpi
-                   [23.5, rpiHoleWall + standoffPinDiameter/2, standoffHeight, 0, yappBoth, yappFrontLeft], 
-                   [rpiHoleWall+standoffPinDiameter/2, rpiHoleWall+standoffPinDiameter/2, standoffHeight, 0, yappBoth, yappBackRight],
-
-                   [23.5, rpiHoleWall+standoffPinDiameter/2, standoffHeight, 0, yappBoth, yappFrontRight],
-                   [rpiHoleWall+standoffPinDiameter/2, rpiHoleWall+standoffPinDiameter/2, standoffHeight, 0, yappBoth, yappBackLeft],
-
                    // lcd
-                   [lcdRelZero[0] + lcdHoleDiameter/2 + lcdHoleWall, lcdRelZero[1] + lcdHoleDiameter/2+lcdHoleWall, lcdStandoffHeight, 0, yappBoth, yappBackLeft],
-                   [lcdRelZero[0] + lcdLength - lcdHoleDiameter/2-lcdHoleWall, lcdRelZero[1] + lcdHoleDiameter/2+lcdHoleWall, lcdStandoffHeight, 0, yappBoth, yappBackLeft],
-                   [lcdRelZero[0] + lcdLength - lcdHoleDiameter/2-lcdHoleWall, lcdRelZero[1] + lcdWidth - lcdHoleDiameter/2 - lcdHoleWall, lcdStandoffHeight, 0, yappBoth, yappBackLeft],
-                   [lcdRelZero[0] + lcdHoleDiameter/2+lcdHoleWall, lcdRelZero[1] + lcdWidth - lcdHoleDiameter/2 - lcdHoleWall, lcdStandoffHeight, 0, yappBoth, yappBackLeft],
+                   [lcdRelZero[0] + lcdHoleDiameter/2 + lcdHoleWall, lcdRelZero[1] + lcdHoleDiameter/2+lcdHoleWall, lcdStandoffHeight, 0, yappBoth, yappBackLeft, yappAddFillet],
+                   [lcdRelZero[0] + lcdLength - lcdHoleDiameter/2-lcdHoleWall, lcdRelZero[1] + lcdHoleDiameter/2+lcdHoleWall, lcdStandoffHeight, 0, yappBoth, yappBackLeft, yappAddFillet],
+                   [lcdRelZero[0] + lcdLength - lcdHoleDiameter/2-lcdHoleWall, lcdRelZero[1] + lcdWidth - lcdHoleDiameter/2 - lcdHoleWall, lcdStandoffHeight, 0, yappBoth, yappBackLeft, yappAddFillet],
+                   [lcdRelZero[0] + lcdHoleDiameter/2+lcdHoleWall, lcdRelZero[1] + lcdWidth - lcdHoleDiameter/2 - lcdHoleWall, lcdStandoffHeight, 0, yappBoth, yappBackLeft, yappAddFillet],
+
+                   // esp
+                   /*
+                   [espRelZero[0] + espHoleWall + espHoleDiameter/2, espRelZero[1] + espHoleWall + standoffPinDiameter/2, espBottomClearance, 2, yappBaseOnly, yappBackLeft, yappAddFillet], 
+                   [espRelZero[0] + espLength - espHoleWall - espHoleDiameter/2, espRelZero[1] + espHoleWall + standoffPinDiameter/2, espBottomClearance, 2, yappBaseOnly, yappBackLeft, yappAddFillet], 
+
+                   [espRelZero[0] + espHoleWall + espHoleDiameter/2, espRelZero[1] + espWidth - espHoleWall - standoffPinDiameter/2, espBottomClearance, 2, yappBaseOnly, yappBackLeft, yappAddFillet], 
+                   [espRelZero[0] + espLength - espHoleWall - espHoleDiameter/2, espRelZero[1] +espWidth - espHoleWall - standoffPinDiameter/2, espBottomClearance, 2, yappBaseOnly, yappBackLeft, yappAddFillet], 
+                   */
                ];
 
 //-- base plane    -- origin is pcb[0,0,0]
@@ -241,12 +257,6 @@ cutoutsBase =   [
 // (n) = { yappRectangle | yappCircle }
 // (n) = { yappCenter }
 cutoutsLid  =   [
-                    // fan screw holes
-                    [fanRelZero[0] + fanHoleOffset,            fanRelZero[1] + fanHoleOffset,            m3Hole, 0, 0, yappCircle],
-                    [fanRelZero[0] + fanHoleOffset,            fanRelZero[1] + fanWidth - fanHoleOffset, m3Hole, 0, 0, yappCircle],
-                    [fanRelZero[0] + fanWidth - fanHoleOffset, fanRelZero[1] + fanWidth - fanHoleOffset, m3Hole, 0, 0, yappCircle],
-                    [fanRelZero[0] + fanWidth - fanHoleOffset, fanRelZero[1] + fanHoleOffset,            m3Hole, 0, 0, yappCircle],
-
                     [lcdRelZero[0], lcdRelZero[1]+ lcdWidth/2 - lcdScreenVertical/2, lcdScreenVertical, lcdLength, 0, yappRectangle],
                 ];
 
@@ -266,18 +276,13 @@ cutoutsGrill = [
                    [fanRelZero[0]+1.5*fanHoleOffset, fanRelZero[1]+1.5*fanHoleOffset, fanWidth-3*fanHoleOffset, fanWidth-3*fanHoleOffset, 2, 1.4,  45, "lid", 
                    [for (a = [0 : 50]) 0.5*fanWidth*[ cos(a*360/50)+1/2, sin(a * 360 / 50)+1/2 ]]
                ]];
-*/
 cutoutsGrill = [
                    [
                        fanRelZero[0], fanRelZero[1], fanWidth, fanWidth, 3, 1.6,  45, "lid", 
                        [for (a = [0 : 50]) 0.5*fanBladeWidth*[ cos(a*360/50), sin(a * 360 / 50) ] + [fanWidth/2,fanWidth/2]]
                    ],
-                   /*
-                   [
-                       rpiLength-22, 0, rpiWidth, 20, 3, 1.6,  -45, "lid", 
-                   ]
-                   */
                 ];
+*/
 
 
 //-- front plane  -- origin is pcb[0,0,0]
@@ -289,10 +294,7 @@ cutoutsGrill = [
 // (n) = { yappRectangle | yappCircle }
 // (n) = { yappCenter }
 cutoutsFront =  [
-                    [1, -1.5, rpiPortWidth/2, rpiPortHeight+2.5, 0, yappRectangle],
-                    [rpiPortWidth/2+3, -1.5, rpiPortWidth/2, rpiPortHeight+2.5, 0, yappRectangle],
-
-                    [rpiPortWidth+5.3, -0.7, 17, 14.5, 0, yappRectangle],
+                    [containerHeight/2 - usbMicroWidth/2 + wallThickness_calc, 0.4 + espBottomClearance - usbMicroHeight/2 - usbMicroY, usbMicroWidth, usbMicroHeight, 0, yappRectangle, yappCenter],
                 ];
 
 //-- back plane  -- origin is pcb[0,0,0]
@@ -315,8 +317,6 @@ cutoutsBack =   [
 // (n) = { yappRectangle | yappCircle }
 // (n) = { yappCenter }
 cutoutsLeft =   [
-                    [11.2, 0.5, usbcWidth, usbcHeight, 0, yappRectangle, yappCenter],
-                    [39.7, 0.5, usbcWidth, usbcHeight, 0, yappRectangle, yappCenter]
                 ];
 
 //-- right plane   -- origin is pcb[0,0,0]
@@ -364,10 +364,10 @@ baseMounts   =  [
 // (n) = yappLeft / yappRight / yappFront / yappBack (one or more)
 // (n) = { yappSymmetric }
 snapJoins   =   [
-                  [(1*containerHeight/4), 5, yappBack, yappSymmetric],
-                  [(3*containerHeight/4), 5, yappFront, yappSymmetric],
+                  [(1*containerWidth/4), 5, yappLeft, yappSymmetric],
                   [(1*containerWidth/4), 5, yappRight, yappSymmetric],
-                  [(3*containerWidth/4), 5, yappLeft, yappSymmetric]
+                  [(containerHeight/2), 5, yappBack],
+                  [(containerHeight/2), 5, yappFront],
                 ];
                
 //-- pushButtons  -- origin is pcb[0,0,0]
@@ -381,9 +381,93 @@ snapJoins   =   [
 // (7) = poleDiameter
 // (n) = buttonType  {yappCircle|yappRectangle}
 pushButtons = [
-                [-piZero[0]+wallThickness_calc+bbButtonX, bbButton1Y-4, 8, 8, 3, bbButtonZ-rpiStandoffHeight-rpiPCBThickness-bottomTopThickness+0.5,   1, 3.5, yappCircle],
-                [-piZero[0]+wallThickness_calc+bbButtonX, bbButton2Y-4, 8, 8, 3, bbButtonZ-rpiStandoffHeight-rpiPCBThickness- bottomTopThickness+0.5,   1, 3.5, yappCircle],
               ];     
 
 
-YAPPgenerate();
+module case(){
+    espLegWidth = espHoleDiameter + 2*espHoleWall;
+    difference(){
+        union(){
+            YAPPgenerate();
+
+            // esp legs
+            translate(espZero - [0,0,bottomTopThickness]){
+                cube([espLegWidth, espLegWidth, espBottomClearance + bottomTopThickness]);
+                translate([espLength - espLegWidth,0,0])
+                    cube([espLegWidth, espLegWidth, espBottomClearance + bottomTopThickness]);
+                translate([espLength - espLegWidth,espWidth - espLegWidth,0])
+                    cube([espLegWidth, espLegWidth, espBottomClearance + bottomTopThickness]);
+
+                translate([0,espWidth - espLegWidth,0])
+                    cube([espLegWidth, espLegWidth, espBottomClearance + bottomTopThickness]);
+            }
+            // mountBlocks
+            translate([wallThickness_calc, wallThickness_calc, bottomTopThickness])
+                cube([standoffDiameter + paddingBack_calc + m4HexDepth, standoffDiameter+paddingLeft_calc, MountHoleHeight + m4Hole]);
+            translate([wallThickness_calc+containerWidth - paddingFront_calc - standoffDiameter-m4HexDepth, wallThickness_calc, bottomTopThickness])
+                cube([standoffDiameter + paddingFront_calc + m4HexDepth, standoffDiameter+paddingLeft_calc, MountHoleHeight + m4Hole]);
+
+        } // end union
+
+        // holes in case
+
+        // espHoles
+        translate(espZero + [0,0,-1 - bottomTopThickness]){
+            holeOffset = espHoleWall + espHoleDiameter/2;
+            translate([holeOffset, holeOffset,0])
+                cylinder(d = m2Hole, h = espBottomClearance + bottomTopThickness + 2);
+
+            translate([espLength-holeOffset, holeOffset,0])
+                cylinder(d = m2Hole, h = espBottomClearance + bottomTopThickness + 2);
+
+            translate([espLength-holeOffset, espWidth - holeOffset,0])
+                cylinder(d = m2Hole, h = espBottomClearance + bottomTopThickness + 2);
+
+            translate([holeOffset, espWidth - holeOffset,0])
+                cylinder(d = m2Hole, h = espBottomClearance + bottomTopThickness + 2);
+        }
+
+        // mount Holes
+        translate([-2,standoffDiameter,MountHoleHeight]) rotate([0,90,0])
+            cylinder(d = m4Hole, h =containerWidth + 2*wallThickness_calc + 4);
+
+        translate([standoffDiameter+paddingBack_calc+wallThickness_calc, standoffDiameter, MountHoleHeight]) rotate([0,90,0])
+            cylinder($fn = 6, h = containerWidth-2*standoffDiameter-paddingBack_calc-paddingFront_calc, d = m4Hex,  center = false);
+
+    }
+}
+
+module mount(){
+    caseExternalWidth = 2*wallThickness_calc + containerWidth;
+    caseExternalHeight = containerVertical + 2*bottomTopThickness;
+    mt = 2*wallThickness_calc;
+    md = 1.7*caseExternalHeight;
+    baseWidth = caseExternalWidth + 2*mt+0.2;
+
+    holeHeight = 1*sqrt(MountHoleHeight^2 + standoffDiameter^2);
+
+    cube([baseWidth,md,mt]);
+
+    difference(){
+        union(){
+            translate([0, caseExternalHeight - MountHoleHeight,0]) {
+                translate([0,-3*m4Hole/2,0])
+                    cube([baseWidth, 3*m4Hole, holeHeight + mt]);
+                translate([0,0,holeHeight+mt]) rotate([0,90,0])
+                    cylinder(d = 3*m4Hole, h = baseWidth);
+            }
+        }
+
+        translate([mt,0,0]){
+            cube([baseWidth - 2*mt, md, caseExternalHeight]);
+        }
+        translate([-1,caseExternalHeight - MountHoleHeight,holeHeight+mt]) rotate([0,90,0])
+            cylinder(d = m4Hole, h = baseWidth + 2);
+    }
+}
+
+
+case();
+translate([-2*wallThickness_calc,-90,0])
+mount();
+

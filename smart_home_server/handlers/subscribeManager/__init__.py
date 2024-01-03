@@ -83,3 +83,4 @@ def subscribe(values, cb, cbUnsub, cbError):
     values = {value for value in values if value in dataSourceValues}
     sourcesDict = getSourceDict(values)
     _subManagerJobQueue.put(Subscriber(sourcesDict, values, cb, cbUnsub, cbError))
+

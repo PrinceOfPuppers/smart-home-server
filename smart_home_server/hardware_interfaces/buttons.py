@@ -13,7 +13,7 @@ if const.isRpi():
 
     _callback = _defaultCallback
     _lastCalled = {}
-    
+
     def _target(pin, _, __):
         global _callback
         global _lastCalled
