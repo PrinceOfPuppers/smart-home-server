@@ -188,7 +188,7 @@ buttonMacroAddDebounceTime = 1
 
 
 #udp
-udpTimeout = 5
+udpTimeout = 2
 outdoorWeatherServerIp = "192.168.2.151"
 indoorWeatherServerIp  = "192.168.2.152"
 printChamberWeatherServerIp  = "192.168.2.153"

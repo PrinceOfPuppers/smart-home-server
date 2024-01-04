@@ -42,7 +42,11 @@ def _clearError():
 
 def getWeatherServerData(ip:str) -> Union[BMEData, None]:
     try:
-        res = udpPromptRead(ip, const.weatherServerPort)
+        res = None
+        i = 0
+        while res is None and i < 3:
+            res = udpPromptRead(ip, const.weatherServerPort)
+            i+=1
         t, h, p = res.split(',')
         val = BMEData(
                 temp     = round(float(t),2),     # in C
