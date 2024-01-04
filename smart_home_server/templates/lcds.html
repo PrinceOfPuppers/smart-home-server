@@ -8,7 +8,6 @@
 <html>
 <script>
     {{ m.lcdFmtCheatSheet(values) }}
-
     function newLcd(){
        const numElement = document.getElementById(`lcd-new-num`);
        const nameElement = document.getElementById(`lcd-new-name`);
@@ -29,31 +28,36 @@
            'fmt': fmt,
        };
        sendData('/api/lcd', data, 'POST', reload=true);
-   }
-   function saveLcd(num){
-       const nameElement = document.getElementById(`lcd-name-${num}`);
-       const fmtElement = document.getElementById(`lcd-fmt-${num}`);
-       const saveButtonElement = document.getElementById(`lcd-edit-${num}`);
+    }
+    function saveLcd(num){
+        const nameElement = document.getElementById(`lcd-name-${num}`);
+        const fmtElement = document.getElementById(`lcd-fmt-${num}`);
+        const saveButtonElement = document.getElementById(`lcd-edit-${num}`);
 
-       const name = nameElement.textContent;
-       const fmt = fmtElement.innerHTML.replace(/<br>/g, "\n");
-        var data = {
-           'num': num,
-           'name': name,
-           'fmt': fmt,
-       };
-       sendData('/api/lcd', data, 'PATCH').then((success)=>{
-            if(success){
-               tempChangeButton(saveButtonElement, "Saved!");
-           }
-       });
-   }
-   function deleteLcd(num){
-       const element = document.getElementById(`lcd-element-${num}`);
-       var data = {'num': num};
-       sendData('/api/lcd', data, 'DELETE')
-           .then((success)=>{element.remove()});
-   }
+        const name = nameElement.textContent;
+        const fmt = fmtElement.innerHTML.replace(/<br>/g, "\n");
+         var data = {
+            'num': num,
+            'name': name,
+            'fmt': fmt,
+        };
+        sendData('/api/lcd', data, 'PATCH').then((success)=>{
+             if(success){
+                tempChangeButton(saveButtonElement, "Saved!");
+            }
+        });
+    }
+    function deleteLcd(num){
+        const element = document.getElementById(`lcd-element-${num}`);
+        var data = {'num': num};
+        sendData('/api/lcd', data, 'DELETE')
+            .then((success)=>{element.remove()});
+    }
+    function toggleLcd(num){
+        var data = {'num': num, 'backlight': 'toggle'};
+        sendData('/api/lcd', data, 'PATCH');
+    }
+
 </script>
 
 <body>
@@ -76,7 +80,8 @@
                 <span class="buttonBar">
                     {{ m.deleteButton( "deleteLcd(%s)" % (num) ) }}
                     <span id="lcd-name-{{ num }}" class="entry" contentEditable="true" spellcheck="false">{{ name }}</span>
-                    <span id="lcd-num-{{ num }}" class="entry" contentEditable="false" spellcheck="false">{{ num }}</span>
+                    <!-- <span id="lcd-num-{{ num }}" class="entry" contentEditable="false" spellcheck="false">{{ num }}</span> -->
+                    <button id="lcd-num-{{ num }}" class="grayButton" onclick="toggleLcd({{ num }})">{{ num }}</button>
                     <button id="lcd-edit-{{ num }}" class="greenButton" onclick="saveLcd({{ num }})">Save</button>
                 </span>
                 <p id="lcd-fmt-{{ num }}" contentEditable="true" spellcheck="false">{{ fmt }}</p>

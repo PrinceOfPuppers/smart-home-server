@@ -22,6 +22,7 @@ patchLcdSchema = \
         "num": { "type": "integer", "minimum": 0 },
         "name": nameSchema, # defaults to no change
         "fmt": {"type": "string", "minLength": 0, "maxLength": 200}, # defaults to no change
+        "backlight": {"enum": ["toggle", "on", "off"]}, #defaults to no change
     },
     "required": ["num"],
     'additionalProperties': False,

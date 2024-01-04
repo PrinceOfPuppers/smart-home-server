@@ -331,3 +331,9 @@
   display: inline;
   color: var(--lightGrey);
 }
+
+.formRadioButtonLabel {
+    display:inline-block;
+    margin-top:5pt;
+    width:35pt;
+}

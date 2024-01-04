@@ -4,7 +4,7 @@ from datetime import datetime
 import socket
 
 import smart_home_server.constants as const
-from smart_home_server.handlers.lcd.helpers import _startLcd, _stopLcd, _overwriteLcd, _getLcd, _getLcds, _deleteLcd, _saveLcd, LcdAlreadyExists, LcdDoesNotExist, _disconnectAllLcds
+from smart_home_server.handlers.lcd.helpers import _startLcd, _stopLcd, _overwriteLcd, _getLcd, _getLcds, _deleteLcd, _saveLcd, LcdAlreadyExists, LcdDoesNotExist, _disconnectAllLcds, _setBacklight, _toggleBacklight
 from smart_home_server.hardware_interfaces.tcp import tcpListener, tcpRecievePacket
 
 
@@ -20,8 +20,20 @@ def startLcd(num:int, c:Union[socket.socket, None] = None):
         _startLcd(num, c)
 
 def overwriteLcd(num:int, data:dict):
+    data["num"] = num
+
     with lcdLock:
-        lcd = _getLcd(data["num"])
+        if "backlight" in data:
+            if data["backlight"] == "toggle":
+                _toggleBacklight(num)
+            else:
+                _setBacklight(num, data["backlight"] == "on")
+
+        # early exit
+        if "name" not in data and "fmt" not in data:
+            return
+
+        lcd = _getLcd(num)
 
         # if name or fmt not included, leave them unchanged
         if "name" not in data:
@@ -49,6 +61,13 @@ def deleteLcd(num:int):
     with lcdLock:
         _deleteLcd(num, restart = True)
 
+def setBacklight(num: int, on: bool):
+    with lcdLock:
+        _setBacklight(num, on)
+
+def toggleBacklight(num):
+    with lcdLock:
+        _toggleBacklight(num)
 
 ###################
 # listener target #

@@ -7,7 +7,7 @@ import socket
 from threading import Lock
 
 from smart_home_server.errors import currentErrors
-from smart_home_server.hardware_interfaces.lcd import writeLCD
+from smart_home_server.hardware_interfaces.lcd import writeLCD, setBacklight, toggleBacklight
 from smart_home_server.hardware_interfaces.tcp import tcpSendPacket, disconnectSocket
 import smart_home_server.constants as const
 from smart_home_server.handlers.subscribeManager import subscribe
@@ -299,4 +299,20 @@ def _deleteLcd(num: int, restart = False):
 def _overwriteLcd(num:int, newLcd:dict):
     _deleteLcd(num)
     return _saveLcd(num, newLcd)
+
+def _setBacklight(num:int, on:bool):
+    if num==0:
+        setBacklight(on)
+        return
+    with _activeLcdsLock:
+        if num in _activeLcds:
+            tcpSendPacket(_activeLcds[num].c, const.lcdCmdEscapeChar + "l" + ("1" if on else "0"))
+
+def _toggleBacklight(num:int):
+    if num==0:
+        toggleBacklight()
+        return
+    with _activeLcdsLock:
+        if num in _activeLcds:
+            tcpSendPacket(_activeLcds[num].c, const.lcdCmdEscapeChar + "lt")
 

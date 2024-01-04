@@ -27,10 +27,21 @@
 
 static LiquidCrystal_I2C lcd(LCD_ADDR,LCD_WIDTH, LCD_LINES);
 
+static bool _lcd_backlight_on = false;
+void lcd_set_backlight(bool on){
+   lcd.setBacklight(on);
+   _lcd_backlight_on = on;
+}
+
+void lcd_toggle_backlight(){
+   _lcd_backlight_on = !_lcd_backlight_on;
+   lcd.setBacklight(_lcd_backlight_on);
+}
+
 void setup_lcd(){
-  lcd.init();
-  lcd.backlight();
-  lcd.setCursor(0,0);
+    lcd.init();
+    lcd_set_backlight(1);
+    lcd.setCursor(0,0);
 }
 
 void write_lcd(const String &s){
@@ -161,12 +172,38 @@ void connect_server(uint8_t lcdNum){
     send_packet_tcp(lcdNumStr);
 }
 
+#define CMD_ESC_CHAR 0x1b
+#define SET_BACKLIGHT_CHAR 'l'
+
+void lcd_cmd(String s){
+    size_t len = s.length();
+    if(len < 3 || s[0] != CMD_ESC_CHAR){
+        write_lcd(s);
+        return;
+    }
+
+    // len is 3 or more
+    switch(s[1]){
+        case SET_BACKLIGHT_CHAR:
+        {
+            if(s[2] == 't'){
+                lcd_toggle_backlight();
+                break;
+            }
+            lcd_set_backlight(s[2] == '1');
+            break;
+        }
+
+    }
+
+}
+
 // blocks until connection is lost
 void listen_for_updates(){
 
     while(client.connected()){
         if(client.available()){
-            write_lcd(get_packet_tcp());
+            lcd_cmd(get_packet_tcp());
         }
         delay(1);
     }

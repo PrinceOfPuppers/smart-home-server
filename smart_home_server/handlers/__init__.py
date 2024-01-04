@@ -36,6 +36,8 @@ def validateDo(do:dict):
                 getLcd(num)
             except LcdDoesNotExist:
                 return f"Lcd: {data['num']} Does Not Exist"
+            if 'backlight' in data and data['backlight'] not in ["toggle", "on", "off"]:
+                return f"Unknown Lcd Backlight Command: {data['backlight']}"
             return ""
         elif type == 'delay':
             return ""

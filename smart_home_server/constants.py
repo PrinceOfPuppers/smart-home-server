@@ -198,6 +198,7 @@ weatherServerPort = 6831
 #tcp
 tcpTimeout = 20
 lcdListenerPort = 6832
+lcdCmdEscapeChar = "\x1b"
 
 # when should remote lcds attempt reconnect
 lcdDashReconnectTime = 20*60;

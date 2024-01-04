@@ -48,7 +48,26 @@
         </div>
 
         <div id="lcdDiv" class="formDiv">
-            <button type="button" id="lcdHelp" class="whiteButton" onclick="lcdFmtCheatSheet()">?</button>
+            <button type="button" id="lcdHelp" class="whiteButton" onclick="lcdFmtCheatSheet()">Cheat Sheet</button>
+        </div>
+
+        <div id="lcdBr" class="clear"></div>
+        <div id="lcdDiv" class="formDiv">
+            <label for="lcdBacklight" id="lcdBacklight">Backlight:</label>
+
+            <label for="lcdBacklight" class="formRadioButtonLabel">
+                <input type="radio" id="lcdBacklight" name="lcdBacklight" value="same" checked>Same
+            </label>
+            <label for="lcdBacklight" class="formRadioButtonLabel">
+                <input type="radio" id="lcdBacklight" name="lcdBacklight" value="on">On
+            </label>
+            <label for="lcdBacklight" class="formRadioButtonLabel">
+                <input type="radio" id="lcdBacklight" name="lcdBacklight" value="off">Off
+            </label>
+            <label for="lcdBacklight" class="formRadioButtonLabel">
+                <input type="radio" id="lcdBacklight" name="lcdBacklight" value="toggle">Toggle
+            </label>
+
         </div>
 
         <div id="lcdBr" class="clear"></div>
@@ -131,6 +150,11 @@
             <span class="nobr">Update LCD {{ data['num'] }}: DELETED! </span>
         {% else %}
             <span class="nobr">Update LCD {{ data['num'] }}: {{ match[0]['name'] }}</span>
+        {% endif %}
+
+        {% if 'backlight' in data %}
+        <br/>
+            <span class="nobr">→ Backlight: {{data['backlight']}}</span>
         {% endif %}
 
         {% if 'name' in data %}
