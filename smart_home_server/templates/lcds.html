@@ -73,13 +73,14 @@
 
     <div class="dashboardList">
         {% for lcd in lcds %}
-            {% set num  = lcd['num'] %}
-            {% set name = lcd['name'] %}
-            {% set fmt  = lcd['fmt'] %}
+            {% set num     = lcd['num'] %}
+            {% set name    = lcd['name'] %}
+            {% set fmt     = lcd['fmt'] %}
+            {% set class   = "yellow entry" if lcd['active'] else "entry" %}
             <div id="lcd-element-{{ num }}">
                 <span class="buttonBar">
                     {{ m.deleteButton( "deleteLcd(%s)" % (num) ) }}
-                    <span id="lcd-name-{{ num }}" class="entry" contentEditable="true" spellcheck="false">{{ name }}</span>
+                    <span id="lcd-name-{{ num }}" class="{{ class }}" contentEditable="true" spellcheck="false">{{ name }}</span>
                     <!-- <span id="lcd-num-{{ num }}" class="entry" contentEditable="false" spellcheck="false">{{ num }}</span> -->
                     <button id="lcd-num-{{ num }}" class="grayButton" onclick="toggleLcd({{ num }})">{{ num }}</button>
                     <button id="lcd-edit-{{ num }}" class="greenButton" onclick="saveLcd({{ num }})">Save</button>

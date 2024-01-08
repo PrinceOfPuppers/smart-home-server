@@ -53,9 +53,9 @@ def getLcd(num:int)->dict:
     with lcdLock:
         return _getLcd(num)
 
-def getLcds()->list[dict]:
+def getLcds(tagActive=False)->list[dict]:
     with lcdLock:
-        return _getLcds()
+        return _getLcds(tagActive)
 
 def deleteLcd(num:int):
     with lcdLock:

@@ -105,7 +105,7 @@ def macrosGet():
 
 @app.route('/lcds')
 def lcdsGet():
-    lcds = getLcds()
+    lcds = getLcds(tagActive=True)
     lcds.sort(key=lambda element: element['num'])
     return render_template('lcds.html', lcds=lcds, values=values)
 

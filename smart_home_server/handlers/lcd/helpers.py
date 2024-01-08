@@ -81,6 +81,20 @@ _activeLcdsLock = Lock()
 
 _lcdCache = {}
 
+def _lcdActive(num, lock=True):
+    global _activeLcds
+    if lock:
+        _activeLcdsLock.acquire()
+    try:
+
+        if num in _activeLcds and _activeLcds[num].c is not None:
+            return True
+        return False
+
+    finally:
+        if lock:
+            _activeLcdsLock.release()
+
 def writeLcdRemote(num, c, lines, lock=True):
     global _activeLcds
     s = "\n".join(lines)
@@ -114,7 +128,7 @@ def _getLcd(num:int):
     _lcdCache[num] = j
     return j
 
-def _getLcds():
+def _getLcds(tagActive=False):
     dir = os.listdir(const.lcdsFolder)
     lcds = []
 
@@ -131,7 +145,8 @@ def _getLcds():
             lcd = _getLcd(num)
         except:
             continue
-
+        if tagActive:
+            lcd["active"] = True if num == 0 else _lcdActive(num)
         lcds.append(lcd)
 
     return lcds
@@ -157,7 +172,6 @@ def _disconnectLcd(num, c: Union[socket.socket,None] = None, lock = True):
         _activeLcdsLock.acquire()
     try:
         if num in _activeLcds:
-
             if c is not None and _activeLcds[num].c != c:
                 pass # we are dealing with an old connection, no longer in _activeLcds
             else:
@@ -165,6 +179,7 @@ def _disconnectLcd(num, c: Union[socket.socket,None] = None, lock = True):
                 _activeLcds[num].seq += 1
                 if _activeLcds[num].c is not None:
                     disconnectSocket(_activeLcds[num].c)
+                _activeLcds[num].c = None
 
     finally:
         if lock:

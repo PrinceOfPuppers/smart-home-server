@@ -331,6 +331,10 @@
   display: inline;
   color: var(--lightGrey);
 }
+.yellow{
+    border: 2pt solid var(--yellow);
+    color: var(--yellow)
+}
 
 .formRadioButtonLabel {
     display:inline-block;
