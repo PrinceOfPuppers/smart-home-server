@@ -5,6 +5,8 @@
 
 #include "network-info.h"
 
+#define WATCHDOG_INTERVAL 5000
+
 #define SERIAL_BAUD 115200
 
 // #define DEBUG_ENABLED
@@ -42,6 +44,7 @@ void setup_lcd(){
     lcd.init();
     lcd_set_backlight(1);
     lcd.setCursor(0,0);
+    feed_watchdog();
 }
 
 void write_lcd(const String &s){
@@ -87,6 +90,7 @@ void getLCDNum(){
     lcdNum+=1;
 
     write_lcd("LCD Number: " + String(lcdNum));
+    feed_watchdog();
     delay(1000);
 
     // disable pullups
@@ -105,11 +109,17 @@ static String localIP;
 #define PORT 6832
 
 WiFiClient client;
+#define KEEPALIVE_IDLE_SEC          10*60
+#define KEEPALIVE_INTERVAL_SEC      10
+#define KEEPALIVE_COUNT             5
+
 
 // does not include delimiter \0, extra LCD_LINES if for newlines
 #define MAX_PACKET_LEN LCD_WIDTH*LCD_LINES + LCD_LINES
 
 char incomingPacket[MAX_PACKET_LEN + 1];
+
+WiFiEventHandler wifi_disconnect_handler;
 
 void send_packet_tcp(String s){
     client.print(s);
@@ -142,16 +152,24 @@ String get_packet_tcp(){
     return String(incomingPacket);
 }
 
+void wifi_disconnect_cb(const WiFiEventStationModeDisconnected& event) {
+    ESP.restart();
+}
+
 void setup_tcp(){
+    wifi_disconnect_handler = WiFi.onStationModeDisconnected(wifi_disconnect_cb);
+
     WiFi.begin(NETWORK_NAME, NETWORK_PASS);
 
     write_lcd("Connecting Wifi...");
     while (WiFi.status() != WL_CONNECTED) {
+        feed_watchdog();
         delay(500);
     }
 
     localIP = WiFi.localIP().toString();
 }
+
 
 // blocks until connection is established
 void connect_server(uint8_t lcdNum){
@@ -159,6 +177,7 @@ void connect_server(uint8_t lcdNum){
     String lcdNumStr = String(lcdNum);
 
     while(1){
+        feed_watchdog();
         write_lcd("Conn Attempt: " + String(attempt) + "\nL: " + localIP + "\nR: " + SERVER_IP "\nLCD Num: " + lcdNumStr);
         if(client.connect(server_ip, PORT)){
             break;
@@ -169,6 +188,9 @@ void connect_server(uint8_t lcdNum){
     }
     write_lcd("Connected!");
 
+    client.keepAlive(KEEPALIVE_IDLE_SEC, KEEPALIVE_INTERVAL_SEC, KEEPALIVE_COUNT);
+
+    feed_watchdog();
     send_packet_tcp(lcdNumStr);
 }
 
@@ -202,6 +224,7 @@ void lcd_cmd(String s){
 void listen_for_updates(){
 
     while(client.connected()){
+        feed_watchdog();
         if(client.available()){
             lcd_cmd(get_packet_tcp());
         }
@@ -211,7 +234,8 @@ void listen_for_updates(){
     client.stop();
 
     write_lcd("Server Lost!");
-    delay(5000);
+    feed_watchdog();
+    delay(3000);
 }
 
 
@@ -223,6 +247,7 @@ void setup(){
     Serial.begin(SERIAL_BAUD);
     while(!Serial) {}
 #endif
+    setup_watchdog(WATCHDOG_INTERVAL);
     setup_lcd();
     setup_tcp();
     getLCDNum();
@@ -231,6 +256,7 @@ void setup(){
 void loop(){
     connect_server(lcdNum);
     listen_for_updates();
+    feed_watchdog();
 }
 
 
