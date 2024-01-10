@@ -81,7 +81,10 @@ unsigned int localudpPort = 6831;
 char incomingPacket[256];
 char replyPacket[256];
 
+#define HOST_NAME "esp-weather-station"
+
 void setup_udp(){
+    WiFi.hostname(HOST_NAME);
     WiFi.begin(NETWORK_NAME, NETWORK_PASS);
 
     debug("Connecting");

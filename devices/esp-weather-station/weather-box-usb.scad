@@ -9,8 +9,12 @@ espHoleWall = 0.8;
 espMinHeight = 20;
 espPCBThickness = 1.45;
 
-dupont6Width = 15.4;
+dupont4Width = 10.4;
 dupont1Height = 2.76;
+
+usbMicroWidth = 12;
+usbMicroHeight = 7;
+usbMicroY = 1.4; // from pcb
 
 wallThickness_calc = 2.0;
 bottomTopThickness = 2.0;
@@ -194,7 +198,7 @@ cutoutsGrill = [];
 // (n) = { yappRectangle | yappCircle }
 // (n) = { yappCenter }
 cutoutsFront =  [
-                    [espWidth/2, 0, dupont6Width, dupont1Height, 0, yappRectangle, yappCenter],
+                    [containerHeight/2+wallThickness/2-dupont4Width/2, 0, dupont4Width, dupont1Height, 0, yappRectangle, yappCenter],
                 ];
 //-- origin of labels is box [0,0,0]
 // (0) = posx
@@ -206,9 +210,7 @@ cutoutsFront =  [
 // (6) = size
 // (7) = "label text"
 labelsPlane = [
-               [ containerHeight/2 - dupont6Width/2 + 0.9, standoffHeight+dupont1Height+pcbThickness+5/2,   0, 1, "front", "Liberation Mono:style", 5, "+" ],
-               [ containerHeight/2 - dupont6Width/2 +4.1, standoffHeight+dupont1Height+pcbThickness+5/2+0.37,   0, 1, "front", "Liberation Mono:style", 5, "-" ],
-               [ containerHeight/2 + 2.5, standoffHeight+dupont1Height+pcbThickness+5/2+0.35,   0, 1, "front", "Liberation Mono:style", 4, "▲" ],
+               [ containerHeight/2, standoffHeight+dupont1Height+pcbThickness+5/2+0.35,   0, 1, "front", "Liberation Mono:style", 4, "▲" ],
               ];
 //-- back plane  -- origin is pcb[0,0,0]
 // (0) = posy
@@ -219,6 +221,7 @@ labelsPlane = [
 // (n) = { yappRectangle | yappCircle }
 // (n) = { yappCenter }
 cutoutsBack =   [
+                    [containerHeight/2 - dupont4Width/2 + wallThickness/2, usbMicroY, usbMicroWidth, usbMicroHeight, 0, yappRectangle, yappCenter],
                 ];
 
 //-- left plane   -- origin is pcb[0,0,0]
