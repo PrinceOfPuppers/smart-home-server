@@ -221,7 +221,7 @@ labelsPlane = [
 // (n) = { yappRectangle | yappCircle }
 // (n) = { yappCenter }
 cutoutsBack =   [
-                    [containerHeight/2 - dupont4Width/2 + wallThickness/2, usbMicroY, usbMicroWidth, usbMicroHeight, 0, yappRectangle, yappCenter],
+                    [containerHeight/2 - usbMicroWidth/2 + wallThickness, -espPCBThickness-usbMicroY, usbMicroWidth, usbMicroHeight, 0, yappRectangle, yappCenter],
                 ];
 
 //-- left plane   -- origin is pcb[0,0,0]
