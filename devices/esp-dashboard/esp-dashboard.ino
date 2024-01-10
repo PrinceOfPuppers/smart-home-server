@@ -108,6 +108,8 @@ const String server_ip = SERVER_IP;
 static String localIP;
 #define PORT 6832
 
+#define HOST_NAME "esp-dashboard"
+
 WiFiClient client;
 #define KEEPALIVE_IDLE_SEC          10*60
 #define KEEPALIVE_INTERVAL_SEC      10
@@ -157,6 +159,7 @@ void wifi_disconnect_cb(const WiFiEventStationModeDisconnected& event) {
 }
 
 void setup_tcp(){
+    WiFi.hostname(HOST_NAME);
     wifi_disconnect_handler = WiFi.onStationModeDisconnected(wifi_disconnect_cb);
 
     WiFi.begin(NETWORK_NAME, NETWORK_PASS);
