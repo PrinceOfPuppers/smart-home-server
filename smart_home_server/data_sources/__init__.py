@@ -371,7 +371,7 @@ dataSources = [
     },
     {
         'name': 'Outdoor',
-        'color': 'yellow',
+        'color': 'purple',
         'url': f'/api/data/temp-humid/outdoor',
         'local': lambda: cached(getWeatherServerLocal,(3*60)//2, ip = const.outdoorWeatherServerIp),
         'pollingPeriod': 3*60,
@@ -397,7 +397,7 @@ dataSources = [
     },
     {
         'name': 'Printer',
-        'color': 'gray',
+        'color': 'red',
         'url': f'/api/data/temp-humid/printer',
         'local': lambda: cached(getWeatherServerLocal,(60)//2, ip=const.printChamberWeatherServerIp),
         'pollingPeriod': 60,
@@ -416,6 +416,32 @@ dataSources = [
                 'enabled': True,
             },
             'printerPressure': {
+                'dataPath': ['data', 'pressure'],
+                'enabled': False,
+            }
+        }
+    },
+    {
+        'name': 'Office',
+        'color': 'yellow',
+        'url': f'/api/data/temp-humid/office',
+        'local': lambda: cached(getWeatherServerLocal,(60)//2, ip=const.officeChamberWeatherServerIp),
+        'pollingPeriod': 60,
+
+        'dashboard':{
+            'enabled': True,
+        },
+
+        'values': {
+            'officeTemp': {
+                'dataPath': ['data', 'temp'],
+                'enabled': True,
+            },
+            'officeHumid': {
+                'dataPath': ['data', 'humid'],
+                'enabled': True,
+            },
+            'officePressure': {
                 'dataPath': ['data', 'pressure'],
                 'enabled': False,
             }

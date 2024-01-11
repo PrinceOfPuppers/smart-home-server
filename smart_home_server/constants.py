@@ -192,6 +192,7 @@ udpTimeout = 2
 outdoorWeatherServerIp = "192.168.2.151"
 indoorWeatherServerIp  = "192.168.2.152"
 printChamberWeatherServerIp  = "192.168.2.153"
+officeChamberWeatherServerIp  = "192.168.2.159"
 weatherServerPort = 6831
 
 

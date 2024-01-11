@@ -105,7 +105,7 @@ roundRadius         = 2.0;
 
 //-- How much the PCB needs to be raised from the base
 //-- to leave room for solderings and whatnot
-standoffHeight      = 4.0;  //-- only used for showPCB
+standoffHeight      = 5.0;  //-- only used for showPCB
 standoffPinDiameter = espHoleDiameter;
 standoffHoleSlack   = 0.4;
 standoffDiameter    = 4;
@@ -221,7 +221,7 @@ labelsPlane = [
 // (n) = { yappRectangle | yappCircle }
 // (n) = { yappCenter }
 cutoutsBack =   [
-                    [containerHeight/2 - usbMicroWidth/2 + wallThickness, -espPCBThickness-usbMicroY, usbMicroWidth, usbMicroHeight, 0, yappRectangle, yappCenter],
+                    [containerHeight/2 - usbMicroWidth + wallThickness, -usbMicroHeight/2-espPCBThickness-usbMicroY, usbMicroWidth, usbMicroHeight, 0, yappRectangle],
                 ];
 
 //-- left plane   -- origin is pcb[0,0,0]
