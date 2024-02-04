@@ -2,24 +2,57 @@
 
 #define RX1 5
 #define TX1 18
+#define PMS_SLEEP_MS 30*1000
 
 PMS pms(Serial1);
 PMS::DATA data;
 
+static uint32_t lastWakeMs = 0;
+static bool sleeping = false;
+
+int wakeup_pms(){
+    pms.wakeUp();
+    lastWakeMs = millis();
+}
+
+int _sleep_pms(){
+    pms.sleep();
+    sleeping = true;
+}
+
 void setup_pms()
 {
-  Serial1.begin(9600, SERIAL_8N1, RX1, TX1);
-  debugln("Setup PMS Complete!");
+    Serial1.begin(9600, SERIAL_8N1, RX1, TX1);
+    pms.passiveMode();    // Switch to passive mode
+    debugln("Setup PMS Complete!");
+    _sleep_pms();
+}
+
+void _awaitWakeup(){
+    if(sleeping){
+        debugln("PMS Rude Wakeup");
+        wakeup_pms();
+    }
+
+    uint32_t msSinceWake = millis() - lastWakeMs;
+    if (msSinceWake < PMS_SLEEP_MS){
+        delay(PMS_SLEEP_MS - msSinceWake);
+    }
 }
 
 int update_pms(PMS::DATA *data){
-    if(pms.read(*data)){
+    _awaitWakeup();
+
+    pms.requestRead();
+
+    if(pms.readUntil(*data)){
         debugln("PMS Data:")
         debugln("PM1.0: " + String(data.PM_AE_UG_1_0) + "(ug/m3)");
         debugln("PM2.5: " + String(data.PM_AE_UG_2_5) + "(ug/m3)");
         debugln("PM10 : " + String(data.PM_AE_UG_10_0) + "(ug/m3)");
         return STATUS_OK;
     }
+    _sleep_pms();
 
     debugln("PMS no Update");
     return STATUS_NO_UPDATE;

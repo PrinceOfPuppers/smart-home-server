@@ -65,7 +65,7 @@ int setup_bme680(void)
     BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_HUMIDITY,
   };
 
-  iaqSensor.updateSubscription(sensorList, 13, BSEC_SAMPLE_RATE_LP);
+  iaqSensor.updateSubscription(sensorList, 7, BSEC_SAMPLE_RATE_LP);
   status = checkIaqSensorStatus();
   if(status != STATUS_OK){
       return status;
