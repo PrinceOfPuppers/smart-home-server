@@ -1,7 +1,7 @@
 #!/bin/bash
 
 def_host=localhost
-def_port=6831
+def_port=6833
 
 HOST=${2:-$def_host}
 PORT=${3:-$def_port}

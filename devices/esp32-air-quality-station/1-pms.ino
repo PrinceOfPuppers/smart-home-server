@@ -10,21 +10,25 @@ static uint32_t lastWakeMs = 0;
 static bool sleeping = false;
 
 void wakeup_pms(){
+    debugln("Waking up PMS");
     pms.wakeUp();
     lastWakeMs = millis();
+    sleeping = false;
 }
 
 void _sleep_pms(){
+    debugln("Sleeping PMS");
     pms.sleep();
     sleeping = true;
 }
 
 void setup_pms()
 {
+    debugln(">>> Setting Up PMS5003 <<<");
     Serial1.begin(9600, SERIAL_8N1, RX1, TX1);
     pms.passiveMode();    // Switch to passive mode
     debugln("Setup PMS Complete!");
-    _sleep_pms();
+    //_sleep_pms();
 }
 
 void _awaitWakeup(){
@@ -35,6 +39,7 @@ void _awaitWakeup(){
 
     uint32_t msSinceWake = millis() - lastWakeMs;
     if (msSinceWake < PMS_SLEEP_MS){
+        debugln("Waiting for PMS to Wakeup...");
         delay(PMS_SLEEP_MS - msSinceWake);
     }
 }
@@ -47,9 +52,10 @@ int update_pms(PMS::DATA *data){
     if(pms.readUntil(*data)){
         debugln("PMS Data:");
         // memebers are of type uint16_t
-        debugln("PM1.0: " + String(data->PM_AE_UG_1_0) + "(ug/m3)");
-        debugln("PM2.5: " + String(data->PM_AE_UG_2_5) + "(ug/m3)");
-        debugln("PM10 : " + String(data->PM_AE_UG_10_0) + "(ug/m3)");
+        debugln("  PM1.0: " + String(data->PM_AE_UG_1_0) + "(ug/m3)");
+        debugln("  PM2.5: " + String(data->PM_AE_UG_2_5) + "(ug/m3)");
+        debugln("  PM10 : " + String(data->PM_AE_UG_10_0) + "(ug/m3)");
+        _sleep_pms();
         return AQS_STATUS_OK;
     }
     _sleep_pms();

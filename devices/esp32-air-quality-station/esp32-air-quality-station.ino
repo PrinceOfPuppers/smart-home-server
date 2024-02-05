@@ -43,6 +43,8 @@ void setLed(bool on){
 }
 
 void hardfault(int numFlashes){
+    debug("Hardfault: ");
+    debugln(numFlashes);
     while(1){
         for(int i = 0; i < numFlashes; i++){
             digitalWrite(LED_PIN, HIGH);
@@ -66,7 +68,7 @@ static uint16_t bmeErrCounter = 0;
 
 static PMS::DATA pmsData;
 static uint16_t pmsErrCounter = 0;
-#define PMS_UPDATE_PERIOD_Mins 3
+#define PMS_UPDATE_PERIOD_Mins 5
 
 static uint16_t s8Data;
 static uint16_t s8ErrCounter = 0;
@@ -81,28 +83,47 @@ void setup(){
 #ifdef DEBUG_ENABLED
     Serial.begin(SERIAL_BAUD);
     while(!Serial) {}
+    delay(2000);
+    debugln("========== Startup ==========");
 #endif
+    pinMode(LED_PIN, OUTPUT);
+
     // begin pms setup
     setup_pms();
     wakeup_pms();
+    debugln("");
+    delay(1000);
 
     // bme setup
     int status = setup_bme680();
     if(status != AQS_STATUS_OK){hardfault(LED_ERR_BME);}
+    delay(1000);
     status = update_bme(&bmeData);
     if(status != AQS_STATUS_OK){hardfault(LED_ERR_BME);}
+    debugln("");
+    delay(1000);
 
     // s8 setup
     status = setup_s8();
     if(status != AQS_STATUS_OK){hardfault(LED_ERR_S8);}
+    delay(1000);
     status = update_s8(&s8Data);
     if(status != AQS_STATUS_OK){hardfault(LED_ERR_S8);}
+    debugln("");
+    delay(1000);
+
+    // wifi setup
+    setup_udp();
+    debugln("");
 
     // end pms setup
     status = update_pms(&pmsData);
     if(status != AQS_STATUS_OK){hardfault(LED_ERR_PMS);}
+    debugln("");
+    delay(1000);
 
-    setup_udp();
+    debugln("======== Startup End ========");
+    debugln("");
 }
 
 void updateAll(uint32_t counterMins){
@@ -134,6 +155,11 @@ void updateAll(uint32_t counterMins){
     }
 
     // PMS
+    // wakeup 1 minute before call
+    if((counterMins + 1) % PMS_UPDATE_PERIOD_Mins == 0){
+        wakeup_pms();
+    }
+    // actual call
     if((counterMins % PMS_UPDATE_PERIOD_Mins) == 0){
         status = update_pms(&pmsData);
         if(status != AQS_STATUS_OK){
@@ -157,6 +183,10 @@ void loop(){
     while(1){
         counterMins+=1;
         startMs = millis();
+        debugln("=========== Loop ============");
+        debug("Minute: ");
+        debugln(counterMins);
+        debugln("");
 
         updateAll(counterMins);
 
@@ -174,7 +204,9 @@ void loop(){
         }
         timingErrorCounter = 0;
 
-        // transmitt with remining time
+        // transmit with remining time
+        debugln("");
         await_udp_transmitt(MinsMs - durationMs, &bmeData, &pmsData, &s8Data);
+        debugln("");
     }
 }

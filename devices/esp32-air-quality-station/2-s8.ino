@@ -47,6 +47,7 @@ int diagnose_s8(){
 
 
 int setup_s8() {
+  debugln(">>> Setting Up SenseAir S8 <<<");
 
   // Initialize S8 sensor
   Serial2.begin(S8_BAUDRATE);
@@ -61,9 +62,7 @@ int setup_s8() {
   }
 
   // Show basic S8 sensor info
-  debugln(">>> SenseAir S8 NDIR CO2 sensor <<<");
   debug("Firmware version: "); debugln(sensor.firm_version);
-
   sensor.sensor_id = sensor_S8->get_sensor_ID();
   debug("Sensor ID: "); debug(sensor.sensor_id); debugln("");
 
@@ -73,8 +72,8 @@ int setup_s8() {
   delay(1000);
   sensor.abc_period = sensor_S8->get_ABC_period();
   if (sensor.abc_period != 0) {
-  } else {
-    debugln("Error Disabling S8 ABC Period");
+    debug("Error Disabling S8 ABC Period: ");
+    debugln(sensor.abc_period);
     return AQS_STATUS_ERR;
   }
   debugln("S8 ABC Disabled Succesfully");
@@ -84,7 +83,7 @@ int setup_s8() {
   if(status != AQS_STATUS_OK){
       return status;
   }
-  debugln("S8 Setup done!");
+  debugln("S8 Setup Complete!");
   return AQS_STATUS_OK;
 }
 
@@ -125,12 +124,13 @@ int calibrate_s8(){
 }
 
 int update_s8(uint16_t *co2_out){
-  sensor.co2 = sensor_S8->get_co2();
-  debug("CO2 value: ");
-  debug(sensor.co2);
-  debugln(" ppm");
+    sensor.co2 = sensor_S8->get_co2();
+    debugln("S8 Data:");
+    debug("  CO2 value: ");
+    debug(sensor.co2);
+    debugln(" ppm");
 
-  *co2_out = sensor.co2;
-  return AQS_STATUS_OK;
+    *co2_out = sensor.co2;
+    return AQS_STATUS_OK;
 }
 

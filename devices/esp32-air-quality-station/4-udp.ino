@@ -24,11 +24,13 @@ void wifi_disconnect_cb(WiFiEvent_t event, WiFiEventInfo_t info) {
 }
 
 void setup_udp(){
+    debugln(">>> Setting Up WiFi <<<");
     WiFi.hostname(HOST_NAME);
     WiFi.onEvent(wifi_disconnect_cb, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
     WiFi.begin(NETWORK_NAME, NETWORK_PASS);
 
-    debug("Connecting");
+    debug("Connecting to ");
+    debug(NETWORK_NAME);
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         debug(".");
@@ -42,6 +44,7 @@ void setup_udp(){
 
 
 void await_udp_transmitt(uint32_t duration, BMEData *bmeData, PMS::DATA *pmsData, uint16_t *s8Data){
+    debugln("Awaiting UDP...");
     uint32_t counter = 0;
 
     while(1){

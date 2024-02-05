@@ -34,34 +34,34 @@ int checkIaqSensorStatus(void)
 // Entry point for the example
 int setup_bme680(void)
 {
-  /* Initializes the Serial communication */
-  Serial.begin(115200);
-  delay(1000);
-  iaqSensor.begin(BME68X_I2C_ADDR_HIGH, Wire);
+    debugln(">>> Setting Up BME680 <<<");
+    iaqSensor.begin(BME68X_I2C_ADDR_HIGH, Wire);
 
-  int status;
-  status = checkIaqSensorStatus();
-  if(status != AQS_STATUS_OK){
-      return status;
-  }
+    int status;
+    status = checkIaqSensorStatus();
+    if(status != AQS_STATUS_OK){
+        return status;
+    }
 
-  bsec_virtual_sensor_t sensorList[7] = {
-    BSEC_OUTPUT_IAQ,
-    BSEC_OUTPUT_CO2_EQUIVALENT,
-    BSEC_OUTPUT_BREATH_VOC_EQUIVALENT,
-    BSEC_OUTPUT_STABILIZATION_STATUS,
-    BSEC_OUTPUT_RUN_IN_STATUS,
-    BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_TEMPERATURE,
-    BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_HUMIDITY,
-  };
+    bsec_virtual_sensor_t sensorList[8] = {
+        BSEC_OUTPUT_IAQ,
+        BSEC_OUTPUT_CO2_EQUIVALENT,
+        BSEC_OUTPUT_BREATH_VOC_EQUIVALENT,
+        BSEC_OUTPUT_STABILIZATION_STATUS,
+        BSEC_OUTPUT_RUN_IN_STATUS,
+        BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_TEMPERATURE,
+        BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_HUMIDITY,
+        BSEC_OUTPUT_RAW_PRESSURE,
+    };
 
-  iaqSensor.updateSubscription(sensorList, 7, BSEC_SAMPLE_RATE_LP);
-  status = checkIaqSensorStatus();
-  if(status != AQS_STATUS_OK){
-      return status;
-  }
+    iaqSensor.updateSubscription(sensorList, 8, BSEC_SAMPLE_RATE_LP);
+    status = checkIaqSensorStatus();
+    if(status != AQS_STATUS_OK){
+        return status;
+    }
 
-  return AQS_STATUS_OK;
+    debugln("BME680 Setup Complete!");
+    return AQS_STATUS_OK;
 }
 
 
@@ -75,12 +75,12 @@ int update_bme(BMEData *out){
         out->co2Equivalent = iaqSensor.co2Equivalent;
         out->breathVocEquivalent = iaqSensor.breathVocEquivalent;
         debugln("BME Data:");
-        debugln("IQA: " + String(out->iaq));
-        debugln("Pressure: " + String(out->iaq) + " Pa");
-        debugln("Temp: " + String(out->temperature) + " *C");
-        debugln("Humid: " + String(out->humidity) + " %");
-        debugln("Co2 eq: " + String(out->humidity) + " ppm");
-        debugln("VOC: " + String(out->breathVocEquivalent) + " ppm");
+        debugln("  IQA: " + String(out->iaq));
+        debugln("  Pressure: " + String(out->pressure) + " Pa");
+        debugln("  Temp: " + String(out->temperature) + " *C");
+        debugln("  Humid: " + String(out->humidity) + " %");
+        debugln("  Co2 eq: " + String(out->co2Equivalent) + " ppm");
+        debugln("  VOC: " + String(out->breathVocEquivalent) + " ppm");
         return AQS_STATUS_OK;
     } else {
         return checkIaqSensorStatus();
@@ -89,32 +89,3 @@ int update_bme(BMEData *out){
     return AQS_STATUS_NO_UPDATE;
 }
 
-/*
-void print_bme680(void)
-{
-  unsigned long time_trigger = millis();
-  if (iaqSensor.run()) { // If new data is available
-    digitalWrite(LED_BUILTIN, LOW);
-    output = String(time_trigger);
-    output += ", " + String(iaqSensor.iaq);
-    output += ", " + String(iaqSensor.iaqAccuracy);
-    output += ", " + String(iaqSensor.staticIaq);
-    output += ", " + String(iaqSensor.co2Equivalent);
-    output += ", " + String(iaqSensor.breathVocEquivalent);
-    output += ", " + String(iaqSensor.rawTemperature);
-    output += ", " + String(iaqSensor.pressure);
-    output += ", " + String(iaqSensor.rawHumidity);
-    output += ", " + String(iaqSensor.gasResistance);
-    output += ", " + String(iaqSensor.stabStatus);
-    output += ", " + String(iaqSensor.runInStatus);
-    output += ", " + String(iaqSensor.temperature);
-    output += ", " + String(iaqSensor.humidity);
-    output += ", " + String(iaqSensor.gasPercentage);
-    Serial.println(output);
-    digitalWrite(LED_BUILTIN, HIGH);
-  } else {
-    checkIaqSensorStatus();
-  }
-}
-
-*/
