@@ -5,17 +5,16 @@
 #define PMS_SLEEP_MS 30*1000
 
 PMS pms(Serial1);
-PMS::DATA data;
 
 static uint32_t lastWakeMs = 0;
 static bool sleeping = false;
 
-int wakeup_pms(){
+void wakeup_pms(){
     pms.wakeUp();
     lastWakeMs = millis();
 }
 
-int _sleep_pms(){
+void _sleep_pms(){
     pms.sleep();
     sleeping = true;
 }
@@ -46,15 +45,15 @@ int update_pms(PMS::DATA *data){
     pms.requestRead();
 
     if(pms.readUntil(*data)){
-        debugln("PMS Data:")
-        debugln("PM1.0: " + String(data.PM_AE_UG_1_0) + "(ug/m3)");
-        debugln("PM2.5: " + String(data.PM_AE_UG_2_5) + "(ug/m3)");
-        debugln("PM10 : " + String(data.PM_AE_UG_10_0) + "(ug/m3)");
-        return STATUS_OK;
+        debugln("PMS Data:");
+        debugln("PM1.0: " + String(data->PM_AE_UG_1_0) + "(ug/m3)");
+        debugln("PM2.5: " + String(data->PM_AE_UG_2_5) + "(ug/m3)");
+        debugln("PM10 : " + String(data->PM_AE_UG_10_0) + "(ug/m3)");
+        return AQS_STATUS_OK;
     }
     _sleep_pms();
 
     debugln("PMS no Update");
-    return STATUS_NO_UPDATE;
+    return AQS_STATUS_NO_UPDATE;
 }
 

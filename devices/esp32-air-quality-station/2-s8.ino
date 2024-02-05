@@ -38,11 +38,11 @@ int diagnose_s8(){
         if (sensor.meter_status & S8_MASK_METER_MEMORY_ERROR) {
             debugln("Memory error in sensor!");
         }
-        return STATUS_ERR;
+        return AQS_STATUS_ERR;
     }
 
     debugln("The sensor is OK.");
-    return STATUS_OK;
+    return AQS_STATUS_OK;
 }
 
 
@@ -57,14 +57,15 @@ int setup_s8() {
   int len = strlen(sensor.firm_version);
   if (len == 0) {
       Serial.println("SenseAir S8 CO2 sensor not found!");
-      return STATUS_ERR;
+      return AQS_STATUS_ERR;
   }
 
   // Show basic S8 sensor info
   debugln(">>> SenseAir S8 NDIR CO2 sensor <<<");
-  debugln("Firmware version: %s\n", sensor.firm_version);
+  debug("Firmware version: "); debugln(sensor.firm_version);
+
   sensor.sensor_id = sensor_S8->get_sensor_ID();
-  debug("Sensor ID: "); debug(sensor.sensor_id, 4); debugln("");
+  debug("Sensor ID: "); debug(sensor.sensor_id); debugln("");
 
   // Disabling ABC
   debugln("Disabling S8 ABC");
@@ -74,17 +75,17 @@ int setup_s8() {
   if (sensor.abc_period != 0) {
   } else {
     debugln("Error Disabling S8 ABC Period");
-    return STATUS_ERR;
+    return AQS_STATUS_ERR;
   }
   debugln("S8 ABC Disabled Succesfully");
 
   // check health
   int status = diagnose_s8();
-  if(status != STATUS_OK){
+  if(status != AQS_STATUS_OK){
       return status;
   }
   debugln("S8 Setup done!");
-  return STATUS_OK
+  return AQS_STATUS_OK;
 }
 
 int calibrate_s8(){
@@ -97,7 +98,7 @@ int calibrate_s8(){
 
     if (!sensor_S8->manual_calibration()) {
         debugln("Error setting manual calibration!");
-        return STATUS_ERR;
+        return AQS_STATUS_ERR;
     }
 
 
@@ -111,25 +112,25 @@ int calibrate_s8(){
             debug(elapsed);
             debugln(" seconds)");
 
-            return STATUS_OK;
+            return AQS_STATUS_OK;
         }
         if(elapsed >= timeout){
-            return STATUS_ERR;
+            return AQS_STATUS_ERR;
         }
         debugln("Calibrating...");
     }
 
     
-    return STATUS_OK;
+    return AQS_STATUS_OK;
 }
 
 int update_s8(uint16_t *co2_out){
   sensor.co2 = sensor_S8->get_co2();
-  debug("CO2 value: ", sensor.co2);
+  debug("CO2 value: ");
   debug(sensor.co2);
   debugln(" ppm");
 
   *co2_out = sensor.co2;
-  return STATUS_OK;
+  return AQS_STATUS_OK;
 }
 
