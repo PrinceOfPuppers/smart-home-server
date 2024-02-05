@@ -46,6 +46,7 @@ int update_pms(PMS::DATA *data){
 
     if(pms.readUntil(*data)){
         debugln("PMS Data:");
+        // memebers are of type uint16_t
         debugln("PM1.0: " + String(data->PM_AE_UG_1_0) + "(ug/m3)");
         debugln("PM2.5: " + String(data->PM_AE_UG_2_5) + "(ug/m3)");
         debugln("PM10 : " + String(data->PM_AE_UG_10_0) + "(ug/m3)");

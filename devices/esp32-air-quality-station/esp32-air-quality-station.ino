@@ -175,6 +175,6 @@ void loop(){
         timingErrorCounter = 0;
 
         // transmitt with remining time
-        await_udp_transmitt(MinsMs - durationMs);
+        await_udp_transmitt(MinsMs - durationMs, &bmeData, &pmsData, &s8Data);
     }
 }
