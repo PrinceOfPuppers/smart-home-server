@@ -1,6 +1,9 @@
 #include "PMS.h"
 #include "bme680_type.h"
 #include "bsec.h"
+#include "WiFi.h"
+
+
 
 #define SERIAL_BAUD 115200
 

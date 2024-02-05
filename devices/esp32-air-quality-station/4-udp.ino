@@ -1,6 +1,5 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
-
 #include "network-info.h"
 
 ///////////////
@@ -11,10 +10,17 @@ unsigned int localudpPort = 6833;
 char incomingPacket[256];
 char replyPacket[256];
 
+//WiFiEventHandler wifi_disconnect_handler;
+
 #define HOST_NAME "esp32-air-quality-station"
+
+void wifi_disconnect_cb(WiFiEvent_t event, WiFiEventInfo_t info) {
+    ESP.restart();
+}
 
 void setup_udp(){
     WiFi.hostname(HOST_NAME);
+    WiFi.onEvent(wifi_disconnect_cb, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
     WiFi.begin(NETWORK_NAME, NETWORK_PASS);
 
     debug("Connecting");
