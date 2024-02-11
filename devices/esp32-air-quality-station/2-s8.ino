@@ -57,7 +57,7 @@ int setup_s8() {
   sensor_S8->get_firmware_version(sensor.firm_version);
   int len = strlen(sensor.firm_version);
   if (len == 0) {
-      Serial.println("SenseAir S8 CO2 sensor not found!");
+      debugln("SenseAir S8 CO2 sensor not found!");
       return AQS_STATUS_ERR;
   }
 

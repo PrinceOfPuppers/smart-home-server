@@ -59,7 +59,6 @@ void await_udp_transmitt(void (* delay_func)(uint32_t), uint32_t duration, BMEDa
             continue;
         }
 
-#ifdef DEBUG_ENABLED
         debug("Received: ");
         debug(packetSize);
         debug(" bytes from: ");
@@ -73,7 +72,7 @@ void await_udp_transmitt(void (* delay_func)(uint32_t), uint32_t duration, BMEDa
         }
         debug("UDP packet contents: ");
         debugln(incomingPacket);
-#endif
+
         // create packet
         int reply_len = snprintf(replyPacket, sizeof(replyPacket), "%f,%f,%f,%f,%f,%f,%u,%u,%u,%u",
                 // bme floats (*C, RH%, Pa, iaq, ppm, ppm)
