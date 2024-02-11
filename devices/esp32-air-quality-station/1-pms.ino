@@ -1,7 +1,8 @@
 #include "PMS.h"
 
-#define RX1 5
-#define TX1 18
+#define PMS_RX1 5
+#define PMS_TX1 18
+#define PMS_SET 14
 #define PMS_SLEEP_MS 30*1000
 
 PMS pms(Serial1);
@@ -11,6 +12,8 @@ static bool sleeping = false;
 
 void wakeup_pms(){
     debugln("Waking up PMS");
+    digitalWrite(PMS_SET, HIGH);
+    delay(1);
     pms.wakeUp();
     lastWakeMs = millis();
     sleeping = false;
@@ -19,13 +22,18 @@ void wakeup_pms(){
 void _sleep_pms(){
     debugln("Sleeping PMS");
     pms.sleep();
+    digitalWrite(PMS_SET, LOW);
+    delay(1);
     sleeping = true;
 }
 
 void setup_pms()
 {
     debugln(">>> Setting Up PMS5003 <<<");
-    Serial1.begin(9600, SERIAL_8N1, RX1, TX1);
+    pinMode(PMS_SET, OUTPUT);
+    digitalWrite(PMS_SET, HIGH);
+
+    Serial1.begin(9600, SERIAL_8N1, PMS_RX1, PMS_TX1);
     pms.passiveMode();    // Switch to passive mode
     debugln("Setup PMS Complete!");
     //_sleep_pms();

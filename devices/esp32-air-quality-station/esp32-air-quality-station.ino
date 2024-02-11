@@ -7,14 +7,14 @@
 
 #define SERIAL_BAUD 115200
 
-#define DEBUG_ENABLED
+// #define DEBUG_ENABLED
 
 #ifdef DEBUG_ENABLED
 #define debug(msg) Serial.print((msg))
 #define debugln(msg) Serial.println((msg))
 #else
-#define debug(msg) 
-#define debugln(msg) 
+#define debug(msg)
+#define debugln(msg)
 #endif
 
 #define AQS_STATUS_OK 0
@@ -57,6 +57,19 @@ void hardfault(int numFlashes){
 }
 
 
+/////////////////////////////
+// s8 calibration callback //
+/////////////////////////////
+
+#define S8_INTERRUPT_PIN 12
+
+static bool s8_calibrate_flag = false;
+void calibrate_s8_cb(){
+    s8_calibrate_flag = true;
+
+}
+
+
 // number of read errors until hardfault (error on startup hardfaults immediately)
 #define MAX_READ_ERR 5
 
@@ -87,6 +100,7 @@ void setup(){
     debugln("========== Startup ==========");
 #endif
     pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, HIGH);
 
     // begin pms setup
     setup_pms();
@@ -122,8 +136,16 @@ void setup(){
     debugln("");
     delay(1000);
 
+    // attach S8 calibration interrupt
+    pinMode(S8_INTERRUPT_PIN, INPUT_PULLUP);
+    attachInterrupt(S8_INTERRUPT_PIN, calibrate_s8_cb, FALLING);
+
+    digitalWrite(LED_PIN, LOW);
+
     debugln("======== Startup End ========");
     debugln("");
+
+
 }
 
 void updateAll(uint32_t counterMins){
@@ -173,6 +195,18 @@ void updateAll(uint32_t counterMins){
     }
 }
 
+// called whenever loop delays
+void busy_delay(uint32_t delayMs){
+    if(s8_calibrate_flag){
+        int status = calibrate_s8();
+        if (status != AQS_STATUS_OK){
+            hardfault(LED_ERR_S8);
+        }
+        s8_calibrate_flag = false;
+    }
+    delay(delayMs);
+}
+
 void loop(){
     uint32_t counterMins = 0;
 
@@ -206,7 +240,7 @@ void loop(){
 
         // transmit with remining time
         debugln("");
-        await_udp_transmitt(MinsMs - durationMs, &bmeData, &pmsData, &s8Data);
+        await_udp_transmitt(busy_delay,MinsMs - durationMs, &bmeData, &pmsData, &s8Data);
         debugln("");
     }
 }

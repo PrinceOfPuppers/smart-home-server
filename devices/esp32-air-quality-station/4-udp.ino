@@ -43,12 +43,12 @@ void setup_udp(){
 }
 
 
-void await_udp_transmitt(uint32_t duration, BMEData *bmeData, PMS::DATA *pmsData, uint16_t *s8Data){
+void await_udp_transmitt(void (* delay_func)(uint32_t), uint32_t duration, BMEData *bmeData, PMS::DATA *pmsData, uint16_t *s8Data){
     debugln("Awaiting UDP...");
     uint32_t counter = 0;
 
     while(1){
-        delay(1);
+        delay_func(1);
         counter += 1;
         if(counter > duration){
             break;
@@ -66,7 +66,7 @@ void await_udp_transmitt(uint32_t duration, BMEData *bmeData, PMS::DATA *pmsData
         debug(udp.remoteIP().toString().c_str());
         debug(" , port: ");
         debugln(udp.remotePort());
-        
+
         int len = udp.read(incomingPacket, 255);
         if(len > 0){
             incomingPacket[len] = '\0';

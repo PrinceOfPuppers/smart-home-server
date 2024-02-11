@@ -102,7 +102,7 @@ int calibrate_s8(){
 
 
     while(1){
-        delay(2000);   
+        delay(2000);
         elapsed += 2;
 
         sensor.ack = sensor_S8->get_acknowledgement();
@@ -116,10 +116,9 @@ int calibrate_s8(){
         if(elapsed >= timeout){
             return AQS_STATUS_ERR;
         }
-        debugln("Calibrating...");
     }
 
-    
+
     return AQS_STATUS_OK;
 }
 
