@@ -198,11 +198,17 @@ void updateAll(uint32_t counterMins){
 // called whenever loop delays
 void busy_delay(uint32_t delayMs){
     if(s8_calibrate_flag){
+        digitalWrite(LED_PIN, HIGH);
         int status = calibrate_s8();
         if (status != AQS_STATUS_OK){
             hardfault(LED_ERR_S8);
         }
         s8_calibrate_flag = false;
+        digitalWrite(LED_PIN, LOW);
+        delay(200);
+        digitalWrite(LED_PIN, HIGH);
+        delay(200);
+        digitalWrite(LED_PIN, LOW);
     }
     delay(delayMs);
 }
