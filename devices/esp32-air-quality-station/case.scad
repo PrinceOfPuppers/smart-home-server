@@ -1,22 +1,18 @@
 include <../../../../openscad/libs/NopSCADlib/lib.scad>
 
-m2Hole = 2.7;
+m2Hole = 2.4;
 
-boardLength = 48;
-boardWidth = 25.7;
+boardLength = 70.05;
+boardWidth = 50.2;
 
 boardHoleDiameter = m2Hole;
-boardHoleWall = 0.8;
+boardHoleWall = 1.1;
 
-boardMinHeight = 20;
-boardPCBThickness = 1.45;
+boardMinHeight = 17;
+boardPCBThickness = 1.5;
 
-usbMicroWidth = 12;
-usbMicroHeight = 7;
-usbMicroY = 1.4; // from pcb
-
-usbCWidth = 5;
-usbCHeight=3;
+usbCWidth = 9.4;
+usbCHeight=4;
 
 wallThickness_calc = 2.0;
 bottomTopThickness = 2.0;
@@ -24,39 +20,40 @@ generalPadding = 4;
 
 paddingBack_calc         = generalPadding;
 paddingFront_calc        = generalPadding + 30;
-paddingRight_calc        = generalPadding;
+paddingRight_calc        = generalPadding + 4;
 paddingLeft_calc         = generalPadding;
 
 containerLength = paddingBack_calc + boardLength + paddingFront_calc;
 containerWidth = paddingLeft_calc + paddingRight_calc + boardWidth;
 
-standoffHeight_calc = 5.0;
+standoffHeight_calc = 15.0;
 
 boardZero = [wallThickness_calc+paddingBack_calc, wallThickness_calc + paddingLeft_calc, standoffHeight_calc+bottomTopThickness];
 
 // pb stands for powerBoard
-pbWidth = 5;
-pbLength = 10;
+pbWidth = 17.5;
+pbLength = 28.4;
 
 pbBaseThickness = 4;
-pbWallThickness=2;
-pbBoardThickness = 2;
+pbWallThickness = 2;
+pbBoardThickness = 1.1;
 
 pbZero = [wallThickness_calc + paddingBack_calc + boardLength + paddingFront_calc/2 - pbWidth/2, wallThickness_calc, bottomTopThickness+pbBaseThickness];
 pbRelZero = pbZero - boardZero;
 
 // power button
-buttonWidth = 8;
-buttonDepth = 12;
-buttonWallThickness = 2;
+buttonWidth = 8.6;
+buttonDepth = 14.3;
+buttonWallThickness = 3;
 buttonZero = [wallThickness_calc + paddingBack_calc + boardLength + paddingFront_calc/2 - buttonWidth/2, wallThickness_calc + containerWidth-buttonDepth, bottomTopThickness];
 
 // pms
 pmsHoleDiameter = m2Hole;
-pmsWidth = 38;
-pmsLength = 50;
-pmsHeight = 21.15;
-pmsHoleWall = 1.93;
+pmsWidth = 38.2;
+pmsLength = 50.25;
+pmsHeight = 21.3;
+pmsHoleWall = 1.85;
+pmsRelZeroX = -2;
 
 // fan
 fanWidth = 30;
@@ -65,15 +62,24 @@ fanHoleWall = 1.6;
 m3Hole = 3.3;
 fanHoleOffset = m3Hole/2 + fanHoleWall;
 
-fanZero = [wallThickness_calc + boardLength, wallThickness_calc,0];
+fanZero = [wallThickness_calc + boardLength, containerWidth-wallThickness_calc-fanWidth,0];
 fanRelZero = fanZero - boardZero;
+
+// calibrateButton
+calButtonRelZero = [56,7.4,6.5];
 
 
 containerHeight = standoffHeight_calc + boardPCBThickness + boardMinHeight + generalPadding + pmsHeight;
 
 translate(boardZero){
     difference(){
-        //cube([boardLength, boardWidth, boardPCBThickness]);
+    /*
+        cube([boardLength, boardWidth, boardPCBThickness]);
+        translate([calButtonRelZero[0],calButtonRelZero[1],boardPCBThickness]){
+            #cube([5, 5, calButtonRelZero[2]]);
+        }
+        #translate([0,0,containerHeight-pmsHeight-boardZero[2]]) cube([pmsLength, pmsWidth, pmsHeight]);
+    */
         /*
         translate([boardHoleDiameter/2 + boardHoleWall, boardHoleDiameter/2 + boardHoleWall,0])
             #cylinder(d=boardHoleDiameter, h = 100);
@@ -151,7 +157,7 @@ roundRadius         = 2.0;
 standoffHeight      = standoffHeight_calc;  //-- only used for showPCB
 standoffPinDiameter = boardHoleDiameter;
 standoffHoleSlack   = 0.4;
-standoffDiameter    = 4;
+standoffDiameter    = 6;
 
 //-- Total height of box = basePlaneThickness + lidPlaneThickness 
 //--                     + baseWallHeight + lidWallHeight
@@ -216,10 +222,11 @@ cutoutsBase =   [
 // (n) = { yappRectangle | yappCircle }
 // (n) = { yappCenter }
 cutoutsLid  =   [
-                    [pmsHoleWall,           pmsHoleWall-paddingLeft_calc, pmsHoleDiameter, 0,0,yappCircle,yappCenter],
-                    [pmsLength-pmsHoleWall, pmsHoleWall-paddingLeft_calc, pmsHoleDiameter, 0,0,yappCircle,yappCenter],
-                    [pmsLength-pmsHoleWall, pmsWidth-pmsHoleWall-paddingLeft_calc, pmsHoleDiameter, 0,0,yappCircle,yappCenter],
-                    [pmsHoleWall,           pmsWidth-pmsHoleWall-paddingLeft_calc, pmsHoleDiameter, 0,0,yappCircle,yappCenter],
+                    // pmsHoles
+                    [pmsHoleWall+pmsRelZeroX+pmsHoleDiameter/2,           pmsHoleWall-paddingLeft_calc+pmsHoleDiameter/2, pmsHoleDiameter, 0,0,yappCircle,yappCenter],
+                    [pmsLength-pmsHoleWall+pmsRelZeroX-pmsHoleDiameter/2, pmsHoleWall-paddingLeft_calc+pmsHoleDiameter/2, pmsHoleDiameter, 0,0,yappCircle,yappCenter],
+                    [pmsLength-pmsHoleWall+pmsRelZeroX-pmsHoleDiameter/2, pmsWidth-pmsHoleWall-paddingLeft_calc-pmsHoleDiameter/2, pmsHoleDiameter, 0,0,yappCircle,yappCenter],
+                    [pmsHoleWall+pmsRelZeroX+pmsHoleDiameter/2,           pmsWidth-pmsHoleWall-paddingLeft_calc-pmsHoleDiameter/2, pmsHoleDiameter, 0,0,yappCircle,yappCenter],
 
                     // fan screw holes
                     [fanRelZero[0] + fanHoleOffset,            fanRelZero[1] + fanHoleOffset,            m3Hole, 0, 0, yappCircle],
@@ -285,7 +292,7 @@ cutoutsBack =   [
 // (n) = { yappRectangle | yappCircle }
 // (n) = { yappCenter }
 cutoutsLeft =   [
-                    [0,-standoffHeight+containerHeight-pmsHeight-1.45,pmsLength,pmsHeight,0,yappRectangle]
+                    [pmsRelZeroX,-standoffHeight+containerHeight-pmsHeight-1.45,pmsLength,pmsHeight,0,yappRectangle]
                 ];
 
 //-- right plane   -- origin is pcb[0,0,0]
@@ -334,7 +341,9 @@ baseMounts   =  [
 // (n) = { yappSymmetric }
 snapJoins   =   [
                   [(1*containerLength/4), 5, yappRight, yappSymmetric],
-                  [(3*containerLength/4), 5, yappLeft, yappSymmetric]
+                  [(3*containerLength/4), 5, yappLeft, yappSymmetric],
+                  [(containerWidth/2), 5, yappFront],
+                  [(containerWidth/2), 5, yappBack]
                 ];
                
 //-- pushButtons  -- origin is pcb[0,0,0]
@@ -348,6 +357,7 @@ snapJoins   =   [
 // (7) = poleDiameter
 // (n) = buttonType  {yappCircle|yappRectangle}
 pushButtons = [
+                [calButtonRelZero[0], calButtonRelZero[1], 8, 8, 3, calButtonRelZero[2],   1, 3.5, yappCircle],
               ];     
 
 
@@ -383,7 +393,7 @@ difference(){
         xStep = boardWidth - 2*boardHoleWall - standoffPinDiameter;
         yStep = boardLength - 2*boardHoleWall - standoffPinDiameter;
         for(x=[0,xStep]) for(y=[0,yStep]) translate([y,x,0]) {
-            cylinder(d=standoffPinDiameter+0.02, h = 10);
+            cylinder(d=standoffPinDiameter+0.02, h = 2*standoffHeight_calc);
         }
     }
 
