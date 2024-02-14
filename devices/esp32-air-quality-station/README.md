@@ -71,16 +71,16 @@ For the case, the PMS5003 and Fan attach to the lid, along with the shaft/guide 
 
 ### Photos
 
-<img align="left" height="300" src="images/mb-empty.jpg">
+Motherboard unpopulated and populated:
+
+<img align="left" height="300" src="images/empty-mb.jpg">
 <img align="left" height="300" src="images/mb.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
-<img align="left" height="300" src="images/mb-pms-conn.jpg">
-<img align="left" height="300" src="images/power-install.jpg">
-<br clear="left"/>
-<br clear="left"/>
+Power board installation, Installing motherboard into case, connecting lid:
 
+<img align="left" height="300" src="images/power-install.jpg">
 <img align="left" height="300" src="images/mb-install.jpg">
 <img align="left" height="300" src="images/full-open.jpg">
 <br clear="left"/>
