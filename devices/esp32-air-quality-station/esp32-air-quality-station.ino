@@ -102,9 +102,18 @@ void setup(){
     pinMode(LED_PIN, OUTPUT);
     digitalWrite(LED_PIN, HIGH);
 
+    // wait for devices to power up
+    delay(2000);
+
     // begin pms setup
     setup_pms();
+    delay(1000);
     wakeup_pms();
+    debugln("");
+    delay(1000);
+
+    // wifi setup
+    setup_udp();
     debugln("");
     delay(1000);
 
@@ -115,7 +124,7 @@ void setup(){
     status = update_bme(&bmeData);
     if(status != AQS_STATUS_OK){hardfault(LED_ERR_BME);}
     debugln("");
-    delay(1000);
+    delay(2000);
 
     // s8 setup
     status = setup_s8();
@@ -125,10 +134,6 @@ void setup(){
     if(status != AQS_STATUS_OK){hardfault(LED_ERR_S8);}
     debugln("");
     delay(1000);
-
-    // wifi setup
-    setup_udp();
-    debugln("");
 
     // end pms setup
     status = update_pms(&pmsData);

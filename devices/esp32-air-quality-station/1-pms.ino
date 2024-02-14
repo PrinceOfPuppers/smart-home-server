@@ -13,7 +13,7 @@ static bool sleeping = false;
 void wakeup_pms(){
     debugln("Waking up PMS");
     digitalWrite(PMS_SET, HIGH);
-    delay(1);
+    delay(5);
     pms.wakeUp();
     lastWakeMs = millis();
     sleeping = false;
@@ -22,8 +22,8 @@ void wakeup_pms(){
 void _sleep_pms(){
     debugln("Sleeping PMS");
     pms.sleep();
+    delay(5);
     digitalWrite(PMS_SET, LOW);
-    delay(1);
     sleeping = true;
 }
 

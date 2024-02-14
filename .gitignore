@@ -5,6 +5,7 @@ smart_home_server/storage
 smart-home-update
 network-info.h
 .ccls-cache
+images_uncompressed
 
 /build
 /dist

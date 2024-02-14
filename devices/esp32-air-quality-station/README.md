@@ -54,8 +54,27 @@ I will divide this into sections, most things can be improvised with small desig
 
 ## Assembly
 
-TODO: add schematic
-TODO: add photos
+Below is a schematic of the device, along with photos of the assembly. Solder the sockets to the prototype board and connect them according to the schematic, I used JST-HX connectors for the PMS5003, Fan and powerboard, however direct soldering or dupont connectors could also be used.
+
+For the case, the PMS5003 and Fan attach to the lid, along with the shaft/guide to push the Co2 calibration button. You must glue the small circular plate the bottom of the button shaft to hold it in the guide. Lastly the power button and power board are fitted into the case as shown, with the leads of the power button being soldered to dupont jumpers as shown in the photos.
+
+### Schematic
+
+<img align="left" height="300" src="images/schematic.jpg">
+<br clear="left"/>
+<br clear="left"/>
+
+### Photos
+
+<img align="left" height="300" src="images/mb_empty.jpg">
+<img align="left" height="300" src="images/mb.jpg">
+<br clear="left"/>
+<br clear="left"/>
+
+<img align="left" height="300" src="images/mb_empty.jpg">
+<img align="left" height="300" src="images/mb.jpg">
+<br clear="left"/>
+<br clear="left"/>
 
 ## Programming
 For debug output, uncomment `// #define DEBUG_ENABLED` in `esp32-air-quality-station.ino` line 10.
