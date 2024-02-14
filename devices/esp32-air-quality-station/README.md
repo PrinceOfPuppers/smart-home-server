@@ -1,5 +1,9 @@
 # Esp32 Air Quality Station
 
+<img align="left" height="300" src="images/full-right.jpg">
+<br clear="left"/>
+<br clear="left"/>
+
 > A Device for Monitoring Co2, VOCs, PM1, PM2.5, PM10, Temprature, Humidity, Pressure, and overall Air Quality (IQA)
 - [ABOUT](#about)
 - [CREATION](#creation)
@@ -71,8 +75,13 @@ For the case, the PMS5003 and Fan attach to the lid, along with the shaft/guide 
 <br clear="left"/>
 <br clear="left"/>
 
-<img align="left" height="300" src="images/mb_empty.jpg">
-<img align="left" height="300" src="images/mb.jpg">
+<img align="left" height="300" src="images/pms-conn.jpg">
+<img align="left" height="300" src="images/power-install.jpg">
+<br clear="left"/>
+<br clear="left"/>
+
+<img align="left" height="300" src="images/mb-install.jpg">
+<img align="left" height="300" src="images/full-open.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
