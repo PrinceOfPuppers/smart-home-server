@@ -11,7 +11,7 @@
 
 
 # ABOUT
-This device contains:
+This device contains the following sensors:
 - PMS5003    (Particulate Sensor)
 - Sensair S8 (Co2 Sensor)
 - BME680     (Assorted Gas Sensor)
@@ -20,17 +20,10 @@ For Measuring Co2, VOCs, PM1, PM2.5, PM10, Temprature, Humidity, Pressure, and o
 
 The device operates as a UDP Server, to allow for remote collection of data. It is also battery operated primarly for Co2 Calibration (easier to bring outdoors for calibration).
 
-The device also contains:
-- ESP32                    (Micro controller)
-- Lipo Battery and charger
-- Calibration Button       (for Co2 calibration)
-
-
-
 # CREATION
 
 ## Materials
-I will Divide this into sections, most things can be improvised with small design tweaks and case modifications (case.scad).
+I will divide this into sections, most things can be improvised with small design tweaks and case modifications (case.scad).
 
 ##### Primary
 - ESP32 30 pin
@@ -67,23 +60,19 @@ TODO: add photos
 ## Programming
 For debug output, uncomment `// #define DEBUG_ENABLED` in `esp32-air-quality-station.ino` line 10.
 
-You must create the file `network-info.h` contining:
+You must create the file `network-info.h` contining the following in this directory:
 
 ```
 #define NETWORK_NAME "NETWORK123"
 #define NETWORK_PASS "XXXXXXXXX"
 ```
 
-In this directory before programming.
-
-The following command will build and get serial output on Linux:
+The following command will build and get serial output on Linux, You may need to change USB0 to some other number for your machine:
 ```
 arduino-cli compile --fqbn "esp32:esp32:esp32" -u -p /dev/ttyUSB0 && screen /dev/ttyUSB0 115200
 ```
 
-You may need to change USB0 to some other number for your machine.
-
-a UDP request can be made to the device using the following command:
+A UDP request can be made to the device using the following command:
 
 ```
 ./udp_request.sh "1" 192.168.1.123

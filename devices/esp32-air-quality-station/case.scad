@@ -420,7 +420,18 @@ difference(){
     grillHeight = sqrt(containerHeight^2 + containerWidth^2);
     translate([-1, 2*wallThickness_calc, 2*bottomTopThickness]){
         intersection(){
-            cube([wallThickness_calc+2,containerWidth-2*wallThickness_calc,containerHeight-4*bottomTopThickness-lidWallHeight]);
+            cube([wallThickness_calc+2,containerWidth/2-2*wallThickness_calc,containerHeight-4*bottomTopThickness-lidWallHeight]);
+            union(){
+                translate([0,-containerWidth/2, containerHeight/2]) rotate([-45,0,0]) for(i = [0 : grillWidth+grillSpacing : grillHeight]){
+                    translate([0,i,0]) cube([wallThickness_calc+2, grillWidth, grillHeight]);
+                }
+            }
+        }
+    }
+
+    translate([-1, 2*wallThickness_calc+containerWidth/2, 2*bottomTopThickness]){
+        intersection(){
+            cube([wallThickness_calc+2,containerWidth/2-2*wallThickness_calc,containerHeight-4*bottomTopThickness-lidWallHeight]);
             union(){
                 translate([0,containerWidth/2, -containerHeight/2]) rotate([45,0,0]) for(i = [0 : grillWidth+grillSpacing : grillHeight]){
                     translate([0,i,0]) cube([wallThickness_calc+2, grillWidth, grillHeight]);
