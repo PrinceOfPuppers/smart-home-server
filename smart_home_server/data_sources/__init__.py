@@ -3,7 +3,7 @@ from datetime import datetime
 
 from smart_home_server.hardware_interfaces.dht22 import getDHT
 from smart_home_server.hardware_interfaces.bme280 import getBME
-from smart_home_server.hardware_interfaces.udp import getWeatherServerData
+from smart_home_server.hardware_interfaces.udp import getWeatherServerData, getAirQualityServerData
 from smart_home_server.helpers import padChar, roundTimeStr
 import smart_home_server.constants as const
 
@@ -246,7 +246,24 @@ def getWeatherServerLocal(ip:str):
         s = f'T: {data.temp} \nH: {data.humid} \nP: {data.pressure}'
         res = {
             'str':s,
-            'data':{'temp':round(data.temp), 'humid': round(data.humid), 'pressure': round(data.pressure)},
+            'data':data.toJson(),
+        }
+    return res
+
+def getAirQualityServerLocal(ip:str):
+    data = getAirQualityServerData(ip)
+
+    if data is None:
+        s = f'T:     N/A \nH:     N/A \nP:     N/A \nIQA:   N/A \nVOC:   N/A \nPM1:   N/A \nPM2.5: N/A \nPM10:  N/A \nCo2:   N/A'
+        res = {
+            'str':s,
+            'data':{},
+        }
+    else:
+        s = f'T:     {data.temp} \nH:     {data.humid} \nP:     {data.pressure} \nIQA:   {data.iaq} \nVOC:   {data.voc} \nPM1:   {data.pm1} \nPM2.5: {data.pm2_5} \nPM10:  {data.pm10} \nCo2:   {data.co2}'
+        res = {
+            'str':s,
+            'data':data.toJson(),
         }
     return res
 
@@ -328,6 +345,59 @@ dataSources = [
             }
         }
 
+    },
+
+    {
+        'name': 'AQ Station',
+        'color': 'blue',
+        'url': f'/api/data/aq',
+        'local': lambda: cached(getAirQualityServerLocal, 60//2, ip=const.airQualityServerIP),
+        'pollingPeriod': 60,
+        'dashboard':{
+            'enabled': True,
+        },
+        'values': {
+            'aq-temp': {
+                'dataPath': ['data', 'temp'],
+                'enabled': True,
+            },
+            'aq-humid': {
+                'dataPath': ['data', 'humid'],
+                'enabled': True,
+            },
+            'aq-pressure': {
+                'dataPath': ['data', 'pressure'],
+                'enabled': True,
+            },
+            'aq-iaq': {
+                'dataPath': ['data', 'iaq'],
+                'enabled': True,
+            },
+            'aq-co2Eq': {
+                'dataPath': ['data', 'co2Eq'],
+                'enabled': True,
+            },
+            'aq-voc': {
+                'dataPath': ['data', 'voc'],
+                'enabled': True,
+            },
+            'aq-pm1': {
+                'dataPath': ['data', 'pm1'],
+                'enabled': True,
+            },
+            'aq-pm2.5': {
+                'dataPath': ['data', 'pm2.5'],
+                'enabled': True,
+            },
+            'aq-pm10': {
+                'dataPath': ['data', 'pm10'],
+                'enabled': True,
+            },
+            'aq-co2': {
+                'dataPath': ['data', 'co2'],
+                'enabled': True,
+            },
+        }
     },
 
     {

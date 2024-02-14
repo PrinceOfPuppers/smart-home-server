@@ -194,6 +194,8 @@ indoorWeatherServerIp  = "192.168.2.152"
 printChamberWeatherServerIp  = "192.168.2.153"
 officeChamberWeatherServerIp  = "192.168.2.159"
 weatherServerPort = 6831
+airQualityServerIP = "192.168.2.160"
+airQualityServerPort = 6833
 
 
 #tcp
