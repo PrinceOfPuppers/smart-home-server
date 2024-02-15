@@ -76,7 +76,12 @@ arduino-cli compile --fqbn "esp8266:esp8266:nodemcuv2" -u -p /dev/ttyUSB0 && scr
 # Operation
 Once powered on the device display diagnostic information as goes through the steps to connect to `smart-home-server`. It will connect to WiFi and then attempt to reach out to the server, after which, it will present its LCD number to which the server will reply with the corresponding format. From there the server will update the device whenever the data changes.
 
-The format is set on the `LCD` tab of the `smart-home-server`. Here you can also toggle the backlight of each LCD by pressing its LCD number.
+The format is set on the `Lcd` tab of the `smart-home-server`. Here you can also toggle the backlight of each LCD by pressing its LCD number.
 
 If no format is set for that LCD number, the server will display a message saying so on the device.
 
+Screenshot of `smart-home-server`'s Lcd tab:
+
+<img align="left" height="300" src="images/lcd-page-screenshot.jpg">
+<br clear="left"/>
+<br clear="left"/>
