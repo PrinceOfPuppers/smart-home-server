@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app, jsonify
 
 from smart_home_server.data_sources import dataSources
-from smart_home_server.errors import currentErrors
+from smart_home_server.errors import addSetError, clearErrorInSet
 
 # return format is
 #example = {
@@ -16,16 +16,15 @@ from smart_home_server.errors import currentErrors
 dataApi = Blueprint('dataApi', __name__)
 
 def route(source):
-    global currentErrors
     res = source['local']()
 
     if not res:
         # add error
-        currentErrors['Dashboard_None'].add(source['name'])
+        addSetError('Dashboard None', source['name'])
         return current_app.response_class(f"Error Getting: {source['name']}", status=400, mimetype="text/plain")
 
     # remove error
-    currentErrors['Dashboard_None'].discard(source['name'])
+    clearErrorInSet('Dashboard None', source['name'])
     return jsonify(res)
 
 view_maker = lambda source: (lambda: route(source))

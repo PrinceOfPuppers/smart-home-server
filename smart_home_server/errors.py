@@ -1,50 +1,95 @@
+from dataclasses import dataclass
+
+# error occured [num] times in a row (ie networking errors)
+@dataclass
+class ConseqError:
+    name:str
+    num:int = 1
+    info:str = ""
+
+    def __str__(self):
+        if self.info:
+            return f'{self.name} Chain: {self.num}, {self.info}\n'
+        return f'{self.name} Chain: {self.num}\n'
+
+
+# true false, was there an error
+@dataclass
+class FlagError:
+    name:str
+    info:str = ""
+
+    def __str__(self):
+        if self.info:
+            return f'{self.name}: {self.info}\n'
+        return f'{self.name}\n'
+
+#essentially a set of flags (without info)
+@dataclass
+class SetError:
+    name:set
+    errors:set
+    def __str__(self):
+        s = f'{self.name} Set:\n'
+        for err in self.errors:
+            s+= f"  {err}\n"
+
 currentErrors = {
-    # consequtive
-    'Conseq_DHT_Read_Err': 0,
-    'Conseq_BME_Read_Err': 0,
-    'Conseq_Weather_Server_Read_Err': 0,
-    'Conseq_LCD_Write_Err': 0,
-    'Conseq_Scheduler_Err': 0,
-
-    'Last_Job_Run_Err': '',
-    'Misc_Errs': [],                  # for testing
-    'Subscribe_Manager_None': set(),  # for when a datasource returns none in subscribe manager
-    'Dashboard_None': set(),          # for when a datasource returns none on the dashboard
-
-    'UDP_Err': 0,
-    'TCP_Err': 0,
 }
 
+def incConseqError(name:str, info:str = ""):
+    if name in currentErrors:
+        assert isinstance(currentErrors[name], ConseqError)
+        currentErrors[name].num += 1
+        if info:
+            currentErrors[name].info = info
+        return
+
+    currentErrors[name] = ConseqError(name, info=info)
+
+def clearConseqError(name:str):
+    if name in currentErrors:
+        currentErrors.pop(name)
+
+def addFlagError(name:str, info:str=""):
+    if name in currentErrors:
+        if info:
+            currentErrors[name].info = info
+        return
+    currentErrors[name] = FlagError(name,info)
+
+def clearFlagError(name:str):
+    if name in currentErrors:
+        currentErrors.pop(name)
+
+def addSetError(name:str, err:str):
+    if name not in currentErrors:
+        currentErrors[name] = set()
+    if err not in currentErrors[name]:
+        currentErrors[name].add(err)
+
+def clearErrorInSet(name:str, err:str):
+    if name not in currentErrors:
+        return
+    currentErrors[name].discard(err)
+    if len(currentErrors[name]) == 0:
+        currentErrors.pop(name)
+
+def clearErrorSet(name:str):
+    if name not in currentErrors:
+        return
+    currentErrors[name].pop(name)
+
+def clearAllErrors():
+    currentErrors.clear()
+
+
 def getErrorStrAndBool():
-    # returns error string and bool indicating if there are any errors
     s = ""
 
-    if currentErrors['Conseq_DHT_Read_Err'] > 0:
-        s += f'DHT Read Err Chain: {currentErrors["Conseq_DHT_Read_Err"]}\n'
-    if currentErrors['Conseq_BME_Read_Err'] > 0:
-        s += f'BME Read Err Chain: {currentErrors["Conseq_BME_Read_Err"]}\n'
-    if currentErrors['Conseq_Weather_Server_Read_Err'] > 0:
-        s += f'Weather Server Err Chain: {currentErrors["Conseq_Weather_Server_Read_Err"]}\n'
-    if currentErrors['Conseq_LCD_Write_Err'] > 0:
-        s += f'LCD Write Err Chain: {currentErrors["Conseq_LCD_Write_Err"]}\n'
-    if currentErrors['Conseq_Scheduler_Err'] > 0:
-        s += f'Scheduler Err Chain: {currentErrors["Conseq_Scheduler_Err"]}\n'
-    if currentErrors['UDP_Err'] > 0:
-        s += f'UDP Err Chain: {currentErrors["UDP_Err"]}\n'
-    if currentErrors['TCP_Err'] > 0:
-        s += f'TCP Err Chain: {currentErrors["TCP_Err"]}\n'
-
-    if currentErrors['Last_Job_Run_Err']:
-        s += f"{currentErrors['Last_Job_Run_Err']}\n"
-    for err in currentErrors['Misc_Errs']:
-        s += f"{err}\n"
-
-    for name in currentErrors['Subscribe_Manager_None']:
-        s += f"Sub Source Err: {name}\n"
-
-    for name in currentErrors['Dashboard_None']:
-        s += f"Dash Source Err: {name}\n"
+    for val in currentErrors.values():
+        s += str(val)
 
     if not s:
-        return 'No Errors', False
+        return "No Errors", False
     return s, True

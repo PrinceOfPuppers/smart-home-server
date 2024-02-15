@@ -6,7 +6,7 @@ import string
 import socket
 from threading import Lock
 
-from smart_home_server.errors import currentErrors
+from smart_home_server.errors import incConseqError, clearConseqError
 from smart_home_server.hardware_interfaces.lcd import writeLCD, setBacklight, toggleBacklight
 from smart_home_server.hardware_interfaces.tcp import tcpSendPacket, disconnectSocket
 import smart_home_server.constants as const
@@ -52,20 +52,20 @@ def _printfLCD(writeCb, fmt, replacements):
         lines = fillSpacesAndClamp(lines)
     except Exception as e:
         print(f"LCD Format Error: \n{e}")
-        currentErrors['Conseq_LCD_Write_Err'] += 1
+        incConseqError("LCD Write Err")
         return
 
     try:
         ok = writeCb(lines)
     except Exception as e:
         print(f"LCD Write Error: \n{e}")
-        currentErrors['Conseq_LCD_Write_Err'] += 1
+        incConseqError("LCD Write Err")
         return
 
     if not ok:
         print("LCD Stop Sig Triggered")
         raise LcdStopSig
-    currentErrors['Conseq_LCD_Write_Err'] = 0
+    clearConseqError("LCD Write Err")
 
 
 @dataclass

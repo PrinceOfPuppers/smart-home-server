@@ -7,7 +7,7 @@ from smart_home_server.hardware_interfaces.reboot import reboot
 from smart_home_server.hardware_interfaces.update import update
 from smart_home_server.handlers.macros import macroExists, getMacro
 from smart_home_server.handlers.lcd import getLcd, overwriteLcd, LcdDoesNotExist
-from smart_home_server.errors import currentErrors
+from smart_home_server.errors import addFlagError
 
 from smart_home_server.handlers.logs import jobLog
 
@@ -95,7 +95,7 @@ def runJob(job:dict):
         #jobLog.append(f"{datetime.now().strftime('%b %d %H:%M:%S')} -> {type}\n  data: {data}")
     except Exception as e:
         print(f'Job Run Error:', repr(e))
-        currentErrors['Last_Job_Run_Err'] = f'{datetime.now().strftime("%b %d %H:%M:%S")} {repr(e)}'
+        addFlagError("Last Job Run Err", info=f'{datetime.now().strftime("%b %d %H:%M:%S")} {repr(e)}')
 
 
 _activeDelays:dict = {}

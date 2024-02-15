@@ -3,7 +3,6 @@ from typing import Callable
 import struct
 from threading import Thread
 
-from smart_home_server.errors import currentErrors
 import smart_home_server.constants as const
 
 def disconnectSocket(c:socket.socket):
@@ -16,13 +15,6 @@ def disconnectSocket(c:socket.socket):
         c.close()
     except:
         pass
-
-def tcpErr(err):
-    if err:
-        currentErrors['TCP_Err'] += 1
-    else:
-        currentErrors['TCP_Err'] = 0
-
 
 # packets are null terminated
 def tcpRecievePacket(c:socket.socket):

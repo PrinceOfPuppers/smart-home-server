@@ -1,17 +1,14 @@
 import socket
 
 from typing import Union
-from smart_home_server.errors import currentErrors
+from smart_home_server.errors import incConseqError, clearConseqError
 import smart_home_server.constants as const
 from smart_home_server.hardware_interfaces import BMEData, AQSData
 
-def udpErr(err):
-    if err:
-        currentErrors['UDP_Err'] += 1
-    else:
-        currentErrors['UDP_Err'] = 0
+class UDPError(Exception):
+    pass
 
-def udpPromptRead(ip, port):
+def udpPromptRead(ip, port) -> Union[str, None]:
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.connect((ip,port))
     sock.settimeout(const.udpTimeout)
@@ -21,24 +18,13 @@ def udpPromptRead(ip, port):
 
         data = sock.recv(256)
         d = data.decode("utf-8")
-        udpErr(False)
+        clearConseqError(f"UDP {ip}:{port} Err")
         return d
     except:
-        udpErr(True)
+        incConseqError(f"UDP {ip}:{port} Err")
+        return None
 
 
-
-
-# weather server specific
-
-s = 'Conseq_Weather_Server_Read_Err'
-def _addError():
-    global currentErrors
-    currentErrors[s] += 1
-
-def _clearError():
-    global currentErrors
-    currentErrors[s] = 0
 
 def getWeatherServerData(ip:str) -> Union[BMEData, None]:
     try:
@@ -47,16 +33,20 @@ def getWeatherServerData(ip:str) -> Union[BMEData, None]:
         while res is None and i < 3:
             res = udpPromptRead(ip, const.weatherServerPort)
             i+=1
+
+        if res is None:
+            raise UDPError("Attempt Limit Reached")
+
         t, h, p = res.split(',')
         val = BMEData(
                 temp     = round(float(t),2),     # in C
                 humid    = round(float(h),2),     # in RH %
                 pressure = round(float(p)/100,2)) # convert to hPa
-        _clearError()
+        clearConseqError(f"Weather Serv {ip} Err")
 
     except Exception as e:
-        print("Weather Server Read Error: \n", e)
-        _addError()
+        print(f"Weather Server {ip} Read Error: \n", e)
+        incConseqError(f"Weather Serv {ip} Err")
         val = None
     return val
 
@@ -83,6 +73,10 @@ def getAirQualityServerData(ip:str) -> Union[AQSData, None]:
         while res is None and i < 3:
             res = udpPromptRead(ip, const.airQualityServerPort)
             i+=1
+
+        if res is None:
+            raise UDPError("Attempt Limit Reached")
+
         t, h, p, iaq, ceq, v, p1, p2_5, p10, co2  = res.split(',')
         val = AQSData(
             temp     = round(float(t),2),     # in C
@@ -96,11 +90,11 @@ def getAirQualityServerData(ip:str) -> Union[AQSData, None]:
             pm10     = int(p10),              # in ug/m^3
             co2      = int(co2),              # in ppm
         )
-        _clearError()
+        clearConseqError(f"Air Quality Serv {ip} Err")
 
     except Exception as e:
-        print("Weather Server Read Error: \n", e)
-        _addError()
+        print(f"Air Quality {ip} Read Error: \n", e)
+        incConseqError(f"Air Quality Serv {ip} Err")
         val = None
     return val
 

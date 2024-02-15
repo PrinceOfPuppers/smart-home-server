@@ -1,18 +1,8 @@
 from typing import Union
 
 import smart_home_server.constants as const
-from smart_home_server.errors import currentErrors
+from smart_home_server.errors import clearConseqError, incConseqError
 from smart_home_server.hardware_interfaces import BMEData
-
-
-s = 'Conseq_BME_Read_Err'
-def _addError():
-    global currentErrors
-    currentErrors[s] += 1
-
-def _clearError():
-    global currentErrors
-    currentErrors[s] = 0
 
 if const.isRpi() and const.useBME:
     from smbus2 import SMBus
@@ -27,11 +17,12 @@ if const.isRpi() and const.useBME:
             h = round(bme280.get_humidity(), 2) # in RH %
             p = round(bme280.get_pressure(), 2) # in hPa
             val = BMEData(temp = t, humid = h, pressure = p)
-            _clearError()
+
+            clearConseqError("BME280 Read Err")
 
         except Exception as e:
             print("BME Read Error: \n", e)
-            _addError()
+            incConseqError("BME280 Read Err")
             val = None
         return val
 

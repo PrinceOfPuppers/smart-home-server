@@ -4,13 +4,13 @@ from datetime import datetime
 from smart_home_server.hardware_interfaces.dht22 import getDHT
 from smart_home_server.hardware_interfaces.bme280 import getBME
 from smart_home_server.hardware_interfaces.udp import getWeatherServerData, getAirQualityServerData
-from smart_home_server.helpers import padChar, roundTimeStr
+from smart_home_server.helpers import padChar
 import smart_home_server.constants as const
 
 from smart_home_server.data_sources.caching import cached
 from smart_home_server import __version__
 
-from smart_home_server.errors import currentErrors, getErrorStrAndBool
+from smart_home_server.errors import getErrorStrAndBool
 from smart_home_server.handlers.logs import jobLog, rfLog
 
 # return format is 
