@@ -7,6 +7,7 @@ from flask_expects_json import expects_json
 #from smart_home_server.handlers.lcd import toggleLCDBacklight, updateLCDFromJobData
 
 from smart_home_server.handlers.logs import logs
+from smart_home_server.errors import clearAllErrors
 
 from smart_home_server.api import nameSchema
 
@@ -48,5 +49,10 @@ def deleteLogRoute():
         return current_app.response_class(f"No Log Named: {name}", status=400)
 
     logs[name].clear()
+    return current_app.response_class(status=200)
+
+@dashboardApi.route('/api/dashboard/errors', methods=['DELETE'])
+def deleteErrorsRoute():
+    clearAllErrors()
     return current_app.response_class(status=200)
 

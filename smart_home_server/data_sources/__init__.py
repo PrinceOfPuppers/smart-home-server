@@ -13,7 +13,7 @@ from smart_home_server import __version__
 from smart_home_server.errors import getErrorStrAndBool
 from smart_home_server.handlers.logs import jobLog, rfLog
 
-# return format is 
+# return format is
 #example = {
 #    'str': f'Temprature: 123 \nHumidity: 123',
 #    'data': {
@@ -349,7 +349,7 @@ dataSources = [
 
     {
         'name': 'AQ Station',
-        'color': 'blue',
+        'color': 'yellow',
         'url': f'/api/data/aq',
         'local': lambda: cached(getAirQualityServerLocal, 60//2, ip=const.airQualityServerIP),
         'pollingPeriod': 60,
@@ -630,6 +630,13 @@ dataSources = [
 
         'dashboard':{
             'enabled':True,
+            'buttons':[{
+                'text': 'Clear',
+                'actions':[
+                    {'type':'request', 'route':'api/dashboard/errors' , 'method': 'DELETE', 'data':{}},
+                    {'type': 'reload'},
+                 ],
+            }],
         },
 
         'values': {
@@ -668,7 +675,7 @@ dataSources = [
             'enabled':True,
             'hideable': True,
             'buttons':[{
-                'text': 'Clear', 
+                'text': 'Clear',
                 'actions':[
                     {'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'jobLog'}},
                     {'type': 'reload'},
@@ -690,7 +697,7 @@ dataSources = [
             'enabled':True,
             'hideable': True,
             'buttons':[{
-                'text': 'Clear', 
+                'text': 'Clear',
                 'actions':[
                     {'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'rfLog'}},
                     {'type': 'reload'},
