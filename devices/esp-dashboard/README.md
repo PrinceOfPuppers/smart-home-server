@@ -2,6 +2,7 @@
 > A Remote Device for Displaying Information From smart-home-server
 
 <img align="left" height="300" src="images/full-right.jpg">
+<img align="left" height="300" src="images/full-back.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -35,19 +36,21 @@ This device is a remote dashboard for displaying formatted information from smar
 1) 3D print the case body, lid and platform.
 2) Put the ESP8266 into the case upside down on the risers, with the port facing the USB cutout, screw M2 screws through the risers and secure the ESP8266 with M2 bolts.
 3) Screw M4 screws through the holes in the base and then into the body of the case (longer part of the base should point backwards), put press bolts into the hexagonal holes in the body to secure the screws.
-4) Connect the SCL, SDA, GND, and VCC pins to the LCD. For VCC/GND, splice them with the capacitor if desired (see image of internals below).
-5) Grounding pins D4 D5 and D6 can be used to select different LCD Numbers to allow for 8 dashboard to be used with the same smart-home-server (see image of internals below)
+4) Connect the `SCL`, `SDA`, `GND`, and `VCC` pins to the LCD. For `VCC`/`GND`, splice them with the capacitor if desired (see image of internals below).
+5) Grounding pins `D4`, `D5` and `D6` can be used to select different LCD Numbers to allow for 8 dashboard to be used with the same smart-home-server (see image of internals below)
 6) Press the LCD onto the outer riser posts, the I2C wires should point to the left to give them more room.
 7) Press the front cover on the body, it should snap into place.
 8) (optional) cut out orange light filter to be slightly larger than the front opening of the case, add multiple layers to achieve desired color, tape the layers together and put in opening to cover the LCD.
 
 Device internals:
+
 <img align="left" height="300" src="images/internals.jpg">
 <img align="left" height="300" src="images/lcd-off.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
 Color filter demo:
+
 <img align="left" height="300" src="images/filter-demo.jpg">
 <br clear="left"/>
 <br clear="left"/>
@@ -71,9 +74,9 @@ arduino-cli compile --fqbn "esp8266:esp8266:nodemcuv2" -u -p /dev/ttyUSB0 && scr
 
 
 # Operation
-Once powered on the device display diagnostic information as goes through the steps to connect to the smart-home-server. It will connect to WiFi and then attempt to reach out to the server, after which, it will present its LCD number to which the server will reply with the corresponding format. From there the server will update the device whenever the data changes.
+Once powered on the device display diagnostic information as goes through the steps to connect to `smart-home-server`. It will connect to WiFi and then attempt to reach out to the server, after which, it will present its LCD number to which the server will reply with the corresponding format. From there the server will update the device whenever the data changes.
 
-The format is set on the `Lcds` tab of the `smart-home-server`. Here you can also toggle the backlight of each LCD by pressing its LCD number.
+The format is set on the `LCD` tab of the `smart-home-server`. Here you can also toggle the backlight of each LCD by pressing its LCD number.
 
 If no format is set for that LCD number, the server will display a message saying so on the device.
 
