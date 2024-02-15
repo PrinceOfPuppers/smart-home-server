@@ -80,8 +80,10 @@ The format is set on the `Lcd` tab of the `smart-home-server`. Here you can also
 
 If no format is set for that LCD number, the server will display a message saying so on the device.
 
+Connected LCDs will have a yellow nametag, disconnected LCDs will have a grey name tag. LCD num 0 is reserved for the LCD directly connected to `smart-home-server`
+
 Screenshot of `smart-home-server`'s Lcd tab:
 
-<img align="left" height="300" src="images/lcd-page-screenshot.jpg">
+<img align="left" height="500" src="images/lcd-page-screenshot.png">
 <br clear="left"/>
 <br clear="left"/>
