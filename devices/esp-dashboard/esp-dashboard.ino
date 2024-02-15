@@ -103,7 +103,6 @@ void getLCDNum(){
 // TCP stuff //
 ///////////////
 
-#define SERVER_IP "192.168.2.23"
 const String server_ip = SERVER_IP;
 static String localIP;
 #define PORT 6832

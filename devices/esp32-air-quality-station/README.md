@@ -39,6 +39,7 @@ I will divide this into sections, most things can be improvised with small desig
 - 3.3V lipo pack
 - USB C Battery charging board (mine are 17.5mm by 28.4mm)
 - 30 mm fan
+- 220 uF Capacitor
 
 ##### Connections
 - prototype boards (mine are 7x5 cm)
