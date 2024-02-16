@@ -1,8 +1,8 @@
 # ESP8266 Dashboard
 > A Remote Device for Displaying Information From smart-home-server
 
-<img align="left" height="300" src="images/full-right.jpg">
-<img align="left" height="300" src="images/full-back.jpg">
+<img align="left" max-height="300" src="images/full-right.jpg">
+<img align="left" max-height="300" src="images/full-back.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -28,7 +28,7 @@ This device is a remote dashboard for displaying formatted information from smar
 - M2 Screws and nuts
 - M4 Screws and nuts
 - 220 uF capacitor (optional, helps reduce LCD flicker)
-- wire splicing or soldering (needed if capacitor is used)
+- Wire splicing or soldering (needed if capacitor is used)
 - Orange light filter sheets (optional to change LCD color)
 
 ## Assembly
@@ -37,21 +37,21 @@ This device is a remote dashboard for displaying formatted information from smar
 2) Put the ESP8266 into the case upside down on the risers, with the port facing the USB cutout, screw M2 screws through the risers and secure the ESP8266 with M2 bolts.
 3) Screw M4 screws through the holes in the base and then into the body of the case (longer part of the base should point backwards), put press bolts into the hexagonal holes in the body to secure the screws.
 4) Connect the `SCL`, `SDA`, `GND`, and `VCC` pins to the LCD. For `VCC`/`GND`, splice them with the capacitor if desired (see image of internals below).
-5) Grounding pins `D4`, `D5` and `D6` can be used to select different LCD Numbers to allow for 8 dashboard to be used with the same smart-home-server (see image of internals below)
+5) Grounding pins `D4`, `D5` and `D6` can be used to select different LCD Numbers to allow for 8 dashboard to be used with the same smart-home-server (see image of internals below).
 6) Press the LCD onto the outer riser posts, the I2C wires should point to the left to give them more room.
 7) Press the front cover on the body, it should snap into place.
-8) (optional) cut out orange light filter to be slightly larger than the front opening of the case, add multiple layers to achieve desired color, tape the layers together and put in opening to cover the LCD.
+8) (Optional) Cut out orange light filter to be slightly larger than the front opening of the case, add multiple layers to achieve desired color, tape the layers together and put in opening to cover the LCD.
 
 Device internals:
 
-<img align="left" height="300" src="images/internals.jpg">
-<img align="left" height="300" src="images/lcd-off.jpg">
+<img align="left" max-height="300" src="images/internals.jpg">
+<img align="left" max-height="300" src="images/lcd-off.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
 Color filter demo:
 
-<img align="left" height="300" src="images/filter-demo.jpg">
+<img align="left" max-height="300" src="images/filter-demo.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -64,10 +64,10 @@ You must create the file `network-info.h` containing the following in this direc
 ```
 #define NETWORK_NAME "NETWORK123"    // your wifi network name
 #define NETWORK_PASS "XXXXXXXXX"     // your wifi password
-#define SERVER_IP    "192.168.1.123" // Your smart-home-server ip address
+#define SERVER_IP    "192.168.1.123" // your smart-home-server ip address
 ```
 
-The following command will build and get serial output on Linux, You may need to change USB0 to some other number for your machine:
+The following command will build and get serial output on Linux, you may need to change USB0 to some other number for your machine:
 ```
 arduino-cli compile --fqbn "esp8266:esp8266:nodemcuv2" -u -p /dev/ttyUSB0 && screen /dev/ttyUSB0 115200
 ```
@@ -84,6 +84,6 @@ Connected LCDs will have a yellow nametag, disconnected LCDs will have a grey na
 
 Screenshot of `smart-home-server`'s Lcd tab:
 
-<img align="left" height="500" src="images/lcd-page-screenshot.png">
+<img align="left" max-height="500" src="images/lcd-page-screenshot.png">
 <br clear="left"/>
 <br clear="left"/>
