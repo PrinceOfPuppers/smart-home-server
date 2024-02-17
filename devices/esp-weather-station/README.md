@@ -1,7 +1,7 @@
 # Esp8266 Weather Station
 > A Device for Monitoring Temperature, Humidity and Pressure
 
-<img align="left" max-height="300" src="images/full.jpg">
+<img align="left" height="300" src="images/full.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -47,8 +47,8 @@ The BME280 will be mounted outside of the front the case, with the board facing 
 
 ### Photos
 
-<img align="left" max-height="300" src="images/front.jpg">
-<img align="left" max-height="300" src="images/internals.jpg">
+<img align="left" height="300" src="images/front.jpg">
+<img align="left" height="300" src="images/internals.jpg">
 <br clear="left"/>
 <br clear="left"/>
 

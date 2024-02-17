@@ -86,7 +86,7 @@ Thread 2 M2.5 screws through both mounting holes on the servo, attach 2 M2.5 fem
 
 Drill 2 holes into the project box to mount the servo+standoffs onto it, the holes should be drilled at the midpoint of the boxes depth as shown below.
 
-<img align="left" max-height="300" src="images/servo_pic.jpg">
+<img align="left" height="300" src="images/servo_pic.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -183,8 +183,8 @@ Drill 2 level holes in the project box lid with the same spacing as the motion s
 
 Thread a twist tie through the front of one hole in the lid and back out the other. Thread either end of the twist tie through the mounting holes on the motion sensor, loop each end around the outside of the PCB and back through the project box lid holes. Secure the twist ties on the inside of the lid with some tape. 
 
-<img align="left" max-height="300" src="images/motion_pic_1.jpg">
-<img align="left" max-height="300" src="images/motion_pic_2.jpg">
+<img align="left" height="300" src="images/motion_pic_1.jpg">
+<img align="left" height="300" src="images/motion_pic_2.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -223,9 +223,9 @@ Adjust `LIGHT_SWITCH_RESPONSE_DELAY` in `4-light-sensor.ino` as needed, dependin
 Here is an Rx Triggered module with a light sensor which presses rocker switches (used to control lights that are attached to multiple switches)
 Rx `Trigger`, Light Sensor `Modifier`, Servo `Action`:
 
-<img align="left" max-height="300" src="images/interal_pic.jpg">
-<img align="left" max-height="300" src="images/photoresistor_pic.jpg">
-<img align="left" max-height="300" src="images/servo_pic.jpg">
+<img align="left" height="300" src="images/interal_pic.jpg">
+<img align="left" height="300" src="images/photoresistor_pic.jpg">
+<img align="left" height="300" src="images/servo_pic.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -233,7 +233,7 @@ Rx `Trigger`, Light Sensor `Modifier`, Servo `Action`:
 Here is a power controlled Tx Transmitter (turns a switchable outlet into an RF transmitter)
 Power `Trigger`, Tx `Action`:
 
-<img align="left" max-height="300" src="images/tx_power_pic.jpg">
+<img align="left" height="300" src="images/tx_power_pic.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -241,7 +241,7 @@ Power `Trigger`, Tx `Action`:
 Here is a Rx Triggered Tx Transmitter (acts like either a radio relay, or RF translator from one set of on/off codes to another)
 Rx `Trigger`, Tx `Action`:
 
-<img align="left" max-height="300" src="images/rx_tx_pic.jpg">
+<img align="left" height="300" src="images/rx_tx_pic.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -249,6 +249,6 @@ Rx `Trigger`, Tx `Action`:
 Here is a Motion Triggered module which presses rocker switches (turns on the light when you enter the room, and off after you leave)
 Motion `Trigger`, Servo `Action`:
 
-<img align="left" max-height="300" src="images/motion_dev_pic.jpg">
+<img align="left" height="300" src="images/motion_dev_pic.jpg">
 <br clear="left"/>
 <br clear="left"/>

@@ -1,8 +1,8 @@
 # ESP8266 Dashboard
 > A Remote Device for Displaying Information From smart-home-server
 
-<img align="left" max-height="300" src="images/full-right.jpg">
-<img align="left" max-height="300" src="images/full-back.jpg">
+<img align="left" height="300" src="images/full-right.jpg">
+<img align="left" height="300" src="images/full-back.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -44,14 +44,14 @@ This device is a remote dashboard for displaying formatted information from smar
 
 Device internals:
 
-<img align="left" max-height="300" src="images/internals.jpg">
-<img align="left" max-height="300" src="images/lcd-off.jpg">
+<img align="left" height="300" src="images/internals.jpg">
+<img align="left" height="300" src="images/lcd-off.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
 Color filter demo:
 
-<img align="left" max-height="300" src="images/filter-demo.jpg">
+<img align="left" height="300" src="images/filter-demo.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -84,6 +84,6 @@ Connected LCDs will have a yellow nametag, disconnected LCDs will have a grey na
 
 Screenshot of `smart-home-server`'s Lcd tab:
 
-<img align="left" max-height="500" src="images/lcd-page-screenshot.png">
+<img align="left" height="500" src="images/lcd-page-screenshot.png">
 <br clear="left"/>
 <br clear="left"/>

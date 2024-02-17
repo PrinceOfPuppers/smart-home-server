@@ -1,8 +1,8 @@
 # Esp32 Air Quality Station
 > A Device for Monitoring Co2, VOCs, PM1, PM2.5, PM10, Temperature, Humidity, Pressure, and Overall Air Quality (IQA)
 
-<img align="left" max-height="300" src="images/full-left.jpg">
-<img align="left" max-height="300" src="images/full-right.jpg">
+<img align="left" height="300" src="images/full-left.jpg">
+<img align="left" height="300" src="images/full-right.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -66,7 +66,7 @@ For the case, the PMS5003 and Fan attach to the lid, along with the shaft/guide 
 
 ### Schematic
 
-<img align="left" max-height="300" src="images/schematic.jpg">
+<img align="left" height="300" src="images/schematic.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -74,16 +74,16 @@ For the case, the PMS5003 and Fan attach to the lid, along with the shaft/guide 
 
 Motherboard unpopulated and populated:
 
-<img align="left" max-height="300" src="images/empty-mb.jpg">
-<img align="left" max-height="300" src="images/mb.jpg">
+<img align="left" height="300" src="images/empty-mb.jpg">
+<img align="left" height="300" src="images/mb.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
 Power board installation, installing motherboard into case, connecting lid:
 
-<img align="left" max-height="300" src="images/power-install.jpg">
-<img align="left" max-height="300" src="images/mb-install.jpg">
-<img align="left" max-height="300" src="images/full-open.jpg">
+<img align="left" height="300" src="images/power-install.jpg">
+<img align="left" height="300" src="images/mb-install.jpg">
+<img align="left" height="300" src="images/full-open.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
