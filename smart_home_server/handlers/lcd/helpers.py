@@ -11,6 +11,7 @@ from smart_home_server.hardware_interfaces.lcd import writeLCD, setBacklight, to
 from smart_home_server.hardware_interfaces.tcp import tcpSendPacket, disconnectSocket
 import smart_home_server.constants as const
 from smart_home_server.handlers.subscribeManager import subscribe
+from smart_home_server.handlers.lcd.formatter import IgnoreMissingFormatter
 
 class LcdDoesNotExist(Exception):
     pass
@@ -21,22 +22,19 @@ class LcdAlreadyExists(Exception):
 class LcdStopSig(Exception):
     pass
 
-
-class IgnoreMissingDict(dict):
-    def __missing__(self, key):
-        return '{' + key + '}'
-
 spaceFormat = "space"
-noSpace = IgnoreMissingDict({spaceFormat:""})
-oneSpace = IgnoreMissingDict({spaceFormat:" "})
+noSpace = {spaceFormat:""}
+oneSpace = {spaceFormat:" "}
+
+formatter = IgnoreMissingFormatter()
 def fillSpacesAndClamp(lines):
     res = []
     for i in range(min(len(lines), const.maxLcdLines)):
         line = lines[i]
-        size = len(line.format_map(noSpace))
-        numSpaces = len(line.format_map(oneSpace)) - size
+        size = len(formatter.format(line, **noSpace))
+        numSpaces = len(formatter.format(line, **oneSpace)) - size
         spaceSize = 0 if numSpaces < 1 else (const.lcdWidth - size)//numSpaces
-        line = line.format_map(IgnoreMissingDict({spaceFormat:" "*spaceSize}))
+        line = formatter.format(line, **{spaceFormat:" "*spaceSize})
 
         # clamp length
         line = line if len(line) <= const.lcdWidth else line[0:const.lcdWidth]
@@ -47,7 +45,7 @@ def fillSpacesAndClamp(lines):
 # writeCb takes in lines list
 def _printfLCD(writeCb, fmt, replacements):
     try:
-        text = fmt.format_map(IgnoreMissingDict(replacements))
+        text = formatter.format(fmt, **replacements)
         lines = text.split('\n')
         lines = fillSpacesAndClamp(lines)
     except Exception as e:
