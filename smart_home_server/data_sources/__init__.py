@@ -717,8 +717,8 @@ for source in dataSources:
         source['values'] = {}
     source['values'][f"{source['name']}-str"] = {'enabled':False, 'dataPath': ['str']}
 
-dataSourceValues = set()
-dataSourceDict = {}
+dataSourceValues = set() # a set of all value keys (ie temp, humid, ...)
+dataSourceDict = {} # name: {source} (ie "Indoor": {"name": "Indoor", "color": "blue", "pollingPeriod": ...})
 for source in dataSources:
     assert 'name' in source
     dataSourceDict[source['name']] = source

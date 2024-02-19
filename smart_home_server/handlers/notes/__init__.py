@@ -14,7 +14,7 @@ def deleteNote(id: str):
     with _noteLock:
         _deleteNote(id)
 
-def updateNote(id:str, name:str=None, content:str=None):
+def updateNote(id:str, name=None, content=None):
     with _noteLock:
         _updateNote(id, name=name, content=content)
 

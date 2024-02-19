@@ -33,7 +33,7 @@ def _deleteNote(id: str):
         return
     raise NoteDoesNotExist()
 
-def _updateNote(id:str, name:str=None, content:str=None):
+def _updateNote(id:str, name=None, content=None):
     note = _getNote(id)
     if note is None:
         return NoteDoesNotExist()

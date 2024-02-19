@@ -1,0 +1,115 @@
+from time import time
+from datetime import datetime
+from dataclasses import dataclass
+import matplotlib.pyplot as plt
+import numpy as np
+from threading import Lock
+
+import smart_home_server.constants as const
+from smart_home_server.handlers.subscribeManager import subscribe
+
+class GraphDoesNotExist(Exception):
+    pass
+
+class GraphAlreadyExists(Exception):
+    pass
+
+@dataclass
+class GraphRuntime:
+    id:str
+    datasource:str
+    lastUpdated:float
+    ts: list
+    ys: list
+    maxLen: int
+    lock:Lock
+    index:int = 0
+    seq:int = 0
+
+_graphRuntimes:dict = {}
+_graphRuntimesLock = Lock()
+
+def _getGraphFigurePath(id:str):
+    return f'{const.graphsFigureFolder}/{id}.png'
+
+def _addPoint(g:GraphRuntime, value):
+    now = time()
+
+    with g.lock:
+        # circleBuff mode
+        if len(g.ts) == g.maxLen:
+            g.ts[g.index] = now
+            g.ys[g.index] = value
+
+        # append mode
+        else:
+            g.ts.append(now)
+            g.ys.append(value)
+
+        g.lastUpdated = now
+
+        # increment index
+        g.index += 1
+        g.index %= g.maxLen
+
+# create new ts with t=0 being now
+def _generatePlot(id:str):
+    if id not in _graphRuntimes:
+        raise GraphDoesNotExist()
+
+    with _graphRuntimesLock:
+        g:GraphRuntime = _graphRuntimes[id]
+        with g.lock:
+            # sort circle buffers
+            ts, ys = zip(*sorted(zip(g.ts, g.ys)))
+
+    now = time()
+
+    delta = ts[-1] - ts[0]
+
+    if delta < 3*60: # 3 minutes
+        tlabel = "Time (Seconds)"
+        relTs = [x-now for x in ts]
+
+    elif delta < 3*60*60: # 3 hours
+        tlabel = "Time (Minutes)"
+        relTs = [(x-now)/60 for x in ts]
+
+    else:
+        relTs = [(x-now)/(60*60) for x in ts]
+        tlabel = "Time (Hours)"
+
+    plt.plot(relTs, ys)
+    plt.xlabel(tlabel)
+    #plt.title(datetime.fromtimestamp(now).strftime('%Y-%m-%d %H:%M:%S'))
+    plt.savefig(_getGraphFigurePath(id))
+
+def _subscribeErrCB(datasource, e:Exception):
+    # TODO: add to errors
+    print(f"Graph {datasource} Exception: \n{repr(e)}", flush=True)
+
+def _startGraphPlotting(id:str, numSamples:int, datasource:str):
+    with _graphRuntimesLock:
+        if id in _graphRuntimes:
+            _graphRuntimes[id].seq += 1
+
+        runtime = GraphRuntime(id, datasource, 0, [], [], numSamples, Lock())
+
+        _graphRuntimes[id] = runtime
+        current = runtime.seq
+
+        subscribe(\
+             datasource,
+             lambda values:_addPoint(runtime, values[datasource]),
+             lambda: current != runtime.seq,
+             lambda e: _subscribeErrCB(datasource, e)
+         )
+
+def _stopGraphPlotting(id:str):
+    with _graphRuntimesLock:
+        if id in _graphRuntimes:
+            with _graphRuntimes[id].lock:
+                _graphRuntimes[id].seq += 1
+            _graphRuntimes.pop(id)
+
+

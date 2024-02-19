@@ -16,6 +16,12 @@ modulePath = dirname(__file__)
 #pressSpacing = 0.07
 pressRepeats = 4
 
+templatesFolder = f'{modulePath}/templates'
+staticFolder = f'{templatesFolder}/static'
+
+#for items generated that should not be saved between restarts (on ramdisk)
+generatedFolder = f'{templatesFolder}/generated'
+
 storageFolder = f'{modulePath}/storage'
 createIfNotExists(storageFolder)
 schedulerJobFolder = f'{storageFolder}/jobs'
@@ -45,6 +51,12 @@ createIfNotExists(remoteFolder)
 
 lcdsFolder = f'{storageFolder}/lcds'
 createIfNotExists(lcdsFolder)
+
+graphsFolder = f'{storageFolder}/graphs'
+createIfNotExists(graphsFolder)
+
+graphsFigureFolder = f'{generatedFolder}/graphs'
+createIfNotExists(graphsFigureFolder)
 
 # defaultRemoteFileA = f'{storageFolder}/remotes/A'
 # if not os.path.exists(defaultRemoteFileA):
@@ -112,8 +124,6 @@ createIfNotExists(lcdsFolder)
 #             f.close()
 #loadRemotes()
 
-templatesFolder = f'{modulePath}/templates'
-staticFolder = f'{templatesFolder}/static'
 
 txGpio = 17
 rxGpio = 25
