@@ -11,278 +11,302 @@
     --green: #A6E22E;
     --yellow: #E6DB74;
     --orange: #FD971F;
-    }
-    @font-face {
-      font-family: "Noto-Color-Mono";
-      src: url('NotoColorEmoji-Regular.ttf') format('truetype');
-    }
-    @font-face {
-      font-family: "Noto-Sans-Mono";
-      src: url('NotoSansMono-Regular-new.ttf') format('truetype');
+}
+.yellow{
+    border: 2pt solid var(--yellow);
+    color: var(--yellow)
+}
+.purple{
+    border: 2pt solid var(--purple);
+    color: var(--purple)
+}
+.blue{
+    border: 2pt solid var(--blue);
+    color: var(--blue)
+}
+.green{
+    border: 2pt solid var(--green);
+    color: var(--green)
+}
+.red{
+    border: 2pt solid var(--red);
+    color: var(--red)
+}
+.orange{
+    border: 2pt solid var(--orange);
+    color: var(--orange)
+}
+@font-face {
+  font-family: "Noto-Color-Mono";
+  src: url('NotoColorEmoji-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: "Noto-Sans-Mono";
+  src: url('NotoSansMono-Regular-new.ttf') format('truetype');
+}
+
+* {
+  font-family: Noto-Sans-Mono;
+  line-height: 1.2012em;
+}
+html {
+    background-color: var(--darkGrey);
+    background-image: url("ferns-compressed.jpeg");
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    color: var(--white);
+}
+
+body{
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+
+    border: 2pt solid var(--lightGreyA);
+    border-radius: 4px;
+
+    background-color: var(--darkGreyA);
+    padding: 10pt;
+}
+
+.faintText {
+    color: var(--lightGreyA);
+}
+
+a {
+    color:  var(--blue);
+}
+
+a:visited {
+    color: var(--lightGrey);
+}
+
+.nobr {
+    white-space:nowrap;
+}
+
+button{
+    background-color: var(--darkGrey);
+
+    border: 2pt solid var(--white);
+    border-radius: 4pt;
+    background-color: var(--darkGrey);
+    color: var(--white);
+    padding: 10pt 12pt;
+    /* padding: 10pt 15pt; */
+    /* padding: 5pt 10pt; */
+    cursor: pointer;
+    font-size:11pt;
+}
+button:active {
+    color: var(--darkGrey);
+    background-color: var(--white);
+}
+
+.blueButton {
+    color: var(--blue);
+    border-color: var(--blue);
+}
+
+.greenButton {
+    color: var(--green);
+    border-color: var(--green);
+}
+
+.redButton {
+    color: var(--red);
+    border-color: var(--red);
+}
+
+.purpleButton {
+    color: var(--purple);
+    border-color: var(--purple);
+}
+
+.whiteButton {
+    color: var(--white);
+    border-color: var(--white);
+}
+.yellowButton {
+    color: var(--yellow);
+    border-color: var(--yellow);
+}
+.orangeButton {
+    color: var(--orange);
+    border-color: var(--orange);
+}
+.grayButton {
+    color: var(--lightGrey);
+    border-color: var(--lightGrey);
+}
+ul{
+    padding: 0;
+    list-style-type: none;
+}
+ul.remotes{
+/*
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px
+*/
+}
+ul.remotes > li {
+    padding: 0pt 0pt 10pt 0pt;
+}
+
+ul.remote {
+  border: 2pt solid var(--lightGrey);
+  background-color: var(--grey);
+  padding:10pt;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 4pt;
+}
+ul.remote > li > div > button {
+    padding: 10pt 15pt;
+}
+.on-off-channel {
+    padding: 3pt;
+}
+.remoteChannelNum {
+    padding: 3pt;
+}
+
+.topnav {
+  border: 2pt solid var(--lightGrey);
+  background-color: var(--grey);
+  overflow: hidden;
+  width: fit-content;
+  border-radius: 4px;
+}
+
+.topnav a {
+  float: left;
+  color: var(--white);
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.topnav a.active {
+  background-color: var(--green);
+  color: var(--darkGrey);
+}
+
+input, label {
+    display:block;
+    font-size:11pt;
+}
+
+textarea {
+    font-size:11pt;
+}
+
+.atInput {
+    display:inline;
+    padding-left:0px;
+}
+
+.clear {
+    clear: both;
+}
+
+.formDiv {
+    float:left;
+    padding:3pt;
+}
+.job, .macro{
+    width: fit-content;
+    border: 2pt solid var(--lightGrey);
+    border-radius: 4px;
+    background-color: var(--grey);
+    padding:5pt;
+    margin-bottom:15pt;
+}
+.buttonBar{
+    width: fit-content;
+    font-size:8pt;
+}
+.jobText {
+    border: 2pt solid var(--lightGrey);
+    background-color: var(--darkGrey);
+    padding:5pt;
+    margin-top:5pt;
+    border-radius: 4px;
+    display: none;
+}
+.macroItem {
+    border: 2pt solid var(--lightGrey);
+    background-color: var(--darkGrey);
+    padding:5pt;
+    margin-top:5pt;
+    border-radius: 4px;
+
+}
+.macroItems {
+    display: none;
+}
+#jobForm, #newMacroForm, #addToMacroForm, #newRemoteForm, #editRemoteForm{
+    width: fit-content;
+    border: 2pt solid var(--lightGrey);
+    background-color: var(--grey);
+    padding:5pt;
+    border-radius: 4px;
+}
+
+.indent {
+    padding-left: 3%;
+}
+
+@media (hover: hover) {
+    .blueButton:hover {
+        color: var(--darkGrey);
+        background-color: var(--blue);
     }
 
-    * {
-      font-family: Noto-Sans-Mono;
-      line-height: 1.2012em;
-    }
-    html {
-        background-color: var(--darkGrey);
-        background-image: url("ferns-compressed.jpeg");
-        background-position: center;
-        background-attachment: fixed;
-        background-repeat: no-repeat;
-        background-size: cover;
-
-        color: var(--white);
+    .greenButton:hover {
+        color: var(--darkGrey);
+        background-color: var(--green);
     }
 
-    body{
-        margin-left: auto;
-        margin-right: auto;
-        width: fit-content;
-
-        border: 2pt solid var(--lightGreyA);
-        border-radius: 4px;
-
-        background-color: var(--darkGreyA);
-        padding: 10pt;
+    .redButton:hover {
+        color: var(--darkGrey);
+        background-color: var(--red);
     }
-
-    .faintText {
-        color: var(--lightGreyA);
+    .purpleButton:hover {
+        color: var(--darkGrey);
+        background-color: var(--purple);
     }
-
-    a {
-        color:  var(--blue);
-    }
-
-    a:visited {
-        color: var(--lightGrey);
-    }
-
-    .nobr {
-        white-space:nowrap;
-    }
-
-    button{
-        background-color: var(--darkGrey);
-
-        border: 2pt solid var(--white);
-        border-radius: 4pt;
-        background-color: var(--darkGrey);
-        color: var(--white);
-        padding: 10pt 12pt;
-        /* padding: 10pt 15pt; */
-        /* padding: 5pt 10pt; */
-        cursor: pointer;
-        font-size:11pt;
-    }
-    button:active {
+    .whiteButton:hover {
         color: var(--darkGrey);
         background-color: var(--white);
     }
-
-    .blueButton {
-        color: var(--blue);
-        border-color: var(--blue);
+    .yellowButton:hover {
+        color: var(--darkGrey);
+        background-color: var(--yellow);
+    }
+    .orangeButton:hover {
+        color: var(--darkGrey);
+        background-color: var(--orange);
+    }
+    .grayButton:hover {
+        color: var(--darkGrey);
+        background-color: var(--lightGrey);
     }
 
-    .greenButton {
-        color: var(--green);
-        border-color: var(--green);
+    ul.remote > li:hover {
     }
 
-    .redButton {
-        color: var(--red);
-        border-color: var(--red);
-    }
-
-    .purpleButton {
-        color: var(--purple);
-        border-color: var(--purple);
-    }
-
-    .whiteButton {
-        color: var(--white);
-        border-color: var(--white);
-    }
-    .yellowButton {
-        color: var(--yellow);
-        border-color: var(--yellow);
-    }
-    .orangeButton {
-        color: var(--orange);
-        border-color: var(--orange);
-    }
-    .grayButton {
-        color: var(--lightGrey);
-        border-color: var(--lightGrey);
-    }
-    ul{
-        padding: 0;
-        list-style-type: none;
-    }
-    ul.remotes{
-    /*
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px
-    */
-    }
-    ul.remotes > li {
-        padding: 0pt 0pt 10pt 0pt;
-    }
-
-    ul.remote {
-      border: 2pt solid var(--lightGrey);
-      background-color: var(--grey);
-      padding:10pt;
-      width: fit-content;
-      margin-left: auto;
-      margin-right: auto;
-      border-radius: 4pt;
-    }
-    ul.remote > li > div > button {
-        padding: 10pt 15pt;
-    }
-    .on-off-channel {
-        padding: 3pt;
-    }
-    .remoteChannelNum {
-        padding: 3pt;
-    }
-
-    .topnav {
-      border: 2pt solid var(--lightGrey);
-      background-color: var(--grey);
-      overflow: hidden;
-      width: fit-content;
-      border-radius: 4px;
-    }
-
-    .topnav a {
-      float: left;
-      color: var(--white);
-      text-align: center;
-      padding: 14px 16px;
-      text-decoration: none;
-    }
-
-    .topnav a.active {
-      background-color: var(--green);
+    .topnav a:hover {
+      background-color: var(--lightGrey);
       color: var(--darkGrey);
     }
-
-    input, label {
-        display:block;
-        font-size:11pt;
-    }
-
-    textarea {
-        font-size:11pt;
-    }
-
-    .atInput {
-        display:inline;
-        padding-left:0px;
-    }
-
-    .clear {
-        clear: both;
-    }
-
-    .formDiv {
-        float:left;
-        padding:3pt;
-    }
-    .job, .macro{
-        width: fit-content;
-        border: 2pt solid var(--lightGrey);
-        border-radius: 4px;
-        background-color: var(--grey);
-        padding:5pt;
-        margin-bottom:15pt;
-    }
-    .buttonBar{
-        width: fit-content;
-        font-size:8pt;
-    }
-    .jobText {
-        border: 2pt solid var(--lightGrey);
-        background-color: var(--darkGrey);
-        padding:5pt;
-        margin-top:5pt;
-        border-radius: 4px;
-        display: none;
-    }
-    .macroItem {
-        border: 2pt solid var(--lightGrey);
-        background-color: var(--darkGrey);
-        padding:5pt;
-        margin-top:5pt;
-        border-radius: 4px;
-
-    }
-    .macroItems {
-        display: none;
-    }
-    #jobForm, #newMacroForm, #addToMacroForm, #newRemoteForm, #editRemoteForm{
-        width: fit-content;
-        border: 2pt solid var(--lightGrey);
-        background-color: var(--grey);
-        padding:5pt;
-        border-radius: 4px;
-    }
-
-    .indent {
-        padding-left: 3%;
-    }
-
-    @media (hover: hover) {
-        .blueButton:hover {
-            color: var(--darkGrey);
-            background-color: var(--blue);
-        }
-
-        .greenButton:hover {
-            color: var(--darkGrey);
-            background-color: var(--green);
-        }
-
-        .redButton:hover {
-            color: var(--darkGrey);
-            background-color: var(--red);
-        }
-        .purpleButton:hover {
-            color: var(--darkGrey);
-            background-color: var(--purple);
-        }
-        .whiteButton:hover {
-            color: var(--darkGrey);
-            background-color: var(--white);
-        }
-        .yellowButton:hover {
-            color: var(--darkGrey);
-            background-color: var(--yellow);
-        }
-        .orangeButton:hover {
-            color: var(--darkGrey);
-            background-color: var(--orange);
-        }
-        .grayButton:hover {
-            color: var(--darkGrey);
-            background-color: var(--lightGrey);
-        }
-
-        ul.remote > li:hover {
-        }
-
-        .topnav a:hover {
-          background-color: var(--lightGrey);
-          color: var(--darkGrey);
-        }
-    }
+}
 .dashboardList {
   display: flex;
   flex-wrap: wrap;
@@ -313,6 +337,16 @@
     font-family: Noto-Sans-Mono, Noto-Color-Mono;
     font-size:11pt;
 }
+.selectButton {
+    border-radius: 4pt;
+    background-color: var(--darkGrey);
+    padding: 10pt 12pt;
+    cursor: pointer;
+    font-size:11pt;
+    -moz-appearance:none; /* Firefox */
+    -webkit-appearance:none; /* Safari and Chrome */
+    appearance:none;
+}
 
 .entry {
     border: 2pt solid var(--lightGrey);
@@ -330,10 +364,6 @@
   content: attr(data-placeholder);
   display: inline;
   color: var(--lightGrey);
-}
-.yellow{
-    border: 2pt solid var(--yellow);
-    color: var(--yellow)
 }
 
 .formRadioButtonLabel {

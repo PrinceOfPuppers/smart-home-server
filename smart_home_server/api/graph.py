@@ -9,7 +9,7 @@ from smart_home_server.helpers import addDefault
 from smart_home_server.handlers.graphs import updateGraph, createGraph, deleteGraph, GraphAlreadyExists, GraphDoesNotExist, DatasourceDoesNotExist
 import smart_home_server.constants as const
 
-macroApi = Blueprint('macroApi', __name__)
+graphApi = Blueprint('graphApi', __name__)
 
 
 postGraphSchema = \
@@ -43,7 +43,7 @@ patchGraphSchema = \
     'additionalProperties': False,
 }
 
-@macroApi.route('/api/graph', methods=['POST'])
+@graphApi.route('/api/graph', methods=['POST'])
 @expects_json(postGraphSchema, check_formats=True)
 def postGraphRoute():
     data = json.loads(request.data)
@@ -61,7 +61,7 @@ def postGraphRoute():
     except:
         return current_app.response_class(status=400)
 
-@macroApi.route('/api/graph', methods=['PATCH'])
+@graphApi.route('/api/graph', methods=['PATCH'])
 @expects_json(patchGraphSchema)
 def patchGraphRoute():
     data = json.loads(request.data)
@@ -85,7 +85,7 @@ def patchGraphRoute():
     except:
         return current_app.response_class(status=400)
 
-@macroApi.route('/api/graph', methods=['DELETE'])
+@graphApi.route('/api/graph', methods=['DELETE'])
 @expects_json(deleteGraphSchema, check_formats=True)
 def deleteGraphRoute():
     data = json.loads(request.data)

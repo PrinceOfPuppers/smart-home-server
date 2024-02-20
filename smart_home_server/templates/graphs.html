@@ -14,7 +14,7 @@
 
        const hours = parseInt(hoursElement.textContent);
 
-       if(isNaN(num) || num < 0){
+       if(isNaN(hours) || hours < 0){
            window.alert(`Invalid Hours Num: ${numElement.textContent}`);
            return;
        }
@@ -25,9 +25,9 @@
         var data = {
            'datasource': datasource,
            'name': name,
-           'timeHours': hours,
+           'timeHours': hours
        };
-       sendData('/api/graphs', data, 'POST', reload=true);
+       sendData('/api/graph', data, 'POST', reload=true);
     }
     function saveGraph(id){
         const saveButtonElement = document.getElementById(`graph-edit-${id}`);
@@ -38,7 +38,7 @@
 
         const hours = parseInt(hoursElement.textContent);
 
-        if(isNaN(num) || num < 0){
+        if(isNaN(hours) || hours < 0){
             window.alert(`Invalid Hours: ${numElement.textContent}`);
             return;
         }
@@ -47,12 +47,12 @@
         const datasource = datasourceElement.value;
 
          var data = {
-            'id': id
+            'id': id,
             'newName': name,
             'newDatasource': datasource,
-            'newTimeHours': hours,
+            'newTimeHours': hours
         };
-        sendData('/api/graphs', data, 'PATCH').then((success)=>{
+        sendData('/api/graph', data, 'PATCH').then((success)=>{
              if(success){
                 tempChangeButton(saveButtonElement, "Saved!");
             }
@@ -65,6 +65,10 @@
             .then((success)=>{element.remove()});
     }
 
+
+    window.onload = () => {
+        setupSelectButtonResize();
+    }
 </script>
 
 <body>
@@ -85,12 +89,12 @@
             {% set id          = graph['id'] %}
             {% set datasource  = graph['datasource'] %}
             {% set timeHours   = graph['timeHours'] %}
-            <div id="graph-element-{{ num }}">
+            <div id="graph-element-{{ id }}">
                 <span class="buttonBar">
-                    {{ m.deleteButton( "deleteGraph(%s)" % (num) ) }}
-                    <span id="graph-name-{{ id }}" class="purple entry" contentEditable="true" spellcheck="false">{{ name }}</span>
+                    {{ m.deleteButton( "deleteGraph(%s)" % (id) ) }}
+                    <span id="graph-name-{{ id }}" class="entry" contentEditable="true" spellcheck="false">{{ name }}</span>
                     
-                    <select id="graph-datasource-{{ id }}">
+                    <select class="blue selectButton" id="graph-datasource-{{ id }}">
                         {% for value in values %}
                         <option value="{{ value }}">{{ value }}</option>
                         {% endfor %}
@@ -105,8 +109,8 @@
         {% endfor %}
         <div>
             {{ m.deleteButton( "" ) }}
-            <span class="purple entry" id="graph-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
-            <select id="graph-new-datasource">
+            <span class="entry" id="graph-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
+            <select class="blue selectButton" id="graph-new-datasource">
                 {% for value in values %}
                 <option value="{{ value }}">{{ value }}</option>
                 {% endfor %}

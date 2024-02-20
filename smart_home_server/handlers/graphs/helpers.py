@@ -4,7 +4,7 @@ import json
 from uuid import uuid4
 
 import smart_home_server.constants as const
-from smart_home_server.data_sources import getSourceDict
+from smart_home_server.data_sources import getPollingPeriod
 from smart_home_server.handlers.graphs.runtime import _generatePlot, _addPoint, GraphAlreadyExists, GraphDoesNotExist, _startGraphPlotting, _stopGraphPlotting
 
 class DatasourceDoesNotExist(Exception):
@@ -74,12 +74,11 @@ def _getGraphs():
 
 
 def _createGraph(name:str, datasource:str, timeHours:int):
-    sd = getSourceDict({datasource})
-    if datasource not in sd:
+    pollingPeriod = getPollingPeriod(datasource)
+    if pollingPeriod is None:
         raise DatasourceDoesNotExist()
-    source = sd[datasource]
 
-    numSamples = round(source["pollingPeriod"] / (timeHours * 60 * 60))
+    numSamples = round(pollingPeriod / (timeHours * 60 * 60))
 
     graph = {"name":name, "datasource": datasource, "numSamples": numSamples, "timeHours": timeHours}
     id = _saveGraph(graph)
@@ -90,6 +89,12 @@ def _startGraphs():
     graphs = _getGraphs()
     for graph in graphs:
         _startGraphPlotting(graph["id"], graph["numSamples"], graph["datasource"])
+
+
+def _stopGraphs():
+    graphs = _getGraphs()
+    for graph in graphs:
+        _stopGraphPlotting(graph["id"])
 
 
 def _updateGraph(id: str, newName = None, newDatasource= None, newTimeHours = None):
@@ -115,13 +120,11 @@ def _updateGraph(id: str, newName = None, newDatasource= None, newTimeHours = No
     newDatasource = newDatasource if newDatasource != None else graph["datasource"]
     newTimeHours = newTimeHours if newTimeHours != None else graph["timeHours"]
 
-    sd = getSourceDict({newDatasource})
-
-    if newDatasource not in sd:
+    pollingPeriod = getPollingPeriod(newDatasource)
+    if pollingPeriod is None:
         raise DatasourceDoesNotExist()
-    source = sd[newDatasource]
 
-    numSamples = round(source["pollingPeriod"] / (newTimeHours * 60 * 60))
+    numSamples = round(pollingPeriod / (newTimeHours * 60 * 60))
 
     graph = {"name":newName, "datasource": newDatasource, "numSamples": numSamples, "timeHours": newTimeHours}
     id = _saveGraph(graph)
