@@ -95,6 +95,7 @@ def generateFigure(id:str):
     axis = fig.add_subplot(1, 1, 1)
     axis.plot(relTs, ys)
     axis.set_xlabel(tlabel)
+    axis.set_title(g.datasource)
     return fig
 
 def _subscribeErrCB(datasource, e:Exception):

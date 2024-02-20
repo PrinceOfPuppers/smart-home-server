@@ -115,7 +115,7 @@ def lcdsGet():
 @app.route('/graphs')
 def graphsGet():
     graphs = getGraphs()
-    graphs.sort(key=lambda element: element['name'])
+    graphs.sort(key=lambda element: element['datasource'])
     return render_template('graphs.html', graphs=graphs, values=values)
 
 
