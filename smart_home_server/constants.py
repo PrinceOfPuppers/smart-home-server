@@ -5,6 +5,16 @@ import re
 
 TxChannel = namedtuple("Channel", ["on", "off"])
 
+colorDarkGrey = "#1e1f1c"
+colorGrey = "#272822"
+colorLightGrey = "#75715e"
+colorWhite = "#f8f8f2"
+colorPurple = "#B267E6"
+colorRed = "#F92672"
+colorBlue = "#66D9EF"
+colorGreen = "#A6E22E"
+colorYellow = "#E6DB74"
+colorOrange = "#FD971F"
 
 def createIfNotExists(dir):
     if not os.path.exists(dir):
@@ -19,8 +29,6 @@ pressRepeats = 4
 templatesFolder = f'{modulePath}/templates'
 staticFolder = f'{templatesFolder}/static'
 
-#for items generated that should not be saved between restarts (on ramdisk)
-generatedFolder = f'{templatesFolder}/generated'
 
 storageFolder = f'{modulePath}/storage'
 createIfNotExists(storageFolder)
@@ -54,9 +62,6 @@ createIfNotExists(lcdsFolder)
 
 graphsFolder = f'{storageFolder}/graphs'
 createIfNotExists(graphsFolder)
-
-graphsFigureFolder = f'{generatedFolder}/graphs'
-createIfNotExists(graphsFigureFolder)
 
 # defaultRemoteFileA = f'{storageFolder}/remotes/A'
 # if not os.path.exists(defaultRemoteFileA):

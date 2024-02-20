@@ -78,7 +78,7 @@ def startSubscribeManager():
     print("sub loop started")
 
 
-def subscribe(values, cb, cbUnsub, cbError):
+def subscribe(values:list, cb, cbUnsub, cbError):
     global _subManagerJobQueue
     values = {value for value in values if value in dataSourceValues}
     sourcesDict = getSourceDict(values)

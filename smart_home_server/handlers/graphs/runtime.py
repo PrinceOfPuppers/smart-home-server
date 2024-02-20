@@ -3,10 +3,23 @@ from datetime import datetime
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.figure import Figure
+import matplotlib as mpl
+
 from threading import Lock
 
 import smart_home_server.constants as const
 from smart_home_server.handlers.subscribeManager import subscribe
+
+textColor = const.colorWhite
+mpl.rcParams['text.color'] = textColor
+mpl.rcParams['axes.labelcolor'] = textColor
+mpl.rcParams['xtick.color'] = textColor
+mpl.rcParams['ytick.color'] = textColor
+mpl.rcParams['figure.facecolor'] = const.colorGrey
+mpl.rcParams['axes.facecolor'] = const.colorDarkGrey
+mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=[const.colorBlue, const.colorGreen, const.colorRed, const.colorOrange, const.colorPurple])
+
 
 class GraphDoesNotExist(Exception):
     pass
@@ -29,8 +42,6 @@ class GraphRuntime:
 _graphRuntimes:dict = {}
 _graphRuntimesLock = Lock()
 
-def _getGraphFigurePath(id:str):
-    return f'{const.graphsFigureFolder}/{id}.png'
 
 def _addPoint(g:GraphRuntime, value):
     now = time()
@@ -53,7 +64,7 @@ def _addPoint(g:GraphRuntime, value):
         g.index %= g.maxLen
 
 # create new ts with t=0 being now
-def _generatePlot(id:str):
+def generateFigure(id:str):
     if id not in _graphRuntimes:
         raise GraphDoesNotExist()
 
@@ -61,7 +72,7 @@ def _generatePlot(id:str):
         g:GraphRuntime = _graphRuntimes[id]
         with g.lock:
             # sort circle buffers
-            ts, ys = zip(*sorted(zip(g.ts, g.ys)))
+            ts, ys = zip(*sorted( filter(lambda x: x[0] != None, zip(g.ts, g.ys)) ))
 
     now = time()
 
@@ -79,10 +90,12 @@ def _generatePlot(id:str):
         relTs = [(x-now)/(60*60) for x in ts]
         tlabel = "Time (Hours)"
 
-    plt.plot(relTs, ys)
-    plt.xlabel(tlabel)
-    #plt.title(datetime.fromtimestamp(now).strftime('%Y-%m-%d %H:%M:%S'))
-    plt.savefig(_getGraphFigurePath(id))
+    fig = Figure()
+
+    axis = fig.add_subplot(1, 1, 1)
+    axis.plot(relTs, ys)
+    axis.set_xlabel(tlabel)
+    return fig
 
 def _subscribeErrCB(datasource, e:Exception):
     # TODO: add to errors
@@ -100,7 +113,7 @@ def _startGraphPlotting(id:str, numSamples:int, datasource:str):
         current = runtime.seq
 
         subscribe(\
-             datasource,
+             [datasource],
              lambda values:_addPoint(runtime, values[datasource]),
              lambda: current != runtime.seq,
              lambda e: _subscribeErrCB(datasource, e)

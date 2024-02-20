@@ -58,6 +58,7 @@
             }
         });
     }
+
     function deleteGraph(id){
         const element = document.getElementById(`graph-element-${id}`);
         var data = {'id': id};
@@ -91,7 +92,7 @@
             {% set timeHours   = graph['timeHours'] %}
             <div id="graph-element-{{ id }}">
                 <span class="buttonBar">
-                    {{ m.deleteButton( "deleteGraph(%s)" % (id) ) }}
+                    {{ m.deleteButton( "deleteGraph('%s')" % (id) ) }}
                     <span id="graph-name-{{ id }}" class="entry" contentEditable="true" spellcheck="false">{{ name }}</span>
                     
                     <select class="blue selectButton" id="graph-datasource-{{ id }}">
@@ -103,7 +104,9 @@
                     <span id="graph-hours-{{ id }}" class="entry" contentEditable="true" spellcheck="false">{{ timeHours }}</span>
                     <button id="graph-edit-{{ id }}" class="orangeButton" onclick="saveGraph({{ id }})">Save</button>
                 </span>
-                <img src="generated/graphs/{{ id }}.png">
+                <div>
+                    <img id="graph-image-{{ id }}" src="api/graph/figure/{{ id }}.png">
+                </div>
                 <!-- <p id="lcd-fmt-{{ num }}" contentEditable="true" spellcheck="false">{{ fmt }}</p> -->
             </div>
         {% endfor %}

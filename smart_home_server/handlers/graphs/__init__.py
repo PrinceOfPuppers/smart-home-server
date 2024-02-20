@@ -1,6 +1,8 @@
 from smart_home_server.handlers.graphs.helpers import _startGraphs, _deleteGraph, _createGraph, _graphLock, _overwriteGraph, _getGraph, _getGraphs, \
                                                         GraphAlreadyExists, GraphDoesNotExist, DatasourceDoesNotExist, _updateGraph, _stopGraphs
 
+from smart_home_server.handlers.graphs.runtime import generateFigure
+
 
 def createGraph(name:str, datasource:str, timeHours:int):
     with _graphLock:

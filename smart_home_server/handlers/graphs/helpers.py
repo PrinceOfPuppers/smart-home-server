@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import smart_home_server.constants as const
 from smart_home_server.data_sources import getPollingPeriod
-from smart_home_server.handlers.graphs.runtime import _generatePlot, _addPoint, GraphAlreadyExists, GraphDoesNotExist, _startGraphPlotting, _stopGraphPlotting
+from smart_home_server.handlers.graphs.runtime import _addPoint, GraphAlreadyExists, GraphDoesNotExist, _startGraphPlotting, _stopGraphPlotting
 
 class DatasourceDoesNotExist(Exception):
     pass
@@ -73,12 +73,16 @@ def _getGraphs():
     return graphs
 
 
-def _createGraph(name:str, datasource:str, timeHours:int):
+def _getNumSamples(datasource:str, timeHours:int):
     pollingPeriod = getPollingPeriod(datasource)
     if pollingPeriod is None:
         raise DatasourceDoesNotExist()
 
-    numSamples = round(pollingPeriod / (timeHours * 60 * 60))
+    numSamples = round((timeHours * 60 * 60) / pollingPeriod)
+    return numSamples if numSamples >= 2 else 2 # min graph size is 3 samples
+
+def _createGraph(name:str, datasource:str, timeHours:int):
+    numSamples = _getNumSamples(datasource, timeHours)
 
     graph = {"name":name, "datasource": datasource, "numSamples": numSamples, "timeHours": timeHours}
     id = _saveGraph(graph)
@@ -120,11 +124,7 @@ def _updateGraph(id: str, newName = None, newDatasource= None, newTimeHours = No
     newDatasource = newDatasource if newDatasource != None else graph["datasource"]
     newTimeHours = newTimeHours if newTimeHours != None else graph["timeHours"]
 
-    pollingPeriod = getPollingPeriod(newDatasource)
-    if pollingPeriod is None:
-        raise DatasourceDoesNotExist()
-
-    numSamples = round(pollingPeriod / (newTimeHours * 60 * 60))
+    numSamples = _getNumSamples(newDatasource, newTimeHours)
 
     graph = {"name":newName, "datasource": newDatasource, "numSamples": numSamples, "timeHours": newTimeHours}
     id = _saveGraph(graph)
