@@ -93,11 +93,17 @@ def _startGraphs():
 
 
 def _updateGraph(id: str, newName = None, newDatasource= None, newTimeHours = None):
+    # check if all none
     noGraphUpdate = newDatasource == None and newTimeHours == None
     if newName == None and noGraphUpdate:
         return
 
     graph = _getGraph(id)
+
+    # check if info has changed
+    noGraphUpdate = noGraphUpdate if noGraphUpdate else (graph["datasource"] == newDatasource and graph["timeHours"] == newTimeHours)
+    if newName == graph["name"] and noGraphUpdate:
+        return
 
     newName = newName if newName != None else graph["name"]
 

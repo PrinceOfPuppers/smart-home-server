@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href = "style.css"></link>
+<script type="text/javascript" src="funcs.js"></script>
+
+{% import 'jinjaMacros.html' as m %}
+
+<html>
+<script>
+    function newGraph(){
+       const datasourceElement = document.getElementById(`graph-new-datasource`);
+       const nameElement = document.getElementById(`graph-new-name`);
+       const hoursElement = document.getElementById(`graph-new-hours`);
+
+       const hours = parseInt(hoursElement.textContent);
+
+       if(isNaN(num) || num < 0){
+           window.alert(`Invalid Hours Num: ${numElement.textContent}`);
+           return;
+       }
+
+       const name = nameElement.textContent;
+       const datasource = datasourceElement.value;
+
+        var data = {
+           'datasource': datasource,
+           'name': name,
+           'timeHours': hours,
+       };
+       sendData('/api/graphs', data, 'POST', reload=true);
+    }
+    function saveGraph(id){
+        const saveButtonElement = document.getElementById(`graph-edit-${id}`);
+
+        const datasourceElement = document.getElementById(`graph-datasource-${id}`);
+        const nameElement = document.getElementById(`graph-name-${id}`);
+        const hoursElement = document.getElementById(`graph-hours-${id}`);
+
+        const hours = parseInt(hoursElement.textContent);
+
+        if(isNaN(num) || num < 0){
+            window.alert(`Invalid Hours: ${numElement.textContent}`);
+            return;
+        }
+
+        const name = nameElement.textContent;
+        const datasource = datasourceElement.value;
+
+         var data = {
+            'id': id
+            'newName': name,
+            'newDatasource': datasource,
+            'newTimeHours': hours,
+        };
+        sendData('/api/graphs', data, 'PATCH').then((success)=>{
+             if(success){
+                tempChangeButton(saveButtonElement, "Saved!");
+            }
+        });
+    }
+    function deleteGraph(id){
+        const element = document.getElementById(`graph-element-${id}`);
+        var data = {'id': id};
+        sendData('/api/graph', data, 'DELETE')
+            .then((success)=>{element.remove()});
+    }
+
+</script>
+
+<body>
+    <div class="topnav">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/remote">Remote</a>
+        <a href="/schedule">Schedule</a>
+        <a href="/trigger">Trigger</a>
+        <a href="/notes">Note</a>
+        <a href="/macros">Macro</a>
+        <a href="/lcds">Lcd</a>
+        <a class="active" href="/graphs">Graph</a>
+    </div> 
+
+    <div class="dashboardList">
+        {% for graph in graphs %}
+            {% set name        = graph['name'] %}
+            {% set id          = graph['id'] %}
+            {% set datasource  = graph['datasource'] %}
+            {% set timeHours   = graph['timeHours'] %}
+            <div id="graph-element-{{ num }}">
+                <span class="buttonBar">
+                    {{ m.deleteButton( "deleteGraph(%s)" % (num) ) }}
+                    <span id="graph-name-{{ id }}" class="purple entry" contentEditable="true" spellcheck="false">{{ name }}</span>
+                    
+                    <select id="graph-datasource-{{ id }}">
+                        {% for value in values %}
+                        <option value="{{ value }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <span id="graph-hours-{{ id }}" class="entry" contentEditable="true" spellcheck="false">{{ timeHours }}</span>
+                    <button id="graph-edit-{{ id }}" class="orangeButton" onclick="saveGraph({{ id }})">Save</button>
+                </span>
+                <img src="generated/graphs/{{ id }}.png">
+                <!-- <p id="lcd-fmt-{{ num }}" contentEditable="true" spellcheck="false">{{ fmt }}</p> -->
+            </div>
+        {% endfor %}
+        <div>
+            {{ m.deleteButton( "" ) }}
+            <span class="purple entry" id="graph-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
+            <select id="graph-new-datasource">
+                {% for value in values %}
+                <option value="{{ value }}">{{ value }}</option>
+                {% endfor %}
+            </select>
+            <span class="entry" id="graph-new-hours" contentEditable="true" data-placeholder="Hours" spellcheck="false"></span>
+            <button id="graph-new" class="orangeButton" onclick="newGraph()">Create</button>
+        </div>
+
+    </div> 
+  </body>
+</html>

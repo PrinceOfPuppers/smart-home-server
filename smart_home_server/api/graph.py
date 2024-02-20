@@ -7,6 +7,7 @@ from smart_home_server.helpers import addDefault
 
 
 from smart_home_server.handlers.graphs import updateGraph, createGraph, deleteGraph, GraphAlreadyExists, GraphDoesNotExist, DatasourceDoesNotExist
+import smart_home_server.constants as const
 
 macroApi = Blueprint('macroApi', __name__)
 
@@ -16,7 +17,7 @@ postGraphSchema = \
         "type": "object",
         "properties": {
             "name":     nameSchema, # defaults to datasource if empty
-            "timeHours": { "type": "integer", "minimum": 1 }, #defaults to 1
+            "timeHours": { "type": "integer", "minimum": 1, "maximum": const.graphMaxHours}, #defaults to 1
             "datasource": idSchema,
         },
         "required": ["datasource"],
@@ -35,7 +36,7 @@ patchGraphSchema = \
     "properties": {
         "id": idSchema,
         "newName": nameSchema, # defaults to no change
-        "newTimeHours": {"type":"integer", "minimum": 1}, # defaults to no change
+        "newTimeHours": {"type":"integer", "minimum": 1, "maximum": const.graphMaxHours}, # defaults to no change
         "newDatasource": idSchema, # defaults to no change
     },
     'required': ['id'],

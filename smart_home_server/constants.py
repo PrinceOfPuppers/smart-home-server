@@ -183,6 +183,8 @@ rfMacroDebounceTime = 3
 rfMacroAddDebounceTime = 1
 pulseLenthTolerance = 10
 
+# max hours graphs can display
+graphMaxHours = 128
 
 # for indoor climate measuring, if neither dht or bme, indoorWeatherServer will be used
 useDht22 = False
