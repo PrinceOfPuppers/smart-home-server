@@ -43,7 +43,7 @@ def _deleteGraph(id: str):
         return
     raise GraphDoesNotExist()
 
-def _overwriteGraph(newGraph:dict, id: str):
+def _overwriteGraph(id:str, newGraph:dict):
     _deleteGraph(id)
     return _saveGraph(newGraph, id=id)
 
@@ -81,7 +81,7 @@ def _createGraph(name:str, datasource:str, timeHours:int):
 
     numSamples = round(source["pollingPeriod"] / (timeHours * 60 * 60))
 
-    graph = {"name":name, "datasource": datasource, "numSamples": numSamples}
+    graph = {"name":name, "datasource": datasource, "numSamples": numSamples, "timeHours": timeHours}
     id = _saveGraph(graph)
     _startGraphPlotting(id, numSamples, datasource)
 
@@ -92,3 +92,31 @@ def _startGraphs():
         _startGraphPlotting(graph["id"], graph["numSamples"], graph["datasource"])
 
 
+def _updateGraph(id: str, newName = None, newDatasource= None, newTimeHours = None):
+    noGraphUpdate = newDatasource == None and newTimeHours == None
+    if newName == None and noGraphUpdate:
+        return
+
+    graph = _getGraph(id)
+
+    newName = newName if newName != None else graph["name"]
+
+    if noGraphUpdate:
+        graph["name"] = newName
+        _overwriteGraph(id, graph)
+        return
+
+    newDatasource = newDatasource if newDatasource != None else graph["datasource"]
+    newTimeHours = newTimeHours if newTimeHours != None else graph["timeHours"]
+
+    sd = getSourceDict({newDatasource})
+
+    if newDatasource not in sd:
+        raise DatasourceDoesNotExist()
+    source = sd[newDatasource]
+
+    numSamples = round(source["pollingPeriod"] / (newTimeHours * 60 * 60))
+
+    graph = {"name":newName, "datasource": newDatasource, "numSamples": numSamples, "timeHours": newTimeHours}
+    id = _saveGraph(graph)
+    _startGraphPlotting(id, numSamples, newDatasource)

@@ -88,6 +88,7 @@ def _subscribeErrCB(datasource, e:Exception):
     # TODO: add to errors
     print(f"Graph {datasource} Exception: \n{repr(e)}", flush=True)
 
+# stops previously running graph
 def _startGraphPlotting(id:str, numSamples:int, datasource:str):
     with _graphRuntimesLock:
         if id in _graphRuntimes:
