@@ -10,6 +10,7 @@
     function newGraph(){
        const datasourceElement = document.getElementById(`graph-new-datasource`);
        const hoursElement = document.getElementById(`graph-new-hours`);
+       const colorElement = document.getElementById(`graph-new-color`);
 
        const hours = parseInt(hoursElement.textContent);
 
@@ -19,10 +20,12 @@
        }
 
        const datasource = datasourceElement.value;
+       const color = colorElement.value;
 
         var data = {
            'datasource': datasource,
-           'timeHours': hours
+           'timeHours': hours,
+           'color': color
        };
        sendData('/api/graph', data, 'POST', reload=true);
     }
@@ -34,6 +37,11 @@
             .then((success)=>{element.remove()});
     }
 
+    function reloadImg(id){
+        time = (new Date()).getTime();
+        const url = `api/graph/figure/${id}.png?_=${time}`;
+        document.getElementById(`graph-image-${id}`).src = url;
+    }
 
     window.onload = () => {
         setupSelectButtonResize();
@@ -57,16 +65,16 @@
             {% set id          = graph['id'] %}
             {% set datasource  = graph['datasource'] %}
             {% set timeHours   = graph['timeHours'] %}
+            {% set color       = graph['color'] %}
             <div id="graph-element-{{ id }}">
                 <span class="buttonBar">
                     {{ m.deleteButton( "deleteGraph('%s')" % (id) ) }}
-                    <button class = "orangeButton">{{ datasource }}</button>
+                    <button class = "{{ color }} button" onclick="reloadImg('{{ id }}')">{{ datasource }}</button>
                     <button class = "grayButton">{{ timeHours }} Hours</button>
                 </span>
                 <div>
-                    <img id="graph-image-{{ id }}" src="api/graph/figure/{{ id }}.png">
+                    <img id="graph-image-{{ id }}" src="api/graph/figure/{{ id }}.png?_={{ loadTime }}">
                 </div>
-                <!-- <p id="lcd-fmt-{{ num }}" contentEditable="true" spellcheck="false">{{ fmt }}</p> -->
             </div>
         {% endfor %}
         <div>
@@ -74,6 +82,11 @@
             <select class="orange selectButton" id="graph-new-datasource">
                 {% for value in values %}
                 <option value="{{ value }}">{{ value }}</option>
+                {% endfor %}
+            </select>
+            <select class="blue selectButton" id="graph-new-color">
+                {% for color in colors %}
+                <option value="{{ color }}">{{ color }}</option>
                 {% endfor %}
             </select>
             <span class="entry" id="graph-new-hours" contentEditable="true" data-placeholder="Hours" spellcheck="false"></span>

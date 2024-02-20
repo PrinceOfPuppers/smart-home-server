@@ -11,14 +11,15 @@ from threading import Lock
 import smart_home_server.constants as const
 from smart_home_server.handlers.subscribeManager import subscribe
 
-textColor = const.colorWhite
+textColor = const.colors["white"]
 mpl.rcParams['text.color'] = textColor
 mpl.rcParams['axes.labelcolor'] = textColor
 mpl.rcParams['xtick.color'] = textColor
 mpl.rcParams['ytick.color'] = textColor
-mpl.rcParams['figure.facecolor'] = const.colorGrey
-mpl.rcParams['axes.facecolor'] = const.colorDarkGrey
-mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=[const.colorBlue, const.colorGreen, const.colorRed, const.colorOrange, const.colorPurple])
+mpl.rcParams['figure.facecolor'] = const.colors["grey"]
+#mpl.rcParams['figure.figsize'] = (3,3)
+mpl.rcParams['axes.facecolor'] = const.colors["darkGrey"]
+#mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=[const.colorBlue, const.colorGreen, const.colorRed, const.colorOrange, const.colorPurple])
 
 
 class GraphDoesNotExist(Exception):
@@ -31,6 +32,7 @@ class GraphAlreadyExists(Exception):
 class GraphRuntime:
     id:str
     datasource:str
+    colorHex:str
     lastUpdated:float
     ts: list
     ys: list
@@ -93,7 +95,7 @@ def generateFigure(id:str):
     fig = Figure()
 
     axis = fig.add_subplot(1, 1, 1)
-    axis.plot(relTs, ys)
+    axis.plot(relTs, ys, color=g.colorHex)
     axis.set_xlabel(tlabel)
     axis.set_title(g.datasource)
     return fig
@@ -103,12 +105,12 @@ def _subscribeErrCB(datasource, e:Exception):
     print(f"Graph {datasource} Exception: \n{repr(e)}", flush=True)
 
 # stops previously running graph
-def _startGraphPlotting(id:str, numSamples:int, datasource:str):
+def _startGraphPlotting(id:str, numSamples:int, datasource:str, color:str):
     with _graphRuntimesLock:
         if id in _graphRuntimes:
             _graphRuntimes[id].seq += 1
 
-        runtime = GraphRuntime(id, datasource, 0, [], [], numSamples, Lock())
+        runtime = GraphRuntime(id, datasource, const.colors[color], 0, [], [], numSamples, Lock())
 
         _graphRuntimes[id] = runtime
         current = runtime.seq

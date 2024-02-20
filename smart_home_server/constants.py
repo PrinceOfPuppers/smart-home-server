@@ -5,16 +5,18 @@ import re
 
 TxChannel = namedtuple("Channel", ["on", "off"])
 
-colorDarkGrey = "#1e1f1c"
-colorGrey = "#272822"
-colorLightGrey = "#75715e"
-colorWhite = "#f8f8f2"
-colorPurple = "#B267E6"
-colorRed = "#F92672"
-colorBlue = "#66D9EF"
-colorGreen = "#A6E22E"
-colorYellow = "#E6DB74"
-colorOrange = "#FD971F"
+colors = {
+    "darkGrey": "#1e1f1c",
+    "grey": "#272822",
+    "lightGrey": "#75715e",
+    "white": "#f8f8f2",
+    "purple": "#B267E6",
+    "red": "#F92672",
+    "blue": "#66D9EF",
+    "green": "#A6E22E",
+    "yellow": "#E6DB74",
+    "orange": "#FD971F"
+}
 
 def createIfNotExists(dir):
     if not os.path.exists(dir):

@@ -1,4 +1,5 @@
 from flask import Flask, send_from_directory, render_template, redirect
+from time import time
 
 from smart_home_server.handlers.scheduler import startScheduler, stopScheduler, joinScheduler, getJobs
 from smart_home_server.handlers.presser import startPresser, stopPresser, joinPresser, getRemotes
@@ -116,7 +117,7 @@ def lcdsGet():
 def graphsGet():
     graphs = getGraphs()
     graphs.sort(key=lambda element: element['datasource'])
-    return render_template('graphs.html', graphs=graphs, values=values)
+    return render_template('graphs.html', loadTime=round(time()), graphs=graphs, values=values, colors=["blue", "green", "orange", "red", "yellow", "purple", "grey", "white"])
 
 
 def startServer():

@@ -12,6 +12,10 @@
     --yellow: #E6DB74;
     --orange: #FD971F;
 }
+img {
+  max-width: 100%;
+  height: auto;
+}
 .yellow{
     border: 2pt solid var(--yellow);
     color: var(--yellow)

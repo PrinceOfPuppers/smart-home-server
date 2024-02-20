@@ -3,7 +3,7 @@ import io
 from flask import request, Blueprint, current_app, Response
 from flask_expects_json import expects_json
 
-from smart_home_server.api import idSchema
+from smart_home_server.api import idSchema, colorSchema
 from smart_home_server.helpers import addDefault
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -20,8 +20,9 @@ postGraphSchema = \
         "properties": {
             "timeHours": { "type": "integer", "minimum": 1, "maximum": const.graphMaxHours}, #defaults to 1
             "datasource": idSchema,
+            "color":  colorSchema
         },
-        "required": ["datasource"],
+        "required": ["datasource", "color"],
         'additionalProperties': False,
 }
 deleteGraphSchema = \
@@ -39,8 +40,9 @@ def postGraphRoute():
     addDefault(data, 'timeHours', 1)
 
     datasource = data["datasource"]
+    color = data["color"]
     try:
-        createGraph(datasource, data["timeHours"])
+        createGraph(datasource, data["timeHours"], color)
         return current_app.response_class(status=200)
     except GraphAlreadyExists:
         return current_app.response_class("Graph With That ID Already Exists (should never occur)", status=400)

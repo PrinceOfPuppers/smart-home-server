@@ -4,9 +4,9 @@ from smart_home_server.handlers.graphs.helpers import _startGraphs, _deleteGraph
 from smart_home_server.handlers.graphs.runtime import generateFigure
 
 
-def createGraph(datasource:str, timeHours:int):
+def createGraph(datasource:str, timeHours:int, color:str):
     with _graphLock:
-        _createGraph(datasource, timeHours)
+        _createGraph(datasource, timeHours, color)
 
 def deleteGraph(id: str):
     with _graphLock:

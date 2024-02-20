@@ -77,18 +77,18 @@ def _getNumSamples(datasource:str, timeHours:int):
     numSamples = round((timeHours * 60 * 60) / pollingPeriod)
     return numSamples if numSamples >= 2 else 2 # min graph size is 3 samples
 
-def _createGraph(datasource:str, timeHours:int):
+def _createGraph(datasource:str, timeHours:int, color:str):
     numSamples = _getNumSamples(datasource, timeHours)
 
-    graph = {"datasource": datasource, "numSamples": numSamples, "timeHours": timeHours}
+    graph = {"datasource": datasource, "numSamples": numSamples, "timeHours": timeHours, "color": color}
     id = _saveGraph(graph)
-    _startGraphPlotting(id, numSamples, datasource)
+    _startGraphPlotting(id, numSamples, datasource, color)
 
 
 def _startGraphs():
     graphs = _getGraphs()
     for graph in graphs:
-        _startGraphPlotting(graph["id"], graph["numSamples"], graph["datasource"])
+        _startGraphPlotting(graph["id"], graph["numSamples"], graph["datasource"], graph["color"])
 
 
 def _stopGraphs():
