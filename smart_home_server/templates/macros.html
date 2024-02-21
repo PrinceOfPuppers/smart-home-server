@@ -181,6 +181,7 @@
         <a href="/notes">Note</a>
         <a class="active" href="/macros">Macro</a>
         <a href="/lcds">Lcd</a>
+        <a href="/graphs">Graph</a>
     </div> 
 
     <h3>Current Macros:</h3>
@@ -197,40 +198,42 @@
                 {% set macroItemsId =  'macro-items-%s' % (macroId) %}
                 <li>
                     <div class="macro" id="macro-{{ macroId }}">
-                        {{ m.deleteButton( "macroDelete('api/macro', '%s')" % (macroId) ) }}
+                        <span class="buttonBar">
+                            {{ m.deleteButton( "macroDelete('api/macro', '%s')" % (macroId) ) }}
 
-                        <button class="blueButton" onclick="updateJobName('api/macro', '{{ macroId }}', '{{ macroName }}' )">{{ macroName }}</button>
+                            <button class="blueButton" onclick="updateJobName('api/macro', '{{ macroId }}', '{{ macroName }}' )">{{ macroName }}</button>
 
-                        {{ m.dropDownButton( dropDownId, macroItemsId ) }}
+                            {{ m.dropDownButton( dropDownId, macroItemsId ) }}
 
-                        <button class="greenButton", id="macro-run-button-{{ macroId }}", onclick = "macroRun('api/macro/run', '{{ macroId }}')"">⏵</button>
+                            <button class="greenButton", id="macro-run-button-{{ macroId }}", onclick = "macroRun('api/macro/run', '{{ macroId }}')"">⏵</button>
+                        </span>
 
-                        <ul class="macroItems" id="{{ macroItemsId }}">
-                            {% for item in sequence %}
-                                {% set itemId = item['id'] %}
-                                {% set type   = item['type'] %}
-                                {% set data   = item['data'] %}
-                                <li class="macroItem" id="macro-item-{{ macroId }}-{{ itemId }}">
-                                    {{ m.deleteButton( "macroItemDelete('api/macro/item', '%s', '%s')" % (macroId, itemId) ) }}
-                                    {{ m.jobRepr(type, data, macros, remotes, lcds, br=False, cursor=False) }}
-                                </li>
-                            {% endfor %}
+                            <ul class="macroItems" id="{{ macroItemsId }}">
+                                {% for item in sequence %}
+                                    {% set itemId = item['id'] %}
+                                    {% set type   = item['type'] %}
+                                    {% set data   = item['data'] %}
+                                    <li class="macroItem" id="macro-item-{{ macroId }}-{{ itemId }}">
+                                        {{ m.deleteButton( "macroItemDelete('api/macro/item', '%s', '%s')" % (macroId, itemId) ) }}
+                                        {{ m.jobRepr(type, data, macros, remotes, lcds, br=False, cursor=False) }}
+                                    </li>
+                                {% endfor %}
 
-                            <div style="padding-top: 5pt">
-                                {% if 'code' in macro %}
-                                    <button class="redButton", id="macro-rf-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', true)"">Remove RF</button>
-                                {% else %}
-                                    <button class="yellowButton", id="macro-rf-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', true)"">Add RF</button>
-                                {% endif %}
+                                <div style="padding-top: 5pt">
+                                    {% if 'code' in macro %}
+                                        <button class="redButton", id="macro-rf-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', true)"">Remove RF</button>
+                                    {% else %}
+                                        <button class="yellowButton", id="macro-rf-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', true)"">Add RF</button>
+                                    {% endif %}
 
-                                {% if 'pin' in macro %}
-                                    <button class="redButton", id="macro-pin-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', false)"">Remove Button</button>
-                                {% else %}
-                                    <button class="orangeButton", id="macro-pin-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', false)"">Add Button</button>
-                                {% endif %}
-                            </div>
+                                    {% if 'pin' in macro %}
+                                        <button class="redButton", id="macro-pin-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', false)"">Remove Button</button>
+                                    {% else %}
+                                        <button class="orangeButton", id="macro-pin-button-{{ macroId }}", onclick = "macroButton('{{ macroId }}', false)"">Add Button</button>
+                                    {% endif %}
+                                </div>
 
-                        </ul>
+                            </ul>
                     </div>
                 </li>
             {% endfor %}

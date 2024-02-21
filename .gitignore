@@ -6,6 +6,7 @@ smart-home-update
 network-info.h
 .ccls-cache
 images_uncompressed
+generated
 
 /build
 /dist

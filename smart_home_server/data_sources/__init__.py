@@ -1,5 +1,6 @@
 import requests
 from datetime import datetime
+from typing import Union
 
 from smart_home_server.hardware_interfaces.dht22 import getDHT
 from smart_home_server.hardware_interfaces.bme280 import getBME
@@ -54,6 +55,10 @@ def getForexLocal(src,dest, decimal=3):
     return res
 
 def getForecastLocal():
+    # prevent spamming wttrin while testing
+    if not const.isRpi():
+        return None
+
     r = requests.get(const.wttrApiUrl, timeout=const.requestTimeout)
 
     # calculate marked bar (denotes the current time)
@@ -146,6 +151,10 @@ def getForecastLocal():
 
 
 def getCurrentWeather():
+    # prevent spamming wttrin while testing
+    if not const.isRpi():
+        return None
+
     r = requests.get(const.wttrCurrentData, timeout=const.requestTimeout)
     if not r.ok:
         return None
@@ -717,8 +726,8 @@ for source in dataSources:
         source['values'] = {}
     source['values'][f"{source['name']}-str"] = {'enabled':False, 'dataPath': ['str']}
 
-dataSourceValues = set()
-dataSourceDict = {}
+dataSourceValues = set() # a set of all value keys (ie temp, humid, ...)
+dataSourceDict = {} # name: {source} (ie "Indoor": {"name": "Indoor", "color": "blue", "pollingPeriod": ...})
 for source in dataSources:
     assert 'name' in source
     dataSourceDict[source['name']] = source
@@ -752,4 +761,18 @@ def getSourceDict(valueKeys: set):
                 res[name] = source
                 break
     return res
+
+# gets polling period of the source that yeilds provided value
+def getPollingPeriod(valueKey:str) -> Union[int, None]:
+    for source in dataSources:
+        if not 'values' in source:
+            continue
+        if not 'pollingPeriod' in source:
+            continue
+        if not valueKey in source['values']:
+            continue
+        return source['pollingPeriod']
+    return None
+
+
 

@@ -5,6 +5,18 @@ import re
 
 TxChannel = namedtuple("Channel", ["on", "off"])
 
+colors = {
+    "darkGrey": "#1e1f1c",
+    "grey": "#272822",
+    "lightGrey": "#75715e",
+    "white": "#f8f8f2",
+    "purple": "#B267E6",
+    "red": "#F92672",
+    "blue": "#66D9EF",
+    "green": "#A6E22E",
+    "yellow": "#E6DB74",
+    "orange": "#FD971F"
+}
 
 def createIfNotExists(dir):
     if not os.path.exists(dir):
@@ -15,6 +27,10 @@ modulePath = dirname(__file__)
 
 #pressSpacing = 0.07
 pressRepeats = 4
+
+templatesFolder = f'{modulePath}/templates'
+staticFolder = f'{templatesFolder}/static'
+
 
 storageFolder = f'{modulePath}/storage'
 createIfNotExists(storageFolder)
@@ -45,6 +61,9 @@ createIfNotExists(remoteFolder)
 
 lcdsFolder = f'{storageFolder}/lcds'
 createIfNotExists(lcdsFolder)
+
+graphsFolder = f'{storageFolder}/graphs'
+createIfNotExists(graphsFolder)
 
 # defaultRemoteFileA = f'{storageFolder}/remotes/A'
 # if not os.path.exists(defaultRemoteFileA):
@@ -112,8 +131,6 @@ createIfNotExists(lcdsFolder)
 #             f.close()
 #loadRemotes()
 
-templatesFolder = f'{modulePath}/templates'
-staticFolder = f'{templatesFolder}/static'
 
 txGpio = 17
 rxGpio = 25
@@ -173,6 +190,8 @@ rfMacroDebounceTime = 3
 rfMacroAddDebounceTime = 1
 pulseLenthTolerance = 10
 
+# max hours graphs can display
+graphMaxHours = 128
 
 # for indoor climate measuring, if neither dht or bme, indoorWeatherServer will be used
 useDht22 = False

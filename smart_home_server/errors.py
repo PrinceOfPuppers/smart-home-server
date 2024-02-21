@@ -27,12 +27,13 @@ class FlagError:
 #essentially a set of flags (without info)
 @dataclass
 class SetError:
-    name:set
+    name:str
     errors:set
     def __str__(self):
         s = f'{self.name} Set:\n'
         for err in self.errors:
             s+= f"  {err}\n"
+        return s
 
 currentErrors = {
 }
@@ -64,15 +65,15 @@ def clearFlagError(name:str):
 
 def addSetError(name:str, err:str):
     if name not in currentErrors:
-        currentErrors[name] = set()
-    if err not in currentErrors[name]:
-        currentErrors[name].add(err)
+        currentErrors[name] = SetError(name, set())
+    if err not in currentErrors[name].errors:
+        currentErrors[name].errors.add(err)
 
 def clearErrorInSet(name:str, err:str):
     if name not in currentErrors:
         return
-    currentErrors[name].discard(err)
-    if len(currentErrors[name]) == 0:
+    currentErrors[name].errors.discard(err)
+    if len(currentErrors[name].errors) == 0:
         currentErrors.pop(name)
 
 def clearErrorSet(name:str):

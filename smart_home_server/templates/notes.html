@@ -66,6 +66,7 @@
         <a class="active" href="/notes">Note</a>
         <a href="/macros">Macro</a>
         <a href="/lcds">Lcd</a>
+        <a href="/graphs">Graph</a>
     </div> 
 
     <div class="dashboardList">
@@ -83,10 +84,12 @@
             </div>
         {% endfor %}
         <div>
-            {{ m.deleteButton( "" ) }}
-            <span class="entry" id="note-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
-            <button id="note-new" class="yellowButton" onclick="newNote()">Create</button>
-            <p class="entry" id="note-new-content" contentEditable="true" data-placeholder="Content" spellcheck="false"></p>
+            <span class="buttonBar">
+                {{ m.deleteButton( "" ) }}
+                <span class="entry" id="note-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
+                <button id="note-new" class="yellowButton" onclick="newNote()">Create</button>
+            </span>
+                <p class="entry" id="note-new-content" contentEditable="true" data-placeholder="Content" spellcheck="false"></p>
         </div>
   </body>
 </html>

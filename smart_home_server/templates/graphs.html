@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href = "style.css"></link>
+<script type="text/javascript" src="funcs.js"></script>
+
+{% import 'jinjaMacros.html' as m %}
+
+<html>
+<script>
+    function newGraph(){
+       const datasourceElement = document.getElementById(`graph-new-datasource`);
+       const hoursElement = document.getElementById(`graph-new-hours`);
+       const colorElement = document.getElementById(`graph-new-color`);
+
+       const hours = parseInt(hoursElement.textContent);
+
+       if(isNaN(hours) || hours < 0){
+           window.alert(`Invalid Hours Num: ${numElement.textContent}`);
+           return;
+       }
+
+       const datasource = datasourceElement.value;
+       const color = colorElement.value;
+
+        var data = {
+           'datasource': datasource,
+           'timeHours': hours,
+           'color': color
+       };
+       sendData('/api/graph', data, 'POST', reload=true);
+    }
+
+    function deleteGraph(id){
+        const element = document.getElementById(`graph-element-${id}`);
+        var data = {'id': id};
+        sendData('/api/graph', data, 'DELETE')
+            .then((success)=>{element.remove()});
+    }
+
+    function reloadImg(id){
+        time = (new Date()).getTime();
+        const url = `api/graph/figure/${id}.png?_=${time}`;
+        document.getElementById(`graph-image-${id}`).src = url;
+    }
+
+    window.onload = () => {
+        setupSelectButtonResize();
+    }
+</script>
+
+<body>
+    <div class="topnav">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/remote">Remote</a>
+        <a href="/schedule">Schedule</a>
+        <a href="/trigger">Trigger</a>
+        <a href="/notes">Note</a>
+        <a href="/macros">Macro</a>
+        <a href="/lcds">Lcd</a>
+        <a class="active" href="/graphs">Graph</a>
+    </div> 
+
+    <div class="dashboardList">
+        {% for graph in graphs %}
+            {% set id          = graph['id'] %}
+            {% set datasource  = graph['datasource'] %}
+            {% set timeHours   = graph['timeHours'] %}
+            {% set color       = graph['color'] %}
+            <div id="graph-element-{{ id }}">
+                <span class="buttonBar">
+                    {{ m.deleteButton( "deleteGraph('%s')" % (id) ) }}
+                    <button class = "{{ color }} button" onclick="reloadImg('{{ id }}')">{{ datasource }}</button>
+                    <button class = "grayButton">{{ timeHours }} Hours</button>
+                </span>
+                <div>
+                    <img id="graph-image-{{ id }}" src="api/graph/figure/{{ id }}.png?_={{ loadTime }}">
+                </div>
+            </div>
+        {% endfor %}
+        <div>
+            <span class="buttonBar">
+                {{ m.deleteButton( "" ) }}
+                <select class="orange selectButton" id="graph-new-datasource">
+                    {% for value in values %}
+                    <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                </select>
+                <select class="blue selectButton" id="graph-new-color">
+                    {% for color in colors %}
+                    <option value="{{ color }}">{{ color }}</option>
+                    {% endfor %}
+                </select>
+                <span class="entry" id="graph-new-hours" contentEditable="true" data-placeholder="Hours" spellcheck="false"></span>
+                <button id="graph-new" class="greenButton" onclick="newGraph()">Create</button>
+            </span>
+        </div>
+
+    </div> 
+  </body>
+</html>

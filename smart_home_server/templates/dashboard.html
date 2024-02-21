@@ -105,6 +105,7 @@
         <a href="/notes">Note</a>
         <a href="/macros">Macro</a>
         <a href="/lcds">Lcd</a>
+        <a href="/graphs">Graph</a>
     </div> 
 
     <div class="dashboardList">
@@ -118,6 +119,7 @@
             {% set url           = element['url'] %}
             {% set dashboard     = element['dashboard'] %}
             <div>
+                <span class="buttonBar">
                 <button class="{{ color }}Button" id="dashboardButton-{{ name }}">{{ name }}</button>
                 {% if 'buttons' in dashboard %}
                     {% for button in dashboard['buttons'] %}
@@ -154,6 +156,7 @@
                     <p id="dashboard-{{ name }}"></p>
 
                 {% endif %}
+                </span>
 
             </div>
         {% endfor %}
