@@ -40,6 +40,10 @@ img {
     border: 2pt solid var(--orange);
     color: var(--orange)
 }
+.lightGrey{
+    border: 2pt solid var(--lightGrey);
+    color: var(--lightGrey)
+}
 @font-face {
   font-family: "Noto-Color-Mono";
   src: url('NotoColorEmoji-Regular.ttf') format('truetype');
@@ -353,7 +357,6 @@ textarea {
 }
 
 .entry {
-    border: 2pt solid var(--lightGrey);
     background-color: var(--darkGrey);
 
     white-space:nowrap;

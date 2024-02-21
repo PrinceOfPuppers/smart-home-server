@@ -77,12 +77,12 @@
             {% set num     = lcd['num'] %}
             {% set name    = lcd['name'] %}
             {% set fmt     = lcd['fmt'] %}
-            {% set class   = "yellow entry" if lcd['active'] else "entry" %}
+            {% set class   = "yellow entry" if lcd['active'] else "lightGrey entry" %}
             <div id="lcd-element-{{ num }}">
                 <span class="buttonBar">
                     {{ m.deleteButton( "deleteLcd(%s)" % (num) ) }}
                     <span id="lcd-name-{{ num }}" class="{{ class }}" contentEditable="true" spellcheck="false">{{ name }}</span>
-                    <!-- <span id="lcd-num-{{ num }}" class="entry" contentEditable="false" spellcheck="false">{{ num }}</span> -->
+                    <!-- <span id="lcd-num-{{ num }}" class="lightGrey entry" contentEditable="false" spellcheck="false">{{ num }}</span> -->
                     <button id="lcd-num-{{ num }}" class="grayButton" onclick="toggleLcd({{ num }})">{{ num }}</button>
                     <button id="lcd-edit-{{ num }}" class="greenButton" onclick="saveLcd({{ num }})">Save</button>
                 </span>
@@ -92,11 +92,11 @@
         <div>
             <span class="buttonBar">
                 {{ m.deleteButton( "" ) }}
-                <span class="entry" id="lcd-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
-                <span class="entry" id="lcd-new-num" contentEditable="true" data-placeholder="Num" spellcheck="false"></span>
+                <span class="lightGrey entry" id="lcd-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
+                <span class="lightGrey entry" id="lcd-new-num" contentEditable="true" data-placeholder="Num" spellcheck="false"></span>
                 <button id="lcd-new" class="greenButton" onclick="newLcd()">Create</button>
             </span>
-            <p class="entry" id="lcd-new-fmt" contentEditable="true" data-placeholder="Format" spellcheck="false"></p>
+            <p class="lightGrey entry" id="lcd-new-fmt" contentEditable="true" data-placeholder="Format" spellcheck="false"></p>
         </div>
 
     </div> 

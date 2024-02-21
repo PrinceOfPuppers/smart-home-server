@@ -77,7 +77,7 @@
             <div id="note-element-{{ id }}">
                 <span class="buttonBar">
                     {{ m.deleteButton( "deleteNote('%s')" % (id) ) }}
-                    <span id="note-name-{{ id }}" class="entry" contentEditable="true" spellcheck="false">{{ name }}</span>
+                    <span id="note-name-{{ id }}" class="lightGrey entry" contentEditable="true" spellcheck="false">{{ name }}</span>
                     <button id="note-edit-{{ id }}" class="yellowButton" onclick="saveNote('{{ id }}')">Save</button>
                 </span>
                 <p id="note-content-{{ id }}" contentEditable="true" spellcheck="false">{{ content }}</p>
@@ -86,10 +86,10 @@
         <div>
             <span class="buttonBar">
                 {{ m.deleteButton( "" ) }}
-                <span class="entry" id="note-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
+                <span class="lightGrey entry" id="note-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
                 <button id="note-new" class="yellowButton" onclick="newNote()">Create</button>
             </span>
-                <p class="entry" id="note-new-content" contentEditable="true" data-placeholder="Content" spellcheck="false"></p>
+                <p class="lightGrey entry" id="note-new-content" contentEditable="true" data-placeholder="Content" spellcheck="false"></p>
         </div>
   </body>
 </html>
