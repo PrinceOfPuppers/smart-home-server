@@ -108,9 +108,12 @@ def _publishUpdates(now: datetime, subscribers, lastUpdates, toSend):
         except Exception as e:
             print(f'SubLoop _updateToSend Error: \n{repr(e)}')
             print(f"Trace:\n{traceback.format_exc()}")
+            addSetError("Subscribe Mgr Err", source['name'])
             for sub in subscribers:
                 if name in sub.sourcesDict:
                     sub.cbError(e)
+        else:
+            clearErrorInSet("Subscribe Mgr Err", source['name'])
 
     # publish updates
     for sub in subscribers:

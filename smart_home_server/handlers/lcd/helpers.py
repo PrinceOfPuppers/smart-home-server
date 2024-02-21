@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 import json
 from dataclasses import dataclass
 from typing import Union
@@ -6,7 +7,7 @@ import string
 import socket
 from threading import Lock
 
-from smart_home_server.errors import incConseqError, clearConseqError
+from smart_home_server.errors import incConseqError, clearConseqError, addFlagError, clearFlagError
 from smart_home_server.hardware_interfaces.lcd import writeLCD, setBacklight, toggleBacklight
 from smart_home_server.hardware_interfaces.tcp import tcpSendPacket, disconnectSocket
 import smart_home_server.constants as const
@@ -199,6 +200,7 @@ def _subscribeErrCB(num, c, e:Exception):
         _disconnectLcd(num, c)
     else:
         print(f"LCD Exception: \n{repr(e)}", flush=True)
+        return
 
 
 def _notifyNotHookedup(num, c):
