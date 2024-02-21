@@ -206,6 +206,7 @@
                             {{ m.dropDownButton( dropDownId, macroItemsId ) }}
 
                             <button class="greenButton", id="macro-run-button-{{ macroId }}", onclick = "macroRun('api/macro/run', '{{ macroId }}')"">⏵</button>
+                        </span>
 
                             <ul class="macroItems" id="{{ macroItemsId }}">
                                 {% for item in sequence %}
@@ -233,7 +234,6 @@
                                 </div>
 
                             </ul>
-                        </span>
                     </div>
                 </li>
             {% endfor %}
