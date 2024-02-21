@@ -1,4 +1,3 @@
-from threading import Lock
 import os
 import json
 from uuid import uuid4
@@ -10,7 +9,6 @@ from smart_home_server.handlers.graphs.runtime import _addPoint, GraphAlreadyExi
 class DatasourceDoesNotExist(Exception):
     pass
 
-_graphLock = Lock()
 _graphCache:dict = {}
 
 def _getGraphPath(id:str):

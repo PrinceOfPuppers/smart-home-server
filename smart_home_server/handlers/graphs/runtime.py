@@ -1,8 +1,5 @@
 from time import time
-from datetime import datetime
 from dataclasses import dataclass
-import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib.figure import Figure
 import matplotlib as mpl
 
@@ -17,9 +14,7 @@ mpl.rcParams['axes.labelcolor'] = textColor
 mpl.rcParams['xtick.color'] = textColor
 mpl.rcParams['ytick.color'] = textColor
 mpl.rcParams['figure.facecolor'] = const.colors["grey"]
-#mpl.rcParams['figure.figsize'] = (3,3)
 mpl.rcParams['axes.facecolor'] = const.colors["darkGrey"]
-#mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=[const.colorBlue, const.colorGreen, const.colorRed, const.colorOrange, const.colorPurple])
 
 
 class GraphDoesNotExist(Exception):
