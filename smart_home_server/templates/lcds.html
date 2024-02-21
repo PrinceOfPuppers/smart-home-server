@@ -90,10 +90,12 @@
             </div>
         {% endfor %}
         <div>
-            {{ m.deleteButton( "" ) }}
-            <span class="entry" id="lcd-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
-            <span class="entry" id="lcd-new-num" contentEditable="true" data-placeholder="Num" spellcheck="false"></span>
-            <button id="lcd-new" class="greenButton" onclick="newLcd()">Create</button>
+            <span class="buttonBar">
+                {{ m.deleteButton( "" ) }}
+                <span class="entry" id="lcd-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
+                <span class="entry" id="lcd-new-num" contentEditable="true" data-placeholder="Num" spellcheck="false"></span>
+                <button id="lcd-new" class="greenButton" onclick="newLcd()">Create</button>
+            </span>
             <p class="entry" id="lcd-new-fmt" contentEditable="true" data-placeholder="Format" spellcheck="false"></p>
         </div>
 

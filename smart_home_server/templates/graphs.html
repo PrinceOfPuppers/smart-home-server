@@ -78,19 +78,21 @@
             </div>
         {% endfor %}
         <div>
-            {{ m.deleteButton( "" ) }}
-            <select class="orange selectButton" id="graph-new-datasource">
-                {% for value in values %}
-                <option value="{{ value }}">{{ value }}</option>
-                {% endfor %}
-            </select>
-            <select class="blue selectButton" id="graph-new-color">
-                {% for color in colors %}
-                <option value="{{ color }}">{{ color }}</option>
-                {% endfor %}
-            </select>
-            <span class="entry" id="graph-new-hours" contentEditable="true" data-placeholder="Hours" spellcheck="false"></span>
-            <button id="graph-new" class="greenButton" onclick="newGraph()">Create</button>
+            <span class="buttonBar">
+                {{ m.deleteButton( "" ) }}
+                <select class="orange selectButton" id="graph-new-datasource">
+                    {% for value in values %}
+                    <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                </select>
+                <select class="blue selectButton" id="graph-new-color">
+                    {% for color in colors %}
+                    <option value="{{ color }}">{{ color }}</option>
+                    {% endfor %}
+                </select>
+                <span class="entry" id="graph-new-hours" contentEditable="true" data-placeholder="Hours" spellcheck="false"></span>
+                <button id="graph-new" class="greenButton" onclick="newGraph()">Create</button>
+            </span>
         </div>
 
     </div> 
