@@ -165,17 +165,7 @@
 </script>
 
 <body>
-    <div class="topnav">
-        <a href="/dashboard">Dashboard</a>
-        <a class="active" href="/remote">Remote</a>
-        <a href="/schedule">Schedule</a>
-        <a href="/trigger">Trigger</a>
-        <a href="/notes">Note</a>
-        <a href="/macros">Macro</a>
-        <a href="/lcds">Lcd</a>
-        <a href="/graphs">Graph</a>
-    </div> 
-
+    {{ m.topnav("Remote") }}
 
     <ul class="remotes">
         {% if remotes|length == 0 %}

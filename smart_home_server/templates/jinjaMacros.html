@@ -224,3 +224,21 @@
     <button class="{{color}}Button", id="{{ dropDownId }}", onclick = "toggleDropDown('{{ dropDownId }}', '{{ elementId }}')"">⏷</button>
 {% endmacro %}
 
+{% macro topnav(activeTab) %}
+    {% set tabs = [
+        ("/dashboard", "Dashboard"),
+        ("/notes", "Note"),
+        ("/lcds", "Lcd"),
+        ("/remote", "Remote"),
+        ("/schedule", "Schedule"),
+        ("/trigger", "Trigger"),
+        ("/macros", "Macro"),
+        ("/graphs", "Graph"),
+    ] %}
+    <div class="topnav">
+        {% for tab in tabs %}
+        {% set active = 'class=active' if activeTab == tab[1] else "" %}
+        <a {{ active }} href="{{ tab[0] }}">{{ tab[1] }}</a>
+        {% endfor %}
+    </div> 
+{% endmacro %}

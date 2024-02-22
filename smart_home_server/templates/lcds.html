@@ -61,16 +61,7 @@
 </script>
 
 <body>
-    <div class="topnav">
-        <a href="/dashboard">Dashboard</a>
-        <a href="/remote">Remote</a>
-        <a href="/schedule">Schedule</a>
-        <a href="/trigger">Trigger</a>
-        <a href="/notes">Note</a>
-        <a href="/macros">Macro</a>
-        <a class="active" href="/lcds">Lcd</a>
-        <a href="/graphs">Graph</a>
-    </div> 
+    {{ m.topnav("Lcd") }}
 
     <div class="dashboardList">
         {% for lcd in lcds %}
