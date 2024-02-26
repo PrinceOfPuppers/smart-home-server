@@ -43,7 +43,7 @@
         };
         sendData('/api/lcd', data, 'PATCH').then((success)=>{
              if(success){
-                tempChangeButton(saveButtonElement, "Saved!");
+                tempChangeButton(saveButtonElement, "✓");
             }
         });
     }
@@ -75,7 +75,7 @@
                     <span id="lcd-name-{{ num }}" class="{{ class }}" contentEditable="true" spellcheck="false">{{ name }}</span>
                     <!-- <span id="lcd-num-{{ num }}" class="lightGrey entry" contentEditable="false" spellcheck="false">{{ num }}</span> -->
                     <button id="lcd-num-{{ num }}" class="grayButton" onclick="toggleLcd({{ num }})">{{ num }}</button>
-                    <button id="lcd-edit-{{ num }}" class="greenButton" onclick="saveLcd({{ num }})">Save</button>
+                    <button id="lcd-edit-{{ num }}" class="greenButton" onclick="saveLcd({{ num }})">💾</button>
                 </span>
                 <p id="lcd-fmt-{{ num }}" contentEditable="true" spellcheck="false">{{ fmt }}</p>
             </div>
@@ -85,7 +85,7 @@
                 {{ m.deleteButton( "" ) }}
                 <span class="lightGrey entry" id="lcd-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
                 <span class="lightGrey entry" id="lcd-new-num" contentEditable="true" data-placeholder="Num" spellcheck="false"></span>
-                <button id="lcd-new" class="greenButton" onclick="newLcd()">Create</button>
+                <button id="lcd-new" class="greenButton" onclick="newLcd()">💾</button>
             </span>
             <p class="lightGrey entry" id="lcd-new-fmt" contentEditable="true" data-placeholder="Format" spellcheck="false"></p>
         </div>

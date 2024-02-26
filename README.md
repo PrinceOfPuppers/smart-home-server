@@ -15,25 +15,26 @@
   * [TRIGGER](#trigger)
   * [MACRO](#macro)
   * [GRAPH](#graph)
+- [CONFIGURATION](#configuration)
 
 # DEVICES
 Each device has its own `README`. Click the links to read more.
 
-[ESP32 Air Quality Station](devices/esp32-air-quality-station/README.md) and [ESP Dashboard](devices/esp-dashboard/README.md)
+[ESP32 Air Quality Station](devices/esp32-air-quality-station/README.md) and [ESP Dashboard](devices/esp-dashboard/README.md):
 
 <img align="left" height="200" src="devices/esp32-air-quality-station/images/full-right.jpg">
 <img align="left" height="200" src="devices/esp-dashboard/images/full-right.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
-[ESP Weather Station](devices/esp-weather-station/README.md) and [Arduino Light Switcher](devices/arduino-light-switcher/README.md)
+[ESP Weather Station](devices/esp-weather-station/README.md) and [Arduino Light Switcher](devices/arduino-light-switcher/README.md):
 
 <img align="left" height="200" src="devices/esp-weather-station/images/full.jpg">
 <img align="left" height="200" src="devices/arduino-light-switcher/images/motion_dev_pic.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
-Main Case
+Main Case:
 
 <img align="left" height="200" src="devices/main-case/images/full-front.jpg">
 <br clear="left"/>
@@ -43,7 +44,7 @@ Main Case
 # ABOUT
 The smart-home-server (hereto called "the server") is a device for collecting data and controlling IOT devices (hereto called "devices"). The server runs a full web interface for easy control on mobile or desktop
 
-The servers functionality is best understood through the following catigories
+The servers functionality is best understood through 2 catigories, [Jobs and Macros](#jobs-and-macros) and [Datasources](#dataSources).
 
 ## Jobs and Macros
 Jobs are things the server can do, they include:
@@ -79,6 +80,8 @@ The server collects data from `datasources` with a set polling period. The data 
 - [Graphed](#graph)
 - Displayed on local and remote [LCDs](#lcd)
 
+Examples of each Application:
+
 <img align="left" height="200" src="images/dashboard-example.png">
 <img align="left" height="200" src="images/graph-example.jpg">
 <img align="left" height="200" src="devices/esp-dashboard/images/full-front.jpg">
@@ -91,26 +94,29 @@ The server collects data from `datasources` with a set polling period. The data 
 
 Datasources can be added and changed [here](smart_home_server/data_sources/__init__.py), simply:
 
-1) add a function which returns `{ 'str': '...', 'data':{...} }` where `str` is shown in dashboard and `data` contains the values used by triggers, graphs and etc
-2) add an entry to `dataSources` with a `name`, `color`, desired `url`, `local` function to call, `pollingPeriod`, `values` (paths in `data` to find the datasources), and more (see existing examples)
+1) Add a function which returns `{ 'str': '...', 'data':{...} }` where `str` is shown in dashboard and `data` contains the values used by triggers, graphs and etc
+2) Add an entry to `dataSources` with a `name`, `color`, desired `url`, `local` function to call, `pollingPeriod`, `values` (paths in `data` to find the datasources), and more (see existing examples)
 
 All existing datasources can be edited using the same method. The order they appear in the `dataSources` list determines the order they appear in the dashboard, you can also add dashboard buttons to each entry, and make each entry hidable here too. See `Job Log` and `RF Log` as examples.
 
-# PAGES
+# Pages
 
-## DASHBOARD
+## Dashboard
 Displays desired datasources in an easy to read way, clicking on the name tag will refresh its information. 
 
-## NOTE
+## Note
 
-## LCD
+## Lcd
 
-## REMOTE
+## Remote
 
-## SCHEDULE
+## Schedule
 
-## TRIGGER
+## Trigger
 
-## MACRO
+## Macro
 
-## GRAPH
+## Graph
+
+
+# Configuration

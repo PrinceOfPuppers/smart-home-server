@@ -49,12 +49,16 @@ img {
   src: url('NotoColorEmoji-Regular.ttf') format('truetype');
 }
 @font-face {
+  font-family: "Noto-emoji";
+  src: url('NotoEmoji-Regular.ttf') format('truetype');
+}
+@font-face {
   font-family: "Noto-Sans-Mono";
   src: url('NotoSansMono-Regular-new.ttf') format('truetype');
 }
 
 * {
-  font-family: Noto-Sans-Mono;
+  font-family: "Noto-Sans-Mono", "Noto-emoji";
   line-height: 1.2012em;
 }
 html {
@@ -197,7 +201,7 @@ ul.remote > li > div > button {
   float: left;
   color: var(--white);
   text-align: center;
-  padding: 14px 16px;
+  padding: 14px 12px;
   text-decoration: none;
 }
 
@@ -377,4 +381,22 @@ textarea {
     display:inline-block;
     margin-top:5pt;
     width:35pt;
+}
+input {
+    background-color:var(--darkGrey);
+    border-radius: 4pt;
+    border: 2pt solid var(--lightGrey);
+    color:var(--white);
+}
+select {
+    background-color:var(--darkGrey);
+    border-radius: 4pt;
+    border: 2pt solid var(--lightGrey);
+    color:var(--white);
+}
+textarea {
+    background-color:var(--darkGrey);
+    border-radius: 4pt;
+    border: 2pt solid var(--lightGrey);
+    color:var(--white);
 }

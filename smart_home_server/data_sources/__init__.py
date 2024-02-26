@@ -201,15 +201,6 @@ def getWeatherImageLocal():
     return res
 
 
-# TODO: remove this when done with lcd stuff
-#def getLCDLocal():
-#    s = getLCDFMT()
-#    res = {
-#        'str': s,
-#        'data': {},
-#    }
-#    return res
-
 def getIndoorClimateBMELocal():
     data = getBME()
     if data is None:

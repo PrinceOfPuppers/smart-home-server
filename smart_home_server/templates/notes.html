@@ -45,7 +45,7 @@
         };
          sendData('/api/note', data, 'PATCH').then((success)=>{
              if(success){
-                tempChangeButton(saveButtonElement, "Saved!");
+                tempChangeButton(saveButtonElement, "✓");
             }
         });
     }
@@ -70,7 +70,7 @@
                 <span class="buttonBar">
                     {{ m.deleteButton( "deleteNote('%s')" % (id) ) }}
                     <span id="note-name-{{ id }}" class="lightGrey entry" contentEditable="true" spellcheck="false">{{ name }}</span>
-                    <button id="note-edit-{{ id }}" class="yellowButton" onclick="saveNote('{{ id }}')">Save</button>
+                    <button id="note-edit-{{ id }}" class="yellowButton" onclick="saveNote('{{ id }}')">💾</button>
                 </span>
                 <p id="note-content-{{ id }}" contentEditable="true" spellcheck="false">{{ content }}</p>
             </div>
@@ -79,7 +79,7 @@
             <span class="buttonBar">
                 {{ m.deleteButton( "" ) }}
                 <span class="lightGrey entry" id="note-new-name" contentEditable="true" data-placeholder="Name" spellcheck="false"></span>
-                <button id="note-new" class="yellowButton" onclick="newNote()">Create</button>
+                <button id="note-new" class="yellowButton" onclick="newNote()">💾</button>
             </span>
                 <p class="lightGrey entry" id="note-new-content" contentEditable="true" data-placeholder="Content" spellcheck="false"></p>
         </div>
