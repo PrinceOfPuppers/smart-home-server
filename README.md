@@ -1,50 +1,44 @@
 # Smart Home Server
 > A Full Smart Home System and Associeated IOT Devices
 
+
 - [DEVICES](#devices)
-  * [ESP32 AIR QUALITY STATION](#esp32-air-quality-station)
-  * [ESP DASHBOARD](#esp-dashboard)
-  * [ESP WEATHER STATION](#esp-weather-station)
-  * [ARDUINO LIGHT SWITCHER](#arduino-light-switcher)
 - [ABOUT](#about)
   * [JOBS AND MACROS](#jobs-and-macros)
   * [DATASOURCES](#datasources)
 - [PAGES](#pages)
+  * [DASHBOARD](#dashboard)
+  * [NOTE](#note)
+  * [LCD](#lcd)
+  * [REMOTE](#remote)
+  * [SCHEDULE](#schedule)
+  * [TRIGGER](#trigger)
+  * [MACRO](#macro)
+  * [GRAPH](#graph)
 
 # DEVICES
+Each device has its own `README`. Click the links to read more.
 
-<img align="left" width="500" src="devices/main-case/images/full-front.jpg">
+[ESP32 Air Quality Station](devices/esp32-air-quality-station/README.md) and [ESP Dashboard](devices/esp-dashboard/README.md)
+
+<img align="left" height="200" src="devices/esp32-air-quality-station/images/full-right.jpg">
+<img align="left" height="200" src="devices/esp-dashboard/images/full-right.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
+[ESP Weather Station](devices/esp-weather-station/README.md) and [Arduino Light Switcher](devices/arduino-light-switcher/README.md)
 
-## ESP32 AIR QUALITY STATION
-[README Link](devices/esp32-air-quality-station/README.md)
-
-<img align="left" width="500" src="devices/esp32-air-quality-station/images/full-right.jpg">
+<img align="left" height="200" src="devices/esp-weather-station/images/full.jpg">
+<img align="left" height="200" src="devices/arduino-light-switcher/images/motion_dev_pic.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
-## ESP DASHBOARD
-[README Link](devices/esp-dashboard/README.md)
+Main Case
 
-<img align="left" width="500" src="devices/esp-dashboard/images/full-right.jpg">
-<br clear="left"/>
-<br clear="left"/>
-
-## ESP WEATHER STATION
-[README Link](devices/esp-weather-station/README.md)
-
-<img align="left" width="500" src="devices/esp-weather-station/images/full.jpg">
+<img align="left" height="200" src="devices/main-case/images/full-front.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
-## ARDUINO LIGHT SWITCHER
-[README Link](devices/arduino-light-switcher/README.md)
-
-<img align="left" width="500" src="devices/arduino-light-switcher/images/motion_dev_pic.jpg">
-<br clear="left"/>
-<br clear="left"/>
 
 # ABOUT
 The smart-home-server (hereto called "the server") is a device for collecting data and controlling IOT devices (hereto called "devices"). The server runs a full web interface for easy control on mobile or desktop
@@ -68,7 +62,7 @@ Macros can also include delays and other macros,
 ### Example 
 Here is an example of a simple nightime macro:
 
-<img align="left" width="500" src="images/macro-example.png">
+<img align="left" height="500" src="images/macro-example.png">
 <br clear="left"/>
 <br clear="left"/>
 
@@ -80,19 +74,43 @@ The macros like bedroom on/off would be replaced with single rf switching jobs, 
 
 ## Datasources
 The server collects data from `datasources` with a set polling period. The data can then be used to:
-- [Trigger](#trigger) [Jobs](#jobs)and-macros] on conditions
+- [Trigger](#trigger) server [Jobs](#jobs-and-macros) on conditions
 - Displayed on the [dashboard](#dashboard)
 - [Graphed](#graph)
 - Displayed on local and remote [LCDs](#lcd)
 
-<img align="left" width="300" src="images/dashboard-example.png">
-<img align="left" width="300" src="images/graph-example.png">
+<img align="left" height="200" src="images/dashboard-example.png">
+<img align="left" height="200" src="images/graph-example.jpg">
+<img align="left" height="200" src="devices/esp-dashboard/images/full-front.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
-<img align="left" width="300" src="images/trigger-example.png">
-<img align="left" width="300" src="devices/esp-dashboard/images/full-front.jpg">
+<img align="left" height="150" src="images/trigger-example.png">
 <br clear="left"/>
 <br clear="left"/>
+
+Datasources can be added and changed [here](smart_home_server/data_sources/__init__.py), simply:
+
+1) add a function which returns `{ 'str': '...', 'data':{...} }` where `str` is shown in dashboard and `data` contains the values used by triggers, graphs and etc
+2) add an entry to `dataSources` with a `name`, `color`, desired `url`, `local` function to call, `pollingPeriod`, `values` (paths in `data` to find the datasources), and more (see existing examples)
+
+All existing datasources can be edited using the same method. The order they appear in the `dataSources` list determines the order they appear in the dashboard, you can also add dashboard buttons to each entry, and make each entry hidable here too. See `Job Log` and `RF Log` as examples.
 
 # PAGES
+
+## DASHBOARD
+Displays desired datasources in an easy to read way, clicking on the name tag will refresh its information. 
+
+## NOTE
+
+## LCD
+
+## REMOTE
+
+## SCHEDULE
+
+## TRIGGER
+
+## MACRO
+
+## GRAPH
