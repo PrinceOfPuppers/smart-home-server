@@ -1,6 +1,5 @@
 # Smart Home Server
-> A Full Smart Home System and Associeated IOT Devices
-
+> A Full Smart Home System and Associated IOT Devices
 
 - [DEVICES](#devices)
 - [ABOUT](#about)
@@ -41,9 +40,9 @@ Main Case:
 
 
 # ABOUT
-The smart-home-server (hereto called "the server") is a device for collecting data and controlling IOT devices (hereto called "devices"). The server runs a full web interface for easy control on mobile or desktop
+The smart-home-server (hereto called "the server") is a device for collecting data and controlling IOT devices (hereto called "devices"). The server runs a full web interface for easy control on mobile or desktop.
 
-The servers functionality is best understood through 2 catigories, [Jobs and Macros](#jobs-and-macros) and [Datasources](#dataSources).
+The servers functionality is best understood through 2 categories, [Jobs and Macros](#jobs-and-macros) and [Datasources](#dataSources).
 
 ## Jobs and Macros
 Jobs are things the server can do, they include:
@@ -54,23 +53,24 @@ Jobs are things the server can do, they include:
 - Updating the server
 - And more
 
-Jobs can be organized into macros and setup to trigger in on RF signals, button presses on the servers case, or manually throught the webpage.
-Jobs and macros can also be run using a scheduler (ie turn off the lights at 11pm) or can be triggered on conditions (ie turn on the humidifer whenever reletive humidity is below 35%). See the [Schedule](#schedule) and [Trigger](#trigger) pages for more details
+Jobs can be organized into macros and setup to trigger in on RF signals, button presses on the servers case, or manually through the web page.
+
+Jobs and macros can also be run using a scheduler (ie turn off the lights at 11pm) or can be triggered on conditions (ie turn on the humidifier whenever relative humidity is below 35%). See the [Schedule](#schedule) and [Trigger](#trigger) pages for more details.
 
 Macros can also include delays and other macros, 
 
 ### Example 
-Here is an example of a simple nightime macro:
+Here is an example of a simple nighttime macro:
 
 <img align="left" height="500" src="images/macro-example.png">
 <br clear="left"/>
 <br clear="left"/>
 
-This macro turns off all the lights, turns off a loud air filter in the bedroom, waits for 8h30min, prevents you from oversleeping by turning on the bedroom light, and then turns everyting in the bedroom off after 30 more minutes. 
+This macro turns off all the lights, turns off a loud air filter in the bedroom, waits for 8h30min, prevents you from oversleeping by turning on the bedroom light, and then turns everything in the bedroom off after 30 more minutes. 
 
-This macro could be hooked up to an rf button outside the bedroom to be run without having to open the web app (how I do it).
+This macro could be hooked up to an RF button outside the bedroom to be run without having to open the web app (how I do it).
 
-The macros like bedroom on/off would be replaced with single rf switching jobs, ie) `press bedroom ch: 1 on`, for the example macros where used so they could be labeled.
+The macros like bedroom on/off would be replaced with single RF switching jobs, ie) `press bedroom ch: 1 on`, for the example macros where used so they could be labeled.
 
 ## Datasources
 The server collects data from `datasources` with a set polling period. The data can then be used to:
@@ -96,12 +96,12 @@ Datasources can be added and changed [here](smart_home_server/data_sources/__ini
 1) Add a function which returns `{ 'str': '...', 'data':{...} }` where `str` is shown in dashboard and `data` contains the values used by triggers, graphs and etc
 2) Add an entry to `dataSources` with a `name`, `color`, desired `url`, `local` function to call, `pollingPeriod`, `values` (paths in `data` to find the datasources), and more (see existing examples)
 
-All existing datasources can be edited using the same method. The order they appear in the `dataSources` list determines the order they appear in the dashboard, you can also add dashboard buttons to each entry, and make each entry hidable here too. See `Job Log` and `RF Log` as examples.
+All existing datasources can be edited using the same method. The order they appear in the `dataSources` list determines the order they appear in the dashboard, you can also add dashboard buttons to each entry, and make each entry hideable here too. See `Job Log` and `RF Log` as examples.
 
 # Pages
 
 ## Dashboard
-A page for displaying desired datasources in an easy to read way, clicking on the name tag will refresh its information. Each datasource can be customized with buttons to hide its contents, colored nametags, buttons to make http requests, and more.
+A page for displaying desired datasources in an easy to read way, clicking on the name tag will refresh its information. Each datasource can be customized with buttons to hide its contents, colored name tags, buttons to make HTTP requests, and more.
 
 <img align="left" height="300" src="images/pages/dashboard.jpg">
 <br clear="left"/>
@@ -119,14 +119,14 @@ A page to add and update local and [remote lcd](devices/esp-dashboard/README.md)
 
 Lcds display formatted text containing datasources, ie `{clock} 123` will be replaced with `02:03 PM 123` and will be updated every minute when the `{clock}` changes. This format is set on the Lcd page, a list of all formats is provided under `Cheat Sheet`. Numbers can be rounded like so: `{temp:.0f}` for 0 decimal places or `{temp:.1f}` for 1 decimal place.
 
-Each lcd has its own number (0 for local and 1 or more for remote), upon powerup the lcds will reach out to the server to connect, after which the server will send updates whenever the text changes.
+Each lcd has its own number (0 for local and 1 or more for remote), upon power up the lcds will reach out to the server to connect, after which the server will send updates whenever the text changes.
 
 <img align="left" height="300" src="images/pages/lcd.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
 ## Remote
-A page for using, adding and editing RF remotes. The server contains an rf reciever to copy existing remotes which can then hook into the servers [job system](#jobs-and-macros), in addition to directly using the copied remote from this page.
+A page for using, adding and editing RF remotes. The server contains an RF receiver to copy existing remotes which can then hook into the servers [job system](#jobs-and-macros), in addition to directly using the copied remote from this page.
 
 Each remote can be named, and additional buttons can be added using the forms at the bottom of the page.
 
@@ -136,23 +136,23 @@ Each remote can be named, and additional buttons can be added using the forms at
 <br clear="left"/>
 
 ## Schedule
-A page for triggering [jobs and macros](#jobs-and-macros) repeatedly on a schedule. The server can be setup to run a job on an interval or at a specific time every day or week, for example turn on the christmas lights at 5pm every day and turn them off at 5am every day.
+A page for triggering [jobs and macros](#jobs-and-macros) repeatedly on a schedule. The server can be setup to run a job on an interval or at a specific time every day or week, for example turn on the Christmas lights at 5pm every day and turn them off at 5am every day.
 
 <img align="left" height="300" src="images/pages/schedule.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
 ## Trigger
-A page for triggering [jobs and macros](#jobs-and-macros) on conditions involving [datasources](#dataSources). The server can be setup to run a job whenever a condition is met, for example whenever humidity is over 30%. comparisons can be made between two datasources aswell, for example if you have 2 temprature sensors in different rooms, you can trigger a fan to turn on if room A temp is less than room B temp.
+A page for triggering [jobs and macros](#jobs-and-macros) on conditions involving [datasources](#dataSources). The server can be setup to run a job whenever a condition is met, for example whenever humidity is over 30%. comparisons can be made between two datasources as well, for example if you have 2 temperature sensors in different rooms, you can trigger a fan to turn on if room A temp is less than room B temp.
 
-Note the condition is debounced, so it will only trigger once until the condition is no longer met. Using the humidity example, going below 30% will trigger the condition, but it will not trigger again until humidity goes above 30% and then below 30% again. This is to prevent spamming.
+Note the condition is denounced, so it will only trigger once until the condition is no longer met. Using the humidity example, going below 30% will trigger the condition, but it will not trigger again until humidity goes above 30% and then below 30% again. This is to prevent spamming.
 
 <img align="left" height="300" src="images/pages/trigger.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
 ## Macro
-A page for combining [jobs (and macros) into macros](#jobs-and-macros), macros can include jobs, delays and other macros to allow the easy triggering of complex tasks manually, on schedules or using the trigger system. See the [jobs and macro section](#jobs-and-macros) for examples
+A page for combining [jobs (and macros) into macros](#jobs-and-macros), macros can include jobs, delays and other macros to allow the easy triggering of complex tasks manually, on schedules or using the trigger system. See the [jobs and macro section](#jobs-and-macros) for examples.
 
 <img align="left" height="300" src="images/pages/macro.jpg">
 <br clear="left"/>
