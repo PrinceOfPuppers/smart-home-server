@@ -15,7 +15,6 @@
   * [TRIGGER](#trigger)
   * [MACRO](#macro)
   * [GRAPH](#graph)
-- [CONFIGURATION](#configuration)
 
 # DEVICES
 Each device has its own `README`. Click the links to read more.
@@ -102,7 +101,7 @@ All existing datasources can be edited using the same method. The order they app
 # Pages
 
 ## Dashboard
-Displays desired datasources in an easy to read way, clicking on the name tag will refresh its information. Each datasource can be customized with buttons to hide its contents, colored nametags, buttons to make http requests, and more.
+A page for displaying desired datasources in an easy to read way, clicking on the name tag will refresh its information. Each datasource can be customized with buttons to hide its contents, colored nametags, buttons to make http requests, and more.
 
 <img align="left" height="300" src="images/pages/dashboard.jpg">
 <br clear="left"/>
@@ -127,14 +126,42 @@ Each lcd has its own number (0 for local and 1 or more for remote), upon powerup
 <br clear="left"/>
 
 ## Remote
+A page for using, adding and editing RF remotes. The server contains an rf reciever to copy existing remotes which can then hook into the servers [job system](#jobs-and-macros), in addition to directly using the copied remote from this page.
+
+Each remote can be named, and additional buttons can be added using the forms at the bottom of the page.
+
+<img align="left" height="300" src="images/pages/remote-top.jpg">
+<img align="left" height="300" src="images/pages/remote-bottom.jpg">
+<br clear="left"/>
+<br clear="left"/>
 
 ## Schedule
+A page for triggering [jobs and macros](#jobs-and-macros) repeatedly on a schedule. The server can be setup to run a job on an interval or at a specific time every day or week, for example turn on the christmas lights at 5pm every day and turn them off at 5am every day.
+
+<img align="left" height="300" src="images/pages/schedule.jpg">
+<br clear="left"/>
+<br clear="left"/>
 
 ## Trigger
+A page for triggering [jobs and macros](#jobs-and-macros) on conditions involving [datasources](#dataSources). The server can be setup to run a job whenever a condition is met, for example whenever humidity is over 30%. comparisons can be made between two datasources aswell, for example if you have 2 temprature sensors in different rooms, you can trigger a fan to turn on if room A temp is less than room B temp.
+
+Note the condition is debounced, so it will only trigger once until the condition is no longer met. Using the humidity example, going below 30% will trigger the condition, but it will not trigger again until humidity goes above 30% and then below 30% again. This is to prevent spamming.
+
+<img align="left" height="300" src="images/pages/trigger.jpg">
+<br clear="left"/>
+<br clear="left"/>
 
 ## Macro
+A page for combining [jobs (and macros) into macros](#jobs-and-macros), macros can include jobs, delays and other macros to allow the easy triggering of complex tasks manually, on schedules or using the trigger system. See the [jobs and macro section](#jobs-and-macros) for examples
+
+<img align="left" height="300" src="images/pages/macro.jpg">
+<br clear="left"/>
+<br clear="left"/>
 
 ## Graph
+A page for creating plots of datasources over time, new graphs can be created by selecting a datasource, a color, and a time interval to plot over. All the plots are created server side and served as an image so they can be easily saved. Clicking on the plots name or refreshing the page will update it.
 
+<img align="left" height="300" src="images/pages/graph.jpg">
+<br clear="left"/>
+<br clear="left"/>
 
-# Configuration
