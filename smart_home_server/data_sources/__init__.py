@@ -607,20 +607,6 @@ dataSources = [
         },
     },
 
-    # TODO: remove this when done with lcd stuff
-    #{
-    #    'name': 'LCD',
-    #    'color': 'purple',
-    #    'url': f'/api/data/lcd',
-    #    'local': getLCDLocal,
-    #    'pollingPeriod': 10*60,
-
-    #    'dashboard':{
-    #        'enabled': False, #handled in frontend
-    #    }
-    #},
-
-
     {
         'name': 'Errors',
         'color': 'red',

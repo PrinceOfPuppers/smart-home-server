@@ -77,7 +77,7 @@ The macros like bedroom on/off would be replaced with single rf switching jobs, 
 The server collects data from `datasources` with a set polling period. The data can then be used to:
 - [Trigger](#trigger) server [Jobs](#jobs-and-macros) on conditions
 - Displayed on the [dashboard](#dashboard)
-- [Graphed](#graph)
+- Create [Graphs](#graph)
 - Displayed on local and remote [LCDs](#lcd)
 
 Examples of each Application:
@@ -102,11 +102,29 @@ All existing datasources can be edited using the same method. The order they app
 # Pages
 
 ## Dashboard
-Displays desired datasources in an easy to read way, clicking on the name tag will refresh its information. 
+Displays desired datasources in an easy to read way, clicking on the name tag will refresh its information. Each datasource can be customized with buttons to hide its contents, colored nametags, buttons to make http requests, and more.
+
+<img align="left" height="300" src="images/pages/dashboard.jpg">
+<br clear="left"/>
+<br clear="left"/>
 
 ## Note
+A page to create, display and edit notes. 
+
+<img align="left" height="300" src="images/pages/note.jpg">
+<br clear="left"/>
+<br clear="left"/>
 
 ## Lcd
+A page to add and update local and [remote lcd](devices/esp-dashboard/README.md) dashboards. 
+
+Lcds display formatted text containing datasources, ie `{clock} 123` will be replaced with `02:03 PM 123` and will be updated every minute when the `{clock}` changes. This format is set on the Lcd page, a list of all formats is provided under `Cheat Sheet`. Numbers can be rounded like so: `{temp:.0f}` for 0 decimal places or `{temp:.1f}` for 1 decimal place.
+
+Each lcd has its own number (0 for local and 1 or more for remote), upon powerup the lcds will reach out to the server to connect, after which the server will send updates whenever the text changes.
+
+<img align="left" height="300" src="images/pages/lcd.jpg">
+<br clear="left"/>
+<br clear="left"/>
 
 ## Remote
 
