@@ -42,35 +42,35 @@ Main Case:
 # ABOUT
 The smart-home-server (hereto called "the server") is a device for collecting data and controlling IOT devices (hereto called "devices"). The server runs a full web interface for easy control on mobile or desktop.
 
-The servers functionality is best understood through 2 categories, [Jobs and Macros](#jobs-and-macros) and [Datasources](#dataSources).
+The server's functionality is best understood through two categories, [Jobs and Macros](#jobs-and-macros) and [Datasources](#dataSources).
 
 ## Jobs and Macros
 Jobs are things the server can do, they include:
 - Transmitting RF signals (for controlling RF outlets and relays)
 - Sending HTTP requests
-- Updating remote LCD Dashboard formats (see lcds page)
+- Updating remote LCD Dashboard formats (see LCDs page)
 - Running Job Macros
 - Updating the server
 - And more
 
-Jobs can be organized into macros and setup to trigger in on RF signals, button presses on the servers case, or manually through the web page.
+Jobs can be organized into macros and setup to trigger in on RF signals, button presses on the server's case, or manually through the web page.
 
-Jobs and macros can also be run using a scheduler (ie turn off the lights at 11pm) or can be triggered on conditions (ie turn on the humidifier whenever relative humidity is below 35%). See the [Schedule](#schedule) and [Trigger](#trigger) pages for more details.
+Jobs and macros can also be run using a scheduler (i.e. turn off the lights at 11pm) or can be triggered on conditions (i.e. turn on the humidifier whenever relative humidity is below 35%). See the [Schedule](#schedule) and [Trigger](#trigger) pages for more details.
 
-Macros can also include delays and other macros, 
+Macros can also include delays and other macros.
 
-### Example 
+### Example
 Here is an example of a simple nighttime macro:
 
 <img align="left" height="500" src="images/macro-example.png">
 <br clear="left"/>
 <br clear="left"/>
 
-This macro turns off all the lights, turns off a loud air filter in the bedroom, waits for 8h30min, prevents you from oversleeping by turning on the bedroom light, and then turns everything in the bedroom off after 30 more minutes. 
+This macro turns off all the lights, turns off a loud air filter in the bedroom, waits for 8h30min, prevents you from oversleeping by turning on the bedroom light, and then turns everything in the bedroom off after 30 more minutes.
 
 This macro could be hooked up to an RF button outside the bedroom to be run without having to open the web app (how I do it).
 
-The macros like bedroom on/off would be replaced with single RF switching jobs, ie) `press bedroom ch: 1 on`, for the example macros where used so they could be labeled.
+The macros like bedroom on/off would be replaced with single RF switching jobs, i.e.) `press bedroom ch: 1 on`, for the example macros where used so they could be labeled.
 
 ## Datasources
 The server collects data from `datasources` with a set polling period. The data can then be used to:
@@ -93,8 +93,8 @@ Examples of each Application:
 
 Datasources can be added and changed [here](smart_home_server/data_sources/__init__.py), simply:
 
-1) Add a function which returns `{ 'str': '...', 'data':{...} }` where `str` is shown in dashboard and `data` contains the values used by triggers, graphs and etc
-2) Add an entry to `dataSources` with a `name`, `color`, desired `url`, `local` function to call, `pollingPeriod`, `values` (paths in `data` to find the datasources), and more (see existing examples)
+1) Add a function which returns `{ 'str': '...', 'data':{...} }` where `str` is shown in dashboard and `data` contains the values used by triggers, graphs and etc.
+2) Add an entry to `dataSources` with a `name`, `color`, desired `url`, `local` function to call, `pollingPeriod`, `values` (paths in `data` to find the datasources), and more (see existing examples).
 
 All existing datasources can be edited using the same method. The order they appear in the `dataSources` list determines the order they appear in the dashboard, you can also add dashboard buttons to each entry, and make each entry hideable here too. See `Job Log` and `RF Log` as examples.
 
@@ -108,25 +108,25 @@ A page for displaying desired datasources in an easy to read way, clicking on th
 <br clear="left"/>
 
 ## Note
-A page to create, display and edit notes. 
+A page to create, display and edit notes.
 
 <img align="left" height="300" src="images/pages/note.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
-## Lcd
-A page to add and update local and [remote lcd](devices/esp-dashboard/README.md) dashboards. 
+## LCD
+A page to add and update local and [remote LCD](devices/esp-dashboard/README.md) dashboards.
 
-Lcds display formatted text containing datasources, ie `{clock} 123` will be replaced with `02:03 PM 123` and will be updated every minute when the `{clock}` changes. This format is set on the Lcd page, a list of all formats is provided under `Cheat Sheet`. Numbers can be rounded like so: `{temp:.0f}` for 0 decimal places or `{temp:.1f}` for 1 decimal place.
+LCDs display formatted text containing datasources, i.e. `{clock} 123` will be replaced with `02:03 PM 123` and will be updated every minute when the `{clock}` changes. This format is set on the LCD page, a list of all formats is provided under `Cheat Sheet`. Numbers can be rounded like so: `{temp:.0f}` for 0 decimal places or `{temp:.1f}` for 1 decimal place.
 
-Each lcd has its own number (0 for local and 1 or more for remote), upon power up the lcds will reach out to the server to connect, after which the server will send updates whenever the text changes.
+Each LCD has its own number (0 for local and 1 or more for remote), upon power up the LCDs will reach out to the server to connect, after which the server will send updates whenever the text changes.
 
 <img align="left" height="300" src="images/pages/lcd.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
 ## Remote
-A page for using, adding and editing RF remotes. The server contains an RF receiver to copy existing remotes which can then hook into the servers [job system](#jobs-and-macros), in addition to directly using the copied remote from this page.
+A page for using, adding and editing RF remotes. The server contains an RF receiver to copy existing remotes which can then hook into the server's [job system](#jobs-and-macros), in addition to directly using the copied remote from this page.
 
 Each remote can be named, and additional buttons can be added using the forms at the bottom of the page.
 
