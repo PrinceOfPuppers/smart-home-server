@@ -33,9 +33,6 @@ module collar(diameter, thickness, height, setScrew){
 }
 
 module chainGear(bore, keyDiameter, fit){
-    teeth = 18;
-
-
     chainGearBaseHeight = 7;
     chainGearBaseDiameter = 2*17.9;
 
@@ -47,7 +44,8 @@ module chainGear(bore, keyDiameter, fit){
         scale([chainGearScaling, chainGearScaling, 1])
         union(){
             translate([0,0, chainGearDepth/2])
-                import(str("../stls/bead_chain_gears/BeadChainGear_4.5_161__", teeth, ".stl"));
+                // base chain gear model from: https://www.thingiverse.com/thing:4851360/files
+                import(str("./BeadChainGear_4.5_161__18.stl"));
 
             // upper and lower ramp
             difference(){

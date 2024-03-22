@@ -10,7 +10,7 @@ mcMaxHeight = 27;
 
 m2Hole = 1.95;
 
-include <../libs/YAPP_Box/library/YAPPgenerator_v21.scad>
+include <../../../openscad/libs/YAPP_Box/library/YAPPgenerator_v21.scad>
 
 // Note: length/lengte refers to X axis, 
 //       width/breedte to Y, 
