@@ -1,4 +1,6 @@
-include <../libs/gears/gears.scad>
+use <./resources/cloister.ttf>
+
+$fn=50;
 
 m3Hole = 3.3;
 
@@ -19,6 +21,14 @@ chainGearDiameter = 2*20;
 chainGearScaling = 0.95;
 
 largeBeadDiameter = 1.1*9.7;
+
+
+module rectTube(w, h, l, t){
+    difference(){
+        cube([w,h,l]);
+        translate([t/2,-1,t/2]) cube([w-t,h+2,l-t]);
+    }
+}
 
 module collar(diameter, thickness, height, setScrew){
     difference(){
@@ -45,7 +55,7 @@ module chainGear(bore, keyDiameter, fit){
         union(){
             translate([0,0, chainGearDepth/2])
                 // base chain gear model from: https://www.thingiverse.com/thing:4851360/files
-                import(str("./BeadChainGear_4.5_161__18.stl"));
+                import(str("./resources/BeadChainGear_4.5_161__18.stl"));
 
             // upper and lower ramp
             difference(){
@@ -105,26 +115,69 @@ poleDiameter = 5;
 poleHeight = 21;
 
 module motorHousing(){
-    l = 4.7;
-    w = 12 + normalFit;
-    h = 10 + normalFit;
+    // housing wall thickness
+    t = 4.7;
 
+    //cylinder radius (some scaled multiple of chain gear radius)
     cr = 1.2*chainGearScaling*chainGearDiameter/2;
+
+    // cube above the cylinder
     cubeLength = 1.3*cr;
 
-    difference(){
+    // wm stands for wallmount
+    wmDepth = 19;
+    wmWidth= 40;
+    wmHeight = 90;
+
+    
+    // 1 for yes 0 for no
+    applyMirror = 1;
+
+    mirror([0,0,applyMirror]) difference(){
         union(){
-            rotate([0,90,0]) cylinder(r=cr, h=l);
-            translate([0,-cubeLength,-cr]) cube([l,cubeLength,2*cr]);
+            rotate([0,90,0]) cylinder(r=cr, h=t);
+            translate([0,-cubeLength,-cr]) cube([t,cubeLength,2*cr]);
 
             copy_mirror([0,0,1]){
                 translate([0,-cubeLength+poleDiameter/2,cr-poleDiameter/2]) rotate([0, -90, 0]) cylinder(d=poleDiameter, h=poleHeight);
             }
 
+            // cut out to make swoops
+            translate([0,-wmHeight/2,0]) cube([t,wmHeight,cr]);
+
+            // wall mount
+            translate([0, wmHeight/2, cr-t]) rotate([0,0,-90]){
+                cube([wmHeight,wmWidth+t,t]);
+                cube([wmHeight,t,wmDepth+t]);
+            }
+
         }
-        translate([l+1,0,0]) rotate([180,90,0]) motorHoles();
+
+        // motor holes
+        translate([t+1,0,0]) rotate([180,90,0]) motorHoles();
+
+        // swoop cutout
+        swoopScaling = (cr-t)/(wmHeight/2-cr);
+        scale([1,1,swoopScaling]) translate([-1,wmHeight/2,0]) rotate([0,90,0]) cylinder(r=wmHeight/2-cr, h=t+2);
+        swoopScaling2 = (cr-t)/(wmHeight/2-cubeLength);
+        scale([1,1,swoopScaling2]) translate([-1,-wmHeight/2,0]) rotate([0,90,0]) cylinder(r=wmHeight/2-cubeLength, h=t+2);
+
+
+        translate([0,0,cr+wmDepth/2]) difference(){
+            minkowski() {
+              cube([2,wmHeight-2*t-1,wmDepth-1.5*t-1],center=true);
+              rotate([0,90,0]) cylinder(r=1,h=1);
+            }
+            rotate([90,0,-90]) translate([0,0,-10]) linear_extrude(20) mirror([0,applyMirror,0]) text(size=7.9, "Der Jalousienheber", font="Cloister Black:style=Light", halign="center", valign="center");
+
+        }
+
+        // corner cuts for print bed adheasion
+        translate([0, -wmHeight,-cr-t/4]) rotate([0,45,0]) cube([10, 2*wmHeight, wmHeight]);
     }
 }
+
+
 module chainGuide(){
     tourisRadius = chainGearDiameter/2;
     thickness = 3;
@@ -161,11 +214,11 @@ module chainGuide(){
 module fullAssembly(){
     motorHousing();
     translate([0,0,0]) rotate([0,-90,0]) 
-        washer(motorShaftDiameter+3*looseFit,3,standardWasherDepth);
+        washer(motorShaftDiameter+1.2*looseFit,4.5,standardWasherDepth);
     translate([-standardWasherDepth,0,0]) rotate([0,-90,0]) 
-        washer(motorShaftDiameter+3*looseFit,3,standardWasherDepth);
+        washer(motorShaftDiameter+1.2*looseFit,4.5,standardWasherDepth);
     translate([-2*standardWasherDepth,0,0]) rotate([0,-90,0]) 
-        washer(motorShaftDiameter+3*looseFit,3,standardWasherDepth);
+        washer(motorShaftDiameter+1.2*looseFit,4.5,standardWasherDepth);
     translate([-3*standardWasherDepth,0,0]) rotate([0,-90,0]) 
         chainGear(motorShaftDiameter, motorKeyDiameter, tightFit);
 
@@ -198,14 +251,14 @@ module fullAssembly(){
 }
 
 module printReady(){
-    rotate([0,90,0])
+    translate([-25,0,0]) rotate([0,45,0])
     motorHousing();
     translate([30,0,0])
-    washer(motorShaftDiameter+3*looseFit,3,standardWasherDepth);
+    washer(motorShaftDiameter+1.2*looseFit,4.5,standardWasherDepth);
     translate([30,15,0])
-    washer(motorShaftDiameter+3*looseFit,3,standardWasherDepth);
+    washer(motorShaftDiameter+1.2*looseFit,4.5,standardWasherDepth);
     translate([30,30,0])
-    washer(motorShaftDiameter+3*looseFit,3,standardWasherDepth);
+    washer(motorShaftDiameter+1.2*looseFit,4.5,standardWasherDepth);
     translate([60,0,0])
     chainGear(motorShaftDiameter, motorKeyDiameter, tightFit);
     translate([100,0,0])
@@ -262,4 +315,7 @@ module motorHoles(){
 // motorHoles();
 // fullAssembly();
 printReady();
+// motorHousing();
 // chainGuide();
+
+
