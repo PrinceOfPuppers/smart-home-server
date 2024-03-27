@@ -4,6 +4,9 @@ $fn=50;
 
 m3Hole = 3.3;
 
+m3Hex = 5.95 + 0.35;
+m3HexDepth=2.4;
+
 motorShaftDiameter = 6;
 motorKeyDiameter = 5.4;
 
@@ -42,13 +45,15 @@ module collar(diameter, thickness, height, setScrew){
 
 }
 
-module chainGear(bore, keyDiameter, fit){
-    chainGearBaseHeight = 7;
-    chainGearBaseDiameter = 2*17.9;
+chainGearBaseHeight = 7;
+chainGearBaseDiameter = 2*17.9;
 
-    chainGearMargin = 2.7;
-    chainGearRim = 5;
-    slopeHeight = chainGearDepth/2 - chainGearMargin;
+chainGearMargin = 2.7;
+chainGearRim = 5;
+chainGearSlopeHeight = chainGearDepth/2 - chainGearMargin;
+
+
+module chainGear(bore, keyDiameter, fit){
 
     difference(){
         scale([chainGearScaling, chainGearScaling, 1])
@@ -64,13 +69,13 @@ module chainGear(bore, keyDiameter, fit){
 
                     translate([0,0, chainGearDepth/2 + chainGearMargin])
                         difference(){
-                                cylinder(d1=chainGearBaseDiameter, d2=chainGearDiameter, h=slopeHeight);
+                                cylinder(d1=chainGearBaseDiameter, d2=chainGearDiameter, h=chainGearSlopeHeight);
                                 translate([0,0,-1])
-                                    cylinder(d1=chainGearBaseDiameter-chainGearRim, d2 = chainGearDiameter - chainGearRim, h=slopeHeight+2);
+                                    cylinder(d1=chainGearBaseDiameter-chainGearRim, d2 = chainGearDiameter - chainGearRim, h=chainGearSlopeHeight+2);
                         }
 
-                    translate([0,0,slopeHeight]) rotate([180,0,0])
-                        cylinder(d1=chainGearBaseDiameter, d2=chainGearDiameter, h=slopeHeight);
+                    translate([0,0,chainGearSlopeHeight]) rotate([180,0,0])
+                        cylinder(d1=chainGearBaseDiameter, d2=chainGearDiameter, h=chainGearSlopeHeight);
                 }
             }
         }
@@ -92,6 +97,41 @@ module chainGear(bore, keyDiameter, fit){
             }
         }
 
+    }
+}
+
+module chainGear_v2(){
+    shaftHolderDiameter = 10;
+    screwPosDiameter = 16;
+
+    // for loop for slicing in 2
+    for(s=[0,180]) translate([-s/50,0,0]) {
+        intersection(){
+            // mask
+            rotate([0,0,s]) translate([0.1,-(chainGearDiameter/2+1),-1])
+                cube([chainGearDiameter+2,chainGearDiameter+2,chainGearDepth+2]);
+
+            // full gear
+            difference(){
+                union(){
+                    chainGear(motorShaftDiameter, motorKeyDiameter, tightFit);
+                    // plug holes
+                    cylinder(d=chainGearDiameter-7, h=chainGearSlopeHeight);
+                    translate([0,0,chainGearDepth-chainGearSlopeHeight]) cylinder(d=chainGearDiameter-7, h=chainGearSlopeHeight);
+                    cylinder(d=chainGearDiameter-12, h=chainGearDepth);
+                }
+
+                // cutouts
+                translate([0,0,-1]){
+                    cylinder(d=shaftHolderDiameter+0.9, h=chainGearDepth+2);
+                    for(i=[0:90:3*90]){
+                        rotate([0,0,i+45]) translate([screwPosDiameter/2,0,0]) cylinder(d=m3Hole, chainGearDepth+2);
+                        rotate([0,0,i]) translate([shaftHolderDiameter/2-2,0,0]) cylinder(d=6.7, chainGearDepth+2);
+                        rotate([0,0,i+45]) translate([screwPosDiameter/2,0,0]) rotate([0,0,30]) cylinder($fn = 6, h = m3HexDepth+1, d = m3Hex);
+                    }
+                }
+            }
+        }
     }
 
 }
@@ -261,6 +301,11 @@ module printReady(){
     washer(motorShaftDiameter+1.2*looseFit,4.5,standardWasherDepth);
     translate([60,0,0])
     chainGear(motorShaftDiameter, motorKeyDiameter, tightFit);
+
+    translate([60,50,chainGearDepth]) rotate([180,0,0])
+    chainGear_v2();
+
+
     translate([100,0,0])
     chainGuide();
     translate([100,30,0])
@@ -310,6 +355,7 @@ module motorHoles(){
         }
     }
 }
+
 
 // chainGear(motorShaftDiameter, motorKeyDiameter, tightFit);
 // motorHoles();

@@ -36,10 +36,16 @@ void inter(){
   _pushed = PUSHED_DOWN;
 }
 
-void setup_buttons(){
+bool setup_buttons(){
     pinMode(BUTTON_INT_PIN, INPUT_PULLUP);
     pinMode(UP_PIN, INPUT_PULLUP);
     pinMode(DOWN_PIN, INPUT_PULLUP);
     
     attachInterrupt(digitalPinToInterrupt(BUTTON_INT_PIN), inter, FALLING);
+
+    // if down button is pressed during startup, enter debug
+    if(!digitalRead(DOWN_PIN)){
+        return true;
+    }
+    return false;
 }

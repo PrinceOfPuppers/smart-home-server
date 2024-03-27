@@ -1,8 +1,6 @@
-#include <Encoder.h>
-
 // #define DEBUG_SERIAL
 
-#define MOTOR_TIMEOUT_SECS 30
+#define MOTOR_TIMEOUT_SECS 3*60
 
 #define PUSHED_NONE 0
 #define PUSHED_UP 1
@@ -20,9 +18,16 @@ void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
 
-    setup_buttons();
+    // if down button is pressed during startup, enter debug mode potentiometer
+    bool debug_pot = setup_buttons();
     setup_motor();
+
+    if(debug_pot){
+        debug_mode_pot();
+    }
+
     setup_rx();
+
 
 #ifdef DEBUG_SERIAL
     Serial.println("Setup Complete");

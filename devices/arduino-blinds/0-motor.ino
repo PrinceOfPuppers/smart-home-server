@@ -1,3 +1,5 @@
+#include <Encoder.h>
+
 #define MOTOR_UP_PIN 11
 #define MOTOR_DOWN_PIN 12
 
@@ -19,7 +21,9 @@ void motor_stop(){
 }
 
 
+// for timeout
 static long _last_move_time = 0;
+
 void motor_move(bool up){
     motor_stop();
     _last_move_time = millis();
@@ -38,7 +42,7 @@ void check_motor_timeout(int timeout_secs){
     }
 }
 
-// set during setup
+// set during setup, speeds below this are considered stall
 static long min_encoder_step_per_sec = 0;
 void check_motor_stall(){
 
@@ -99,7 +103,15 @@ void setup_motor(){
     _last_micros = micros();
 }
 
-
+void debug_mode_pot(){
+    while(true){
+        min_encoder_step_per_sec = lround(MAX_MOTOR_STALL_SPEED * _getStallCalPotValue());
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(min_encoder_step_per_sec);
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(100);
+    }
+}
 
 
 
