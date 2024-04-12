@@ -35,7 +35,7 @@ void setup() {
 #endif
 }
 
-long counter = 0;
+uint32_t counter = 0;
 
 void loop() {
     poll_encoder();
