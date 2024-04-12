@@ -54,7 +54,21 @@ void check_motor_stall(){
 
     double s = get_speed();
     if(abs(s) < min_encoder_step_per_sec){
+        // check if motor was moving
+        bool down = digitalRead(MOTOR_DOWN_PIN);
+        bool up = digitalRead(MOTOR_UP_PIN);
+
         motor_stop();
+
+        // backout to reduce tension on chain
+        if(up || down){
+            digitalWrite(LED_BUILTIN, HIGH);
+            // if down move up, if up move down
+            motor_move(down);
+            delay(500);
+            motor_stop();
+            digitalWrite(LED_BUILTIN, LOW);
+        }
     }
 }
 
