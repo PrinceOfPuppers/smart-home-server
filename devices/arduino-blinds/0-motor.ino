@@ -46,7 +46,7 @@ void check_motor_timeout(int timeout_secs){
 static long min_encoder_step_per_sec = 0;
 void check_motor_stall(){
 
-    // grace period 
+    // grace period
     long now = millis();
     if (now - _last_move_time < 100){
         return;

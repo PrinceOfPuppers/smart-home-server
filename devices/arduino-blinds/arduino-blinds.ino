@@ -10,6 +10,11 @@
 #define RX_UP 1
 #define RX_DOWN 2
 
+// enum for setup_buttons return, if buttons are held during boot
+#define NO_BUTTON 0
+#define DEBUG_POT 1
+#define PROGRAM_RX 2
+
 void setup() {
 #ifdef DEBUG_SERIAL
     Serial.begin(9600);
@@ -19,14 +24,13 @@ void setup() {
     digitalWrite(LED_BUILTIN, LOW);
 
     // if down button is pressed during startup, enter debug mode potentiometer
-    bool debug_pot = setup_buttons();
+    int button_ret = setup_buttons();
     setup_motor();
 
-    if(debug_pot){
+    if(button_ret == DEBUG_POT){
         debug_mode_pot();
     }
-
-    setup_rx();
+    setup_rx(button_ret == PROGRAM_RX );
 
 
 #ifdef DEBUG_SERIAL
