@@ -359,8 +359,8 @@ module motorHoles(){
 
 // chainGear(motorShaftDiameter, motorKeyDiameter, tightFit);
 // motorHoles();
-// fullAssembly();
-printReady();
+fullAssembly();
+// printReady();
 // motorHousing();
 // chainGuide();
 
