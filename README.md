@@ -28,7 +28,7 @@ Each device has its own `README`. Click the links to read more.
 Main Case and [Arduino Blinds Controller](devices/arduino-blinds/README.md):
 
 <img align="left" height="200" src="devices/main-case/images/full-front.jpg">
-<img align="left" height="200" src="devices/arduino-blinds/images/full.jpg">
+<img align="left" height="200" src="devices/arduino-blinds/images/mechanical.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
