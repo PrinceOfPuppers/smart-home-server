@@ -1,5 +1,5 @@
 # arduino-blinds
-> A Device for Opening and Closing Chain Blinds
+> A Device for Opening and Closing Bead Chain Blinds
 
 <img align="left" height="300" src="images/mechanical.jpg">
 <img align="left" height="300" src="images/full.jpg">

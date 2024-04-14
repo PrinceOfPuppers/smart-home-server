@@ -25,6 +25,13 @@ Each device has its own `README`. Click the links to read more.
 <br clear="left"/>
 <br clear="left"/>
 
+Main Case and [Arduino Blinds Controller](devices/arduino-blinds/README.md):
+
+<img align="left" height="200" src="devices/main-case/images/full-front.jpg">
+<img align="left" height="200" src="devices/arduino-blinds/images/full.jpg">
+<br clear="left"/>
+<br clear="left"/>
+
 [ESP Weather Station](devices/esp-weather-station/README.md) and [Arduino Light Switcher](devices/arduino-light-switcher/README.md):
 
 <img align="left" height="200" src="devices/esp-weather-station/images/full.jpg">
@@ -32,11 +39,6 @@ Each device has its own `README`. Click the links to read more.
 <br clear="left"/>
 <br clear="left"/>
 
-Main Case:
-
-<img align="left" height="200" src="devices/main-case/images/full-front.jpg">
-<br clear="left"/>
-<br clear="left"/>
 
 
 # ABOUT
