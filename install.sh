@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#TODO create symlink for 10-smart-home-server.rules
+#TODO: reload usb hid driver
+
 mountPath=$(cd "$(dirname "$1")"; pwd)/$(basename "$1")smart_home_server/storage
 
 if ! grep -Fq "$mountPath" /etc/fstab
@@ -74,6 +77,7 @@ SERVICE_FILE="/usr/lib/systemd/user/$PROGRAM.service"
 BIN_LOCATION="/usr/local/bin/$PROGRAM"
 UPDATE_BIN_LOCATION="/usr/local/bin/$UPDATE_PROGRAM"
 
+#TODO replace with symlinks
 sudo chmod +x "bin/$PROGRAM"
 sudo cp "bin/$PROGRAM" $BIN_LOCATION
 sudo mv "./$UPDATE_PROGRAM" $UPDATE_BIN_LOCATION
