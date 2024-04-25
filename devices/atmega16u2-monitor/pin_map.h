@@ -9,7 +9,7 @@
 #define B7 7
 
 
-#define C0 -1// crystal
+#define C0 -1 // crystal
 #define C1 -1 // reset
 #define C2 12
 #define C3 -1 // does not exist

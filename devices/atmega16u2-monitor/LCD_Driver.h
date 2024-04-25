@@ -30,22 +30,29 @@
 #ifndef __LCD_DRIVER_H
 #define __LCD_DRIVER_H
 
-#include "DEV_Config.h"
-
 #define LCD_WIDTH   160 //LCD width
 #define LCD_HEIGHT  128 //LCD height
 
+#define DEV_CS_PIN  13
+#define DEV_DC_PIN  14
+#define DEV_RST_PIN 15
+#define DEV_BL_PIN  7
 
-void LCD_WriteData_Byte(UBYTE da); 
-void LCD_WriteData_Word(UWORD da);
-void LCD_WriteReg(UBYTE da);
+#include <stdint.h>
+#include <stdio.h>
+#include <SPI.h>
+#include <avr/pgmspace.h>
 
-void LCD_SetCursor(UWORD x1, UWORD y1, UWORD x2,UWORD y2);
-void LCD_SetUWORD(UWORD x, UWORD y, UWORD Color);
+/*-----------------------------------------------------------------------------*/
+void LCD_WriteData_Byte(uint8_t da); 
+void LCD_WriteData_Word(uint16_t da);
+void LCD_WriteReg(uint8_t da);
+
+void LCD_SetCursor(uint16_t x1, uint16_t y1, uint16_t x2,uint16_t y2);
+void LCD_Setuint16_t(uint16_t x, uint16_t y, uint16_t Color);
 
 void LCD_Init(void);
-void LCD_SetBacklight(UWORD Value);
-void LCD_Clear(UWORD Color);
-void LCD_ClearWindow(UWORD Xstart, UWORD Ystart, UWORD Xend, UWORD Yend, UWORD UWORD);
+void LCD_SetBacklight(uint16_t Value);
+void LCD_Clear(uint16_t Color);
 
 #endif

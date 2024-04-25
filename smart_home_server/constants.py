@@ -6,6 +6,7 @@ import re
 TxChannel = namedtuple("Channel", ["on", "off"])
 
 colors = {
+    "black": "#000000",
     "darkGrey": "#1e1f1c",
     "grey": "#272822",
     "lightGrey": "#75715e",
