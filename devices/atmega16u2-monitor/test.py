@@ -126,6 +126,7 @@ def hidTest():
 
         b = rgb_to_16_bit(test())
         sendFrame(h, b, 40)
+        # sendFrame(h, b, 2)
 
         #h.write(imgbytes)
 

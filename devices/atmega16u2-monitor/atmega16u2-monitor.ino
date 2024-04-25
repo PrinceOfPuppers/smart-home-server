@@ -42,7 +42,7 @@ SoftwareSerial mySerial(D6, D7); // rx, tx
 #define debugln(x) mySerial.println(x)
 #define debug_freeze() while(1);
 
-void _dumpBuffer(){
+void _dumpBuffer(int bytesAvailable){
     for(int i = 0; i < CHUNK_BYTE_SIZE; i++){
         mySerial.print("0x");
         mySerial.print(rawhidData[i] < 16 ? "0" : "");
@@ -52,14 +52,14 @@ void _dumpBuffer(){
     mySerial.print("A: ");
     mySerial.println(bytesAvailable);
 }
-#define debug_dump_buffer() _dumpBuffer()
+#define debug_dump_buffer(x) _dumpBuffer(x)
 
 #else
 
 #define debug(x)
 #define debugln(x)
 #define debug_freeze()
-#define debug_dump_buffer()
+#define debug_dump_buffer(x)
 
 #endif
 
@@ -81,7 +81,7 @@ void setup(void) {
 #define FRAME_TIMEOUT 10 * 60 * 1000 * 1000
 void drawFrame(){
     // only start when bytes are available
-    auto bytesAvailable = RawHID.available();
+    int bytesAvailable = RawHID.available();
     if(!bytesAvailable){
         delay(1);
         return;
@@ -106,7 +106,7 @@ void drawFrame(){
         auto bytesAvailable = RawHID.available();
 
         if(bytesAvailable == 0){continue;}
-        debug_dump_buffer();
+        debug_dump_buffer(bytesAvailable);
 
         if(bytesAvailable != CHUNK_BYTE_SIZE){
             debug("Invalid Chunk Size: ");
@@ -119,6 +119,10 @@ void drawFrame(){
         for(int i = 0; i < CHUNK_PIXEL_SIZE; i++){
             LCD_SetUWORD(start+i, row, ((uint16_t *)rawhidData)[i]);
         }
+
+        // resets RawHID.available()
+        RawHID.enable();
+        RawHID.write("A");
 
         chunk++;
         if(chunk >= CHUNKS_PER_LINE){
@@ -133,9 +137,6 @@ void drawFrame(){
             }
         }
 
-        // resets RawHID.available()
-        RawHID.enable();
-        RawHID.write("A");
     }
 
 }
