@@ -33,10 +33,21 @@
 #define LCD_WIDTH   160 //LCD width
 #define LCD_HEIGHT  128 //LCD height
 
-#define DEV_CS_PIN  13
-#define DEV_DC_PIN  14
-#define DEV_RST_PIN 15
+// not relative to port
 #define DEV_BL_PIN  7
+
+// port manipulation
+#define PORT_DDR DDRD
+#define PORT PORTD
+
+// relative to port
+#define DEV_CS_PIN  0
+#define DEV_DC_PIN  1
+#define DEV_RST_PIN 2
+
+#define setup_port() PORT_DDR |= (1 << DEV_CS_PIN) | (1 << DEV_DC_PIN) | (1 << DEV_RST_PIN)
+#define set_low(pin) PORT &= ~(1 << pin)
+#define set_high(pin) PORT |= (1 << pin)
 
 #include <stdint.h>
 #include <stdio.h>

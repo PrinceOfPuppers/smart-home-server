@@ -35,11 +35,11 @@
 *******************************************************************************/
 static void LCD_Reset(void)
 {
-  digitalWrite(DEV_RST_PIN, 0);
+  set_low(DEV_RST_PIN);
   delay(20);
-  digitalWrite(DEV_RST_PIN, 0);
+  set_low(DEV_RST_PIN);
   delay(20);
-  digitalWrite(DEV_RST_PIN, 1);
+  set_high(DEV_RST_PIN);
   delay(20);
 }
 
@@ -60,26 +60,26 @@ void LCD_SetBacklight(uint16_t Value)
 *******************************************************************************/
 void LCD_WriteData_Byte(uint8_t da)
 {
-  digitalWrite(DEV_CS_PIN, 0);
-  digitalWrite(DEV_DC_PIN, 1);
+  set_low(DEV_CS_PIN);
+  set_high(DEV_DC_PIN);
   SPI.transfer(da);
-  digitalWrite(DEV_CS_PIN, 1);
+  set_high(DEV_CS_PIN);
 }
 
 void LCD_WriteData_Word(uint16_t da)
 {
   uint8_t i = (da >> 8) & 0xff;
-  digitalWrite(DEV_CS_PIN, 0);
-  digitalWrite(DEV_DC_PIN, 1);
+  set_low(DEV_CS_PIN);
+  set_high(DEV_DC_PIN);
   SPI.transfer(i);
   SPI.transfer(da);
-  digitalWrite(DEV_CS_PIN, 1);
+  set_high(DEV_CS_PIN);
 }
 
 void LCD_WriteReg(uint8_t da)
 {
-  digitalWrite(DEV_CS_PIN, 0);
-  digitalWrite(DEV_DC_PIN, 0);
+  set_low(DEV_CS_PIN);
+  set_low(DEV_DC_PIN);
   SPI.transfer(da);
   //digitalWrite(DEV_CS_PIN,1);
 }
@@ -88,9 +88,12 @@ void LCD_WriteReg(uint8_t da)
 void LCD_Init(void)
 {
   // pins
+  /*
   pinMode(DEV_CS_PIN, OUTPUT);
   pinMode(DEV_RST_PIN, OUTPUT);
   pinMode(DEV_DC_PIN, OUTPUT);
+  */
+  setup_port();
   pinMode(DEV_BL_PIN, OUTPUT);
   analogWrite(DEV_BL_PIN,140);
 
