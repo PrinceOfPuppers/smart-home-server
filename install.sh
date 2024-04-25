@@ -90,3 +90,6 @@ systemctl --user daemon-reload
 systemctl --user enable $PROGRAM
 systemctl --user start $PROGRAM
 
+
+#TODO: add raspi-config overlay filesystem and restart
+

@@ -1,140 +1,147 @@
-// #include <SoftWire.h>
-// #include <LiquidCrystal_I2C.h>
-// #include <Servo.h>
-// #include <RCSwitch.h>
-// #include <avr/iom16u2.h>
-// #include <avr/io.h>
-// #  include <avr/iom16u2.h>
 #include "pin_map.h"
-#include "test.h"
-#include <SPI.h>
-#include <SoftwareSerial.h>
 
-
-// TODO: rename to TFT_ST7735_MINI.h
-// #include <TFT_ST7735.h> // Graphics and font library for ST7735 driver chip
+#include "DEV_Config.h"
+#include "LCD_Driver.h"
 
 #include "HID-Project.h"
 
+// #define DEBUG_ENABLED
 
-/*
-#define CS D0
-#define DC D1
-#define RESET D2
-*/
+#define BLACK 0x0000
 
-#define CS 42
-#define DC 43
-#define RESET 44
 
-#define PACKET_LEN 5
-uint8_t rawhidData[PACKET_LEN + 2];
-uint8_t myBuff[PACKET_LEN + 1];
+#define SCREEN_WIDTH 160
+#define SCREEN_HEIGHT 128
 
-SoftwareSerial mySerial(D0, D1); // RX, TX
+// number of chunkes each horizontal line is divided into
+// SCREEN_WIDTH/CHUNKS_PER_LINE is the number of pixels updated at once
+#ifdef DEBUG_ENABLED
+#define CHUNKS_PER_LINE SCREEN_WIDTH
+#else
+#define CHUNKS_PER_LINE 8
+#endif
 
-// TFT_ST7735 tft = TFT_ST7735();
+#if SCREEN_WIDTH % CHUNKS_PER_LINE != 0
+#error "screen width must be divisable by the number of chunks per line"
+#endif
+
+#define CHUNK_PIXEL_SIZE (SCREEN_WIDTH/CHUNKS_PER_LINE)
+// each pixel is 16 bits
+#define CHUNK_BYTE_SIZE (2*CHUNK_PIXEL_SIZE)
+
+uint8_t rawhidData[CHUNK_BYTE_SIZE];
+
+
+
+
+#ifdef DEBUG_ENABLED
+
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial(D6, D7); // rx, tx
+#define debug(x) mySerial.print(x)
+#define debugln(x) mySerial.println(x)
+#define debug_freeze() while(1);
+
+void _dumpBuffer(){
+    for(int i = 0; i < CHUNK_BYTE_SIZE; i++){
+        mySerial.print("0x");
+        mySerial.print(rawhidData[i] < 16 ? "0" : "");
+        mySerial.print(rawhidData[i], HEX);
+        mySerial.print(" ");
+    }
+    mySerial.print("A: ");
+    mySerial.println(bytesAvailable);
+}
+#define debug_dump_buffer() _dumpBuffer()
+
+#else
+
+#define debug(x)
+#define debugln(x)
+#define debug_freeze()
+#define debug_dump_buffer()
+
+#endif
 
 void setup(void) {
-    // tft.init();
-    // tft.setRotation(3);
     RawHID.begin(rawhidData, sizeof(rawhidData));
-    // test();
-    //
-    mySerial.begin(4800);
-    myBuff[PACKET_LEN] = '\0';
-    mySerial.println("setup done");
-    RawHID.write("test\n");
+#ifdef DEBUG_ENABLED
+    mySerial.begin(9600);
+#endif
+    Config_Init();
+    LCD_Init();
+    LCD_Clear(BLACK);
+
+    debug("Setup Done, Chunk Byte Size: ");
+    debugln(CHUNK_BYTE_SIZE);
 }
 
-void test() {
-  // Fill screen with grey so we can see the effect of printing with and without 
-  // a background colour defined
-  // tft.drawColorImage(close,0,0, closeWidth, closeHeight);
+// TODO: add debounce for updates that are too soon
 
-    // Serial.print(RawHID.readString());
-    // Serial.flush();
-    //
+#define FRAME_TIMEOUT 10 * 60 * 1000 * 1000
+void drawFrame(){
+    // only start when bytes are available
     auto bytesAvailable = RawHID.available();
-    if(bytesAvailable == 0){
+    if(!bytesAvailable){
+        delay(1);
         return;
     }
 
-    for(int i = 0; i < bytesAvailable; i++){
-        RawHID.write(RawHID.read());
-    }
-    return;
+    // used for timeout, we start only when there is an inital byte
+    uint32_t start = millis();
+    debugln("New Frame");
 
-    /*
-    // Write data to led array
-    uint8_t* ptr = (uint8_t*)leds;
-    for (int i = 0; i < sizeof(leds); i++) {
-      *ptr = RawHID.read();
-      ptr++;
-    }
-    */
-}
-void loop(){test();}
+    uint16_t row = 0;
+    uint16_t chunk = 0;
+    while(1){
+        delay(1);
 
-/*
-void setup() {
-    // initialize the myScreen
-    myScreen.init();
-    // myScreen.initR(INITR_BLACKTAB);
-    myScreen.setRotation(3);
-    myScreen.setCursor(0,0);
+        /*
+        // check timeout
+        if(millis() - start > FRAME_TIMEOUT){
+            break;
+        }
+        */
 
-    // make the background white
-    myScreen.background(0,0,255);
-    //myScreen.text("test123", 5, 5);
+        auto bytesAvailable = RawHID.available();
 
-  // write the static text to the screen
-  // set the font color to white
-  myScreen.stroke(255, 255, 255);
-  // set the font size
-  myScreen.setTextSize(2);
-  // write the text to the top left corner of the screen
-  myScreen.text("Sensor Value :\n ", 0, 0);
-  // set the font size very large for the loop
-  // myScreen.setTextSize(5);
-}
+        if(bytesAvailable == 0){continue;}
+        debug_dump_buffer();
 
-void loop() {
-}
-*/
+        if(bytesAvailable != CHUNK_BYTE_SIZE){
+            debug("Invalid Chunk Size: ");
+            debugln(bytesAvailable);
+            debug_freeze();
+            continue;
+        }
+        
+        uint16_t start = chunk*CHUNK_PIXEL_SIZE;
+        for(int i = 0; i < CHUNK_PIXEL_SIZE; i++){
+            LCD_SetUWORD(start+i, row, ((uint16_t *)rawhidData)[i]);
+        }
 
-/*
-#include <LiquidCrystal_SoftI2C.h>
+        chunk++;
+        if(chunk >= CHUNKS_PER_LINE){
+            // move to next line
+            chunk = 0;
+            row++;
+            debug("newline, row: ");
+            debugln(row);
 
-#define LCD_WIDTH 20
-#define LCD_LINES 4
-#define LCD_ADDR 0x27
+            if (row >= SCREEN_HEIGHT){
+                break;
+            }
+        }
 
-SoftwareWire myWire(0,1);
-static LiquidCrystal_I2C lcd(LCD_ADDR,LCD_WIDTH, LCD_LINES, &myWire);
-
-void setup_lcd(){
-    for(int i = 13; i < 13+8; i++){
-        pinMode(i, INPUT_PULLUP);
-    }
-    lcd.begin();
-    lcd.setBacklight(1);
-    lcd.setCursor(0,0);
-}
-
-void setup() {
-    setup_lcd();
-    lcd.clear();
-    // lcd.print("hi 123");
-}
-
-void loop() {
-    delay(1000);
-
-    for(int i = 13; i < 13+8; i++){
-        lcd.setCursor(i-13,1);
-        lcd.write(digitalRead(i) ? '1' : '0');
+        // resets RawHID.available()
+        RawHID.enable();
+        RawHID.write("A");
     }
 
 }
-*/
+
+// void drawFrame(){}
+
+void loop(){
+    drawFrame();
+}
