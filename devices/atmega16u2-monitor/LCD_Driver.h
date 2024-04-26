@@ -50,9 +50,7 @@
 #define set_high(pin) PORT |= (1 << pin)
 
 #include <stdint.h>
-#include <stdio.h>
 #include <SPI.h>
-#include <avr/pgmspace.h>
 
 /*-----------------------------------------------------------------------------*/
 void LCD_WriteData_Byte(uint8_t da); 

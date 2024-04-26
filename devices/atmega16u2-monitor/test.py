@@ -3,7 +3,7 @@ from matplotlib.axes import Axes
 import hid
 from time import sleep
 
-def test():
+def test(width, height):
     from matplotlib.figure import Figure
     import matplotlib.pyplot as plt
     import smart_home_server.constants as const
@@ -36,7 +36,7 @@ def test():
     xs = [0,1,2,3,4,5,6,7,8,9]
     ys = [300,100,200,500,600,700,100,200,300,400]
     px = 1/plt.rcParams['figure.dpi']
-    fig = Figure(figsize=(160*px,128*px))
+    fig = Figure(figsize=(width*px,height*px))
     #fig.tight_layout(pad=10, h_pad=0)
     fig.subplots_adjust(right=0.95)
     #blue = "#66D9EF"
@@ -67,6 +67,8 @@ def rgb_to_16_bit(rgb_buffer):
     for i in range(numPixels):
         # 16 bit value
         x = rlut[rgb_buffer[3*i]] + glut[rgb_buffer[3*i+1]] + blut[rgb_buffer[3*i+2]]
+
+        # little endiean
         b1 = (x%256)
         b2 = (x//256)
 
@@ -81,6 +83,9 @@ def rgb_to_16_bit(rgb_buffer):
     return b
 
 def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
+    h.write("S\n".encode())
+    h.read(1)
+
     assert len(b) % chunkByteSize == 0
     chunks = len(b) / chunkByteSize
     chunks = int(chunks)
@@ -96,10 +101,21 @@ def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
         #print(x.hex(" "), written)
         #sleep(0.01)
         #wait for ack
+        # TODO: check h.read, shuld be ack, final one should be 'L'
         h.read(1)
         #sleep(0.1)
 
 
+
+def requestInfo(h:hid.Device):
+    h.write("R\n".encode())
+    b = h.read(6)
+    width = int.from_bytes(b[0:2], byteorder="little")
+    height = int.from_bytes(b[2:4], byteorder = "little")
+    chunkSize = int.from_bytes(b[4:6], byteorder = "little")
+    h.write("A\n".encode())
+    print(f"{width=}, {height=}, {chunkSize=}")
+    return width, height, chunkSize
 
 
 
@@ -118,8 +134,10 @@ def hidTest():
         #x = h.read(6)
         #print(x.decode("utf8"))
 
-        b = rgb_to_16_bit(test())
-        sendFrame(h, b, 40)
+        width, height, chunckSize = requestInfo(h)
+
+        b = rgb_to_16_bit(test(width, height))
+        sendFrame(h, b, chunckSize)
         # sendFrame(h, b, 2)
 
         #h.write(imgbytes)

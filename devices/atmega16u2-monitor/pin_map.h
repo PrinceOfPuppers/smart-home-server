@@ -1,3 +1,5 @@
+#ifndef _PINMAP_H
+#define _PINMAP_H
 
 #define B0 0
 #define B1 1
@@ -35,3 +37,10 @@
 #define M_SCLK B1
 #define M_MOSI B2
 #define M_MISO B3
+
+
+// Serial1
+#define M_TXD1 D3
+#define M_RXD1 D2
+
+#endif
