@@ -56,6 +56,29 @@ def test(width, height):
     b = c.tostring_rgb()
     return b
 
+
+
+
+
+# from device
+lastByte = b'L'
+errByte = b'E'
+timeoutByte = b'T'
+nextByte = b'N'
+prevByte = b'P'
+
+
+# to device
+infoByte = b'I'
+startByte = b'S'
+backlightByte = b'B'
+
+# both
+ackByte = b'A'
+
+def sendByte(h,b):
+    h.write(b + b'\n')
+
 rlut = [(i >> (8-5)) << (16 - 5) for i in range(0,255)]
 glut = [(i >> (8-6)) << (16 - 11) for i in range(0,255)]
 blut = [i >> (8-5) for i in range(0,255)]
@@ -83,7 +106,7 @@ def rgb_to_16_bit(rgb_buffer):
     return b
 
 def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
-    h.write("S\n".encode())
+    sendByte(h, startByte)
     h.read(1)
 
     assert len(b) % chunkByteSize == 0
@@ -101,20 +124,22 @@ def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
         res = h.read(1)
 
         # allowed to exit early
-        if res != b'A':
+        if res != ackByte:
             print("early exit")
             break;
 
     # TODO: report as error condition
-    while res == b'A':
+    while res == ackByte:
         print("filling with black")
         # fill rest with black
         x = bytes(b[0xFF])*chunkByteSize
         h.write(x)
         res = h.read(1)
 
+    # TODO: add check for N and P early exits
+
     # TODO: report as error condition
-    if res != b'L':
+    if res != lastByte:
         print("non-L return: ", res)
         pass
 
@@ -122,17 +147,18 @@ def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
 
 
 def requestInfo(h:hid.Device):
-    h.write("R\n".encode())
-    b = h.read(6)
+    sendByte(h, infoByte)
+    b = h.read(8)
     width = int.from_bytes(b[0:2], byteorder="little")
     height = int.from_bytes(b[2:4], byteorder = "little")
     chunkSize = int.from_bytes(b[4:6], byteorder = "little")
+    backlight = int.from_bytes(b[6:8], byteorder = "little")
 
     # TODO: sanity check values, report error condition
 
-    h.write("A\n".encode())
-    print(f"{width=}, {height=}, {chunkSize=}")
-    return width, height, chunkSize
+    sendByte(h, ackByte)
+    print(f"{width=}, {height=}, {chunkSize=}, {backlight=}")
+    return width, height, chunkSize, backlight
 
 
 
@@ -146,7 +172,7 @@ def hidTest(vid, pid):
         print(f'Serial Number: {h.serial}')
 
 
-        width, height, chunckSize = requestInfo(h)
+        width, height, chunckSize,backlight = requestInfo(h)
 
         b = rgb_to_16_bit(test(width, height))
         sendFrame(h, b, chunckSize)
@@ -195,11 +221,6 @@ def await_connection():
                 except HIDException:
                     print("disconnect")
                     continue
-
-
-
-                #print(device.get('ID_VENDOR_FROM_DATABASE'))
-
 
 
 

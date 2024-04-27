@@ -1,12 +1,20 @@
 #include "HID-Project.h"
-
 #include "LCD_Driver.h"
 
+#include "buttons.h"
 #include "config.h"
 #include "pin_map.h"
 #include "debug.h"
+#include <EEPROM.h>
 
 uint8_t rawhidData[CHUNK_BYTE_SIZE];
+
+static uint8_t backlight;
+void write_backlight(uint8_t bl){
+    EEPROM.write(0, bl); 
+    backlight = bl;
+}
+
 
 ///////////
 // SETUP //
@@ -14,11 +22,15 @@ uint8_t rawhidData[CHUNK_BYTE_SIZE];
 void setup(void) {
     RawHID.begin(rawhidData, sizeof(rawhidData));
     setup_debug();
+    backlight = EEPROM.read(0);
     // LCD_Init(SCREEN_WIDTH, SCREEN_HEIGHT, CS_PIN, RST_PIN, DC_PIN, BL_PIN);
-    LCD_Init();
+    LCD_Init(backlight);
     LCD_Clear(0x0000);
 
-    debug("Setup Done, Chunk Byte Size: ");
+
+    setup_buttons();
+
+    debug("Chunk Size: ");
     debugSln(CHUNK_BYTE_SIZE);
 }
 
@@ -38,8 +50,9 @@ void setup(void) {
 /////////////////
 
 // request monitor info
-#define CHAR_REQ 'R'
+#define CHAR_INFO 'I'
 #define CHAR_START 'S'
+#define CHAR_BACKLIGHT 'B'
 
 ///////////////////
 // Controls BOTH //
@@ -67,7 +80,6 @@ char blocking_read_char(){
     RawHID.enable(); // set buffer as read
     
     return c;
-
 }
 
 #ifdef DEBUG_ENABLED
@@ -134,17 +146,18 @@ void drawFrame(){
     } // end loop
 }
 
-
 void send_monitor_info(){
     delay(1);
-    uint16_t i[3];
+    uint16_t i[4];
     i[0] = SCREEN_WIDTH;
     i[1] = SCREEN_HEIGHT;
     i[2] = CHUNK_BYTE_SIZE;
+    i[3] = backlight;
 
     RawHID.write((uint8_t *)&i, sizeof(i));
     await_ack();
 }
+
 
 void loop(){
     debugln("switch");
@@ -155,15 +168,19 @@ void loop(){
         RawHID.write(CHAR_ACK);
         drawFrame();
         break;
-      case CHAR_REQ:
+      case CHAR_INFO:
         debugln("req");
         send_monitor_info();
         break;
-      // TODO: Add case for toggling backlight
+      case CHAR_BACKLIGHT:
+        debugln("bl");
+        RawHID.write(CHAR_ACK);
+        write_backlight(blocking_read_char());
+        break;
+
       default:
         debug("Wrong Char: ");
         debugSln(c);
         // code block
     }
-
 }

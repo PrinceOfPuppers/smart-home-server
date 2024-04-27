@@ -60,8 +60,8 @@ void LCD_WriteReg(uint8_t da);
 void LCD_SetCursor(uint16_t x1, uint16_t y1, uint16_t x2,uint16_t y2);
 void LCD_Setuint16_t(uint16_t x, uint16_t y, uint16_t Color);
 
-void LCD_Init(void);
-void LCD_SetBacklight(uint16_t Value);
+void LCD_Init(uint8_t backlight);
+void LCD_SetBacklight(uint8_t Value);
 void LCD_Clear(uint16_t Color);
 
 #endif

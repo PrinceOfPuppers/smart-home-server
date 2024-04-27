@@ -49,7 +49,7 @@ static void LCD_Reset(void)
     parameter :
       value : Range 0~255   Duty cycle is value/255
 *******************************************************************************/
-void LCD_SetBacklight(uint16_t Value)
+void LCD_SetBacklight(uint8_t Value)
 {
     analogWrite(DEV_BL_PIN, Value);
 }
@@ -85,7 +85,7 @@ void LCD_WriteReg(uint8_t da)
 }
 
 
-void LCD_Init(void)
+void LCD_Init(uint8_t backlight)
 {
     // pins
     /*
@@ -95,7 +95,7 @@ void LCD_Init(void)
     */
     setup_port();
     pinMode(DEV_BL_PIN, OUTPUT);
-    analogWrite(DEV_BL_PIN,140);
+    analogWrite(DEV_BL_PIN,backlight);
 
     //spi
     SPI.setDataMode(SPI_MODE3);

@@ -1,7 +1,7 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
-// #define DEBUG_ENABLED
+#define DEBUG_ENABLED
 
 #define SCREEN_WIDTH 160
 #define SCREEN_HEIGHT 128
