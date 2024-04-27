@@ -84,6 +84,7 @@ void drawFrame(){
 
     uint16_t row = 0;
     uint16_t chunk = 0;
+    LCD_SetCursor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     while(1){
         delay(1);
 
@@ -108,7 +109,6 @@ void drawFrame(){
         
         { // push chunk to lcd
             uint16_t start = chunk*CHUNK_PIXEL_SIZE;
-            LCD_SetCursor(start, row, start+CHUNK_PIXEL_SIZE, row);
             for(int i = 0; i < CHUNK_PIXEL_SIZE; i++){
                 LCD_WriteData_Word(((uint16_t *)rawhidData)[i]);
             }
@@ -159,6 +159,7 @@ void loop(){
         debugln("req");
         send_monitor_info();
         break;
+      // TODO: Add case for toggling backlight
       default:
         debug("Wrong Char: ");
         debugSln(c);

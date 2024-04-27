@@ -227,6 +227,10 @@ lcdCmdEscapeChar = "\x1b"
 lcdDashReconnectTime = 20*60;
 
 
+# atmega16u2 monitor
+a16u2monitorVid = 0x2341
+a16u2monitorPid = 0x484C
+
 WWO_CODE = {
     "113": "Sunny",
     "116": "PartlyCloudy",

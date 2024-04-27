@@ -60,8 +60,7 @@ def _addPoint(g:GraphRuntime, value):
         g.index += 1
         g.index %= g.maxLen
 
-# create new ts with t=0 being now
-def generateFigure(id:str):
+def _generateFigureHelper(id:str):
     if id not in _graphRuntimes:
         raise GraphDoesNotExist()
 
@@ -70,6 +69,9 @@ def generateFigure(id:str):
         with g.lock:
             # sort circle buffers
             ts, ys = zip(*sorted( filter(lambda x: x[0] != None, zip(g.ts, g.ys)) ))
+            color = g.colorHex
+            title = g.datasource
+
 
     now = time()
 
@@ -87,12 +89,31 @@ def generateFigure(id:str):
         relTs = [(x-now)/(60*60) for x in ts]
         tlabel = "Time (Hours)"
 
+    return relTs, tlabel, ys, color, title
+
+# create new ts with t=0 being now
+def generateFigure(id:str):
+    relTs, tlabel, ys, color, title = _generateFigureHelper(id)
+
     fig = Figure()
 
     axis = fig.add_subplot(1, 1, 1)
-    axis.plot(relTs, ys, color=g.colorHex)
+    axis.plot(relTs, ys, color=color)
     axis.set_xlabel(tlabel)
-    axis.set_title(g.datasource)
+    axis.set_title(title)
+    return fig
+
+def generateSmallFigure(id:str, widthpx: int, heightpx: int):
+    relTs, tlabel, ys, color, title = _generateFigureHelper(id)
+
+    px = 1/mpl.rcParams['figure.dpi']
+    fig = Figure(figsize=(widthpx*px,heightpx*px))
+    fig.subplots_adjust(right=0.95)
+    axis = fig.add_subplot(1, 1, 1)
+    axis.plot(relTs, ys, color=color)
+    axis.set_title(title + " vs " + tlabel, pad=3, size=8)
+    axis.tick_params(labelsize=6, length=0, color=const.colors["black"], pad=2)
+
     return fig
 
 def _subscribeErrCB(datasource, e:Exception):
