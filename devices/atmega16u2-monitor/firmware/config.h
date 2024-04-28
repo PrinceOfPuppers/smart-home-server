@@ -1,7 +1,7 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
-#define DEBUG_ENABLED
+// #define DEBUG_ENABLED
 
 #define SCREEN_WIDTH 160
 #define SCREEN_HEIGHT 128
@@ -18,7 +18,7 @@
 #ifdef DEBUG_ENABLED
 #define CHUNKS_PER_LINE SCREEN_WIDTH
 #else
-#define CHUNKS_PER_LINE 8
+#define CHUNKS_PER_LINE 4
 #endif
 
 #if SCREEN_WIDTH % CHUNKS_PER_LINE != 0

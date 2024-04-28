@@ -16,29 +16,9 @@
 #define SERIAL_PIN 7
 #define SERIAL_MASK (1<<SERIAL_PIN)
 
-void serial_bb_print(const char *x){
-    // presuming len is less than 255
-    uint8_t i = 0;
-    uint8_t j = 0;
-
-    while(x[i] != '\0'){
-        // start pull low
-        PORTD &= ~SERIAL_MASK;
-        for(j = 0; j < 8; j++){
-            delayMicroseconds(SERIAL_DELAY_US);
-            PORTD = x[i] & (1<< (j)) ? 
-                (PORTD | SERIAL_MASK)  :    // high
-                (PORTD & ~SERIAL_MASK) ;  // low
-        }
-        delayMicroseconds(SERIAL_DELAY_US);
-        PORTD |= SERIAL_MASK; // end high
-        delayMicroseconds(SERIAL_DELAY_US);
-        i++;
-    }
-}
-
 #define setup_debug() DDRD |= SERIAL_MASK; PORTD |= SERIAL_MASK; delay(10)
 
+void serial_bb_print(const char *x);
 
 #define debug(x) serial_bb_print(x)
 #define debugln(x) serial_bb_print(x); serial_bb_print("\n\r")

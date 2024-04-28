@@ -1,11 +1,33 @@
 #include "HID-Project.h"
 #include "LCD_Driver.h"
 
-#include "buttons.h"
 #include "config.h"
 #include "pin_map.h"
 #include "debug.h"
 #include <EEPROM.h>
+
+//////////////////
+// Controls OUT //
+//////////////////
+
+#define CHAR_LAST 'L'
+#define CHAR_ERR 'E'
+
+/////////////////
+// Controls IN //
+/////////////////
+
+// request monitor info
+#define CHAR_INFO 'I'
+#define CHAR_START 'S'
+#define CHAR_BACKLIGHT 'B'
+
+///////////////////
+// Controls BOTH //
+///////////////////
+#define CHAR_ACK 'A'
+
+#define BYTE_TIMEOUT_MS 100
 
 uint8_t rawhidData[CHUNK_BYTE_SIZE];
 
@@ -23,73 +45,85 @@ void setup(void) {
     RawHID.begin(rawhidData, sizeof(rawhidData));
     setup_debug();
     backlight = EEPROM.read(0);
-    // LCD_Init(SCREEN_WIDTH, SCREEN_HEIGHT, CS_PIN, RST_PIN, DC_PIN, BL_PIN);
     LCD_Init(backlight);
     LCD_Clear(0x0000);
-
-
-    setup_buttons();
 
     debug("Chunk Size: ");
     debugSln(CHUNK_BYTE_SIZE);
 }
 
-//////////////////
-// Controls OUT //
-//////////////////
-
-#define CHAR_LAST 'L'
-#define CHAR_ERR 'E'
-#define CHAR_TIMEOUT 'T'
-// button controls
-#define CHAR_NEXT 'N'
-#define CHAR_PREV 'P'
-
-/////////////////
-// Controls IN //
-/////////////////
-
-// request monitor info
-#define CHAR_INFO 'I'
-#define CHAR_START 'S'
-#define CHAR_BACKLIGHT 'B'
-
-///////////////////
-// Controls BOTH //
-///////////////////
-#define CHAR_ACK 'A'
 
 
-void err_invalid_chunk(int bytesAvailable){
-    debug("Inv Chunk Size: ");
-    debugSln(bytesAvailable);
-    debug_freeze(); // during testing everything should stop
-    RawHID.enable();
+void send_err(){
     RawHID.write(CHAR_ERR);
+    delay(1); // allow 1ms writes to complete
+    RawHID.enable(); // dump buffer
 }
 
-char blocking_read_char(){
-    int bytesAvailable;
-    while( (bytesAvailable = RawHID.available()) == 0 ){
+
+bool await_bytes_timeout(uint16_t size, uint16_t timeout){
+    uint32_t start_time = millis();
+
+    while(1){
         delay(1);
+
+        // check timeout
+        if(millis() - start_time > timeout){
+            send_err();
+            return false;
+        }
+
+        int bytesAvailable = RawHID.available();
+
+        if(bytesAvailable == 0){continue;}
+
+        if(bytesAvailable != size){
+            send_err();
+            return false;
+        }
+        break;
     }
-    if(bytesAvailable != 2){
-        err_invalid_chunk(bytesAvailable);
-    }
+    return true;
+}
+
+bool _read_check_byte(char *c_out){
     char c = RawHID.read(); 
     RawHID.enable(); // set buffer as read
-    
-    return c;
+
+    if(c == CHAR_ERR){
+        delay(2); // wait for 2ms to allow driver to purge buffer
+        // TODO: purge buffer?
+        return false;
+    }
+    *c_out = c;
+    return true;
 }
 
-#ifdef DEBUG_ENABLED
-#define await_ack() { char __c = blocking_read_char(); if(__c != 'A') {debug("expected A got: "); debugSln(__c);} }
-#else
-#define await_ack() blocking_read_char()
-#endif
+bool await_byte_timeout(char *c_out, uint16_t timeout){
+    if(!await_bytes_timeout(2, timeout)){
+        return false;
+    }
+    return _read_check_byte(c_out);
+}
 
 
-#define FRAME_TIMEOUT_MS 60 * 1000
+bool await_byte(char *c_out){
+    while(1){
+        delay(1);
+        int bytesAvailable = RawHID.available();
+
+        if(bytesAvailable == 0){continue;}
+
+        if(bytesAvailable != 2){
+            send_err();
+            return false;
+        }
+        break;
+    }
+    return _read_check_byte(c_out);
+}
+
+
 void drawFrame(){
     // used for timeout, we start only when there is an inital byte
     uint32_t start_time = millis();
@@ -98,25 +132,8 @@ void drawFrame(){
     uint16_t chunk = 0;
     LCD_SetCursor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     while(1){
-        delay(1);
-
-        // check timeout
-        if(millis() - start_time > FRAME_TIMEOUT_MS){
-            RawHID.write(CHAR_TIMEOUT);
-            break;
-        }
-
-
-        { // check bytes avalible
-            int bytesAvailable = RawHID.available();
-
-            if(bytesAvailable == 0){continue;}
-            debug_dump_buffer(bytesAvailable, rawhidData);
-
-            if(bytesAvailable != CHUNK_BYTE_SIZE){
-                err_invalid_chunk(bytesAvailable);
-                return;
-            }
+        if(!await_bytes_timeout(CHUNK_BYTE_SIZE, BYTE_TIMEOUT_MS)){
+            return;
         }
         
         { // push chunk to lcd
@@ -136,8 +153,8 @@ void drawFrame(){
             row++;
 
             if (row >= SCREEN_HEIGHT){
-                break;
                 RawHID.write(CHAR_LAST);
+                break;
             }
         }
 
@@ -155,32 +172,39 @@ void send_monitor_info(){
     i[3] = backlight;
 
     RawHID.write((uint8_t *)&i, sizeof(i));
-    await_ack();
+    char c;
+    await_byte_timeout(&c, BYTE_TIMEOUT_MS); // no need to check c or return, going back to loop anyway
 }
 
 
 void loop(){
     debugln("switch");
-    int c = blocking_read_char();
+    char c;
+    if(!await_byte(&c)){
+        return;
+    }
     switch (c) {
-      case CHAR_START:
-        debugln("start");
-        RawHID.write(CHAR_ACK);
-        drawFrame();
-        break;
-      case CHAR_INFO:
-        debugln("req");
-        send_monitor_info();
-        break;
-      case CHAR_BACKLIGHT:
-        debugln("bl");
-        RawHID.write(CHAR_ACK);
-        write_backlight(blocking_read_char());
-        break;
+        // c is allowed to be reused past here
+        case CHAR_START:
+            debugln("start");
+            RawHID.write(CHAR_ACK);
+            drawFrame();
+            break;
+        case CHAR_INFO:
+            debugln("req");
+            send_monitor_info();
+            break;
+        case CHAR_BACKLIGHT:
+            debugln("bl");
+            RawHID.write(CHAR_ACK);
+            if(!await_byte_timeout(&c, BYTE_TIMEOUT_MS)){
+                return;
+            }
+            write_backlight(c);
+            break;
 
-      default:
-        debug("Wrong Char: ");
-        debugSln(c);
-        // code block
+        default:
+            debug("Wrong Char: ");
+            debugSln(c);
     }
 }

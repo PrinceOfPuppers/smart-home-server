@@ -5,7 +5,11 @@ import hid
 from hid import HIDException
 from time import sleep
 
-def test(width, height):
+from typing import Union
+
+readTimeout = 100
+
+def test(color, width, height):
     from matplotlib.figure import Figure
     import matplotlib.pyplot as plt
     import smart_home_server.constants as const
@@ -43,7 +47,7 @@ def test(width, height):
     fig.subplots_adjust(right=0.95)
     #blue = "#66D9EF"
     axis:Axes = fig.add_subplot(1, 1, 1)
-    axis.plot(xs, ys, color=const.colors["blue"])
+    axis.plot(xs, ys, color=color)
     axis.tick_params(labelsize=SMALL_SIZE)
     #axis.set_xlabel("test")
     axis.set_title("test2 over Hours", pad=3, size=BIGGER_SIZE)
@@ -63,9 +67,6 @@ def test(width, height):
 # from device
 lastByte = b'L'
 errByte = b'E'
-timeoutByte = b'T'
-nextByte = b'N'
-prevByte = b'P'
 
 
 # to device
@@ -79,9 +80,9 @@ ackByte = b'A'
 def sendByte(h,b):
     h.write(b + b'\n')
 
-rlut = [(i >> (8-5)) << (16 - 5) for i in range(0,255)]
-glut = [(i >> (8-6)) << (16 - 11) for i in range(0,255)]
-blut = [i >> (8-5) for i in range(0,255)]
+rlut = [(i >> (8-5)) << (16 - 5) for i in range(0,256)]
+glut = [(i >> (8-6)) << (16 - 11) for i in range(0,256)]
+blut = [i >> (8-5) for i in range(0,256)]
 
 def rgb_to_16_bit(rgb_buffer):
     #b = bytearray()
@@ -105,9 +106,51 @@ def rgb_to_16_bit(rgb_buffer):
 
     return b
 
+def readBytes(h, n) -> Union[bytes,None]:
+    data = h.read(n, readTimeout)
+    if len(data) != n:
+        if len(data) == 0:
+            print("read byte timeout")
+        else:
+            print("read byte invalid len", len(data))
+        # TODO: error condition
+        sendByte(h, errByte)
+        sleep(0.001) # wait for 1 ms for write to stop
+        # clear buffer
+        while(len(h.read(1,0)) != 0):
+            pass
+        return None
+    return data
+
+def readByte(h):
+    b = readBytes(h,1)
+    if b == errByte:
+        print("recieved err byte")
+        # TODO: purge buffer?
+        sleep(0.002) # wait for 2 ms to allow device to purge buffer
+        return None
+    return b
+
+
+
+# returns true for expected byte, false otherwise
+def expectByte(h, c):
+    x = readByte(h)
+    if x == None:
+        return False
+    if x != c:
+        print(f"expected {c} got {x}")
+        return False
+    return True
+
+
+
 def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
+    # TODO: add timeout to all reads
     sendByte(h, startByte)
-    h.read(1)
+    if not expectByte(h, ackByte):
+        return
+
 
     assert len(b) % chunkByteSize == 0
     chunks = len(b) / chunkByteSize
@@ -121,12 +164,13 @@ def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
             print(len(x))
             exit(1)
         h.write(x)
-        res = h.read(1)
 
-        # allowed to exit early
+        res = readByte(h)
+        if res == None:
+            return
+
         if res != ackByte:
-            print("early exit")
-            break;
+            break
 
     # TODO: report as error condition
     while res == ackByte:
@@ -134,9 +178,7 @@ def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
         # fill rest with black
         x = bytes(b[0xFF])*chunkByteSize
         h.write(x)
-        res = h.read(1)
-
-    # TODO: add check for N and P early exits
+        res = readByte(h)
 
     # TODO: report as error condition
     if res != lastByte:
@@ -148,7 +190,9 @@ def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
 
 def requestInfo(h:hid.Device):
     sendByte(h, infoByte)
-    b = h.read(8)
+    b = readBytes(h, 8)
+    if b == None:
+        return None
     width = int.from_bytes(b[0:2], byteorder="little")
     height = int.from_bytes(b[2:4], byteorder = "little")
     chunkSize = int.from_bytes(b[4:6], byteorder = "little")
@@ -174,8 +218,14 @@ def hidTest(vid, pid):
 
         width, height, chunckSize,backlight = requestInfo(h)
 
-        b = rgb_to_16_bit(test(width, height))
-        sendFrame(h, b, chunckSize)
+        i = 0
+        colors = [c for c in const.colors.values()]
+        while True:
+            b = rgb_to_16_bit(test(colors[i], width, height))
+            sendFrame(h, b, chunckSize)
+            sleep(5)
+            i+=1
+            i%=len(colors)
 
 
 def await_connection():
