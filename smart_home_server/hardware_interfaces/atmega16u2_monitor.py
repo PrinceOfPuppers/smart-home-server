@@ -1,9 +1,9 @@
-#import smart_home_server.constants as const
 import hid
-#from hid import HIDException
+from pyudev import Context, Monitor
 from time import sleep
 
-from typing import Union
+import smart_home_server.constants as const
+from typing import Union, Callable
 
 readTimeout = 100
 
@@ -52,11 +52,6 @@ def rgb_to_16_bit(rgb_buffer):
 def readBytes(h:hid.Device, n:int) -> Union[bytes,None]:
     data = h.read(n, readTimeout)
     if len(data) != n:
-        if len(data) == 0:
-            print("read byte timeout")
-        else:
-            print("read byte invalid len", len(data))
-        # TODO: error condition
         sendByte(h, errByte)
         sleep(0.001) # wait for 1 ms for write to stop
         # clear buffer
@@ -68,7 +63,6 @@ def readBytes(h:hid.Device, n:int) -> Union[bytes,None]:
 def readByte(h:hid.Device):
     b = readBytes(h,1)
     if b == errByte:
-        print("recieved err byte")
         # TODO: purge buffer?
         sleep(0.002) # wait for 2 ms to allow device to purge buffer
         return None
@@ -82,14 +76,10 @@ def expectByte(h:hid.Device, c):
     if x == None:
         return False
     if x != c:
-        print(f"expected {c} got {x}")
         return False
     return True
 
-
-
 def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
-    # TODO: add timeout to all reads
     sendByte(h, startByte)
     if not expectByte(h, ackByte):
         return
@@ -115,9 +105,8 @@ def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
         if res != ackByte:
             break
 
-    # TODO: report as error condition
     while res == ackByte:
-        print("filling with black")
+        #print("filling with black")
         # fill rest with black
         x = bytes(b[0xFF])*chunkByteSize
         h.write(x)
@@ -125,7 +114,7 @@ def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
 
     # TODO: report as error condition
     if res != lastByte:
-        print("non-L return: ", res)
+        #print("non-L return: ", res)
         pass
 
 
@@ -135,13 +124,79 @@ def requestInfo(h:hid.Device):
     b = readBytes(h, 8)
     if b == None:
         return None
+
     width = int.from_bytes(b[0:2], byteorder="little")
     height = int.from_bytes(b[2:4], byteorder = "little")
     chunkSize = int.from_bytes(b[4:6], byteorder = "little")
     backlight = int.from_bytes(b[6:8], byteorder = "little")
 
-    # TODO: sanity check values, report error condition
-
     sendByte(h, ackByte)
-    print(f"{width=}, {height=}, {chunkSize=}, {backlight=}")
+    #print(f"{width=}, {height=}, {chunkSize=}, {backlight=}")
     return width, height, chunkSize, backlight
+
+
+def _try_connect(deviceVid:int, devicePid:int,
+                 callback:Callable[[hid.Device],bool], errCb:Callable[[Exception], bool], disconnCb:Callable[[Exception],bool]):
+
+    connected = False
+    try:
+        with hid.Device(deviceVid, devicePid) as h:
+            connected = True
+            return callback(h)
+
+    except hid.HIDException as e:
+        if connected:
+            if not disconnCb(e):
+                return False
+
+    except Exception as e:
+        if not errCb(e):
+            return False
+
+    return True
+
+
+# callback returns true for reconnect, false for disconnect
+# will attempt reconnect on crash
+def await_connection(deviceVid:int, devicePid:int,
+                 callback:Callable[[hid.Device],bool], errCb:Callable[[Exception], bool], disconnCb:Callable[[Exception],bool]):
+    # try to connect at startup
+    res = _try_connect(deviceVid, devicePid, callback, errCb, disconnCb)
+    if not res:
+        return
+
+
+    ctx = Context()
+    ctx.list_devices(subsystem='usb')
+
+    monitor = Monitor.from_netlink(ctx)
+    monitor.filter_by(subsystem='usb')
+
+
+    while True:
+        for device in iter(monitor.poll, None):
+            if device == None:
+                continue
+
+            if device.action == 'bind' and 'PRODUCT' in device and 'BUSNUM' in device:
+                prod = device.get("PRODUCT")
+                if not isinstance(prod, str):
+                    continue
+                x = prod.split("/")
+                if len(x) < 2:
+                    continue
+                try:
+                    vid = int(x[0], 16)
+                    pid = int(x[1], 16)
+                except:
+                    continue
+
+                if vid != const.a16u2monitorVid  or pid != const.a16u2monitorPid:
+                    continue
+
+                res = _try_connect(deviceVid, devicePid, callback, errCb, disconnCb)
+                if not res:
+                    return
+
+
+

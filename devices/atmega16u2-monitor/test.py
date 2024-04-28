@@ -1,6 +1,6 @@
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import smart_home_server.constants as const
-from smart_home_server.hardware_interfaces.atmega16u2_monitor import sendFrame, requestInfo, rgb_to_16_bit
+from smart_home_server.hardware_interfaces.atmega16u2_monitor import sendFrame, requestInfo, await_connection, rgb_to_16_bit
 from matplotlib.axes import Axes
 import hid
 from hid import HIDException
@@ -62,78 +62,35 @@ def test(color, width, height):
     return b
 
 
+def err(e):
+    print("errCb")
+    print(e)
+    return True
+
+def disconn(e):
+    print("disconnCb")
+    print(e)
+    return True
+
+def hidTest(h):
+    print(f'Device manufacturer: {h.manufacturer}')
+    print(f'Product: {h.product}')
+    print(f'Serial Number: {h.serial}')
 
 
+    width, height, chunckSize,backlight = requestInfo(h)
 
-
-def hidTest(vid, pid):
-    #vid = 0x2341
-    #pid = 0x484C
-
-    with hid.Device(vid, pid) as h:
-        print(f'Device manufacturer: {h.manufacturer}')
-        print(f'Product: {h.product}')
-        print(f'Serial Number: {h.serial}')
-
-
-        width, height, chunckSize,backlight = requestInfo(h)
-
-        i = 0
-        colors = [c for c in const.colors.values()]
-        while True:
-            b = rgb_to_16_bit(test(colors[i], width, height))
-            sendFrame(h, b, chunckSize)
-            sleep(5)
-            i+=1
-            i%=len(colors)
-
-
-def await_connection():
-    # try to connect at startup
-    try:
-        hidTest(const.a16u2monitorVid, const.a16u2monitorPid)
-    except HIDException:
-        pass
-
-
-    from pyudev import Context, Monitor
-
-    ctx = Context()
-    ctx.list_devices(subsystem='usb')
-
-    monitor = Monitor.from_netlink(ctx)
-    monitor.filter_by(subsystem='usb')
-
-
+    i = 0
+    colors = [c for c in const.colors.values()]
     while True:
-        for device in iter(monitor.poll, None):
-            if device == None:
-                continue
+        b = rgb_to_16_bit(test(colors[i], width, height))
+        sendFrame(h, b, chunckSize)
+        sleep(5)
+        i+=1
+        i%=len(colors)
 
-            if device.action == 'bind' and 'PRODUCT' in device and 'BUSNUM' in device:
-                prod = device.get("PRODUCT")
-                if not isinstance(prod, str):
-                    continue
-                x = prod.split("/")
-                if len(x) < 2:
-                    continue
-                try:
-                    vid = int(x[0], 16)
-                    pid = int(x[1], 16)
-                except:
-                    continue
-
-                if vid != const.a16u2monitorVid  or pid != const.a16u2monitorPid:
-                    continue
-
-                try:
-                    hidTest(vid, pid) # must be blocking to prevent spam connecting
-                except HIDException:
-                    print("disconnect")
-                    continue
+    return True
 
 
+await_connection(const.a16u2monitorVid, const.a16u2monitorPid, hidTest, err, disconn)
 
-
-
-await_connection()

@@ -16,9 +16,9 @@
 // number of chunkes each horizontal line is divided into
 // SCREEN_WIDTH/CHUNKS_PER_LINE is the number of pixels updated at once
 #ifdef DEBUG_ENABLED
-#define CHUNKS_PER_LINE SCREEN_WIDTH
-#else
 #define CHUNKS_PER_LINE 4
+#else
+#define CHUNKS_PER_LINE 2
 #endif
 
 #if SCREEN_WIDTH % CHUNKS_PER_LINE != 0
