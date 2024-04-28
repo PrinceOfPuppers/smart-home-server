@@ -42,6 +42,10 @@
         const url = `api/graph/figure/${id}.png?_=${time}`;
         document.getElementById(`graph-image-${id}`).src = url;
     }
+    function putOnMonitor(id){
+        var data = {'id': id};
+        sendData('/api/graph/monitor', data, 'POST', reload=true);
+    }
 
     window.onload = () => {
         setupSelectButtonResize();
@@ -57,11 +61,18 @@
             {% set datasource  = graph['datasource'] %}
             {% set timeHours   = graph['timeHours'] %}
             {% set color       = graph['color'] %}
+            {% set onMonitor   = id == idOnMonitor%}
             <div id="graph-element-{{ id }}">
                 <span class="buttonBar">
                     {{ m.deleteButton( "deleteGraph('%s')" % (id) ) }}
                     <button class = "{{ color }} button" onclick="reloadImg('{{ id }}')">{{ datasource }}</button>
                     <button class = "grayButton">{{ timeHours }} Hours</button>
+                    {% if onMonitor %}
+                        <button class = "grayButton">Monitoring</button>
+                    {% else %}
+                        <button class = "{{ color }} button" onclick="putOnMonitor('{{ id }}')">Monitor</button>
+                    {% endif %}
+
                 </span>
                 <div>
                     <img id="graph-image-{{ id }}" src="api/graph/figure/{{ id }}.png?_={{ loadTime }}">

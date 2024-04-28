@@ -1,6 +1,7 @@
 from ntpath import dirname
 from collections import namedtuple
 import os
+import json
 import re
 
 TxChannel = namedtuple("Channel", ["on", "off"])
@@ -41,15 +42,14 @@ createIfNotExists(schedulerJobFolder)
 triggeredJobFolder = f'{storageFolder}/triggers'
 createIfNotExists(triggeredJobFolder)
 
-lcdTextFile = f'{storageFolder}/lcd.txt'
-if not os.path.exists(lcdTextFile):
-    with open(lcdTextFile,"w") as f:
-        f.write(
-            "{clock}{space} P:{wttrTotalPercip}mm\n"
-            "T:{temp}/{wttrTemp}{space} H:{humid}/{wttrHumid}\n"
-            "\n"
-            ""
-        )
+a16u2MonitorFolder = f'{storageFolder}/atmega16u2Monitor'
+createIfNotExists(a16u2MonitorFolder)
+a16u2MonitorIdFile = f'{a16u2MonitorFolder}/id.json'
+
+if not os.path.exists(a16u2MonitorIdFile):
+    m = {"id":""}
+    with open(a16u2MonitorIdFile,"w") as f:
+        f.write(json.dumps(m))
 
 noteFolder = f'{storageFolder}/notes'
 createIfNotExists(noteFolder)

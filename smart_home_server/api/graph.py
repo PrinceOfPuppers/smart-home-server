@@ -8,7 +8,7 @@ from smart_home_server.helpers import addDefault
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-from smart_home_server.handlers.graphs import createGraph, deleteGraph, GraphAlreadyExists, GraphDoesNotExist, DatasourceDoesNotExist, generateFigure
+from smart_home_server.handlers.graphs import createGraph, deleteGraph, GraphAlreadyExists, GraphDoesNotExist, DatasourceDoesNotExist, generateFigure, putOnMonitor
 import smart_home_server.constants as const
 
 graphApi = Blueprint('graphApi', __name__)
@@ -32,6 +32,7 @@ deleteGraphSchema = \
     'required': ['id'],
     'additionalProperties': False,
 }
+postGraphMonitorSchema = deleteGraphSchema
 
 @graphApi.route('/api/graph', methods=['POST'])
 @expects_json(postGraphSchema, check_formats=True)
@@ -76,4 +77,17 @@ def getFigureRoute(id):
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
+
+@graphApi.route('/api/graph/monitor', methods=['POST'])
+@expects_json(postGraphMonitorSchema, check_formats=True)
+def postGraphMonitorRoute():
+    data = json.loads(request.data)
+    id = data['id']
+    try:
+        putOnMonitor(id)
+        return current_app.response_class(status=200)
+    except GraphDoesNotExist:
+        return current_app.response_class(f"Graph with ID:{id} Does Not Exist", status=400)
+    except:
+        return current_app.response_class(status=400)
 

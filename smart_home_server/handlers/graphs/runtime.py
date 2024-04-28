@@ -1,12 +1,16 @@
 from time import time
 from dataclasses import dataclass
 from matplotlib.figure import Figure
+from matplotlib.ticker import FormatStrFormatter
 import matplotlib as mpl
+import json
 
 from threading import Lock
+from typing import Union
 
 import smart_home_server.constants as const
 from smart_home_server.handlers.subscribeManager import subscribe
+from smart_home_server.handlers.graphs.atmega16u2_monitor import sendFigureToMonitor
 
 textColor = const.colors["white"]
 mpl.rcParams['text.color'] = textColor
@@ -33,6 +37,7 @@ class GraphRuntime:
     ys: list
     maxLen: int
     lock:Lock
+    onMonitor:bool = False # only 1 graph can be on the monitor
     index:int = 0
     seq:int = 0
 
@@ -60,6 +65,9 @@ def _addPoint(g:GraphRuntime, value):
         g.index += 1
         g.index %= g.maxLen
 
+    if g.onMonitor:
+        sendFigureToMonitor(generateSmallFigure(g.id))
+
 def _generateFigureHelper(id:str):
     if id not in _graphRuntimes:
         raise GraphDoesNotExist()
@@ -68,26 +76,30 @@ def _generateFigureHelper(id:str):
         g:GraphRuntime = _graphRuntimes[id]
         with g.lock:
             # sort circle buffers
-            ts, ys = zip(*sorted( filter(lambda x: x[0] != None, zip(g.ts, g.ys)) ))
+            if len(g.ts) == 0:
+                ts = []
+                ys = []
+                delta = 0
+            else:
+                ts, ys = zip(*sorted( filter(lambda x: x[0] != None, zip(g.ts, g.ys)) ))
+                delta = ts[-1] - ts[0]
             color = g.colorHex
             title = g.datasource
 
-
     now = time()
 
-    delta = ts[-1] - ts[0]
 
     if delta < 3*60: # 3 minutes
-        tlabel = "Time (Seconds)"
+        tlabel = "Seconds"
         relTs = [x-now for x in ts]
 
     elif delta < 3*60*60: # 3 hours
-        tlabel = "Time (Minutes)"
+        tlabel = "Minutes"
         relTs = [(x-now)/60 for x in ts]
 
     else:
         relTs = [(x-now)/(60*60) for x in ts]
-        tlabel = "Time (Hours)"
+        tlabel = "Hours"
 
     return relTs, tlabel, ys, color, title
 
@@ -99,20 +111,22 @@ def generateFigure(id:str):
 
     axis = fig.add_subplot(1, 1, 1)
     axis.plot(relTs, ys, color=color)
-    axis.set_xlabel(tlabel)
+    axis.set_xlabel(f"Time ({tlabel})")
     axis.set_title(title)
     return fig
 
-def generateSmallFigure(id:str, widthpx: int, heightpx: int):
+def generateSmallFigure(id:str):
+    import numpy as np
     relTs, tlabel, ys, color, title = _generateFigureHelper(id)
 
-    px = 1/mpl.rcParams['figure.dpi']
-    fig = Figure(figsize=(widthpx*px,heightpx*px))
-    fig.subplots_adjust(right=0.95)
+    fig = Figure()
+    fig.subplots_adjust(right=0.95, left=0.15)
+    fig.suptitle(title + " vs " + tlabel, size=8)
     axis = fig.add_subplot(1, 1, 1)
     axis.plot(relTs, ys, color=color)
-    axis.set_title(title + " vs " + tlabel, pad=3, size=8)
+    #axis.set_title(title + " vs " + tlabel, pad=3, size=8)
     axis.tick_params(labelsize=6, length=0, color=const.colors["black"], pad=2)
+    axis.tick_params(axis="y", pad=1)
 
     return fig
 
@@ -144,5 +158,39 @@ def _stopGraphPlotting(id:str):
             with _graphRuntimes[id].lock:
                 _graphRuntimes[id].seq += 1
             _graphRuntimes.pop(id)
+
+# stores prev id to avoid having to iterate through all running graphs
+_prevOnMonitorID = None
+def _putOnMonitor(id:str, save=True):
+    global _prevOnMonitorID
+    if _prevOnMonitorID == id:
+        return
+
+    with _graphRuntimesLock:
+        if not id in _graphRuntimes:
+            raise GraphDoesNotExist()
+
+        if _prevOnMonitorID is not None and _prevOnMonitorID in _graphRuntimes:
+            _graphRuntimes[_prevOnMonitorID].onMonitor = False
+
+        _graphRuntimes[id].onMonitor = True
+        _prevOnMonitorID = id
+        with open(const.a16u2MonitorIdFile, "w") as f:
+            f.write(json.dumps({"id": id}))
+    sendFigureToMonitor(generateSmallFigure(id))
+
+
+def _getOnMonitor() -> Union[str,None]:
+    return _prevOnMonitorID
+
+def _loadOnMonitor():
+        with open(const.a16u2MonitorIdFile, "r") as f:
+            id = json.loads(f.read())["id"]
+            if id:
+                _putOnMonitor(id, save=False)
+                #print("here")
+                #sendFigureToMonitor(generateSmallFigure(id))
+                #print("here")
+
 
 
