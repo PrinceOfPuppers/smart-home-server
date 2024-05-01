@@ -16,7 +16,9 @@
 #define SERIAL_PIN 7
 #define SERIAL_MASK (1<<SERIAL_PIN)
 
-#define setup_debug() DDRD |= SERIAL_MASK; PORTD |= SERIAL_MASK; delay(10)
+#define DEBUG_LED D6
+
+#define setup_debug() DDRD |= SERIAL_MASK; PORTD |= SERIAL_MASK; delay(10); pinMode(D6, OUTPUT);
 
 void serial_bb_print(const char *x);
 

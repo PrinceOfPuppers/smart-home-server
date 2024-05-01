@@ -10,3 +10,15 @@ generated
 
 /build
 /dist
+
+# kicad
+devices/*/pcb/*
+!devices/*/pcb/*.kicad_pcb
+!devices/*/pcb/*.kicad_pro
+!devices/*/pcb/*.kicad_sch
+
+# jlbpcb
+!devices/*/pcb/production
+devices/*/pcb/production/*
+!devices/*/pcb/production/*.zip
+!devices/*/pcb/production/*.csv
