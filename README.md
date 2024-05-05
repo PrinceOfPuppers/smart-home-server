@@ -32,10 +32,10 @@ Main Case and [Arduino Blinds Controller](devices/arduino-blinds/README.md):
 <br clear="left"/>
 <br clear="left"/>
 
-[ESP Weather Station](devices/esp-weather-station/README.md) and [Arduino Light Switcher](devices/arduino-light-switcher/README.md):
+[ESP Weather Station](devices/esp-weather-station/README.md) and [Arduino Modular Controller](devices/arduino-modular-controller/README.md):
 
 <img align="left" height="200" src="devices/esp-weather-station/images/full.jpg">
-<img align="left" height="200" src="devices/arduino-light-switcher/images/motion_dev_pic.jpg">
+<img align="left" height="200" src="devices/arduino-modular-controller/images/motion_dev_pic.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
