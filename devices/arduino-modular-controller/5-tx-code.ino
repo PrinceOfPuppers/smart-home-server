@@ -6,20 +6,20 @@ static RCSwitch tx = RCSwitch();
 #define TX_PIN 8
 
 // tx defines
-#define PROTOCOL 1
-#define ON_VALUE 8638538
-#define OFF_VALUE 8638530
-//#define ON_VALUE 9872890
-//#define OFF_VALUE 9872882
-#define PULSE_LENGTH 195
-#define BIT_LENGTH 24
-#define NUM_REPEATS 10
+#define TX_PROTOCOL 1
+#define TX_ON_VALUE 5264835
+#define TX_OFF_VALUE 5264844
+//#define TX_ON_VALUE 9872890
+//#define TX_OFF_VALUE 9872882
+#define TX_PULSE_LENGTH 195
+#define TX_BIT_LENGTH 24
+#define TX_NUM_REPEATS 10
 
 
 void setupTx(){
     tx.enableTransmit(TX_PIN);
-    tx.setProtocol(PROTOCOL, PULSE_LENGTH);
-    tx.setRepeatTransmit(NUM_REPEATS);
+    tx.setProtocol(TX_PROTOCOL, TX_PULSE_LENGTH);
+    tx.setRepeatTransmit(TX_NUM_REPEATS);
 
 #if DEBUG_SERIAL_ENABLED
     Serial.println("Tx Setup");
@@ -32,10 +32,10 @@ void txTransmit(bool on){
     Serial.println(on ? "ON" : "OFF");
 #endif
     if(on){
-        tx.send(ON_VALUE, BIT_LENGTH);
+        tx.send(TX_ON_VALUE, TX_BIT_LENGTH);
         return;
     }
-    tx.send(OFF_VALUE, BIT_LENGTH);
+    tx.send(TX_OFF_VALUE, TX_BIT_LENGTH);
 }
 
 #endif

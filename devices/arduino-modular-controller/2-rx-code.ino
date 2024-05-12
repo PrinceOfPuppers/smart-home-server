@@ -3,21 +3,25 @@
 
 static RCSwitch rx = RCSwitch();
 
-#define PRESS_DEBOUNCE_MS 700
+#define RX_PRESS_DEBOUNCE_MS 700
 
 // pins
 #define RX_PIN 2 // int pins are 2 and 3
 
 // rx defines
-#define PROTOCOL 1
-#define ON_VALUE 9872892
-#define OFF_VALUE 9872884
-// #define ON_VALUE 9872889
-// #define OFF_VALUE 9872881
-#define BIT_LENGTH 24
-#define NUM_REPEATS 3
+#define RX_PROTOCOL 1
+#define RX_ON_VALUE 5264835
+#define RX_OFF_VALUE 5264844
+// #define RX_ON_VALUE 9872889
+// #define RX_OFF_VALUE 9872881
+#define RX_BIT_LENGTH 24
+#define RX_NUM_REPEATS 3
 
 void testRx(){
+#if DEBUG_SERIAL_ENABLED
+    Serial.println("Testing RX");
+#endif
+
     while(1){
 #if DEBUG_SERIAL_ENABLED
         if(rx.available()){
@@ -37,20 +41,20 @@ void testRx(){
 // helper macro
 #define returnReset(x) rx.resetAvailable(); return x
 
-// 0 for no match, ON_VALUE/OFF_VALUE for respective value
+// 0 for no match, RX_ON_VALUE/RX_OFF_VALUE for respective value
 unsigned long codeMatches(){
     while(1){
         if(rx.available()){
-            if(rx.getReceivedBitlength()!=BIT_LENGTH){
+            if(rx.getReceivedBitlength()!=RX_BIT_LENGTH){
                 returnReset(0);
             }
 
-            if(rx.getReceivedProtocol()!=PROTOCOL){
+            if(rx.getReceivedProtocol()!=RX_PROTOCOL){
                 returnReset(0);
             }
 
             unsigned long value = rx.getReceivedValue();
-            if(value != ON_VALUE && value != OFF_VALUE){
+            if(value != RX_ON_VALUE && value != RX_OFF_VALUE){
                 returnReset(0);
             }
             returnReset(value);
@@ -90,26 +94,26 @@ void runOnCodeMatch(void (* on_off_cb)(bool)){
 
         // code is [count]'th in chain
         count += 1;
-        if (count < NUM_REPEATS){
+        if (count < RX_NUM_REPEATS){
             // match chain not long enough
             continue;
         }
 
         // we've heard the code enough times
 #if DEBUG_LED_ENABLED
-    digitalWrite(LED_BUILTIN, val == ON_VALUE ? HIGH : LOW);
+    digitalWrite(LED_BUILTIN, val == RX_ON_VALUE ? HIGH : LOW);
 #endif
 
 #if DEBUG_SERIAL_ENABLED
     Serial.print("Matched Code: ");
-    Serial.println(val == ON_VALUE ? "ON" : "OFF");
+    Serial.println(val == RX_ON_VALUE ? "ON" : "OFF");
 #endif
         count = 0;
         prevVal = 0;
-        on_off_cb(val == ON_VALUE);
+        on_off_cb(val == RX_ON_VALUE);
 
         // debounce
-        delay(PRESS_DEBOUNCE_MS);
+        delay(RX_PRESS_DEBOUNCE_MS);
         rx.resetAvailable();
     }
 }
