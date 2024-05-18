@@ -2,6 +2,7 @@
 
 #TODO create symlink for 10-smart-home-server.rules
 #TODO: reload usb hid driver
+# sudo udevadm control --reload-rules
 
 mountPath=$(cd "$(dirname "$1")"; pwd)/$(basename "$1")smart_home_server/storage
 

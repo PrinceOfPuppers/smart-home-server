@@ -74,6 +74,7 @@ def stopMonitorManager():
     global _monitorThread
     _monitorLoopCondition = False
 
+# TODO: sometimes blocks, fix this
 def joinMonitorManager():
     global _monitorLoopCondition
     global _monitorThread

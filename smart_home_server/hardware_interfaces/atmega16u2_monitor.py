@@ -191,7 +191,7 @@ def await_connection(deviceVid:int, devicePid:int,
                 except:
                     continue
 
-                if vid != const.a16u2monitorVid  or pid != const.a16u2monitorPid:
+                if vid != deviceVid or pid != devicePid:
                     continue
 
                 res = _try_connect(deviceVid, devicePid, callback, errCb, disconnCb)
