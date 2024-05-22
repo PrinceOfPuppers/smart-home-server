@@ -20,8 +20,21 @@ backlightByte = b'B'
 # both
 ackByte = b'A'
 
+sendAttempts = 3
+
+def sendBytes(h:hid.Device,b:bytes):
+    for i in range(0, sendAttempts):
+        try:
+            h.write(b)
+            return
+        except:
+            sleep(0.01)
+            continue
+    raise hid.HIDException("Max Send Attempts Reached")
+
 def sendByte(h:hid.Device,b:bytes):
-    h.write(b + b'\n')
+    sendBytes(h, b + b'\n')
+
 
 rlut = [(i >> (8-5)) << (16 - 5) for i in range(0,256)]
 glut = [(i >> (8-6)) << (16 - 11) for i in range(0,256)]
@@ -94,9 +107,9 @@ def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
         start = i*chunkByteSize
         x = bytes(b[start:start+chunkByteSize])
         if len(x) != chunkByteSize:
-            print(len(x))
-            exit(1)
-        h.write(x)
+            # TODO: report error
+            pass
+        sendBytes(h,x)
 
         res = readByte(h)
         if res == None:
@@ -109,7 +122,7 @@ def sendFrame(h:hid.Device, b:bytearray, chunkByteSize:int):
         #print("filling with black")
         # fill rest with black
         x = bytes(b[0xFF])*chunkByteSize
-        h.write(x)
+        sendBytes(h, x)
         res = readByte(h)
 
     # TODO: report as error condition
@@ -154,6 +167,7 @@ def _try_connect(deviceVid:int, devicePid:int,
             return False
 
     return True
+
 
 
 # callback returns true for reconnect, false for disconnect

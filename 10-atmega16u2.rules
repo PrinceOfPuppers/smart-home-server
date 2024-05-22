@@ -1,3 +1,3 @@
 # atmega16u2 monitor
-ATTRS{idVendor}=="2341", ATTRS{idProduct}=="484c", MODE="660", GROUP="plugdev", TAG+="uaccess"
+ATTRS{idVendor}=="2341", ATTRS{idProduct}=="484c", MODE="0666", GROUP="plugdev", TAG+="uaccess"
 

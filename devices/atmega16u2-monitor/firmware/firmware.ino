@@ -55,6 +55,7 @@ void setup(void) {
 
 
 void send_err(){
+    debugln("Err");
     RawHID.write(CHAR_ERR);
     delay(1); // allow 1ms writes to complete
     RawHID.enable(); // dump buffer
@@ -62,16 +63,8 @@ void send_err(){
 
 
 bool await_bytes_timeout(uint16_t size, uint16_t timeout){
-    uint32_t start_time = millis();
-
-    while(1){
+    for(uint16_t i = 0; i < timeout; i++){
         delay(1);
-
-        // check timeout
-        if(millis() - start_time > timeout){
-            send_err();
-            return false;
-        }
 
         int bytesAvailable = RawHID.available();
 
@@ -81,9 +74,9 @@ bool await_bytes_timeout(uint16_t size, uint16_t timeout){
             send_err();
             return false;
         }
-        break;
+        return true;
     }
-    return true;
+    return false; // timeout
 }
 
 bool _read_check_byte(char *c_out){
@@ -133,6 +126,7 @@ void drawFrame(){
     LCD_SetCursor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     while(1){
         if(!await_bytes_timeout(CHUNK_BYTE_SIZE, BYTE_TIMEOUT_MS)){
+            debugln("timeout");
             return;
         }
         
@@ -204,7 +198,7 @@ void loop(){
             break;
 
         default:
-            debug("Wrong Char: ");
+            debug("Err Char: ");
             debugSln(c);
     }
 }
