@@ -72,7 +72,7 @@ def disconn(e):
     print(e)
     return True
 
-def hidTest(h):
+def hidTest(h, seqCb):
     print(f'Device manufacturer: {h.manufacturer}')
     print(f'Product: {h.product}')
     print(f'Serial Number: {h.serial}')
@@ -82,15 +82,15 @@ def hidTest(h):
 
     i = 0
     colors = [c for c in const.colors.values()]
-    while True:
+    seq = seqCb()
+    while seq == seqCb():
         b = rgb_to_16_bit(test(colors[i], width, height))
         sendFrame(h, b, chunckSize)
         sleep(5)
         i+=1
         i%=len(colors)
 
-    return True
 
 
-await_connection(const.a16u2monitorVid, const.a16u2monitorPid, hidTest, err, disconn)
+await_connection(lambda: True, hidTest, const.a16u2monitorVid, const.a16u2monitorPid)
 

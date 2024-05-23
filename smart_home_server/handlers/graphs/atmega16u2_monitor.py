@@ -3,6 +3,7 @@ import smart_home_server.constants as const
 from smart_home_server.helpers import clearQueue
 
 
+import hid
 from matplotlib.backends.backend_agg import FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import rcParams
@@ -10,6 +11,7 @@ from dataclasses import dataclass
 from queue import Queue,Empty
 from threading import Thread
 from datetime import datetime
+from typing import Callable, Union
 
 _monitorQueue = Queue(1)
 _monitorLoopCondition = False
@@ -20,18 +22,20 @@ _backlight = 0
 px = 1/rcParams['figure.dpi']
 
 
-def _monitor_loop(h):
-    global _backlight, _monitorLoopCondition
+def _monitor_loop(h:hid.Device, sequenceCb:Callable[[], int]):
+    global _backlight
+
+    seq = sequenceCb()
     x = requestInfo(h)
     if x is None:
         # TODO: error condition
         _monitorLoopCondition = False
-        return False
+        return
         
-
     width, height, chunckSize, _backlight = x
 
-    while _monitorLoopCondition:
+    x = None
+    while seq == sequenceCb():
         try:
             x = _monitorQueue.get(block=True, timeout=const.threadPollingPeriod)
             if isinstance(x, Figure):
@@ -52,29 +56,21 @@ def _monitor_loop(h):
 
         except Empty:
             pass
-        pass
-    return False #disconnect when loop condition is triggered
+    # for quick disconnect reconnects, store last frame so monitor is not black on reconnect
+    if x is not None:
+        _monitorQueue.put(x)
 
-def errorCb(e):
-    print("atmega16u2 monitor error:\n",e)
-    return False #disconnect on error
-
-def disconnectCb(e):
-    print("atmega16u2 monitor disconnected")
-    return True
 
 def sendFigureToMonitor(fig):
     # we want the queue to only hold the most recent frame
     clearQueue(_monitorQueue)
     _monitorQueue.put(fig)
 
-
 def stopMonitorManager():
     global _monitorLoopCondition
     global _monitorThread
     _monitorLoopCondition = False
 
-# TODO: sometimes blocks, fix this
 def joinMonitorManager():
     global _monitorLoopCondition
     global _monitorThread
@@ -96,6 +92,6 @@ def startMonitorManager():
     joinMonitorManager()
 
     _monitorLoopCondition = True
-    _monitorThread = Thread(target = lambda : await_connection(const.a16u2monitorVid, const.a16u2monitorPid, _monitor_loop, errorCb, disconnectCb))
+    _monitorThread = Thread(target = lambda : await_connection(lambda: _monitorLoopCondition, _monitor_loop, const.a16u2monitorVid, const.a16u2monitorPid))
     _monitorThread.start()
     print("monitor loop started")

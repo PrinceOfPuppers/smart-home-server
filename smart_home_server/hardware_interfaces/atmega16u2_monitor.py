@@ -1,6 +1,8 @@
 import hid
 from pyudev import Context, Monitor
 from time import sleep
+from threading import Thread
+from functools import partial
 
 import smart_home_server.constants as const
 from typing import Union, Callable
@@ -148,51 +150,38 @@ def requestInfo(h:hid.Device):
     return width, height, chunkSize, backlight
 
 
-def _try_connect(deviceVid:int, devicePid:int,
-                 callback:Callable[[hid.Device],bool], errCb:Callable[[Exception], bool], disconnCb:Callable[[Exception],bool]):
 
-    connected = False
-    try:
-        with hid.Device(deviceVid, devicePid) as h:
-            connected = True
-            return callback(h)
-
-    except hid.HIDException as e:
-        if connected:
-            if not disconnCb(e):
-                return False
-
-    except Exception as e:
-        if not errCb(e):
-            return False
-
-    return True
+def _thread_target(sequence: Callable[[], int], callback:Callable[[hid.Device,Callable[[],int]],None], deviceVid:int, devicePid:int, reconn:bool = True):
+    seq = sequence()
+    while sequence() == seq:
+        try:
+            with hid.Device(deviceVid, devicePid) as h:
+                callback(h, sequence)
+        except:
+            if reconn:
+                sleep(3) # in case of exception, wait before attempting reconnect (anti spam)
+                continue
+            break
 
 
-
-# callback returns true for reconnect, false for disconnect
 # will attempt reconnect on crash
-def await_connection(deviceVid:int, devicePid:int,
-                 callback:Callable[[hid.Device],bool], errCb:Callable[[Exception], bool], disconnCb:Callable[[Exception],bool]):
-    # try to connect at startup
-    res = _try_connect(deviceVid, devicePid, callback, errCb, disconnCb)
-    if not res:
-        return
-
-
+def await_connection(loopCondition: Callable[[], bool], callback:Callable[[hid.Device,Callable[[],int]],None], deviceVid:int, devicePid:int):
     ctx = Context()
     ctx.list_devices(subsystem='usb')
 
     monitor = Monitor.from_netlink(ctx)
     monitor.filter_by(subsystem='usb')
 
+    seq = 0
+    t = Thread(target = lambda: _thread_target(lambda: seq, callback, deviceVid, devicePid, reconn=False)) # attempt inital connection
+    t.start()
 
-    while True:
-        for device in iter(monitor.poll, None):
+    while loopCondition():
+        for device in iter(partial(monitor.poll, const.threadPollingPeriod), None):
             if device == None:
                 continue
 
-            if device.action == 'bind' and 'PRODUCT' in device and 'BUSNUM' in device:
+            if 'PRODUCT' in device and 'BUSNUM' in device:
                 prod = device.get("PRODUCT")
                 if not isinstance(prod, str):
                     continue
@@ -208,9 +197,19 @@ def await_connection(deviceVid:int, devicePid:int,
                 if vid != deviceVid or pid != devicePid:
                     continue
 
-                res = _try_connect(deviceVid, devicePid, callback, errCb, disconnCb)
-                if not res:
-                    return
+                if device.action == "bind":
+                    t = Thread(target = lambda: _thread_target(lambda: seq, callback, deviceVid, devicePid))
+                    t.start()
+                elif device.action == "unbind":
+                    seq += 1
+                    try:
+                        t.join()
+                    except:
+                        pass
 
-
+    seq = -1
+    try:
+        t.join()
+    except:
+        pass
 
