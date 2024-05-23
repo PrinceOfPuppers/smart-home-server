@@ -2,7 +2,6 @@ import requests
 from datetime import datetime
 from typing import Union
 
-from smart_home_server.hardware_interfaces.dht22 import getDHT
 from smart_home_server.hardware_interfaces.bme280 import getBME
 from smart_home_server.hardware_interfaces.udp import getWeatherServerData, getAirQualityServerData
 from smart_home_server.helpers import padChar
@@ -217,22 +216,6 @@ def getIndoorClimateBMELocal():
         }
     return res
 
-def getIndoorClimateDHTLocal():
-    data = getDHT()
-    if data is None:
-        s = f'Temprature: N/A \nHumidity: N/A'
-        res = {
-            'str':s,
-            'data':{},
-        }
-    else:
-        s = f'T: {data.temp} \nH: {data.humid}'
-        res = {
-            'str':s,
-            'data':{'temp':round(data.temp), 'humid': round(data.humid)},
-        }
-    return res
-
 def getWeatherServerLocal(ip:str):
     data = getWeatherServerData(ip)
 
@@ -406,10 +389,9 @@ dataSources = [
         'url': f'/api/data/temp-humid/indoor',
         'local':
             ( lambda: cached(getIndoorClimateBMELocal,30//2) ) if const.useBME else
-            ( lambda: cached(getIndoorClimateDHTLocal,30//2) ) if const.useDht22 else
             ( lambda: cached(getWeatherServerLocal,(3*60)//2, ip=const.indoorWeatherServerIp) )
             ,
-        'pollingPeriod': 30 if const.useBME or const.useDht22 else 3*60,
+        'pollingPeriod': 30 if const.useBME else 3*60,
 
         'dashboard':{
             'enabled': True,
@@ -428,7 +410,7 @@ dataSources = [
                 'dataPath': ['data', 'pressure'],
                 'enabled': True,
             }
-        } if const.useBME or not const.useDht22 else {
+        } if const.useBME else {
             'temp': {
                 'dataPath': ['data', 'temp'],
                 'enabled': True,

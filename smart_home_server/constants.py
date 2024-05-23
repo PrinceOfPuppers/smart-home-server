@@ -178,13 +178,6 @@ localLcdLines = 4
 lcdWidth = 20
 lcdDefaultName = "New Lcd"
 
-dhtGpio = 22
-dhtGpioPwr = 18
-dhtMinSamplePeriod = 30
-dhtMaxRetry = 3
-dhtSamples = 2
-
-
 # in seconds
 rfMacroDebounceTime = 3
 # time after rf is added to macro to when macros can be triggered by rf again
@@ -194,11 +187,7 @@ pulseLenthTolerance = 10
 # max hours graphs can display
 graphMaxHours = 128
 
-# for indoor climate measuring, if neither dht or bme, indoorWeatherServer will be used
-useDht22 = False
 useBME = False
-assert not (useDht22 and useBME)
-
 
 # server buttons
 buttonPins = [23,24]

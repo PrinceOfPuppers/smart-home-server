@@ -33,6 +33,7 @@ then
 
     echo "UUID=$dev       $mountPath   $ftype  rw,user,exec,umask=000 0 1" | sudo tee -a /etc/fstab
     sudo systemctl daemon-reload
+    sudo mount -a
     #sudo mount $mountPath
 fi
 
@@ -57,11 +58,12 @@ sudo loginctl enable-linger $(id -u)
 sudo apt-get update
 sudo apt-get install pigpio
 sudo apt install python3-pip
+sudo apt install libhidapi-hidraw0
 sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
 sudo systemctl enable systemd-time-wait-sync
 sudo systemctl start systemd-time-wait-sync
-pip3 install --break-system-packages -e .
+pip3 install -e .
 
 # create update script
 UPDATE_PROGRAM="smart-home-update"
@@ -97,5 +99,5 @@ sudo cp $UDEV_RULE $UDEV_RULE_LOCATION
 sudo udevadm control --reload-rules
 
 # enable overlay filesystem and reboot
-# sudo raspi-config nonint enable_overlayfs
-# sudo shutdown -r now
+sudo raspi-config nonint enable_overlayfs
+sudo reboot
