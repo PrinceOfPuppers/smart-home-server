@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import smart_home_server.constants as const
 from smart_home_server.data_sources import getPollingPeriod
-from smart_home_server.handlers.graphs.runtime import _addPoint, GraphAlreadyExists, GraphDoesNotExist, _startGraphPlotting, _stopGraphPlotting
+from smart_home_server.handlers.graphs.runtime import _addPoint, GraphAlreadyExists, GraphDoesNotExist, _startGraphPlotting, _stopGraphPlotting, _putOnMonitor, _getOnMonitor, _loadOnMonitor
 
 class DatasourceDoesNotExist(Exception):
     pass
@@ -87,6 +87,7 @@ def _startGraphs():
     graphs = _getGraphs()
     for graph in graphs:
         _startGraphPlotting(graph["id"], graph["numSamples"], graph["datasource"], graph["color"])
+    _loadOnMonitor()
 
 
 def _stopGraphs():

@@ -7,7 +7,7 @@ from smart_home_server.handlers.triggerManager import getTriggers
 from smart_home_server.handlers.subscribeManager import startSubscribeManager, stopSubscribeManager, joinSubscribeManager
 from smart_home_server.handlers.rfMacros import startMac, stopMac, joinMac
 from smart_home_server.handlers.lcd import getLcds, startLcdListener, stopLcdListener, joinLcdListener
-from smart_home_server.handlers.graphs import getGraphs, startGraphs, stopGraphs
+from smart_home_server.handlers.graphs import getGraphs, startGraphs, stopGraphs, joinGraphs, getOnMonitor, putOnMonitor
 
 from smart_home_server.handlers.notes import getNotes
 from smart_home_server.handlers.macros import getMacros
@@ -117,7 +117,8 @@ def lcdsGet():
 def graphsGet():
     graphs = getGraphs()
     graphs.sort(key=lambda element: element['datasource'])
-    return render_template('graphs.html', loadTime=round(time()), graphs=graphs, values=values, colors=["blue", "green", "orange", "red", "yellow", "purple", "grey", "white"])
+    idOnMonitor = getOnMonitor()
+    return render_template('graphs.html', loadTime=round(time()), graphs=graphs, values=values, colors=["blue", "green", "orange", "red", "yellow", "purple", "grey", "white"], idOnMonitor=idOnMonitor)
 
 
 def startServer():
@@ -146,6 +147,7 @@ def startServer():
         stopScheduler()
         stopLcdListener()
         stopMac()
+        joinGraphs()
         joinSubscribeManager()
         joinPresser()
         joinScheduler()

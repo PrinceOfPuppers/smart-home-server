@@ -14,7 +14,7 @@ def isRPI():
     return False
 
 def getDeps():
-    deps=['Flask', 'schedule', 'flask-expects-json', 'requests', 'matplotlib']
+    deps=['Flask', 'schedule', 'flask-expects-json', 'requests', 'matplotlib', 'hid', 'pyudev']
     if isRPI():
         #rpi specific
         deps.extend(['rpi-rf', 'RPLCD', 'pigpio_dht', 'waitress', 'smbus2', 'pigpio', 'pimoroni-bme280'])

@@ -443,8 +443,8 @@ dataSources = [
         'name': 'Outdoor',
         'color': 'purple',
         'url': f'/api/data/temp-humid/outdoor',
-        'local': lambda: cached(getWeatherServerLocal,(3*60)//2, ip = const.outdoorWeatherServerIp),
-        'pollingPeriod': 3*60,
+        'local': lambda: cached(getWeatherServerLocal,(60)//2, ip = const.outdoorWeatherServerIp),
+        'pollingPeriod': 60,
 
         'dashboard':{
             'enabled': True,

@@ -18,4 +18,6 @@ sudo rm $UPDATE_BIN_LOCATION
 #rm symlink
 rm "$HOME/.config/systemd/user/multi-user.target.wants/$PROGRAM.service"
 
+#TODO: remove udev rule
+
 sudo systemctl daemon-reload

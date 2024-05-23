@@ -74,6 +74,7 @@ SERVICE_FILE="/usr/lib/systemd/user/$PROGRAM.service"
 BIN_LOCATION="/usr/local/bin/$PROGRAM"
 UPDATE_BIN_LOCATION="/usr/local/bin/$UPDATE_PROGRAM"
 
+#TODO replace with symlinks
 sudo chmod +x "bin/$PROGRAM"
 sudo cp "bin/$PROGRAM" $BIN_LOCATION
 sudo mv "./$UPDATE_PROGRAM" $UPDATE_BIN_LOCATION
@@ -86,3 +87,12 @@ systemctl --user daemon-reload
 systemctl --user enable $PROGRAM
 systemctl --user start $PROGRAM
 
+#create udev rules
+UDEV_RULE="10-atmega16u2.rules"
+UDEV_RULE_LOCATION="/etc/udev/rules.d/$UDEV_RULE"
+sudo cp $UDEV_RULE $UDEV_RULE_LOCATION
+sudo udevadm control --reload-rules
+
+# enable overlay filesystem and reboot
+sudo raspi-config nonint enable_overlayfs
+sudo shutdown -r
