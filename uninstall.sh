@@ -3,7 +3,8 @@
 echo "Ensure Overlay Filesystem is Disabled!"
 
 # remove fstab mount (marked with comment smart-home-server)
-sudo sed -i '/smart-home-server/d' /etc/fstab
+# TODO: create similar system that deletes line with mark and the line beneath it
+# sudo sed -i '/smart-home-server/d' /etc/fstab
 
 # create systemd service
 PROGRAM="smart-home-server"

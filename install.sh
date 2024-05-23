@@ -29,7 +29,7 @@ then
     echo $dev
     echo $ftype
 
-    echo "UUID=$dev       $mountPath   $ftype  rw,user,exec,umask=000 0 1 # smart-home-server" | sudo tee -a /etc/fstab
+    echo "UUID=$dev       $mountPath   $ftype  rw,user,exec,umask=000 0 1" | sudo tee -a /etc/fstab
     sudo mount $mountPath
 fi
 
@@ -95,4 +95,4 @@ sudo udevadm control --reload-rules
 
 # enable overlay filesystem and reboot
 sudo raspi-config nonint enable_overlayfs
-sudo shutdown -r
+sudo shutdown -r now
