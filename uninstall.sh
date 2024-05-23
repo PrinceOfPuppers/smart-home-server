@@ -1,4 +1,10 @@
 #!/bin/sh
+
+echo "Ensure Overlay Filesystem is Disabled!"
+
+# remove fstab mount (marked with comment smart-home-server)
+sudo sed -i '/smart-home-server/d' /etc/fstab
+
 # create systemd service
 PROGRAM="smart-home-server"
 UPDATER="smart-home-update"
@@ -18,6 +24,9 @@ sudo rm $UPDATE_BIN_LOCATION
 #rm symlink
 rm "$HOME/.config/systemd/user/multi-user.target.wants/$PROGRAM.service"
 
-#TODO: remove udev rule
+UDEV_RULE="10-atmega16u2.rules"
+UDEV_RULE_LOCATION="/etc/udev/rules.d/$UDEV_RULE"
+sudo rm $UDEV_RULE_LOCATION
+sudo udevadm control --reload-rules
 
 sudo systemctl daemon-reload

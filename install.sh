@@ -29,7 +29,7 @@ then
     echo $dev
     echo $ftype
 
-    echo "UUID=$dev       $mountPath   $ftype  rw,user,exec,umask=000 0 1" | sudo tee -a /etc/fstab
+    echo "UUID=$dev       $mountPath   $ftype  rw,user,exec,umask=000 0 1 # smart-home-server" | sudo tee -a /etc/fstab
     sudo mount $mountPath
 fi
 
@@ -58,7 +58,7 @@ sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
 sudo systemctl enable systemd-time-wait-sync
 sudo systemctl start systemd-time-wait-sync
-pip3 install -e .
+pip3 install --break-system-packages -e .
 
 # create update script
 UPDATE_PROGRAM="smart-home-update"
