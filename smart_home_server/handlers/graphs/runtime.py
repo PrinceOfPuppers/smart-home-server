@@ -1,7 +1,7 @@
 from time import time
 from dataclasses import dataclass
 from matplotlib.figure import Figure
-from matplotlib.ticker import FormatStrFormatter
+from matplotlib.ticker import FormatStrFormatter, FuncFormatter
 import matplotlib as mpl
 import json
 
@@ -115,6 +115,19 @@ def generateFigure(id:str):
     axis.set_title(title)
     return fig
 
+def formatter(z, _):
+    x = round(z, 1)
+    if x.is_integer():
+        return f"{x:.0f}"
+    return f"{x:.1f}"
+
+    s = str(x)
+    delta = len(s) - 3
+
+    if delta > 0:
+        return s
+    #return str(round())
+
 def generateSmallFigure(id:str):
     import numpy as np
     relTs, tlabel, ys, color, title = _generateFigureHelper(id)
@@ -127,6 +140,10 @@ def generateSmallFigure(id:str):
     #axis.set_title(title + " vs " + tlabel, pad=3, size=8)
     axis.tick_params(labelsize=6, length=0, color=const.colors["black"], pad=2)
     axis.tick_params(axis="y", pad=1)
+    axis.xaxis.set_major_formatter(FuncFormatter(formatter))
+    axis.yaxis.set_major_formatter(FuncFormatter(formatter))
+    #axis.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+    #axis.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
 
     return fig
 
