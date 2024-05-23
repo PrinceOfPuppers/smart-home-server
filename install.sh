@@ -1,9 +1,5 @@
 #!/bin/sh
 
-#TODO create symlink for 10-smart-home-server.rules
-#TODO: reload usb hid driver
-# sudo udevadm control --reload-rules
-
 mountPath=$(cd "$(dirname "$1")"; pwd)/$(basename "$1")smart_home_server/storage
 
 if ! grep -Fq "$mountPath" /etc/fstab
@@ -91,6 +87,12 @@ systemctl --user daemon-reload
 systemctl --user enable $PROGRAM
 systemctl --user start $PROGRAM
 
+#create udev rules
+UDEV_RULE="10-atmega16u2.rules"
+UDEV_RULE_LOCATION="/etc/udev/rules.d/$UDEV_RULE"
+sudo cp $UDEV_RULE $UDEV_RULE_LOCATION
+sudo udevadm control --reload-rules
 
-#TODO: add raspi-config overlay filesystem and restart
-
+# enable overlay filesystem and reboot
+sudo raspi-config nonint enable_overlayfs
+sudo shutdown -r

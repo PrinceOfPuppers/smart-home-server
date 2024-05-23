@@ -57,7 +57,8 @@ def _monitor_loop(h:hid.Device, sequenceCb:Callable[[], int]):
         except Empty:
             pass
     # for quick disconnect reconnects, store last frame so monitor is not black on reconnect
-    if x is not None:
+    # will not overwrite existing frame in queue
+    if x is not None and _monitorQueue.empty():
         _monitorQueue.put(x)
 
 
