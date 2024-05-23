@@ -3,6 +3,7 @@ from signal import signal, SIGINT, Signals#,SIGABRT,SIGTERM
 
 __version__ = "1.6.0"
 
+
 class InterruptTriggered(Exception):
     pass
 

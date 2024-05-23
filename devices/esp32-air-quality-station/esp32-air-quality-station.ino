@@ -4,6 +4,9 @@
 #include "WiFi.h"
 
 
+// if defined, will not hardfault if bme device is offline
+// (the bme often causes problems)
+#define BME_NO_HARDFAULT
 
 #define SERIAL_BAUD 115200
 
@@ -89,6 +92,21 @@ static uint16_t s8ErrCounter = 0;
 
 static uint16_t timingErrorCounter = 0;
 
+void handle_bme_err(){
+#ifdef BME_NO_HARDFAULT
+    // fill with nan to notify data is invalid
+    bmeData.iaq = NAN;
+    bmeData.pressure = NAN;
+    bmeData.temperature = NAN;
+    bmeData.humidity = NAN;
+    bmeData.co2Equivalent = NAN;
+    bmeData.breathVocEquivalent = NAN;
+    debugln("BME Error, No Hardfault");
+#else
+    hardfault(LED_ERR_BME);
+#endif
+}
+
 ////////////////
 // setup/loop //
 ////////////////
@@ -119,10 +137,10 @@ void setup(){
 
     // bme setup
     int status = setup_bme680();
-    if(status != AQS_STATUS_OK){hardfault(LED_ERR_BME);}
+    if(status != AQS_STATUS_OK){handle_bme_err();}
     delay(1000);
     status = update_bme(&bmeData);
-    if(status != AQS_STATUS_OK){hardfault(LED_ERR_BME);}
+    if(status != AQS_STATUS_OK){handle_bme_err();}
     debugln("");
     delay(2000);
 
@@ -160,7 +178,8 @@ void updateAll(uint32_t counterMins){
         status = update_bme(&bmeData);
         if(status != AQS_STATUS_OK){
             if ((++bmeErrCounter) > MAX_READ_ERR){
-                hardfault(LED_ERR_BME);
+                bmeErrCounter = MAX_READ_ERR + 1; // prevent overflow
+                handle_bme_err();
             }
         }
         else {

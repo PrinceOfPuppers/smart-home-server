@@ -1,4 +1,15 @@
 from dataclasses import dataclass
+from math import isnan
+
+
+def _toJson(obj):
+    res = {}
+    for attr, value in obj.__dict__.items():
+        if isinstance(value, float) and isnan(value): # nan is not valid json token
+            continue
+        res[attr] = value
+    return res
+
 
 @dataclass
 class BMEData:
@@ -7,11 +18,8 @@ class BMEData:
     pressure: float
 
     def toJson(self):
-        return {
-            "temp":     self.temp,
-            "humid":    self.humid,
-            "pressure": self.pressure,
-        }
+        return _toJson(self)
+
 
 @dataclass
 class AQSData:
@@ -29,16 +37,4 @@ class AQSData:
     co2: int
 
     def toJson(self):
-        return {
-            "temp":     self.temp,
-            "humid":    self.humid,
-            "pressure": self.pressure,
-            "iaq":      self.iaq,
-            "co2Eq":    self.co2Eq,
-            "voc":      self.voc,
-            "pm1":      self.pm1,
-            "pm2.5":    self.pm2_5,
-            "pm10":     self.pm2_5,
-            "co2":      self.co2,
-        }
-
+        return _toJson(self)

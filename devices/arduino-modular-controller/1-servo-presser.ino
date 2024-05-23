@@ -157,6 +157,13 @@ void testServoPot(){
         delay(100);
     }
 }
+// just for device creation
+void testServo90(){
+    setServ(90);
+    while(1){
+        delay(1000);
+    }
+}
 
 void testServoRange(){
 

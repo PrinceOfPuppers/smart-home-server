@@ -27,13 +27,13 @@ I will divide this into sections, most things can be improvised with small desig
 
 ##### Primary
 - Arduino nano 
-- 433 MHz Rx Module
+- 433 MHz Rx module
 - 433 MHz antenna
-- L298N H-Bridge Motor Controller
+- L298N H-Bridge motor controller
 - 2 Diodes
 - 1 Potentiometer
 - 12V Motor with gearbox (10RPM to 40RPM, lower RPM for heavy blinds. See photos)
-- Motor encoder (mine was build into motor)
+- Motor encoder (mine was built into the motor)
 
 ##### Connections
 - Prototype boards (mine are 6x4 cm)
@@ -60,9 +60,9 @@ I will divide this into sections, most things can be improvised with small desig
 
 ## Assembly
 
-Below is a schematic of the device, along with photos of the assembly. Solder the sockets to the prototype board and connect them according to the schematic, I used JST-HX connectors, however direct soldering or DuPont connectors could also be used.
+Below is a schematic of the device, along with photos of the assembly. Solder the sockets to the prototype board and connect them according to the schematic. I used JST-HX connectors, however direct soldering or DuPont connectors could also be used.
 
-For the mechanical portion the scad file as a module called `fullAssebmly();` all the parts together. There are 2 chain gear options, one fully PLA+, the other PLA+ with a metal flange coupler for the motor shaft.
+For the mechanical portion the scad file has a module called `fullAssebmly();` with all the parts together. There are 2 chain gear options, one fully PLA+, the other PLA+ with a metal flange coupler for the motor shaft.
 
 Here's a rough breakdown of the assembly:
 - Put 2 washers with some grease on each of the posts sticking out of the base
@@ -127,7 +127,9 @@ The RX codes can be set by holding the up button and restarting the Arduino, you
 
 The Arduino considers anything below a certain speed a stall and will stop the motor. this can be set using the Potentiometer and is read at boot. 
 
-Holding the down button on restart enters a debug mode for setting the Potentiometer, the led will flash on for `N` milliseconds, corresponding to the stall speed of `N` encoder ticks per second. In this mode you can turn the Potentiometer to adjust the speed and the led flash rate will update accordingly. Reset the Arduino to exit the mode and test the results.
+Holding the down button and restarting enters a debug mode for setting the Potentiometer, the led will flash on for `N` milliseconds, corresponding to the stall speed of `N` encoder ticks per second. In this mode you can turn the Potentiometer to adjust the speed and the led flash rate will update accordingly. Reset the Arduino to exit the mode and test the results.
 
-The led will turn on when the motor is moving, test the blinds opening and closing and make sure the led turns off when the blinds reach the top and bottom. The motor has a backup shut off after 3 minutes of continuous running in case a mechanical failure occurs (IE chain skipping, chain gear getting sheared off the shaft, etc).
+The led will turn on when the motor is moving, test the blinds opening and closing and make sure the led turns off when the blinds reach the top and bottom. 
+
+The motor has a backup shut off after 3 minutes of continuous running in case a mechanical failure occurs (IE chain skipping, chain gear getting sheared off the shaft, etc).
 

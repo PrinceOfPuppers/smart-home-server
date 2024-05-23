@@ -1,4 +1,4 @@
-# Arduino Light Switcher
+# Arduino Modular Controller
 
 > A Modular Device for Smart Home Automation of Lights and More
 - [ABOUT](#about)
@@ -35,9 +35,9 @@ Examples:
 
 
 # SETUP
-The capabilities of the device can be adjusted through the defines at the top of `arduino-light-switcher.ino` (IE enabling RF trigger or motion trigger), as for hardware, please refer to the CREATION section. 
+The capabilities of the device can be adjusted through the defines at the top of `arduino-modular-controller.ino` (IE enabling RF trigger or motion trigger), as for hardware, please refer to the CREATION section. 
 
-I recommend enabling `DEBUG_LED_ENABLED` and `DEBUG_SERIAL_ENABLED` in `arduino-light-switcher.ino` while creating and working on the device.
+I recommend enabling `DEBUG_LED_ENABLED` and `DEBUG_SERIAL_ENABLED` in `arduino-modular-controller.ino` while creating and working on the device.
 
 The code depends on the Arduino libraries `rc-switch`, `Servo` and `LowPower_LowPowerLab` which can be installed using the IDE or arduino-cli.
 
@@ -117,7 +117,7 @@ None needed, simply connect unit to 5v, GND and connect `DATA` to the Arduino's 
 
 #### Tx Configuration
 
-The Tx module can be configured in `5-tx-code.ino` by editing: `ON_VALUE`, `OFF_VALUE`, `PULSE_LENGTH`, `BIT_LENGTH` and `PROTOCOL`. To get these values, if you have an Rx module, you can uncomment `testRx();` in `loop()` of `arduino-light-switcher.ino` and see what codes your RF remote/transmitter is sending out (`ENABLE_DEBUG_SERIAL` must be enabled to see the output). 
+The Tx module can be configured in `5-tx-code.ino` by editing: `ON_VALUE`, `OFF_VALUE`, `PULSE_LENGTH`, `BIT_LENGTH` and `PROTOCOL`. To get these values, if you have an Rx module, you can uncomment `testRx();` in `loop()` of `arduino-modular-controller.ino` and see what codes your RF remote/transmitter is sending out (`ENABLE_DEBUG_SERIAL` must be enabled to see the output). 
 
 
 
@@ -158,7 +158,7 @@ A `Trigger`. Triggers `on/off` based on programmed RF codes.
 
 #### Rx Configuration
 
-The Rx module can be configured in `2-rx-code.ino` by editing: `ON_VALUE`, `OFF_VALUE`, `BIT_LENGTH` and `PROTOCOL`. To get these values, uncomment `testRx();` in `loop()` of `arduino-light-switcher.ino` and see what codes your RF remote/transmitter is sending out (`ENABLE_DEBUG_SERIAL` must be enabled to see the output).
+The Rx module can be configured in `2-rx-code.ino` by editing: `ON_VALUE`, `OFF_VALUE`, `BIT_LENGTH` and `PROTOCOL`. To get these values, uncomment `testRx();` in `loop()` of `arduino-modular-controller.ino` and see what codes your RF remote/transmitter is sending out (`ENABLE_DEBUG_SERIAL` must be enabled to see the output).
 
 
 
