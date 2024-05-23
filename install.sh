@@ -1,6 +1,8 @@
 #!/bin/sh
 
 mountPath=$(cd "$(dirname "$1")"; pwd)/$(basename "$1")smart_home_server/storage
+mkdir -p $mountPath
+echo "Mount Path: $mountPath"
 
 if ! grep -Fq "$mountPath" /etc/fstab
 then
@@ -30,7 +32,8 @@ then
     echo $ftype
 
     echo "UUID=$dev       $mountPath   $ftype  rw,user,exec,umask=000 0 1" | sudo tee -a /etc/fstab
-    sudo mount $mountPath
+    sudo systemctl daemon-reload
+    #sudo mount $mountPath
 fi
 
 # usb mounting over
@@ -94,5 +97,5 @@ sudo cp $UDEV_RULE $UDEV_RULE_LOCATION
 sudo udevadm control --reload-rules
 
 # enable overlay filesystem and reboot
-sudo raspi-config nonint enable_overlayfs
-sudo shutdown -r now
+# sudo raspi-config nonint enable_overlayfs
+# sudo shutdown -r now
