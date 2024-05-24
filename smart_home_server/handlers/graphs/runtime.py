@@ -90,16 +90,16 @@ def _generateFigureHelper(id:str):
 
 
     if delta < 3*60: # 3 minutes
-        tlabel = "Seconds"
+        tlabel = "Sec"
         relTs = [x-now for x in ts]
 
     elif delta < 3*60*60: # 3 hours
-        tlabel = "Minutes"
+        tlabel = "Min"
         relTs = [(x-now)/60 for x in ts]
 
     else:
         relTs = [(x-now)/(60*60) for x in ts]
-        tlabel = "Hours"
+        tlabel = "Hour"
 
     return relTs, tlabel, ys, color, title
 
@@ -133,7 +133,7 @@ def generateSmallFigure(id:str):
     relTs, tlabel, ys, color, title = _generateFigureHelper(id)
 
     fig = Figure()
-    fig.subplots_adjust(right=0.95, left=0.15)
+    fig.subplots_adjust(right=0.98, left=0.15)
     fig.suptitle(title + " vs " + tlabel, size=8)
     axis = fig.add_subplot(1, 1, 1)
     axis.plot(relTs, ys, color=color)

@@ -3,8 +3,17 @@
 
 // #define DEBUG_ENABLED
 
-#define SCREEN_WIDTH 160
+// 1.8 inch
+// #define SCREEN_WIDTH 160
+// #define SCREEN_HEIGHT 128
+
+// 1.5 inch
+#define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 128
+
+
+// comment out to use lcd instead 
+#define OLED_SCREEN
 
 /*
 #define CS_PIN  D0

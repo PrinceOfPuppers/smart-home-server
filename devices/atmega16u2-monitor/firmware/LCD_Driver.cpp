@@ -1,3 +1,5 @@
+// Heavily modified Waveshare driver
+
 /*****************************************************************************
     | File        :   LCD_Driver.c
     | Author      :   Waveshare team
@@ -236,12 +238,12 @@ void LCD_SetCursor(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t    
     parameter :
       Color :   The color you want to clear all the screen
 ******************************************************************************/
-void LCD_Clear(uint16_t Color)
+void LCD_Clear(uint16_t width, uint16_t height, uint16_t Color)
 {
     uint16_t i, j;
-    LCD_SetCursor(0, 0, LCD_WIDTH, LCD_HEIGHT);
-    for (i = 0; i <= LCD_WIDTH; i++) {
-        for (j = 0; j <= LCD_HEIGHT; j++) {
+    LCD_SetCursor(0, 0, width, height);
+    for (i = 0; i <= width; i++) {
+        for (j = 0; j <= height; j++) {
             LCD_WriteData_Word(Color);
         }
     }

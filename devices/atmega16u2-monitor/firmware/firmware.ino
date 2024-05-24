@@ -1,10 +1,21 @@
 #include "HID-Project.h"
-#include "LCD_Driver.h"
 
 #include "config.h"
 #include "pin_map.h"
 #include "debug.h"
 #include <EEPROM.h>
+
+#ifdef OLED_SCREEN
+#include "OLED_Driver.h"
+#define clear_screen() OLED_Clear(SCREEN_WIDTH, SCREEN_HEIGHT)
+#define reset_cursor() OLED_Set_Cursor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+#define write_word(w) OLED_WriteWord((w))
+#else
+#include "LCD_Driver.h"
+#define clear_screen() LCD_Clear(SCREEN_WIDTH, SCREEN_HEIGHT, 0x0000)
+#define reset_cursor() LCD_SetCursor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+#define write_word(w) LCD_WriteData_Word((w))
+#endif
 
 //////////////////
 // Controls OUT //
@@ -33,8 +44,10 @@ uint8_t rawhidData[CHUNK_BYTE_SIZE];
 
 static uint8_t backlight;
 void write_backlight(uint8_t bl){
+#ifndef OLED_SCREEN
     EEPROM.write(0, bl); 
     backlight = bl;
+#endif
 }
 
 
@@ -44,9 +57,15 @@ void write_backlight(uint8_t bl){
 void setup(void) {
     RawHID.begin(rawhidData, sizeof(rawhidData));
     setup_debug();
+#ifdef OLED_SCREEN
+    OLED_Init();
+    debugln("OLED");
+#else
+    debugln("LCD");
     backlight = EEPROM.read(0);
     LCD_Init(backlight);
-    LCD_Clear(0x0000);
+#endif
+    clear_screen();
 
     debug("Chunk Size: ");
     debugSln(CHUNK_BYTE_SIZE);
@@ -123,7 +142,7 @@ void drawFrame(){
 
     uint16_t row = 0;
     uint16_t chunk = 0;
-    LCD_SetCursor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    reset_cursor();
     while(1){
         if(!await_bytes_timeout(CHUNK_BYTE_SIZE, BYTE_TIMEOUT_MS)){
             debugln("timeout");
@@ -133,7 +152,7 @@ void drawFrame(){
         { // push chunk to lcd
             uint16_t start = chunk*CHUNK_PIXEL_SIZE;
             for(int i = 0; i < CHUNK_PIXEL_SIZE; i++){
-                LCD_WriteData_Word(((uint16_t *)rawhidData)[i]);
+                write_word(((uint16_t *)rawhidData)[i]);
             }
         }
 
@@ -163,7 +182,11 @@ void send_monitor_info(){
     i[0] = SCREEN_WIDTH;
     i[1] = SCREEN_HEIGHT;
     i[2] = CHUNK_BYTE_SIZE;
+#ifdef OLED_SCREEN
+    i[3] = 255;
+#else
     i[3] = backlight;
+#endif
 
     RawHID.write((uint8_t *)&i, sizeof(i));
     char c;

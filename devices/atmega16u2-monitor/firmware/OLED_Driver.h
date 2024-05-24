@@ -2,14 +2,15 @@
 
 
 /*****************************************************************************
-* | File        :   LCD_Driver.h
+* | File      	:   OLED_Driver.h
 * | Author      :   Waveshare team
-* | Function    :   Electronic paper driver
+* | Function    :   1.5inch RGB OLED Module Drive function
 * | Info        :
 *----------------
-* | This version:   V1.0
-* | Date        :   2018-11-18
-* | Info        :   
+* |	This version:   V2.0
+* | Date        :   2020-08-20
+* | Info        :
+* -----------------------------------------------------------------------------
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documnetation files (the "Software"), to deal
@@ -30,11 +31,16 @@
 # THE SOFTWARE.
 #
 ******************************************************************************/
-#ifndef __LCD_DRIVER_H
-#define __LCD_DRIVER_H
+#ifndef __OLED_DRIVER_H
+#define __OLED_DRIVER_H		
 
-// not relative to port
-#define DEV_BL_PIN  7
+#include <SPI.h>
+#include <stdint.h>
+
+/********************************************************************************
+function:	
+		Define the full screen height length of the display
+********************************************************************************/
 
 // port manipulation
 #define PORT_DDR DDRD
@@ -49,19 +55,10 @@
 #define set_low(pin) PORT &= ~(1 << pin)
 #define set_high(pin) PORT |= (1 << pin)
 
-#include <stdint.h>
-#include <SPI.h>
+void OLED_WriteWord(uint16_t Data);
+void OLED_Set_Cursor(uint8_t xstart, uint8_t ystart, uint8_t xend, uint8_t yend);
+void OLED_Init(void);
+void OLED_Clear(uint8_t width, uint8_t height);
 
-/*-----------------------------------------------------------------------------*/
-void LCD_WriteData_Byte(uint8_t da); 
-void LCD_WriteData_Word(uint16_t da);
-void LCD_WriteReg(uint8_t da);
-
-void LCD_SetCursor(uint16_t x1, uint16_t y1, uint16_t x2,uint16_t y2);
-void LCD_Setuint16_t(uint16_t x, uint16_t y, uint16_t Color);
-
-void LCD_Init(uint8_t backlight);
-void LCD_SetBacklight(uint8_t Value);
-void LCD_Clear(uint16_t width, uint16_t height, uint16_t Color);
-
-#endif
+#endif  
+	 
