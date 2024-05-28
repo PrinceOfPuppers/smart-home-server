@@ -1,4 +1,4 @@
-include <../../../../openscad/libs/BOSL2/std.scad>
+include <../../../../../openscad/libs/BOSL2/std.scad>
 
 $fn=100;
 
@@ -19,7 +19,7 @@ screenHeight = 34;
 
 usbAWidth = 12.2;
 usbADepth = 5.4;
-usbADepthMargin = 2;
+usbADepthMargin = 3;
 
 m25Hole = 2.5;
 
