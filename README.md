@@ -174,3 +174,9 @@ A page for creating plots of datasources over time, new graphs can be created by
 <br clear="left"/>
 <br clear="left"/>
 
+If an [Atmega16u2 Monitor](./devices/atmega16u2-monitor/README.md) is connected, you can press the `Monitor` button to push it to the screen where it will be updated whenever new data is added.
+
+<img align="left" height="200" src="devices/atmega16u2-monitor/images/ui-monitor.png">
+<img align="left" height="200" src="devices/atmega16u2-monitor/images/full-focused.jpg">
+<br clear="left"/>
+<br clear="left"/>

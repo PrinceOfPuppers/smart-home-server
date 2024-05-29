@@ -28,9 +28,9 @@ The device features a custom PCB built around the Atmega16u2
 
 ### PCB Creation and Assembly
 
-JLCPCB was used for PCB creation and the majority of PCB assembly, files are provided in `./pcb/product`, these can be directly dropped into JLCPCB. The only things hand soldered are the usb connector, oscilator and debug header pin J5 (which is optional).
+JLCPCB was used for PCB creation and the majority of PCB assembly, files are provided in `./pcb/product`, these can be directly dropped into JLCPCB. The only things hand soldered are the USB connector, oscillator and debug header pin J5 (which is optional).
 
-The schematic, pcb and components used can be edited in kicad using file `./pcb/pcb.kicad_pro`, the JLCPCB files come from a plugin called `fabrication toolkit`.
+The schematic, PCB and components used can be edited in Kicad using file `./pcb/pcb.kicad_pro`, the JLCPCB files come from a plugin called `fabrication toolkit`.
 
 <img align="left" height="300" src="images/schematic.png">
 <br clear="left"/>
@@ -44,7 +44,7 @@ The display's pins slot directly into the 8 pin port on the board. The pinout is
 
 ### Physical Assembly
 
-3D printable Cases for the 1.5 inch OLED and 1.8 inch LCD are provided under `./case/*.stl` as well as the openscad sources under `./case/*.scad`. Additional sizes can be added by editing `screenWidth` and `screenHeight` in the `.scad` files. Seperate files exist for the OLED and LCD variants due to different pin locations.
+3D printable Cases for the 1.5 inch OLED and 1.8 inch LCD are provided under `./case/*.stl` as well as the openscad sources under `./case/*.scad`. Additional sizes can be added by editing `screenWidth` and `screenHeight` in the `.scad` files. Separate files exist for the OLED and LCD variants due to different pin locations.
 
 The display is secured to the board using m2.5 standoffs as shown below, Note the OLED variant only uses one standoff due to its different form factor.
 
@@ -70,15 +70,15 @@ The fuses should be `efuse: 0xF4`, `hfuse: 0xD9`, `lfuse 0xFF`. They can then be
 ./check_fuses.sh.sh
 ```
 
-Fuses only need to be set once per device. Fimware can be uploaded by running the following.
+Fuses only need to be set once per device. Firmware can be uploaded by running the following.
 ```
 ./build.sh
 ```
 
-The build relies [Hoodloader2](https://github.com/NicoHood/HoodLoader2) and [Hid Project](https://github.com/NicoHood/HID). The former makes the Atmega16u2 compatible with arduino's bulid system and the latter is a library which manages the RawHID interface.
+The build relies [Hoodloader2](https://github.com/NicoHood/HoodLoader2) and [Hid Project](https://github.com/NicoHood/HID). The former makes the Atmega16u2 compatible with Arduino's build system and the latter is a library which manages the RawHID interface.
 
 ### UDEV and Testing
-A UDEV rule must be added for linux to know what to do with the USB device, smart-home-server does this automatically when installed. For local testing, a udev rule can be added by running the following script (once).
+A UDEV rule must be added for Linux to know what to do with the USB device, smart-home-server does this automatically when installed. For local testing, a UDEV rule can be added by running the following script (once).
 ```
 ./udev.sh
 ```
@@ -94,18 +94,18 @@ Uncomment `#define DEBUG_ENABLED` in `./firmware/config.h` and connect pin `J5` 
 Several macros exist for debug printing: `debug(x), debugln(x), debugS(x), debugSln(x)`. The `ln` variants print a newline after `x`, the `S` variants coerce `x` to a string before printing.
 
 
-A debug led is hooked up to pin `D6` (also known as pin `19`). Its free to use for debugging and is not accessed by anyting else in the firmware.
+A debug led is hooked up to pin `D6` (also known as pin `19`). Its free to use for debugging and is not accessed by anything else in the firmware.
 
 
 # Operation
-Once the device is assembled it can be plugged into the server, You can then select a graph to push to the screen. Only one graph can be shown at a time, the selected graph will have a greyed out button saying `Monitoring`, other graphs will have a colored button that says `Monitor`.
+Once the device is assembled it can be plugged into the server, You can then select a graph to push to the screen. Only one graph can be shown at a time, the selected graph will have a grayed out button saying `Monitoring`, other graphs will have a colored button that says `Monitor`.
 
 <img align="left" height="220" src="images/ui-monitor.png">
 <img align="left" height="220" src="images/ui-monitoring.png">
 <br clear="left"/>
 <br clear="left"/>
 
-The graph updates whenever there is new data to display, the x axis is time reletive to when it was last updated with time units displayed at the top. 
+The graph updates whenever there is new data to display, the x axis is time relative to when it was last updated with time units displayed at the top. 
 
 <img align="left" height="300" src="images/full-focused.jpg">
 <br clear="left"/>
@@ -117,23 +117,23 @@ The graph updates whenever there is new data to display, the x axis is time rele
 ### USB not Connecting
 The device should appear as a raw hid device under `/dev`, unplug it and run `ls /dev/hid*`, plug it back in and wait for a second, then run `ls /dev/hid*` again, a new device should appear. 
 
-You can also run the following command to check for usb add, bind, unbind and remove events.
+You can also run the following command to check for USB add, bind, unbind and remove events.
 ```
 udevadm monitor
 ```
 
-If no device appers, it could be:
+If no device appears, it could be:
 - device isn't plugged in properly
 - firmware isn't flashed
-- fuses arent set correctly
-- udev rule wasn't copied
-- udev rules wheren't reloaded
+- fuses aren't set correctly
+- UDEV rule wasn't copied
+- UDEV rules weren't reloaded
 - hardware issues
 
-Ensure the hardware is working using either serial debugging, or by blinking the debug led. You can also sniff usb traffic by connecting to the middle to pins on the usb adapter.
+Ensure the hardware is working using either serial debugging, or by blinking the debug led. You can also sniff USB traffic by connecting to the middle to pins on the USB adapter.
 
 ### Freezing
-The device can freeze if undervolted (happens below 4v), some cheap USB splitters can cause this, if it occurs, try connecting directly to a USB port on your computer. The smart-home's usb ports have no issues. Freezing typically happens mid screen update.
+The device can freeze if undervolted (happens below 4v), some cheap USB splitters can cause this, if it occurs, try connecting directly to a USB port on your computer. The smart-home's USB ports have no issues. Freezing typically happens mid screen update.
 
 ### Slow Updating and USB Disconnects
 Typically happens when the fuses are set incorrectly, check them with `./check_fuses.sh`. If the fuses are set fine check if `python3 ./test.py` changes color every 5 seconds. If so the timing is fine. If not, try re-running `./fuses.sh` (I've had say it succeeded, but the fuses remained unset). during normal operation, update speed is limited by chunk size which can be adjusted in `./firmware/config.h` by changing `#define CHUNKS_PER_LINE` fewer chunks is faster but uses more RAM and can lead to stack overflows.
