@@ -27,8 +27,15 @@ Each device has its own `README`. Click the links to read more.
 
 Main Case and [Arduino Blinds Controller](devices/arduino-blinds/README.md):
 
-<img align="left" height="200" src="devices/main-case/images/full-front.jpg">
+<img align="left" height="200" src="devices/atmega16u2-monitor/images/full.jpg">
 <img align="left" height="200" src="devices/arduino-blinds/images/mechanical.jpg">
+<br clear="left"/>
+<br clear="left"/>
+
+[Atmega16u2 Monitor](devices/atmega16u2-monitor/README.md)
+
+<img align="left" height="200" src="devices/atmega16u2-monitor/images/full-focused.jpg">
+<img align="left" height="200" src="devices/atmega16u2-monitor/images/board.jpg">
 <br clear="left"/>
 <br clear="left"/>
 
