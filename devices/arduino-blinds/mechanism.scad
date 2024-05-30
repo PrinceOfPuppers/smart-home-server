@@ -1,4 +1,5 @@
 use <./resources/cloister.ttf>
+use <../../../../openscad/libs/BOSL2/std.scad>
 
 $fn=50;
 
@@ -20,7 +21,12 @@ looseFit = 0.508;
 
 standardWasherDepth = 1;
 
-chainGearDiameter = 2*20;
+chainGearRimDiameter = 2*23;
+
+// has to be close to chain gear rim diameter, used for other calculations (ie positioning of chain guides)
+// its a seperate variable so they can be edited independantly
+chainGearRimDiameterEffective = 2*20;
+
 chainGearScaling = 0.95;
 
 largeBeadDiameter = 1.1*9.7;
@@ -45,37 +51,73 @@ module collar(diameter, thickness, height, setScrew){
 
 }
 
-chainGearBaseHeight = 7;
-chainGearBaseDiameter = 2*17.9;
 
-chainGearMargin = 2.7;
 chainGearRim = 5;
-chainGearSlopeHeight = chainGearDepth/2 - chainGearMargin;
 
+
+function chainGearDiameter(teeth, pitch, additionalRadius) = (1000*teeth/pitch)/3.141592653 + 2*additionalRadius;
+function chainGearHeight(beadDiameter, rim, oversizing) = oversizing*beadDiameter + 2*rim;
+
+
+module chainGearNew(teeth, pitch, beadDiameter, height, additionalRadius){
+    oversizing = 1.2;
+    linkageDiameter = 1.0;
+    //additionalRadius = 1;
+    additionalRadiusFlange = 0.3;
+    oversizedDiameter = beadDiameter*oversizing;
+    oversiedLinkage = linkageDiameter*oversizing;
+
+    outerDiameter = chainGearDiameter(teeth,pitch, additionalRadius);
+    diameter = outerDiameter-2*additionalRadius;
+
+    difference(){
+
+        translate([0,0,-height/2])
+        cylinder(d=outerDiameter, h=height);
+
+        dtheta = 360/teeth;
+
+        for(i = [0:dtheta:360]){
+            translate([diameter*cos(i)/2, diameter*sin(i)/2, 0]){
+                sphere(d=oversizedDiameter);
+                rotate([0,90,i]) translate([0,0,0])
+                    cylinder(d1=oversizedDiameter, d2=oversizedDiameter+additionalRadiusFlange, h=additionalRadius+0.01);
+            }
+        }
+        for(i=[dtheta/2:dtheta:360+dtheta/2]){
+            translate([diameter*cos(i)/2, diameter*sin(i)/2, 0]){
+                rotate([90,0,i]) {
+                    translate([0,0,-2])
+                        cylinder(d=linkageDiameter, h=4);
+                    rotate([0,90,0])
+                        prismoid(size1=[4,linkageDiameter], size2=[4,linkageDiameter+additionalRadiusFlange], height=additionalRadius+0.01);
+                }
+            }
+        }
+    }
+}
 
 module chainGear(bore, keyDiameter, fit){
+    baseHeight = 6;
+    beadDiameter = 4.5;
+    teeth = 20;
+    pitch = 161;
+    baseDiameter = chainGearDiameter(teeth, pitch, 1);
+    chainGearSlopeHeight = (chainGearDepth-baseHeight)/2;
 
     difference(){
         scale([chainGearScaling, chainGearScaling, 1])
         union(){
-            translate([0,0, chainGearDepth/2])
-                // base chain gear model from: https://www.thingiverse.com/thing:4851360/files
-                import(str("./resources/BeadChainGear_4.5_161__18.stl"));
+            translate([0,0, chainGearDepth/2]) chainGearNew(teeth, pitch, beadDiameter, baseHeight, 1);
 
             // upper and lower ramp
             difference(){
                 union(){
-                    cylinder(d=bore+chainGearRim, h=chainGearDepth);
-
-                    translate([0,0, chainGearDepth/2 + chainGearMargin])
-                        difference(){
-                                cylinder(d1=chainGearBaseDiameter, d2=chainGearDiameter, h=chainGearSlopeHeight);
-                                translate([0,0,-1])
-                                    cylinder(d1=chainGearBaseDiameter-chainGearRim, d2 = chainGearDiameter - chainGearRim, h=chainGearSlopeHeight+2);
-                        }
+                    translate([0,0, chainGearDepth-chainGearSlopeHeight])
+                        cylinder(d1=baseDiameter, d2=chainGearRimDiameter, h=chainGearSlopeHeight);
 
                     translate([0,0,chainGearSlopeHeight]) rotate([180,0,0])
-                        cylinder(d1=chainGearBaseDiameter, d2=chainGearDiameter, h=chainGearSlopeHeight);
+                        cylinder(d1=baseDiameter, d2=chainGearRimDiameter, h=chainGearSlopeHeight);
                 }
             }
         }
@@ -91,12 +133,6 @@ module chainGear(bore, keyDiameter, fit){
                 cube([boreDiam,boreDiam,2*chainGearDepth]);
         }
 
-        for(i=[0:5]){
-            rotate([0,0,i*360/6]) translate([9.5,0,-chainGearDepth/2]){
-                cylinder(d=8, h=2*chainGearDepth);
-            }
-        }
-
     }
 }
 
@@ -108,18 +144,13 @@ module chainGear_v2(){
     for(s=[0,180]) translate([-s/50,0,0]) {
         intersection(){
             // mask
-            rotate([0,0,s]) translate([0.1,-(chainGearDiameter/2+1),-1])
-                cube([chainGearDiameter+2,chainGearDiameter+2,chainGearDepth+2]);
+            rotate([0,0,s]) translate([0.1,-(chainGearRimDiameter/2+1),-1])
+                cube([chainGearRimDiameter+2,chainGearRimDiameter+2,chainGearDepth+2]);
 
             // full gear
             difference(){
-                union(){
-                    chainGear(motorShaftDiameter, motorKeyDiameter, tightFit);
-                    // plug holes
-                    cylinder(d=chainGearDiameter-7, h=chainGearSlopeHeight);
-                    translate([0,0,chainGearDepth-chainGearSlopeHeight]) cylinder(d=chainGearDiameter-7, h=chainGearSlopeHeight);
-                    cylinder(d=chainGearDiameter-12, h=chainGearDepth);
-                }
+                rotate([0,0,45])
+                chainGear(motorShaftDiameter, motorKeyDiameter, tightFit);
 
                 // cutouts
                 translate([0,0,-1]){
@@ -159,7 +190,7 @@ module motorHousing(){
     t = 4.7;
 
     //cylinder radius (some scaled multiple of chain gear radius)
-    cr = 1.2*chainGearScaling*chainGearDiameter/2;
+    cr = 1.2*chainGearScaling*chainGearRimDiameterEffective/2;
 
     // cube above the cylinder
     cubeLength = 1.3*cr;
@@ -219,7 +250,7 @@ module motorHousing(){
 
 
 module chainGuide(){
-    tourisRadius = chainGearDiameter/2;
+    tourisRadius = chainGearRimDiameterEffective/2;
     thickness = 3;
 
     poleOffset = -tourisRadius+poleDiameter/2+thickness/2;
@@ -262,7 +293,7 @@ module fullAssembly(){
     translate([-3*standardWasherDepth,0,0]) rotate([0,-90,0]) 
         chainGear(motorShaftDiameter, motorKeyDiameter, tightFit);
 
-    cr = 1.2*chainGearScaling*chainGearDiameter/2;
+    cr = 1.2*chainGearScaling*chainGearRimDiameterEffective/2;
     cubeLength = 1.3*cr;
 
     copy_mirror([0,0,1]){
@@ -358,9 +389,10 @@ module motorHoles(){
 
 
 // chainGear(motorShaftDiameter, motorKeyDiameter, tightFit);
+// chainGear_v2();
 // motorHoles();
-fullAssembly();
-// printReady();
+// fullAssembly();
+printReady();
 // motorHousing();
 // chainGuide();
 
