@@ -1,13 +1,16 @@
+// number of times an action is done per trigger
+#define ACTION_REPEATS 4
+#define ACTION_REPEATS_DELAY_MS 500
 
 // triggers
-#define LIGHT_TRIGGER_ENABLED 0
-#define RX_ENABLED 1
+#define LIGHT_TRIGGER_ENABLED 1
+#define RX_ENABLED 0
 #define MOTION_SENSOR_ENABLED 0
 #define POWER_TRIGGER_ENABLED 0
 
 // actions
-#define TX_ENABLED 1
-#define SERVO_ENABLED 0
+#define TX_ENABLED 0
+#define SERVO_ENABLED 1
 
 // modifiers
 #define LIGHT_SENSOR_ENABLED 0
@@ -42,14 +45,14 @@
 ////////////
 
 #if SERVO_ENABLED
-#define action(up) servoPress(up)
-#define action servoPress
+#define _action(up) servoPress(up)
+#define _action servoPress
 #elif TX_ENABLED
-#define action(up) txTransmit(up)
-#define action txTransmit
+#define _action(up) txTransmit(up)
+#define _action txTransmit
 #else
 // stub
-void action(bool up){
+void _action(bool up){
 #if DEBUG_SERIAL_ENABLED
     Serial.print("Action Stub: ");
     Serial.println(up ? "UP" : "DOWN");
@@ -61,6 +64,19 @@ void action(bool up){
 #endif
 
 
+#if ACTION_REPEATS > 1
+void action(bool up){
+    for(int i = 0; i < ACTION_REPEATS; i++){
+        _action(up);
+        delay(ACTION_REPEATS_DELAY_MS);
+    }
+}
+#else
+// if action is only done once, there is no need to add an additional function call
+// (relevant for time sensitive actions like power switch)
+#define action(up) _action(up)
+#define action _action
+#endif
 
 
 

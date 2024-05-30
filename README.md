@@ -168,7 +168,7 @@ A page for combining [jobs (and macros) into macros](#jobs-and-macros), macros c
 <br clear="left"/>
 
 ## Graph
-A page for creating plots of datasources over time, new graphs can be created by selecting a datasource, a color, and a time interval to plot over. All the plots are created server side and served as an image so they can be easily saved. Clicking on the plots name or refreshing the page will update it.
+A page for creating plots of datasources over time. New graphs can be created by selecting a datasource, a color, and a time interval to plot over. All the plots are created server side and served as an image so they can be easily saved. Clicking on the plots name or refreshing the page will update it.
 
 <img align="left" height="300" src="images/pages/graph.jpg">
 <br clear="left"/>
