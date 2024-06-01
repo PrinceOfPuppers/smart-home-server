@@ -1,4 +1,4 @@
-from threading import Lock
+from threading import Lock, Thread
 
 from smart_home_server.handlers.graphs.helpers import _startGraphs, _deleteGraph, _createGraph, _getGraph, _getGraphs, \
                                                         GraphAlreadyExists, GraphDoesNotExist, DatasourceDoesNotExist, _stopGraphs
@@ -25,7 +25,7 @@ def getGraphs():
 
 def startGraphs():
     with _graphLock:
-        _startGraphs()
+        Thread(target = lambda: _startGraphs(), daemon=True).start()
         startMonitorManager()
 
 def stopGraphs():

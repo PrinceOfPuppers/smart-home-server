@@ -1,5 +1,6 @@
 import os
 import json
+from time import sleep
 from uuid import uuid4
 
 import smart_home_server.constants as const
@@ -83,7 +84,14 @@ def _createGraph(datasource:str, timeHours:int, color:str):
     _startGraphPlotting(id, numSamples, datasource, color)
 
 
+_firstLoad = True
+
 def _startGraphs():
+    global _firstLoad
+    if _firstLoad: #delay load to allow linux clock to sync
+        sleep(20)
+        _firstLoad = False
+
     graphs = _getGraphs()
     for graph in graphs:
         _startGraphPlotting(graph["id"], graph["numSamples"], graph["datasource"], graph["color"])

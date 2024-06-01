@@ -46,9 +46,8 @@ _graphRuntimesLock = Lock()
 
 
 def _addPoint(g:GraphRuntime, value):
-    now = time()
-
     with g.lock:
+        now = time()
         # circleBuff mode
         if len(g.ts) == g.maxLen:
             g.ts[g.index] = now
@@ -120,13 +119,6 @@ def formatter(z, _):
     if x.is_integer():
         return f"{x:.0f}"
     return f"{x:.1f}"
-
-    s = str(x)
-    delta = len(s) - 3
-
-    if delta > 0:
-        return s
-    #return str(round())
 
 def generateSmallFigure(id:str):
     import numpy as np
