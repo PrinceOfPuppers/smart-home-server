@@ -13,6 +13,8 @@ from smart_home_server import __version__
 from smart_home_server.errors import getErrorStrAndBool
 from smart_home_server.handlers.logs import jobLog, rfLog
 
+
+
 # return format is
 #example = {
 #    'str': f'Temprature: 123 \nHumidity: 123',
@@ -22,13 +24,6 @@ from smart_home_server.handlers.logs import jobLog, rfLog
 #    },
 #}
 
-def getErrors():
-    s, anyErr = getErrorStrAndBool()
-    res = {
-        'str': s,
-        'data': {'anyErrors' : anyErr},
-    }
-    return res
 
 def getForexLocal(src,dest, decimal=3):
     try:
@@ -257,7 +252,7 @@ def getClockLocal():
     day =  now.strftime("%a")
     res = {
         'str': f'{clock} {date}',
-        'data':{'clock': clock, 'date': date, 'day': day},
+        'data':{'time': clock, 'date': date, 'day': day},
     }
     return res
 
@@ -288,396 +283,230 @@ def getRfLog():
     }
     return res
 
-dataSources = [
-    {
-        'name': 'USD → CAD',
-        'color': 'green',
-        'url': '/api/data/forex/usd/cad',
-        'local': lambda: cached(getForexLocal, 5*60//2, src = 'usd', dest = 'cad'),
-        'pollingPeriod': 5*60,
+def getErrors():
+    s, anyErr = getErrorStrAndBool()
+    res = {
+        'str': s,
+        'data': {'anyErrs' : anyErr},
+    }
+    return res
 
-        'dashboard':{
-            'enabled':True,
-        },
 
-        'values': {
-            'usd-cad': {
-                'enabled': True,
-                'dataPath': ['data', 'rate']
-            }
-        },
-    },
+from dataclasses import dataclass, asdict, field
+from abc import abstractmethod
+from enum import Enum
 
-    {
-        'name': 'clock',
-        'local': getClockLocal,
-        'pollingPeriod': 1,
 
-        'values': {
-            'clock': {
-                'dataPath': ['data', 'clock'],
-                'enabled': True,
-            },
-            'date': {
-                'dataPath': ['data', 'date'],
-                'enabled': True,
-            },
-            'day': {
-                'dataPath': ['data', 'day'],
-                'enabled': True,
-            }
+class DatasourceColor(Enum):
+    GREEN = 'green'
+    YELLOW = 'yellow'
+    PURPLE = 'purple'
+    BLUE = 'blue'
+    RED = 'red'
+    GRAY = 'gray'
+    # TODO: ensure exaustive
+
+@dataclass 
+class DatasourceDashboard:
+    label: str # used on dashboard
+    enabled: bool = True
+    hideable: bool = False
+
+@dataclass
+class DatasourceValue:
+    dataPath: list
+    enabled: bool = True
+
+# allows properties to be read by asdict
+@dataclass
+class _Datasource:
+    url: str = field(init=False)
+    values: dict[str, DatasourceValue] = field(init=False)
+
+@dataclass(kw_only=True)
+class Datasource(_Datasource):
+    name:str # used for url and regex, must be unique
+    color:DatasourceColor
+    pollingPeriod: int
+    dashboard: DatasourceDashboard
+
+    @property
+    def url(self) -> str: # pyright: ignore
+        return f"api/data/{self.name}"
+
+    @property
+    def buttons(self) -> list:
+        return []
+
+    @property
+    def values(self) -> dict[str, DatasourceValue]: # pyright: ignore
+        return {}
+
+    @abstractmethod
+    def local(self):
+        return {}
+
+    def _value_helper(self, vals:set[str]):
+        return {
+            f"{self.name}-{val}": DatasourceValue(dataPath = ['data', val]) for val in vals
         }
 
-    },
 
-    {
-        'name': 'AQ Station',
-        'color': 'yellow',
-        'url': f'/api/data/aq',
-        'local': lambda: cached(getAirQualityServerLocal, 60//2, ip=const.airQualityServerIP),
-        'pollingPeriod': 60,
-        'dashboard':{
-            'enabled': True,
-        },
-        'values': {
-            'aq-temp': {
-                'dataPath': ['data', 'temp'],
-                'enabled': True,
-            },
-            'aq-humid': {
-                'dataPath': ['data', 'humid'],
-                'enabled': True,
-            },
-            'aq-pressure': {
-                'dataPath': ['data', 'pressure'],
-                'enabled': True,
-            },
-            'aq-iaq': {
-                'dataPath': ['data', 'iaq'],
-                'enabled': True,
-            },
-            'aq-co2Eq': {
-                'dataPath': ['data', 'co2Eq'],
-                'enabled': True,
-            },
-            'aq-voc': {
-                'dataPath': ['data', 'voc'],
-                'enabled': True,
-            },
-            'aq-pm1': {
-                'dataPath': ['data', 'pm1'],
-                'enabled': True,
-            },
-            'aq-pm2.5': {
-                'dataPath': ['data', 'pm2.5'],
-                'enabled': True,
-            },
-            'aq-pm10': {
-                'dataPath': ['data', 'pm10'],
-                'enabled': True,
-            },
-            'aq-co2': {
-                'dataPath': ['data', 'co2'],
-                'enabled': True,
-            },
+@dataclass
+class DatasourceForex(Datasource):
+    src: str
+    dest: str
+    pollingPeriod:int = 5*60
+
+    @property
+    def values(self):
+        return {
+            f"{self.name}": DatasourceValue(dataPath = ['data', 'rate'])
         }
-    },
 
-    {
-        'name': 'Indoor',
-        'color': 'blue',
-        'url': f'/api/data/temp-humid/indoor',
-        'local':
-            ( lambda: cached(getIndoorClimateBMELocal,30//2) ) if const.useBME else
-            ( lambda: cached(getWeatherServerLocal,(3*60)//2, ip=const.indoorWeatherServerIp) )
-            ,
-        'pollingPeriod': 30 if const.useBME else 3*60,
+    def local(self):
+        return cached(getForexLocal, self.pollingPeriod//2, src = self.src, dest = self.dest)
 
-        'dashboard':{
-            'enabled': True,
-        },
+@dataclass
+class DatasourceClock(Datasource):
+    pollingPeriod:int = 1
 
-        'values': {
-            'temp': {
-                'dataPath': ['data', 'temp'],
-                'enabled': True,
-            },
-            'humid': {
-                'dataPath': ['data', 'humid'],
-                'enabled': True,
-            },
-            'pressure': {
-                'dataPath': ['data', 'pressure'],
-                'enabled': True,
-            }
-        } if const.useBME else {
-            'temp': {
-                'dataPath': ['data', 'temp'],
-                'enabled': True,
-            },
-            'humid': {
-                'dataPath': ['data', 'humid'],
-                'enabled': True,
-            }
+    @property
+    def values(self):
+        return self._value_helper({'time', 'date', 'day'})
+
+    def local(self):
+        return getClockLocal()
+
+@dataclass
+class DatasourceAQ(Datasource):
+    ip:str
+    pollingPeriod:int = 60
+
+    @property
+    def values(self):
+        return self._value_helper({'temp', 'humid', 'pressure', 'iaq', 'co2Eq', 'voc', 'pm1', 'pm2.5', 'pm10', 'co2'})
+
+    def local(self):
+        return cached(getAirQualityServerLocal, self.pollingPeriod//2, ip=self.ip)
+
+@dataclass 
+class DatasourceTempHumid(Datasource):
+    ip:str
+    pollingPeriod:int = 60
+
+    @property
+    def values(self):
+        return self._value_helper({'temp', 'humid', 'pressure'})
+
+    def local(self):
+        return cached(getAirQualityServerLocal, self.pollingPeriod//2, ip=self.ip)
+
+@dataclass 
+class DatasourceWeatherImage(Datasource):
+    pollingPeriod:int = 10*60
+
+    @property
+    def values(self):
+        return {}
+
+    def local(self):
+        return cached(getWeatherImageLocal, self.pollingPeriod//2)
+
+
+@dataclass 
+class DatasourceForcast(Datasource):
+    pollingPeriod:int = 10*60
+
+    @property
+    def values(self):
+        return {
+            f'{self.name}-totalPercip': DatasourceValue(dataPath = ['data', 'days', 0, 'percip']),
+            f'{self.name}-tomorrowTemp': DatasourceValue(dataPath = ['data', 'days', 1, 'temp']),
+            f'{self.name}-tomorrowPercip': DatasourceValue(dataPath = ['data', 'days', 1, 'percip']),
         }
-    },
-    {
-        'name': 'Outdoor',
-        'color': 'purple',
-        'url': f'/api/data/temp-humid/outdoor',
-        'local': lambda: cached(getWeatherServerLocal,(60)//2, ip = const.outdoorWeatherServerIp),
-        'pollingPeriod': 60,
 
-        'dashboard':{
-            'enabled': True,
-        },
+    def local(self):
+        return cached(getForecastLocal, self.pollingPeriod//2)
 
-        'values': {
-            'outdoorTemp': {
-                'dataPath': ['data', 'temp'],
-                'enabled': True,
-            },
-            'outdoorHumid': {
-                'dataPath': ['data', 'humid'],
-                'enabled': True,
-            },
-            'outdoorPressure': {
-                'dataPath': ['data', 'pressure'],
-                'enabled': True,
-            }
-        }
-    },
-    {
-        'name': 'Printer',
-        'color': 'red',
-        'url': f'/api/data/temp-humid/printer',
-        'local': lambda: cached(getWeatherServerLocal,(60)//2, ip=const.printChamberWeatherServerIp),
-        'pollingPeriod': 60,
+@dataclass 
+class DatasourceWeatherCurrent(Datasource):
+    pollingPeriod:int = 10*60
 
-        'dashboard':{
-            'enabled': True,
-        },
+    @property
+    def values(self):
+        return self._value_helper({'text', 'temp', 'humid', "uv", 'percip3h', 'feelsLike', 'sunrise', 'sunset'})
 
-        'values': {
-            'printerTemp': {
-                'dataPath': ['data', 'temp'],
-                'enabled': True,
-            },
-            'printerHumid': {
-                'dataPath': ['data', 'humid'],
-                'enabled': True,
-            },
-            'printerPressure': {
-                'dataPath': ['data', 'pressure'],
-                'enabled': False,
-            }
-        }
-    },
-    {
-        'name': 'Office',
-        'color': 'yellow',
-        'url': f'/api/data/temp-humid/office',
-        'local': lambda: cached(getWeatherServerLocal,(60)//2, ip=const.officeChamberWeatherServerIp),
-        'pollingPeriod': 60,
+    def local(self):
+        return cached(getCurrentWeather, self.pollingPeriod//2)
 
-        'dashboard':{
-            'enabled': True,
-        },
+@dataclass 
+class DatasourceErrors(Datasource):
+    pollingPeriod:int = 15
 
-        'values': {
-            'officeTemp': {
-                'dataPath': ['data', 'temp'],
-                'enabled': True,
-            },
-            'officeHumid': {
-                'dataPath': ['data', 'humid'],
-                'enabled': True,
-            },
-            'officePressure': {
-                'dataPath': ['data', 'pressure'],
-                'enabled': False,
-            }
-        }
-    },
+    @property
+    def values(self):
+        return self._value_helper({'anyErrs'})
 
-    {
-        'name': 'Weather',
-        'color': 'blue',
-        'url': f'/api/data/weatherImage',
-        'local': lambda: cached(getWeatherImageLocal, 10*60//2),
-        'pollingPeriod': 10*60,
+    def local(self):
+        return getErrors()
 
-        'dashboard':{
-            'enabled':False,
-        },
-        'values': {
-        }
-    },
+    @property
+    def buttons(self):
+        return [{
+            'text': 'Clear',
+            'actions':[
+                {'type':'request', 'route':'api/dashboard/errors' , 'method': 'DELETE', 'data':{}},
+                {'type': 'reload'},
+             ],
+        }]
+        
+@dataclass 
+class DatasourceJobLog(Datasource):
+    pollingPeriod:int = 30*60
 
-    {
-        'name': 'Forecast',
-        'color': 'purple',
-        'url': f'/api/data/forecast',
-        'local': lambda: cached(getForecastLocal, 10*60//2),
-        'pollingPeriod': 10*60,
+    def local(self):
+        return getJobLog()
 
-        'dashboard':{
-            'enabled': True,
-            'hideable': True,
-        },
-
-        'values': {
-            'wttrTotalPercip': {
-                'enabled': True,
-                'dataPath': ['data', 'days', 0, 'percip']
-            },
-            'wttrTempTomorrow': {
-                'enabled': True,
-                'dataPath': ['data', 'days', 1, 'temp']
-            },
-            'wttrTomorrowPercip': {
-                'enabled': True,
-                'dataPath': ['data', 'days', 1, 'percip']
-            },
-        },
-    },
-
-    {
-        'name': 'Current',
-        'color': 'blue',
-        'url': f'/api/data/current-weather',
-        'local': lambda: cached(getCurrentWeather, 10*60//2),
-        'pollingPeriod': 10*60,
-
-        'dashboard':{
-            'enabled': False,
-        },
-
-        'values': {
-            'wttrText': {
-                'enabled': True,
-                'dataPath': ['data', 'text']
-            },
-            'wttrTemp': {
-                'enabled': True,
-                'dataPath': ['data', 'temp']
-            },
-            'wttrHumid': {
-                'enabled': True,
-                'dataPath': ['data', 'humid']
-            },
-            'wttrUV': {
-                'enabled': True,
-                'dataPath': ['data', 'uv']
-            },
-            'wttrPercip3h': {
-                'enabled': True,
-                'dataPath': ['data', 'percip3h']
-            },
-            'wttrFeelsLike': {
-                'enabled': True,
-                'dataPath': ['data', 'feelsLike']
-            },
-            #'wttrSunrise': {
-            #    'enabled': True,
-            #    'dataPath': ['data', 'sunrise']
-            #},
-            #'wttrSunset': {
-            #    'enabled': True,
-            #    'dataPath': ['data', 'sunset']
-            #},
-        },
-    },
-
-    {
-        'name': 'Errors',
-        'color': 'red',
-        'url': '/api/data/errors',
-        'local': getErrors,
-        'pollingPeriod': 15,
-
-        'dashboard':{
-            'enabled':True,
-            'buttons':[{
-                'text': 'Clear',
-                'actions':[
-                    {'type':'request', 'route':'api/dashboard/errors' , 'method': 'DELETE', 'data':{}},
-                    {'type': 'reload'},
-                 ],
-            }],
-        },
-
-        'values': {
-            'anyErrors': {
-                'enabled': True,
-                'dataPath': ['data', 'anyErrors']
-            },
-        },
-    },
-    {
-        'name': 'Version',
-        'color': 'gray',
-        'url': '/api/data/version',
-        'local': getServerVersion,
-        'pollingPeriod': 10*60,
-
-        'dashboard':{
-            'enabled':True,
-        },
-
-        'values': {
-            'version': {
-                'enabled': False,
-                'dataPath': ['data', 'version']
-            }
-        },
-    },
-    {
-        'name': 'Job Log',
-        'color': 'gray',
-        'url': '/api/data/job-log',
-        'local': getJobLog,
-        'pollingPeriod': 3*60,
-
-        'dashboard':{
-            'enabled':True,
-            'hideable': True,
-            'buttons':[{
+    @property
+    def buttons(self):
+        return [{
                 'text': 'Clear',
                 'actions':[
                     {'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'jobLog'}},
                     {'type': 'reload'},
                  ],
-            }],
-        },
+            }]
 
-        'values': {
-        },
-    },
-    {
-        'name': 'RF Log',
-        'color': 'gray',
-        'url': '/api/data/rf-log',
-        'local': getRfLog,
-        'pollingPeriod': 3*60,
+@dataclass 
+class DatasourceRfLog(Datasource):
+    pollingPeriod:int = 30*60
 
-        'dashboard':{
-            'enabled':True,
-            'hideable': True,
-            'buttons':[{
+    def local(self):
+        return getRfLog()
+
+    @property
+    def buttons(self):
+        return [{
                 'text': 'Clear',
                 'actions':[
                     {'type':'request', 'route':'api/dashboard/logs' , 'method': 'DELETE', 'data':{'name':'rfLog'}},
                     {'type': 'reload'},
-                ],
-            }],
-        },
+                 ],
+            }]
 
-        'values': {
-        },
-    },
+@dataclass
+class DatasourceVersion(Datasource):
+    pollingPeriod:int = 10*60
 
+    def local(self):
+        return getServerVersion()
 
+    @property
+    def values(self):
+        return self._value_helper({'version'})
+
+dataSources = [
 ]
 # add str to value
 for source in dataSources:
