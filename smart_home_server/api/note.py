@@ -4,7 +4,7 @@ from flask_expects_json import expects_json
 
 from smart_home_server.helpers import addDefault
 
-from smart_home_server.api import nameSchema, idSchema
+from smart_home_server.api.schemaTypes import nameSchema, idSchema
 from smart_home_server.handlers.notes import getNote, deleteNote, updateNote, createNote, NoteAlreadyExists, NoteDoesNotExist
 
 noteApi = Blueprint('noteApi', __name__)

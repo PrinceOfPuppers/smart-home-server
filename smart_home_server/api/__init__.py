@@ -1,8 +1,5 @@
-import smart_home_server.constants as const
-
-nameSchema = {"type": "string", "minLength": 0, "maxLength": 20, "pattern": "^[^\n\r]*$"}
-idSchema   = {"type": "string", "minLength": 0, "maxLength": 50, "pattern": "^[^\n\r]*$"}
-colorSchema = {"enum": [color for color in const.colors.keys()]}
+from smart_home_server.api.schemaTypes import nameSchema, idSchema, colorSchema
+import smart_home_server.data_sources.datasources as ds
 
 postRemoteSchema = \
 {
@@ -86,3 +83,12 @@ patchNameSchema = \
     'additionalProperties': False,
 }
 
+_dsPropReq = [d.getSchemaPropertiesRequired() for d in ds.Datasource.__subclasses__()]
+allDatasourcesSchema = [
+    {
+        "type": "object",
+        "properties": props,
+        "required": req,
+        'additionalProperties': False,
+    } for props, req in _dsPropReq
+]

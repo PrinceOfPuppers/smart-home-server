@@ -6,7 +6,8 @@ from smart_home_server.helpers import addDefault
 from smart_home_server.handlers import runJob
 from smart_home_server.handlers.presser import newRemote, deleteChannel, addChannel, renameRemote, readRemoteCode, deleteRemote, RemoteDoesNotExist, ChannelDoesNotExist
 
-from smart_home_server.api import postRemoteSchema, nameSchema, idSchema
+from smart_home_server.api import postRemoteSchema
+from smart_home_server.api.schemaTypes import nameSchema, idSchema
 
 postNewRemoteSchema = \
 {

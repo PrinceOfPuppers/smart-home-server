@@ -5,7 +5,7 @@ from flask_expects_json import expects_json
 from smart_home_server.handlers.logs import logs
 from smart_home_server.errors import clearAllErrors
 
-from smart_home_server.api import nameSchema
+from smart_home_server.api.schemaTypes import nameSchema
 
 dashboardApi = Blueprint('dashboardApi', __name__)
 

@@ -3,7 +3,7 @@ import io
 from flask import request, Blueprint, current_app, Response
 from flask_expects_json import expects_json
 
-from smart_home_server.api import idSchema, colorSchema
+from smart_home_server.api.schemaTypes import idSchema, colorSchema
 from smart_home_server.helpers import addDefault
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas

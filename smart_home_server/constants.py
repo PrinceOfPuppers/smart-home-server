@@ -66,6 +66,9 @@ createIfNotExists(lcdsFolder)
 graphsFolder = f'{storageFolder}/graphs'
 createIfNotExists(graphsFolder)
 
+datasourcesFolder = f'{storageFolder}/datasources'
+createIfNotExists(datasourcesFolder)
+
 # defaultRemoteFileA = f'{storageFolder}/remotes/A'
 # if not os.path.exists(defaultRemoteFileA):
 #     with open(defaultRemoteFileA,"w") as f:
@@ -155,6 +158,7 @@ def isRpi():
     return _isRpi
 
 requestTimeout = 5
+# TODO: add to configuration
 _city = "43.4652699,-80.5222961" # Waterloo Canada
 fullForecastUrl   = f'http://wttr.in/{_city}'
 fullforecastUrlV2 = f'http://v2d.wttr.in/{_city}'
@@ -186,8 +190,6 @@ pulseLenthTolerance = 10
 
 # max hours graphs can display
 graphMaxHours = 128
-
-useBME = False
 
 # server buttons
 buttonPins = [23,24]

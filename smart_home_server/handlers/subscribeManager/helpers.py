@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from math import ceil
 import traceback
 
-from smart_home_server.data_sources import dataSourceDict
+import smart_home_server.data_sources as dataSources
 from smart_home_server.errors import addSetError, clearErrorInSet
 
 def _dataFromDataPath(x, dataPath):
@@ -92,10 +92,10 @@ def _processUnsubs(subscribers, lastUpdates):
 
 def _publishUpdates(now: datetime, subscribers, lastUpdates, toSend):
     # update data if applicable
-    for name in dataSourceDict:
+    for name in dataSources.dataSourceDict:
         if name not in lastUpdates:
             continue
-        source = dataSourceDict[name]
+        source = dataSources.dataSourceDict[name]
         period = source['pollingPeriod']
         if now < lastUpdates[name]+timedelta(seconds=period):
             # no update
