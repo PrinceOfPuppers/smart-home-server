@@ -13,6 +13,7 @@ class DatasourceDoesNotExist(Exception):
 # TODO:
 # - 'datasource' should be renamed to datavalue
 # - graph should be dataclass with from/to json methods
+# - which graph is on monitor stored in 2 locations, the id and and the boolean flag
 
 _graphCache:dict = {}
 

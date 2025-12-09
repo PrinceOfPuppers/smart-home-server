@@ -177,6 +177,7 @@ def _putOnMonitor(id:str, save=True):
 
     with _graphRuntimesLock:
         if not id in _graphRuntimes:
+            # TODO: should probably remove graph from monitor gracefully
             raise GraphDoesNotExist()
 
         if _prevOnMonitorID is not None and _prevOnMonitorID in _graphRuntimes:
