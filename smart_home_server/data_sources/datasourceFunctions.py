@@ -45,12 +45,12 @@ def getForexLocal(src,dest, decimal=3):
     }
     return res
 
-def getForecastLocal():
+def getForecastLocal(locale: str):
     # prevent spamming wttrin while testing
     if not const.isRpi():
         return None
 
-    r = requests.get(const.wttrApiUrl, timeout=const.requestTimeout)
+    r = requests.get(const.wttrApiUrl(locale), timeout=const.requestTimeout)
 
     # calculate marked bar (denotes the current time)
     n = datetime.now()
@@ -141,12 +141,12 @@ def getForecastLocal():
     return res
 
 
-def getCurrentWeather():
+def getCurrentWeather(locale: str):
     # prevent spamming wttrin while testing
     if not const.isRpi():
         return None
 
-    r = requests.get(const.wttrCurrentData, timeout=const.requestTimeout)
+    r = requests.get(const.wttrCurrentData(locale), timeout=const.requestTimeout)
     if not r.ok:
         return None
 
@@ -177,8 +177,8 @@ def getCurrentWeather():
     }
     return res
 
-def getWeatherImageLocal():
-    r = requests.get(const.weatherUrl, timeout=const.requestTimeout)
+def getWeatherImageLocal(locale: str):
+    r = requests.get(const.weatherUrl(locale), timeout=const.requestTimeout)
     if not r.ok:
         return None
 

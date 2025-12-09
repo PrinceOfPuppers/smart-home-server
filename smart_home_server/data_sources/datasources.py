@@ -1,7 +1,7 @@
 from dacite import from_dict
 from dataclasses import dataclass, MISSING, fields, field
 
-from smart_home_server.api.schemaTypes import nameSchema, ipv4Schema, colorSchema
+from smart_home_server.api.schemaTypes import nameSchema, ipv4Schema, colorSchema, urlSafeSchema
 import smart_home_server.constants as const
 
 from smart_home_server.data_sources.caching import cached
@@ -190,18 +190,34 @@ class DatasourceTempHumid(Datasource):
 @dataclass(kw_only=True)
 class DatasourceWeatherImage(Datasource):
     pollingPeriod:int = 10*60
+    locale: str
+
+    @classmethod
+    def getSchemaPropertiesRequired(cls):
+        baseProp, baseReq = Datasource.getSchemaPropertiesRequired()
+        baseProp["locale"] = urlSafeSchema
+        baseReq.append("locale")
+        return baseProp, baseReq
 
     @property
     def values(self):
         return {}
 
     def local(self):
-        return cached(dsf.getWeatherImageLocal, self.pollingPeriod//2)
+        return cached(dsf.getWeatherImageLocal, self.pollingPeriod//2, locale=self.locale)
 
 
 @dataclass(kw_only=True)
 class DatasourceForcast(Datasource):
     pollingPeriod:int = 10*60
+    locale: str
+
+    @classmethod
+    def getSchemaPropertiesRequired(cls):
+        baseProp, baseReq = Datasource.getSchemaPropertiesRequired()
+        baseProp["locale"] = urlSafeSchema
+        baseReq.append("locale")
+        return baseProp, baseReq
 
     @property
     def values(self):
@@ -212,18 +228,26 @@ class DatasourceForcast(Datasource):
         }
 
     def local(self):
-        return cached(dsf.getForecastLocal, self.pollingPeriod//2)
+        return cached(dsf.getForecastLocal, self.pollingPeriod//2, locale = self.locale)
 
 @dataclass(kw_only=True)
 class DatasourceWeatherCurrent(Datasource):
     pollingPeriod:int = 10*60
+    locale:str
+
+    @classmethod
+    def getSchemaPropertiesRequired(cls):
+        baseProp, baseReq = Datasource.getSchemaPropertiesRequired()
+        baseProp["locale"] = urlSafeSchema
+        baseReq.append("locale")
+        return baseProp, baseReq
 
     @property
     def values(self):
         return self._value_helper({'text', 'temp', 'humid', "uv", 'percip3h', 'feelsLike', 'sunrise', 'sunset'})
 
     def local(self):
-        return cached(dsf.getCurrentWeather, self.pollingPeriod//2)
+        return cached(dsf.getCurrentWeather, self.pollingPeriod//2, locale = self.locale)
 
 @dataclass(kw_only=True)
 class DatasourceErrors(Datasource):
