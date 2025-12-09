@@ -14,6 +14,7 @@ from smart_home_server.handlers.macros import getMacros
 from smart_home_server.handlers import getDelays
 
 from smart_home_server import InterruptTriggered
+from dataclasses import asdict
 
 from smart_home_server.api.schedule import scheduleApi, timeUnits
 from smart_home_server.api.remote import remoteApi
@@ -24,10 +25,10 @@ from smart_home_server.api.note import noteApi
 from smart_home_server.api.macro import macroApi
 from smart_home_server.api.graph import graphApi
 from smart_home_server.api.lcd import lcdApi
-from smart_home_server.data_sources import dataSources, dataSourceValues
+import smart_home_server.data_sources.datasourceInterface as dsi
 import smart_home_server.constants as const
 
-values = list(dataSourceValues)
+values = list(dsi.datavalues.keys())
 values.sort()
 
 app = Flask(__name__)
@@ -71,17 +72,9 @@ def scheduleGet():
 @app.route('/dashboard')
 def dashboardGet():
     elements=[]
-    for source in dataSources:
-        if 'dashboard' in source and source['dashboard']['enabled']:
-            elements.append(
-                {
-                    'url': source['url'],
-                    'pollingPeriod': source['pollingPeriod'],
-                    'color': source['color'],
-                    'name': source['name'],
-                    'dashboard': source['dashboard']
-                 }
-            )
+    for source in dsi.datasourceList:
+        if source.dashboard.enabled:
+            elements.append(source.toJson())
     return render_template('dashboard.html', dashboardElements=elements)
 
 @app.route('/trigger')

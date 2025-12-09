@@ -1,5 +1,5 @@
 from dacite import from_dict
-from dataclasses import dataclass, MISSING, fields, field
+from dataclasses import dataclass, MISSING, fields, field, asdict
 
 from smart_home_server.api.schemaTypes import nameSchema, ipv4Schema, colorSchema, urlSafeSchema
 import smart_home_server.constants as const
@@ -17,6 +17,7 @@ class InvalidDatasource(Exception):
 @dataclass(kw_only=True)
 class DatasourceDashboard:
     label: str
+    color:str
     enabled: bool = True
     hideable: bool = False
 
@@ -24,11 +25,13 @@ class DatasourceDashboard:
     def getSchemaPropertiesRequired():
         return {
             "label": nameSchema,
+            "color": colorSchema,
             "enabled": { "type": "boolean" },
             "hideable": { "type": "boolean" }
-        }, ["label"]
+        }, ["label", "color"]
 
 # allows properties to be read by asdict
+# this determines which properties will be sent to frontend
 @dataclass
 class _Datasource:
     url: str = field(init=False)
@@ -39,7 +42,6 @@ class _Datasource:
 @dataclass(kw_only=True)
 class Datasource(_Datasource):
     name:str # used for url and regex, must be unique
-    color:str
     pollingPeriod: int = 60 # should be overriden by subclass, default is here to comply with schema
     dashboard:DatasourceDashboard
 
@@ -52,7 +54,6 @@ class Datasource(_Datasource):
         props, req = DatasourceDashboard.getSchemaPropertiesRequired()
         return {
             "name": nameSchema,
-            "color": colorSchema,
             "pollingPeriod": { "type": "integer", "minimum": 1, "maximum": 10*60*60 }, # max is just for sanity
             "datasourceType": { "const": cls.__qualname__ },
             "dashboard": {
@@ -61,7 +62,7 @@ class Datasource(_Datasource):
                 "required": req,
                 'additionalProperties': False,
             }
-        }, ["name", "color", "dashboard", "datasourceType"]
+        }, ["name", "dashboard", "datasourceType"]
 
     @property
     def datasourceType(self) -> str: #pyright: ignore
@@ -93,13 +94,19 @@ class Datasource(_Datasource):
         if 'datasourceType' not in j:
             raise UnknownDatasource("Missing datasourceType")
         jcopy = j.copy()
-        jcopy.pop('datasourceType')
+
+        # remove properties
+        for f in fields(_Datasource):
+            jcopy.pop(f.name)
+
         ds = from_dict(Datasource.getClass(j['datasourceType']), jcopy)
-        if ds.color not in const.colors:
-            raise InvalidDatasource(f"{ds.color} not in {[k for k in const.colors.keys()]}")
+        if ds.dashboard.color not in const.colors:
+            raise InvalidDatasource(f"{ds.dashboard.color} not in {[k for k in const.colors.keys()]}")
 
         return ds
 
+    def toJson(self) -> dict:
+        return asdict(self)
 
     @property
     def values(self) -> dict[str, list]: # pyright: ignore

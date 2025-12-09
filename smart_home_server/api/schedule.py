@@ -1,12 +1,11 @@
 import json
 from flask import jsonify, request, Blueprint, current_app
 from flask_expects_json import expects_json
-import copy
 
 from smart_home_server.handlers.scheduler import addJob, removeJob, getJobs, enableDisableJob, updateJobName, getJob, JobDoesNotExist
 from smart_home_server.helpers import getAtTime, addDefault
 
-from smart_home_server.api import allJobsSchema, patchNameSchema
+from smart_home_server.api.schemas import allJobsSchema, patchNameSchema
 from smart_home_server.api.schemaTypes import nameSchema, idSchema
 from smart_home_server.handlers import validateJob
 

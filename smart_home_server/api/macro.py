@@ -2,7 +2,7 @@ import json
 from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 
-from smart_home_server.api import allJobsSchema, patchNameSchema
+from smart_home_server.api.schemas import allJobsSchema, patchNameSchema
 from smart_home_server.api.schemaTypes import nameSchema, idSchema
 from smart_home_server.handlers import validateDo, runMacro, cancelSkipDelay
 from smart_home_server.helpers import addDefault

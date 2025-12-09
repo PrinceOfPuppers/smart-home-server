@@ -2,7 +2,8 @@ from queue import Queue,Empty
 from threading import Thread
 from datetime import datetime
 
-import smart_home_server.data_sources as dataSources
+import smart_home_server.data_sources.datasourceInterface as dsi
+
 from smart_home_server.handlers.subscribeManager.helpers import _processUnsubs, _publishUpdates, Subscriber, _processSub
 import smart_home_server.constants as const
 
@@ -80,7 +81,7 @@ def startSubscribeManager():
 
 def subscribe(values:list, cb, cbUnsub, cbError):
     global _subManagerJobQueue
-    values = {value for value in values if value in dataSources.dataSourceValues}
-    sourcesDict = dataSources.getSourceDict(values)
-    _subManagerJobQueue.put(Subscriber(sourcesDict, values, cb, cbUnsub, cbError))
+    valueSet = {value for value in values if value in dsi.datavalues}
+    sourcesDict = dsi.getSourceDict(valueSet)
+    _subManagerJobQueue.put(Subscriber(sourcesDict, valueSet, cb, cbUnsub, cbError))
 

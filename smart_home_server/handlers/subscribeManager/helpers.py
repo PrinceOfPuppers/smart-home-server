@@ -1,12 +1,12 @@
 import smart_home_server.constants as const
 from datetime import datetime, timedelta
-from queue import Queue, Empty
+from queue import Empty
 from typing import Callable
 from dataclasses import dataclass
-from math import ceil
 import traceback
 
-import smart_home_server.data_sources as dataSources
+import smart_home_server.data_sources.datasourceInterface as dsi
+
 from smart_home_server.errors import addSetError, clearErrorInSet
 
 def _dataFromDataPath(x, dataPath):
@@ -37,8 +37,8 @@ def _updateToSend(source, toSend):
 
 @dataclass
 class Subscriber:
-    # name: source where source is formatted as per dataSources
-    sourcesDict: dict
+    # name: source where source is formatted as per datasources
+    sourcesDict: dict#[str, dst.Datasource]
     values: set
     cb: Callable
     cbUnsub: Callable
@@ -92,11 +92,11 @@ def _processUnsubs(subscribers, lastUpdates):
 
 def _publishUpdates(now: datetime, subscribers, lastUpdates, toSend):
     # update data if applicable
-    for name in dataSources.dataSourceDict:
+    for name in dsi.datasourceDict:
         if name not in lastUpdates:
             continue
-        source = dataSources.dataSourceDict[name]
-        period = source['pollingPeriod']
+        source = dsi.datasourceDict[name]
+        period = source.pollingPeriod
         if now < lastUpdates[name]+timedelta(seconds=period):
             # no update
             continue
@@ -108,12 +108,12 @@ def _publishUpdates(now: datetime, subscribers, lastUpdates, toSend):
         except Exception as e:
             print(f'SubLoop _updateToSend Error: \n{repr(e)}')
             print(f"Trace:\n{traceback.format_exc()}")
-            addSetError("Subscribe Mgr Err", source['name'])
+            addSetError("Subscribe Mgr Err", source.name)
             for sub in subscribers:
                 if name in sub.sourcesDict:
                     sub.cbError(e)
         else:
-            clearErrorInSet("Subscribe Mgr Err", source['name'])
+            clearErrorInSet("Subscribe Mgr Err", source.name)
 
     # publish updates
     for sub in subscribers:
