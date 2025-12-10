@@ -55,13 +55,13 @@ class Datasource(_Datasource):
         return {
             "name": nameSchema,
             "pollingPeriod": { "type": "integer", "minimum": 1, "maximum": 10*60*60 }, # max is just for sanity
-            "datasourceType": { "const": cls.__qualname__ },
             "dashboard": {
                 "type": "object",
                 "properties": props,
                 "required": req,
                 'additionalProperties': False,
-            }
+            },
+            "datasourceType": { "const": cls.__qualname__ },
         }, ["name", "dashboard", "datasourceType"]
 
     @property
@@ -73,11 +73,18 @@ class Datasource(_Datasource):
         return []
 
     @staticmethod
-    def getClass(datasourceType:str) -> type:
+    def getClass(datasourceType:str) -> type['Datasource']:
         for sc in Datasource.__subclasses__():
             if sc.__qualname__ == datasourceType:
                 return sc
         raise UnknownDatasource()
+
+    @staticmethod
+    def getSubclasses() -> list[type['Datasource']]:
+        res = []
+        for sc in Datasource.__subclasses__():
+            res.append(sc)
+        return res
 
     @classmethod
     def getDefaults(cls):
@@ -129,7 +136,7 @@ class DatasourceForex(Datasource):
 
     @classmethod
     def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = Datasource.getSchemaPropertiesRequired()
+        baseProp, baseReq = super(DatasourceForex, cls).getSchemaPropertiesRequired()
         baseProp["src"] = {"type": "string", "minLength": 0, "maxLength": 3, "pattern": "^[A-Z]{3}$"}
         baseProp["dest"] = {"type": "string", "minLength": 0, "maxLength": 3, "pattern": "^[A-Z]{3}$"}
         baseReq.append("src")
@@ -163,7 +170,7 @@ class DatasourceAQ(Datasource):
 
     @classmethod
     def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = Datasource.getSchemaPropertiesRequired()
+        baseProp, baseReq = super(DatasourceAQ, cls).getSchemaPropertiesRequired()
         baseProp["ip"] = ipv4Schema
         baseReq.append("ip")
         return baseProp, baseReq
@@ -182,7 +189,7 @@ class DatasourceTempHumid(Datasource):
 
     @classmethod
     def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = Datasource.getSchemaPropertiesRequired()
+        baseProp, baseReq = super(DatasourceTempHumid, cls).getSchemaPropertiesRequired()
         baseProp["ip"] = ipv4Schema
         baseReq.append("ip")
         return baseProp, baseReq
@@ -201,7 +208,7 @@ class DatasourceWeatherImage(Datasource):
 
     @classmethod
     def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = Datasource.getSchemaPropertiesRequired()
+        baseProp, baseReq = super(DatasourceWeatherImage, cls).getSchemaPropertiesRequired()
         baseProp["locale"] = urlSafeSchema
         baseReq.append("locale")
         return baseProp, baseReq
@@ -221,7 +228,7 @@ class DatasourceForcast(Datasource):
 
     @classmethod
     def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = Datasource.getSchemaPropertiesRequired()
+        baseProp, baseReq = super(DatasourceForcast, cls).getSchemaPropertiesRequired()
         baseProp["locale"] = urlSafeSchema
         baseReq.append("locale")
         return baseProp, baseReq
@@ -244,7 +251,7 @@ class DatasourceWeatherCurrent(Datasource):
 
     @classmethod
     def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = Datasource.getSchemaPropertiesRequired()
+        baseProp, baseReq = super(DatasourceWeatherCurrent, cls).getSchemaPropertiesRequired()
         baseProp["locale"] = urlSafeSchema
         baseReq.append("locale")
         return baseProp, baseReq

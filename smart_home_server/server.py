@@ -26,6 +26,7 @@ from smart_home_server.api.macro import macroApi
 from smart_home_server.api.graph import graphApi
 from smart_home_server.api.lcd import lcdApi
 import smart_home_server.data_sources.datasourceInterface as dsi
+import smart_home_server.data_sources.datasourceTypes as dst
 import smart_home_server.constants as const
 
 values = list(dsi.datavalues.keys())
@@ -113,6 +114,13 @@ def graphsGet():
     idOnMonitor = getOnMonitor()
     return render_template('graphs.html', loadTime=round(time()), graphs=graphs, values=values, colors=["blue", "green", "orange", "red", "yellow", "purple", "grey", "white"], idOnMonitor=idOnMonitor)
 
+@app.route('/datasources')
+def datasourcesGet():
+    datasources = []
+    datasourceSchemas = [dstype.getSchemaPropertiesRequired() for dstype in dst.Datasource.getSubclasses()]
+    for source in dsi.datasourceList:
+        datasources.append(source.toJson())
+    return render_template('datasources.html', datasources=datasources, datasourceSchemas=datasourceSchemas)
 
 def startServer():
     global app

@@ -232,6 +232,14 @@ textarea {
     float:left;
     padding:3pt;
 }
+.formBoxDiv {
+    width: fit-content;
+    /*border: 2pt solid var(--lightGrey);*/
+    background-color: var(--darkGrey);
+    padding:5pt;
+    border-radius: 4px;
+}
+
 .job, .macro{
     width: fit-content;
     border: 2pt solid var(--lightGrey);
@@ -263,7 +271,7 @@ textarea {
 .macroItems {
     display: none;
 }
-#jobForm, #newMacroForm, #addToMacroForm, #newRemoteForm, #editRemoteForm{
+#jobForm, #newMacroForm, #addToMacroForm, #newRemoteForm, #editRemoteForm, #datasourceForm {
     width: fit-content;
     border: 2pt solid var(--lightGrey);
     background-color: var(--grey);

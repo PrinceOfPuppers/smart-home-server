@@ -1,4 +1,56 @@
 
+{% macro schemaToForm(schema, required, idPrefix, skipKeys) %}
+    {% for key in schema %}
+        {% if key not in skipKeys %}
+            <div id="{{ idPrefix }}Div"  class="formDiv">
+
+
+            {% set variable = schema[key] %}
+
+            {% if "enum" in variable %}
+                <label for="{{ idPrefix }}{{ key }}" id="{{ idPrefix }}{{ key }}Label">{{ key }}:</label>
+                <select id="{{ idPrefix }}{{ key }}" name="{{ idPrefix }}{{ key }}">
+                    {% for color in variable.enum %}
+                        <option value="{{ color }}">{{ color }}</option>
+                    {% endfor %}
+                </select>
+
+            {% elif variable.type == "object" %}
+                <div id="{{ idPrefix }}Div", class="formBoxDiv">
+                    {{ key }}:
+                    <div id="{{ idPrefix }}Br" class="clear"></div>
+                    {{ schemaToForm(variable.properties, variable.required, idPrefix+key, []) }}
+                </div>
+
+            {% elif variable.type in ["integer", "string", "boolean"] %}
+                    <label for="{{ idPrefix }}{{ key }}" id="{{ idPrefix }}{{ key }}Label">{{ key }}:</label>
+                    <input
+                        id="{{ idPrefix }}{{ key }}"
+                        name="{{ idPrefix }}{{ key }}"
+                        {% if variable.type == "integer" %}
+                                type="number"
+                                size="8"
+                                {% if variable.minimum is defined %}min="{{ variable.minimum }}"{% endif %}
+                                {% if variable.maximum is defined %}max="{{ variable.maximum }}"{% endif %}
+                        {% elif variable.type == "string" %}
+                                type="text"
+                                {% if variable.minLength is defined %}minLength="{{ variable.minLength }}"{% endif %}
+                                {% if variable.maxLength is defined %}maxLength="{{ variable.maxLength }}"{% endif %}
+                        {% elif variable.type == "boolean" %}
+                                type="checkbox"
+                                value="true"
+                                checked="true"
+                        {% endif %}
+                    {{ "required" if key in required else ""}}/>
+            {% endif %}
+
+
+        </div>
+        <div id="{{ idPrefix }}Br" class="clear"></div>
+        {% endif %} <!-- key not in skipKeys -->
+    {% endfor %}
+{% endmacro %}
+
 {% macro jobFormDo(remotes, macros, lcds, includeDelay=False) %}
     <section id="jobFormHideUnhide">
         <div class="formDiv">
@@ -82,6 +134,7 @@
             <input type="checkbox" id="lcdNameEdit" name="lcdNameEdit" value="true" checked="true">
         </div>
 
+        <div id="lcdBr" class="clear"></div>
 
         <div id="lcdDiv" class="formDiv">
             <label for="lcdFmt" id="lcdFmtLabel">Format:</label>
@@ -232,11 +285,12 @@
         ("/trigger", "Trigger"),
         ("/macros", "Macro"),
         ("/graphs", "Graph"),
+        ("/datasources", "Datasources"),
     ] %}
     <div class="topnav">
         {% for tab in tabs %}
         {% set active = 'class=active' if activeTab == tab[1] else "" %}
         <a {{ active }} href="{{ tab[0] }}">{{ tab[1] }}</a>
         {% endfor %}
-    </div> 
+    </div>
 {% endmacro %}

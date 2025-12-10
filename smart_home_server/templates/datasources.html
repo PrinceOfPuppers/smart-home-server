@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href = "style.css"></link>
+<script type="text/javascript" src="funcs.js"></script>
+
+{% import 'jinjaMacros.html' as m %}
+
+<html>
+<script>
+    function hideUnhideDatasourceForms(dropDown){
+        // iterate over options in the drop down
+        Array.from(dropDown.options).forEach((dropDownOption) => {
+            // get all elements which match that option
+            const form = document.getElementById("datasourceFormHideUnhide");
+            const optionElements = form.querySelectorAll(`[id^='${dropDownOption.value}']`);
+
+            // see if they match the current value
+            if (dropDown.value === dropDownOption.value) {
+                // if so, display them
+                optionElements.forEach((element) => {element.style.display = "block"});
+            } else {
+                // else hide them
+                optionElements.forEach((element) => {element.style.display = "none"});
+            }
+        })
+    }
+
+    window.onload = () => {
+        hideUnhideDatasourceForms(document.querySelector('#datasourceType'));
+        document.querySelector('#datasourceType').addEventListener("change", function(dropDown) {hideUnhideDatasourceForms(dropDown.target)});
+    }
+
+</script>
+
+<body>
+    {{ m.topnav("Datasources") }}
+
+    <h3>New Datasource:</h3>
+    <form id="datasourceForm">
+        <section>
+            <div class="formDiv">
+                <label for="datasourceType">type:</label>
+                <select id="datasourceType" name="datasourceType" required>
+                    {% for dss in datasourceSchemas %}
+                        {% set schema = dss[0] %}
+                        {% set datasourceType = schema.datasourceType.const %}
+                        <option value="{{ datasourceType }}">{{ datasourceType | replace("Datasource", "", 1) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </section>
+        <section id="datasourceFormHideUnhide">
+            {% for dss in datasourceSchemas %}
+                {% set schema = dss[0] %}
+                {% set required = dss[1] %}
+                {% set datasourceType = schema.datasourceType.const %}
+
+                {{ m.schemaToForm(schema, required, datasourceType, []) }}
+            {% endfor %}
+        </section>
+
+
+        <br style="clear:both;" />
+
+    </form>
+
+  </body>
+</html>

@@ -106,7 +106,7 @@
         </div>
         {% for element in dashboardElements %}
             {% set name          = element['name'] %}
-            {% set color         = element['color'] %}
+            {% set color         = element['dashboard']['color'] %}
             {% set url           = element['url'] %}
             {% set dashboard     = element['dashboard'] %}
             <div>
@@ -151,5 +151,6 @@
 
             </div>
         {% endfor %}
+    </div>
   </body>
 </html>
