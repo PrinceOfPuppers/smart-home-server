@@ -7,27 +7,44 @@
 
 <html>
 <script>
-    function hideUnhideDatasourceForms(dropDown){
-        // iterate over options in the drop down
-        Array.from(dropDown.options).forEach((dropDownOption) => {
-            // get all elements which match that option
-            const form = document.getElementById("datasourceFormHideUnhide");
-            const optionElements = form.querySelectorAll(`[id^='${dropDownOption.value}']`);
+    function submitdatasourceHandler(event){
+        event.preventDefault();
+        let form = event.currentTarget;
+        // Format
+        // data = {"dataType": T, "T.x": ... , "T.some.data": ... , "T.some.otherdata": ...}
+        var data = formToObject(form);
 
-            // see if they match the current value
-            if (dropDown.value === dropDownOption.value) {
-                // if so, display them
-                optionElements.forEach((element) => {element.style.display = "block"});
-            } else {
-                // else hide them
-                optionElements.forEach((element) => {element.style.display = "none"});
+        toSubmit = {};
+        dsType = data.datasourceType;
+
+        Object.entries(data).forEach(([keyChain, value]) => {
+            // Format
+            // keys = ["T", "some", "data"]
+            keys = keyChain.split('.')
+
+            if(keys[0] == dsType && keys[0] != "datasourceType"){
+                // we iterate over keys and create a property path to store our value
+                // we keep track of the final container that will contain our value
+                container = toSubmit
+
+                keys.slice(1, -1).forEach((key => {
+                    if(!Object.hasOwn(container, key)){
+                        container[key] = {}
+                    }
+                    container = container[key]
+                }))
+
+                container[keys.at(-1)] = value;
             }
         })
+        // TODO: submit the final result
+        console.log(toSubmit);
     }
 
     window.onload = () => {
-        hideUnhideDatasourceForms(document.querySelector('#datasourceType'));
-        document.querySelector('#datasourceType').addEventListener("change", function(dropDown) {hideUnhideDatasourceForms(dropDown.target)});
+        document.getElementById('datasourceForm').addEventListener('submit', submitdatasourceHandler);
+
+        setupHideUnhideForm('datasourceType', 'datasourceFormHideUnhide')
     }
 
 </script>
@@ -55,8 +72,14 @@
                 {% set required = dss[1] %}
                 {% set datasourceType = schema.datasourceType.const %}
 
-                {{ m.schemaToForm(schema, required, datasourceType, []) }}
+                {{ m.schemaToForm(schema, datasourceType, []) }}
             {% endfor %}
+        </section>
+
+        <section>
+            <div class="formDiv">
+                <button type="submit" class="greenButton">Create Datasource</button>
+            </div>
         </section>
 
 

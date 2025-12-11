@@ -96,8 +96,7 @@
         hideUnhideAtTimes(document.querySelector('#unit'));
         document.querySelector('#unit').addEventListener("change", function(dropDown) {hideUnhideAtTimes(dropDown.target)});
 
-        hideUnhideJobForms(document.querySelector('#do'));
-        document.querySelector('#do').addEventListener("change", function(dropDown) {hideUnhideJobForms(dropDown.target)});
+        setupHideUnhideForm("do", "jobFormHideUnhide")
 
         hideUnhideEvery(document.querySelector('#unit'));
         document.querySelector('#unit').addEventListener("change", function(dropDown) {hideUnhideEvery(dropDown.target)});

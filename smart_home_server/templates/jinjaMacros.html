@@ -1,5 +1,5 @@
 
-{% macro schemaToForm(schema, required, idPrefix, skipKeys) %}
+{% macro schemaToForm(schema, idPrefix, skipKeys) %}
     {% for key in schema %}
         {% if key not in skipKeys %}
             <div id="{{ idPrefix }}Div"  class="formDiv">
@@ -8,8 +8,8 @@
             {% set variable = schema[key] %}
 
             {% if "enum" in variable %}
-                <label for="{{ idPrefix }}{{ key }}" id="{{ idPrefix }}{{ key }}Label">{{ key }}:</label>
-                <select id="{{ idPrefix }}{{ key }}" name="{{ idPrefix }}{{ key }}">
+                <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ key }}:</label>
+                <select id="{{ idPrefix }}.{{ key }}" name="{{ idPrefix }}.{{ key }}">
                     {% for color in variable.enum %}
                         <option value="{{ color }}">{{ color }}</option>
                     {% endfor %}
@@ -19,14 +19,14 @@
                 <div id="{{ idPrefix }}Div", class="formBoxDiv">
                     {{ key }}:
                     <div id="{{ idPrefix }}Br" class="clear"></div>
-                    {{ schemaToForm(variable.properties, variable.required, idPrefix+key, []) }}
+                    {{ schemaToForm(variable.properties, idPrefix+"."+key, []) }}
                 </div>
 
             {% elif variable.type in ["integer", "string", "boolean"] %}
-                    <label for="{{ idPrefix }}{{ key }}" id="{{ idPrefix }}{{ key }}Label">{{ key }}:</label>
+                    <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ key }}:</label>
                     <input
-                        id="{{ idPrefix }}{{ key }}"
-                        name="{{ idPrefix }}{{ key }}"
+                        id="{{ idPrefix }}.{{ key }}"
+                        name="{{ idPrefix }}.{{ key }}"
                         {% if variable.type == "integer" %}
                                 type="number"
                                 size="8"
@@ -41,7 +41,7 @@
                                 value="true"
                                 checked="true"
                         {% endif %}
-                    {{ "required" if key in required else ""}}/>
+                    />
             {% endif %}
 
 

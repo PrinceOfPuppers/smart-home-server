@@ -133,24 +133,6 @@ function tempChangeButton(element, newText, time=1){
     });
 }
 
-function hideUnhideJobForms(dropDown){
-    // iterate over options in the drop down
-    Array.from(dropDown.options).forEach((dropDownOption) => {
-        // get all elements which match that option
-        const form = document.getElementById("jobFormHideUnhide");
-        const optionElements = form.querySelectorAll(`[id^='${dropDownOption.value}']`);
-
-        // see if they match the current value
-        if (dropDown.value === dropDownOption.value) {
-            // if so, display them
-            optionElements.forEach((element) => {element.style.display = "block"});
-        } else {
-            // else hide them
-            optionElements.forEach((element) => {element.style.display = "none"});
-        }
-    })
-}
-
 function toggleDropDown(buttonId, elementId){
     const button = document.getElementById(buttonId);
     const element = document.getElementById(elementId);
@@ -187,4 +169,28 @@ function setupSelectButtonResize(){
             sel.addEventListener("change", (e) => {resizeSelectButton(e.target)}); // resize on change
         }
     );
+}
+
+function setupHideUnhideForm(dropDownId, hideUnhideSectionId){
+    let ddid = "#" + dropDownId;
+    hideUnhideForm(document.querySelector(ddid), hideUnhideSectionId);
+    document.querySelector(ddid).addEventListener("change", function(dropDown) {hideUnhideForm(dropDown.target, hideUnhideSectionId)});
+}
+
+function hideUnhideForm(dropDown, hideUnhideSectionId){
+    // iterate over options in the drop down
+    Array.from(dropDown.options).forEach((dropDownOption) => {
+        // get all elements which match that option
+        const form = document.getElementById(hideUnhideSectionId);
+        const optionElements = form.querySelectorAll(`[id^='${dropDownOption.value}']`);
+
+        // see if they match the current value
+        if (dropDown.value === dropDownOption.value) {
+            // if so, display them
+            optionElements.forEach((element) => {element.style.display = "block"});
+        } else {
+            // else hide them
+            optionElements.forEach((element) => {element.style.display = "none"});
+        }
+    })
 }
