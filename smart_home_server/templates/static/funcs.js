@@ -47,13 +47,33 @@ async function getData(url, data=null, httpMethod='GET'){
 }
 
 function formToObject(form){
-    let formData = new FormData(form)
+    var res = {}
+    const elements = form.querySelectorAll('[name]');
+    elements.forEach( element => {
+        const name = element.name;
+        let value = element.value;
 
-    var object = {};
-    formData.forEach(function(value, key){
-        object[key] = value;
-    });
-    return object
+        switch (element.type) {
+          case 'number':
+            value = value === '' ? null : Number(value);
+            break;
+
+          case 'checkbox':
+            value = element.checked;
+            break;
+
+          case 'radio':
+            if (!element.checked) return; // only store the checked one
+            break;
+
+          case 'date':
+            value = value ? new Date(value) : null;
+            break;
+        }
+        res[name] = value
+
+    })
+    return res
 }
 
 

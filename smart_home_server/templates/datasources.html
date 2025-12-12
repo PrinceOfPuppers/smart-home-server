@@ -14,7 +14,7 @@
         // data = {"dataType": T, "T.x": ... , "T.some.data": ... , "T.some.otherdata": ...}
         var data = formToObject(form);
 
-        toSubmit = {};
+        toSubmit = {"datasourceType": data.datasourceType};
         dsType = data.datasourceType;
 
         Object.entries(data).forEach(([keyChain, value]) => {
@@ -37,8 +37,8 @@
                 container[keys.at(-1)] = value;
             }
         })
-        // TODO: submit the final result
-        console.log(toSubmit);
+
+        sendData('api/datasource', {"datasource": toSubmit}, 'POST', reload=true);
     }
 
     window.onload = () => {

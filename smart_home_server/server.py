@@ -25,6 +25,7 @@ from smart_home_server.api.note import noteApi
 from smart_home_server.api.macro import macroApi
 from smart_home_server.api.graph import graphApi
 from smart_home_server.api.lcd import lcdApi
+from smart_home_server.api.datasource import datasourceApi
 import smart_home_server.data_sources.datasourceInterface as dsi
 import smart_home_server.data_sources.datasourceTypes as dst
 import smart_home_server.constants as const
@@ -42,6 +43,7 @@ app.register_blueprint(noteApi)
 app.register_blueprint(macroApi)
 app.register_blueprint(lcdApi)
 app.register_blueprint(graphApi)
+app.register_blueprint(datasourceApi)
 app.jinja_env.add_extension('jinja2.ext.do')
 
 @app.route('/')

@@ -1,7 +1,7 @@
 from dacite import from_dict
 from dataclasses import dataclass, MISSING, fields, field, asdict
 
-from smart_home_server.api.schemaTypes import nameSchema, ipv4Schema, colorSchema, urlSafeSchema
+from smart_home_server.api.schemaTypes import nameSchema, ipv4Schema, colorSchema, urlSafeSchema, currencyCodeSchema
 import smart_home_server.constants as const
 
 from smart_home_server.data_sources.caching import cached
@@ -104,9 +104,12 @@ class Datasource(_Datasource):
 
         # remove properties
         for f in fields(_Datasource):
-            jcopy.pop(f.name)
+            if f.name in jcopy:
+                jcopy.pop(f.name)
 
         ds = from_dict(Datasource.getClass(j['datasourceType']), jcopy)
+        # TODO: this check is redundant given the schema. Also there should be a static method that 
+        # each subclasses can implement to validate/sanitize data
         if ds.dashboard.color not in const.colors:
             raise InvalidDatasource(f"{ds.dashboard.color} not in {[k for k in const.colors.keys()]}")
 
@@ -137,8 +140,8 @@ class DatasourceForex(Datasource):
     @classmethod
     def getSchemaPropertiesRequired(cls):
         baseProp, baseReq = super(DatasourceForex, cls).getSchemaPropertiesRequired()
-        baseProp["src"] = {"type": "string", "minLength": 0, "maxLength": 3, "pattern": "^[A-Z]{3}$"}
-        baseProp["dest"] = {"type": "string", "minLength": 0, "maxLength": 3, "pattern": "^[A-Z]{3}$"}
+        baseProp["src"] = currencyCodeSchema
+        baseProp["dest"] = currencyCodeSchema
         baseReq.append("src")
         baseReq.append("dest")
         return baseProp, baseReq
