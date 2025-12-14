@@ -83,13 +83,5 @@ patchNameSchema = \
     'additionalProperties': False,
 }
 
-_dsPropReq = [d.getSchemaPropertiesRequired() for d in dst.Datasource.__subclasses__()]
-allDatasourcesSchema = [
-    {
-        "type": "object",
-        "properties": props,
-        "required": req,
-        'additionalProperties': False,
-    } for props, req in _dsPropReq
-]
+allDatasourcesSchema = dst.Datasource.getSchema()
 

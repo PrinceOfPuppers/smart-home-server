@@ -31,7 +31,6 @@ class _Datasource:
     url: str = field(init=False)
     # values: dict[str, list] = field(init=False)
     buttons: list = field(init=False)
-    datasourceType: str = field(init=False)
 
 @dataclass(kw_only=True)
 class Datasource(_Datasource):
@@ -39,13 +38,29 @@ class Datasource(_Datasource):
     pollingPeriod: pollingPeriodAnnotation = 60 # should be overriden by subclass, default is here to comply with schema
     dashboard:Annotated[DatasourceDashboard, ann.ObjectConstraints()]
 
+    datasourceType:Annotated[
+        str,
+        ann.ConstConstraints(),
+    ] = field(init=False)
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.__dataclass_fields__["datasourceType"].default = cls.__name__
+
+    @staticmethod
+    def fromjson(j:dict) -> 'Datasource':
+        return ann.from_json(Datasource, j, "datasourceType")
+
+    def tojson(self) -> dict:
+        return ann.to_json(self)
+
+    @classmethod
+    def getSchema(cls):
+        return ann.json_schema_from_dataclass(cls)
+
     @property
     def url(self) -> str: # pyright: ignore
         return f"api/data/{self.name}"
-
-    @property
-    def datasourceType(self) -> str: #pyright: ignore
-        return self.__class__.__qualname__
 
     @property
     def buttons(self) -> list: #pyright: ignore

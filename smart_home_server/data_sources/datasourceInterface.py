@@ -10,8 +10,8 @@ class DatasourceFileCorrupted(Exception):
 
 # dataValue: datasourceName
 datavalues:dict[str, str] = {}
-datasourceList:list[dst.Datasource] = []
-datasourceDict:dict[str, dst.Datasource] = {}
+datasourceList:list = []
+datasourceDict:dict = {}
 
 def _getDatasourcePath():
     return f"{const.datasourcesFolder}/datasources.json"
@@ -53,7 +53,7 @@ def saveDatasources(datasourceJson:list[dict]):
     with open(path, "w") as f:
         f.write(json.dumps(datasourceJson))
 
-def getSources(valueKeys: list) -> list[dst.Datasource]:
+def getSources(valueKeys: list) -> list:
     res = []
 
     for key in valueKeys:
@@ -63,7 +63,7 @@ def getSources(valueKeys: list) -> list[dst.Datasource]:
 
     return res
 
-def getSourceDict(valueKeys: set|list) -> dict[str, dst.Datasource]:
+def getSourceDict(valueKeys: set|list) -> dict:
     res = {}
     for key in valueKeys:
         if key not in datavalues:

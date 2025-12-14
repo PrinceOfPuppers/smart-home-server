@@ -96,6 +96,9 @@ class FormInfo: # must be in all annotations
 # Helpers
 # =========================
 
+def filterNone(l:list):
+    return [x for x in l if x is not None]
+
 def unwrap_annotated(annotation):
     """Return (base_type, metadata[])"""
     metadata = []
@@ -137,7 +140,9 @@ def schema_from_primitive(annotation, metadata, default):
     schema = {}
 
     type_constraint = get_type_constraints(metadata)
-    assert type_constraint is not None, f"Missing TypeConstraint for {annotation}"
+    if type_constraint is None:
+        return None
+    #assert type_constraint is not None, f"Missing TypeConstraint for {annotation}"
 
     # Const
     if isinstance(type_constraint, ConstConstraints):
@@ -186,12 +191,12 @@ def schema_for_annotation(annotation, metadata=None, default=MISSING):
             #    schema["nullable"] = True
             return schema
         return {
-            "oneOf": [schema_for_annotation(a, metadata, default) for a in args]
+            "oneOf": filterNone([schema_for_annotation(a, metadata, default) for a in args])
         }
 
     # ---- Polymorphic base ----
     if is_polymorphic_base(annotation):
-        return {"oneOf": [schema_for_annotation(sub) for sub in annotation.__subclasses__()]}
+        return {"oneOf": filterNone([schema_for_annotation(sub) for sub in annotation.__subclasses__()])}
 
     # ---- Dataclass ----
     if is_dataclass_type(annotation):
@@ -211,6 +216,8 @@ def schema_for_annotation(annotation, metadata=None, default=MISSING):
                 field_default = f.default_factory()
 
             field_schema = schema_for_annotation(field_annotation, None, field_default)
+            if field_schema is None:
+                continue
             schema["properties"][f.name] = field_schema
             if field_default is MISSING:
                 schema["required"].append(f.name)
@@ -222,14 +229,17 @@ def schema_for_annotation(annotation, metadata=None, default=MISSING):
     origin = get_origin(annotation)
     if origin is list:
         item_type = get_args(annotation)[0]
+        items = schema_for_annotation(item_type)
         type_constraint = get_type_constraints(metadata)
-        assert type_constraint is not None
+        if items is None or type_constraint is None:
+            return None
+        #assert type_constraint is not None
         schema = {
             k: v for k, v in vars(type_constraint).items()
             if v is not None and k != "schemaType"
         }
         schema["type"] = type_constraint.schemaType
-        schema["items"] = schema_for_annotation(item_type)
+        schema["items"] = items
         return schema
 
     # ---- Primitive / scalar ----
