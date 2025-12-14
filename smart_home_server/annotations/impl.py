@@ -2,6 +2,8 @@ import types
 from typing import (
     Annotated,
     Union,
+    TypeVar,
+    Type,
     get_origin,
     get_args,
     get_type_hints,
@@ -12,8 +14,12 @@ from dataclasses import (
     Field,
     is_dataclass,
     MISSING,
+    asdict,
 )
+
 from functools import cache
+from dacite import from_dict
+
 
 @dataclass(frozen=True)
 class TypeConstraints:
@@ -147,7 +153,7 @@ def schema_from_primitive(annotation, metadata, default):
 
     # ObjectConstraint (dataclass)
     if isinstance(type_constraint, ObjectConstraints):
-        return json_schema_from_dataclass(annotation)
+        return schema_for_annotation(annotation)
 
     # Scalar (int/str/boolean)
     schema["type"] = type_constraint.schemaType
@@ -201,8 +207,8 @@ def schema_for_annotation(annotation, metadata=None, default=MISSING):
             field_default = f.default
 
             # NOTE: this may break some things
-            if field_default is MISSING:
-                field_default = f.default_factory
+            if field_default is MISSING and f.default_factory is not MISSING:
+                field_default = f.default_factory()
 
             field_schema = schema_for_annotation(field_annotation, None, field_default)
             schema["properties"][f.name] = field_schema
@@ -229,6 +235,23 @@ def schema_for_annotation(annotation, metadata=None, default=MISSING):
     # ---- Primitive / scalar ----
     return schema_from_primitive(annotation, metadata, default)
 
+@cache
 def json_schema_from_dataclass(cls):
     return schema_for_annotation(cls)
 
+
+def to_json(x):
+    return asdict(x)
+
+T = TypeVar('T')  # Declare a type variable
+def from_json(base_class:Type[T], data:dict, discriminator:str|None = None) -> T:
+    subclass = base_class
+    if discriminator is not None:
+        for sc in base_class.__subclasses__():
+            if sc.__qualname__ == data[discriminator]:
+                subclass = sc
+                break
+        else:
+            raise ValueError("class discriminator not found!")
+
+    return from_dict(subclass, data)
