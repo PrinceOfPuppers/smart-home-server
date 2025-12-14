@@ -1,8 +1,8 @@
-from dacite import from_dict
-from dataclasses import dataclass, MISSING, fields, field, asdict
+from dataclasses import dataclass, field
+from typing import Annotated
 
-from smart_home_server.api.schemaTypes import nameSchema, ipv4Schema, colorSchema, urlSafeSchema, currencyCodeSchema
-import smart_home_server.constants as const
+from smart_home_server.api.schemaTypes import nameConstraints, ipv4Constraints, colorConstraints, urlSafeConstraints, currencyConstraints
+import smart_home_server.annotations as ann
 
 from smart_home_server.data_sources.caching import cached
 import smart_home_server.data_sources.datasourceFunctions as dsf
@@ -14,21 +14,15 @@ class UnknownDatasource(Exception):
 class InvalidDatasource(Exception):
     pass
 
+pollingPeriodAnnotation = Annotated[int, ann.IntConstraints(minimum=1, maximum=10*60*60)]
+
 @dataclass(kw_only=True)
 class DatasourceDashboard:
-    label: str
-    color:str
-    enabled: bool = True
-    hideable: bool = False
+    label: Annotated[str, nameConstraints]
+    color: Annotated[str, colorConstraints]
+    enabled: Annotated[bool, ann.BoolConstraints()] = True
+    hideable: Annotated[bool, ann.BoolConstraints()] = False
 
-    @staticmethod
-    def getSchemaPropertiesRequired():
-        return {
-            "label": nameSchema,
-            "color": colorSchema,
-            "enabled": { "type": "boolean" },
-            "hideable": { "type": "boolean" }
-        }, ["label", "color"]
 
 # allows properties to be read by asdict
 # this determines which properties will be sent to frontend
@@ -41,28 +35,13 @@ class _Datasource:
 
 @dataclass(kw_only=True)
 class Datasource(_Datasource):
-    name:str # used for url and regex, must be unique
-    pollingPeriod: int = 60 # should be overriden by subclass, default is here to comply with schema
-    dashboard:DatasourceDashboard
+    name: Annotated[str, nameConstraints] # used for url and regex, must be unique
+    pollingPeriod: pollingPeriodAnnotation = 60 # should be overriden by subclass, default is here to comply with schema
+    dashboard:Annotated[DatasourceDashboard, ann.ObjectConstraints()]
 
     @property
     def url(self) -> str: # pyright: ignore
         return f"api/data/{self.name}"
-
-    @classmethod
-    def getSchemaPropertiesRequired(cls):
-        props, req = DatasourceDashboard.getSchemaPropertiesRequired()
-        return {
-            "name": nameSchema,
-            "pollingPeriod": { "type": "integer", "minimum": 1, "maximum": 10*60*60 }, # max is just for sanity
-            "dashboard": {
-                "type": "object",
-                "properties": props,
-                "required": req,
-                'additionalProperties': False,
-            },
-            "datasourceType": { "const": cls.__qualname__ },
-        }, ["name", "dashboard", "datasourceType"]
 
     @property
     def datasourceType(self) -> str: #pyright: ignore
@@ -71,52 +50,6 @@ class Datasource(_Datasource):
     @property
     def buttons(self) -> list: #pyright: ignore
         return []
-
-    @staticmethod
-    def getClass(datasourceType:str) -> type['Datasource']:
-        for sc in Datasource.__subclasses__():
-            if sc.__qualname__ == datasourceType:
-                return sc
-        raise UnknownDatasource()
-
-    @staticmethod
-    def getSubclasses() -> list[type['Datasource']]:
-        res = []
-        for sc in Datasource.__subclasses__():
-            res.append(sc)
-        return res
-
-    @classmethod
-    def getDefaults(cls):
-        default_values = {}
-        for f in fields(cls):
-            if f.default is not MISSING:
-                default_values[f.name] = f.default
-            elif f.default_factory is not MISSING:
-                default_values[f.name] = f.default_factory()
-        return default_values
-
-    @staticmethod
-    def fromJson(j:dict) -> 'Datasource':
-        if 'datasourceType' not in j:
-            raise UnknownDatasource("Missing datasourceType")
-        jcopy = j.copy()
-
-        # remove properties
-        for f in fields(_Datasource):
-            if f.name in jcopy:
-                jcopy.pop(f.name)
-
-        ds = from_dict(Datasource.getClass(j['datasourceType']), jcopy)
-        # TODO: this check is redundant given the schema. Also there should be a static method that 
-        # each subclasses can implement to validate/sanitize data
-        if ds.dashboard.color not in const.colors:
-            raise InvalidDatasource(f"{ds.dashboard.color} not in {[k for k in const.colors.keys()]}")
-
-        return ds
-
-    def toJson(self) -> dict:
-        return asdict(self)
 
     @property
     def values(self) -> dict[str, list]: # pyright: ignore
@@ -133,18 +66,9 @@ class Datasource(_Datasource):
 
 @dataclass(kw_only=True)
 class DatasourceForex(Datasource):
-    src: str
-    dest: str
-    pollingPeriod:int = 5*60
-
-    @classmethod
-    def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = super(DatasourceForex, cls).getSchemaPropertiesRequired()
-        baseProp["src"] = currencyCodeSchema
-        baseProp["dest"] = currencyCodeSchema
-        baseReq.append("src")
-        baseReq.append("dest")
-        return baseProp, baseReq
+    src: Annotated[str, currencyConstraints]
+    dest: Annotated[str, currencyConstraints]
+    pollingPeriod:pollingPeriodAnnotation = 5*60
 
     @property
     def values(self):
@@ -157,7 +81,7 @@ class DatasourceForex(Datasource):
 
 @dataclass(kw_only=True)
 class DatasourceClock(Datasource):
-    pollingPeriod:int = 1
+    pollingPeriod:pollingPeriodAnnotation = 1
 
     @property
     def values(self):
@@ -168,15 +92,8 @@ class DatasourceClock(Datasource):
 
 @dataclass(kw_only=True)
 class DatasourceAQ(Datasource):
-    ip:str
-    pollingPeriod:int = 60
-
-    @classmethod
-    def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = super(DatasourceAQ, cls).getSchemaPropertiesRequired()
-        baseProp["ip"] = ipv4Schema
-        baseReq.append("ip")
-        return baseProp, baseReq
+    ip: Annotated[str, ipv4Constraints]
+    pollingPeriod: pollingPeriodAnnotation = 60
 
     @property
     def values(self):
@@ -187,15 +104,8 @@ class DatasourceAQ(Datasource):
 
 @dataclass(kw_only=True)
 class DatasourceTempHumid(Datasource):
-    ip:str
-    pollingPeriod:int = 60
-
-    @classmethod
-    def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = super(DatasourceTempHumid, cls).getSchemaPropertiesRequired()
-        baseProp["ip"] = ipv4Schema
-        baseReq.append("ip")
-        return baseProp, baseReq
+    ip: Annotated[str, ipv4Constraints]
+    pollingPeriod: pollingPeriodAnnotation = 60
 
     @property
     def values(self):
@@ -206,15 +116,8 @@ class DatasourceTempHumid(Datasource):
 
 @dataclass(kw_only=True)
 class DatasourceWeatherImage(Datasource):
-    pollingPeriod:int = 10*60
-    locale: str
-
-    @classmethod
-    def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = super(DatasourceWeatherImage, cls).getSchemaPropertiesRequired()
-        baseProp["locale"] = urlSafeSchema
-        baseReq.append("locale")
-        return baseProp, baseReq
+    pollingPeriod:pollingPeriodAnnotation = 10*60
+    locale: Annotated[str, urlSafeConstraints]
 
     @property
     def values(self):
@@ -226,15 +129,8 @@ class DatasourceWeatherImage(Datasource):
 
 @dataclass(kw_only=True)
 class DatasourceForcast(Datasource):
-    pollingPeriod:int = 10*60
-    locale: str
-
-    @classmethod
-    def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = super(DatasourceForcast, cls).getSchemaPropertiesRequired()
-        baseProp["locale"] = urlSafeSchema
-        baseReq.append("locale")
-        return baseProp, baseReq
+    pollingPeriod:pollingPeriodAnnotation = 10*60
+    locale: Annotated[str, urlSafeConstraints]
 
     @property
     def values(self):
@@ -249,15 +145,8 @@ class DatasourceForcast(Datasource):
 
 @dataclass(kw_only=True)
 class DatasourceWeatherCurrent(Datasource):
-    pollingPeriod:int = 10*60
-    locale:str
-
-    @classmethod
-    def getSchemaPropertiesRequired(cls):
-        baseProp, baseReq = super(DatasourceWeatherCurrent, cls).getSchemaPropertiesRequired()
-        baseProp["locale"] = urlSafeSchema
-        baseReq.append("locale")
-        return baseProp, baseReq
+    pollingPeriod:pollingPeriodAnnotation = 10*60
+    locale: Annotated[str, urlSafeConstraints]
 
     @property
     def values(self):
@@ -268,7 +157,7 @@ class DatasourceWeatherCurrent(Datasource):
 
 @dataclass(kw_only=True)
 class DatasourceErrors(Datasource):
-    pollingPeriod:int = 15
+    pollingPeriod:pollingPeriodAnnotation = 15
 
     @property
     def values(self):
@@ -289,7 +178,7 @@ class DatasourceErrors(Datasource):
         
 @dataclass(kw_only=True)
 class DatasourceJobLog(Datasource):
-    pollingPeriod:int = 30*60
+    pollingPeriod:pollingPeriodAnnotation = 30*60
 
     def local(self):
         return dsf.getJobLog()
@@ -306,7 +195,7 @@ class DatasourceJobLog(Datasource):
 
 @dataclass(kw_only=True)
 class DatasourceRfLog(Datasource):
-    pollingPeriod:int = 30*60
+    pollingPeriod:pollingPeriodAnnotation = 30*60
 
     def local(self):
         return dsf.getRfLog()
@@ -323,7 +212,7 @@ class DatasourceRfLog(Datasource):
 
 @dataclass(kw_only=True)
 class DatasourceVersion(Datasource):
-    pollingPeriod:int = 10*60
+    pollingPeriod:pollingPeriodAnnotation = 10*60
 
     def local(self):
         return dsf.getServerVersion()
