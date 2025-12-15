@@ -83,5 +83,3 @@ patchNameSchema = \
     'additionalProperties': False,
 }
 
-allDatasourcesSchema = dst.Datasource.getSchema()
-

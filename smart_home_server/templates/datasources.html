@@ -22,7 +22,7 @@
             // keys = ["T", "some", "data"]
             keys = keyChain.split('.')
 
-            if(keys[0] == dsType && keys[0] != "datasourceType"){
+            if(keys[0] == dsType && keys[0] != "datasourceType" && value != null){
                 // we iterate over keys and create a property path to store our value
                 // we keep track of the final container that will contain our value
                 container = toSubmit

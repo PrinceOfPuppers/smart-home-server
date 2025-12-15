@@ -3,8 +3,7 @@ from flask import request, Blueprint, current_app, jsonify
 from flask_expects_json import expects_json
 
 
-from smart_home_server.api.schemas import allDatasourcesSchema
-from smart_home_server.data_sources.datasourceTypes import Datasource
+import smart_home_server.data_sources.datasourceTypes as dst
 
 datasourceApi = Blueprint('datasourceApi', __name__)
 
@@ -12,8 +11,7 @@ addDatasourceSchema = \
 {
     "type": "object",
     "properties":{
-        "datasource": {
-            "oneOf": allDatasourcesSchema},
+        "datasource": dst.Datasource.getSchema(),
     },
     "required": ['datasource'],
     'additionalProperties': False,
@@ -24,12 +22,8 @@ addDatasourceSchema = \
 def addDatasource():
     j = json.loads(request.data)['datasource']
     print(j)
-    ds = Datasource.fromJson(j)
+    ds = dst.Datasource.fromjson(j)
     print(ds)
-
-    #addDefault(press, 'channel', 0)
-    #addDefault(press, 'value', True)
-    #runJob({"do": {"type": "press", "data": press}})
 
     return current_app.response_class(status=200)
 
