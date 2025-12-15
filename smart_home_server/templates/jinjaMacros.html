@@ -1,14 +1,17 @@
 
-{% macro schemaToForm(schema, idPrefix, skipKeys) %}
+
+{% macro schemaToForm(schema, idPrefix, skipKeys, required) %}
     {% for key in schema %}
         {% if key not in skipKeys %}
             <div id="{{ idPrefix }}Div"  class="formDiv">
 
-
             {% set variable = schema[key] %}
+            {% set uiInfo = variable.uiInfo if variable.uiInfo is defined else {} %}
+            {% set label = uiInfo.label if uiInfo.label is defined else key %}
+            {% set label = label | capitalize if uiInfo.labelCaps is not defined or uiInfo.labelCaps else label %}
 
             {% if "enum" in variable %}
-                <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ key }}:</label>
+                <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ label }}:</label>
                 <select id="{{ idPrefix }}.{{ key }}" name="{{ idPrefix }}.{{ key }}">
                     {% for color in variable.enum %}
                         <option value="{{ color }}">{{ color }}</option>
@@ -17,36 +20,60 @@
 
             {% elif variable.type == "object" %}
                 <div id="{{ idPrefix }}Div", class="formBoxDiv">
-                    {{ key }}:
+                    {{ label }}:
                     <div id="{{ idPrefix }}Br" class="clear"></div>
-                    {{ schemaToForm(variable.properties, idPrefix+"."+key, []) }}
+                    {{ schemaToForm(variable.properties, idPrefix+"."+key, [], variable.required) }}
                 </div>
 
             {% elif variable.type in ["integer", "string", "boolean"] %}
-                    <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ key }}:</label>
+                    <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ label }}:</label>
                     <input
                         id="{{ idPrefix }}.{{ key }}"
                         name="{{ idPrefix }}.{{ key }}"
                         {% if variable.type == "integer" %}
                                 type="number"
-                                size="8"
+                                size="{{ 
+                                      uiInfo.size if uiInfo.size is defined else 
+                                      variable.maximum|string|length if variable.maximum is defined 
+                                      else 8
+                                }}"
+                                {% if variable.default is defined %}
+                                    placeholder="{{ variable.default }}"
+                                {% endif %}
                                 {% if variable.minimum is defined %}min="{{ variable.minimum }}"{% endif %}
                                 {% if variable.maximum is defined %}max="{{ variable.maximum }}"{% endif %}
                         {% elif variable.type == "string" %}
                                 type="text"
+                                size="{{ 
+                                      uiInfo.size if uiInfo.size is defined else 
+                                      variable.maxLength if variable.maxLength is defined and variable.maxLength < 20 
+                                      else 20
+                                }}"
+                                {% if variable.default is defined %}
+                                    placeholder="{{ variable.default }}"
+                                {% endif %}
                                 {% if variable.minLength is defined %}minLength="{{ variable.minLength }}"{% endif %}
                                 {% if variable.maxLength is defined %}maxLength="{{ variable.maxLength }}"{% endif %}
                         {% elif variable.type == "boolean" %}
                                 type="checkbox"
-                                value="true"
+                                {% if variable.default is defined %}
+                                    value="{{ variable.default if variable.default is defined else "true"}}"
+                                {% endif %}
                                 checked="true"
                         {% endif %}
+
+                    {% if key in required and false %}
+                        required
+                    {% endif %}
                     />
             {% endif %}
 
 
         </div>
-        <div id="{{ idPrefix }}Br" class="clear"></div>
+        {% if uiInfo.br is not defined or uiInfo.br %}
+            <div id="{{ idPrefix }}Br" class="clear"></div>
+        {% endif %}
+
         {% endif %} <!-- key not in skipKeys -->
     {% endfor %}
 {% endmacro %}

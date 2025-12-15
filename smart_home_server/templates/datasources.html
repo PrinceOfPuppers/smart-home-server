@@ -52,11 +52,15 @@
 <body>
     {{ m.topnav("Datasources") }}
 
+    {% for ds in datasources %}
+        {{ ds }}
+    {% endfor %}
+
     <h3>New Datasource:</h3>
     <form id="datasourceForm">
         <section>
             <div class="formDiv">
-                <label for="datasourceType">type:</label>
+                <label for="datasourceType">Type:</label>
                 <select id="datasourceType" name="datasourceType" required>
                     {% for dss in datasourceSchemas %}
                         {% set schema = dss.properties %}
@@ -72,7 +76,7 @@
                 {% set required = dss.required %}
                 {% set datasourceType = schema.datasourceType.const %}
 
-                {{ m.schemaToForm(schema, datasourceType, []) }}
+                {{ m.schemaToForm(schema, datasourceType, [], required) }}
             {% endfor %}
         </section>
 

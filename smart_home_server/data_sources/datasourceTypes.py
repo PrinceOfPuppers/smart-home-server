@@ -15,13 +15,13 @@ class InvalidDatasource(Exception):
     pass
 
 
-pollingPeriodAnnotation = Annotated[int, ann.IntConstraints(minimum=1, maximum=10*60*60)]
+pollingPeriodAnnotation = Annotated[int, ann.IntConstraints(minimum=1, maximum=10*60*60), ann.UiInfo(label="Polling Period", labelCaps=False)]
 
 @dataclass(kw_only=True)
 class DatasourceDashboard:
     label: Annotated[str, nameConstraints]
-    color: Annotated[str, colorConstraints]
-    enabled: Annotated[bool, ann.BoolConstraints()] = True
+    color: Annotated[str, colorConstraints, ann.UiInfo(br=False)]
+    enabled: Annotated[bool, ann.BoolConstraints(), ann.UiInfo(br=False)] = True
     hideable: Annotated[bool, ann.BoolConstraints()] = False
 
 
@@ -35,14 +35,14 @@ class _Datasource:
 
 @dataclass(kw_only=True)
 class Datasource(_Datasource):
-    name: Annotated[str, nameConstraints] # used for url and regex, must be unique
-    pollingPeriod: pollingPeriodAnnotation = 60 # should be overriden by subclass, default is here to comply with schema
-    dashboard:Annotated[DatasourceDashboard, ann.ObjectConstraints()]
-
     datasourceType:Annotated[
         str,
         ann.ConstConstraints(),
     ] = field(init=False)
+
+    name: Annotated[str, nameConstraints, ann.UiInfo(size=10, br=False)] # used for url and regex, must be unique
+    pollingPeriod: pollingPeriodAnnotation = 60 # should be overriden by subclass, default is here to comply with schema
+    dashboard:Annotated[DatasourceDashboard, ann.ObjectConstraints()]
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -82,7 +82,7 @@ class Datasource(_Datasource):
 
 @dataclass(kw_only=True)
 class DatasourceForex(Datasource):
-    src: Annotated[str, currencyConstraints]
+    src: Annotated[str, currencyConstraints, ann.UiInfo(br=False)]
     dest: Annotated[str, currencyConstraints]
     pollingPeriod:pollingPeriodAnnotation = 5*60
 

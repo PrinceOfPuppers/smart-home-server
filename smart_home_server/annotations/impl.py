@@ -93,11 +93,15 @@ class ArrayConstraints(TypeConstraints):
         return "array"
 
 
-
 @dataclass(frozen=True)
-class FormInfo: # must be in all annotations
+class UiInfo: # must be in all annotations
     label: str | None = None # defaults to the name of the variable
-    required: bool = True # overriden by defaults
+    labelCaps: bool = True   # capitalizes label even if variable name is used
+    br: bool = True # should be followed by a linebreak
+    size: int | None = None
+    #required: bool = True # overriden by defaults
+    def tojson(self):
+        return {k: v for k, v in asdict(self).items() if v is not None}
 
 
 # =========================
@@ -131,10 +135,11 @@ def is_dataclass_type(t):
 def is_polymorphic_base(t):
     return is_dataclass_type(t) and bool(t.__subclasses__())
 
-
-# =========================
-# Primitive / Scalar Schema
-# =========================
+def get_ui_info(metadata):
+    for meta in metadata:
+        if isinstance(meta, UiInfo):
+            return meta
+    return None
 
 def get_type_constraints(metadata):
     for meta in metadata:
@@ -142,6 +147,9 @@ def get_type_constraints(metadata):
             return meta
     return None
 
+# =========================
+# Primitive / Scalar Schema
+# =========================
 
 def schema_from_primitive(annotation, metadata, default):
     """Generate schema for primitive types with constraints"""
@@ -150,23 +158,30 @@ def schema_from_primitive(annotation, metadata, default):
     type_constraint = get_type_constraints(metadata)
     if type_constraint is None:
         return None
-    #assert type_constraint is not None, f"Missing TypeConstraint for {annotation}"
+
+    ui_info = get_ui_info(metadata)
+    if ui_info is not None:
+        schema["uiInfo"] = ui_info.tojson()
 
     # Const
     if isinstance(type_constraint, ConstConstraints):
         assert default is not MISSING
-        return {"const": default}
+        schema["const"] = default
+        return schema
 
     # Enum
     if isinstance(type_constraint, EnumConstraints):
-        s = {"enum": list(type_constraint.values)}
-        #if default is not MISSING:
-        #    s["default"] = default
-        return s
+        schema["enum"] = list(type_constraint.values)
+        if default is not MISSING:
+            schema["default"] = default
+        return schema
 
     # ObjectConstraint (dataclass)
     if isinstance(type_constraint, ObjectConstraints):
-        return schema_for_annotation(annotation)
+        s = schema_for_annotation(annotation)
+        if s is not None:
+            s.update(schema)
+        return s
 
     # Scalar (int/str/boolean)
     schema["type"] = type_constraint.schemaType
@@ -174,8 +189,8 @@ def schema_from_primitive(annotation, metadata, default):
         k: v for k, v in vars(type_constraint).items()
         if v is not None and k != "schemaType"
     })
-    #if default is not MISSING:
-    #    schema["default"] = default
+    if default is not MISSING:
+        schema["default"] = default
 
     return schema
 
@@ -214,6 +229,10 @@ def schema_for_annotation(annotation, metadata=None, default=MISSING):
             "required": [],
             "additionalProperties": False
         }
+        ui_info = get_ui_info(metadata)
+        if ui_info is not None:
+            schema["uiInfo"] = ui_info.tojson()
+
         hints = get_type_hints(annotation, include_extras=True)
         for f in fields(annotation):
             field_annotation = hints[f.name]
@@ -248,10 +267,14 @@ def schema_for_annotation(annotation, metadata=None, default=MISSING):
         }
         schema["type"] = type_constraint.schemaType
         schema["items"] = items
+        ui_info = get_ui_info(metadata)
+        if ui_info is not None:
+            schema["uiInfo"] = ui_info.tojson()
         return schema
 
     # ---- Primitive / scalar ----
     return schema_from_primitive(annotation, metadata, default)
+
 
 @cache
 def json_schema_from_dataclass(cls):
