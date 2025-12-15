@@ -19,6 +19,7 @@ from dataclasses import (
 
 from functools import cache
 from dacite import from_dict
+import copy
 
 
 @dataclass(frozen=True)
@@ -55,6 +56,12 @@ class ConstConstraints(TypeConstraints):
     def schemaType(self):
         return "const"
 
+    @staticmethod
+    def create_discriminator(dcls, discriminator_name:str):
+        dcls.__dataclass_fields__[discriminator_name] = copy.copy(dcls.__dataclass_fields__[discriminator_name])
+        dcls.__dataclass_fields__[discriminator_name].default = dcls.__name__
+        setattr(dcls,discriminator_name, dcls.__name__)
+
 @dataclass(frozen=True)
 class BoolConstraints(TypeConstraints):
 
@@ -75,6 +82,7 @@ class ObjectConstraints(TypeConstraints):
     @property
     def schemaType(self):
         return "object"
+
 
 @dataclass(frozen=True)
 class ArrayConstraints(TypeConstraints):

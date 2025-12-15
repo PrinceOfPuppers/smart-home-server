@@ -59,7 +59,7 @@
                 <label for="datasourceType">type:</label>
                 <select id="datasourceType" name="datasourceType" required>
                     {% for dss in datasourceSchemas %}
-                        {% set schema = dss[0] %}
+                        {% set schema = dss.properties %}
                         {% set datasourceType = schema.datasourceType.const %}
                         <option value="{{ datasourceType }}">{{ datasourceType | replace("Datasource", "", 1) }}</option>
                     {% endfor %}
@@ -68,8 +68,8 @@
         </section>
         <section id="datasourceFormHideUnhide">
             {% for dss in datasourceSchemas %}
-                {% set schema = dss[0] %}
-                {% set required = dss[1] %}
+                {% set schema = dss.properties %}
+                {% set required = dss.required %}
                 {% set datasourceType = schema.datasourceType.const %}
 
                 {{ m.schemaToForm(schema, datasourceType, []) }}

@@ -14,6 +14,7 @@ class UnknownDatasource(Exception):
 class InvalidDatasource(Exception):
     pass
 
+
 pollingPeriodAnnotation = Annotated[int, ann.IntConstraints(minimum=1, maximum=10*60*60)]
 
 @dataclass(kw_only=True)
@@ -45,7 +46,7 @@ class Datasource(_Datasource):
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        cls.__dataclass_fields__["datasourceType"].default = cls.__name__
+        ann.ConstConstraints.create_discriminator(cls, "datasourceType")
 
     @staticmethod
     def fromjson(j:dict) -> 'Datasource':

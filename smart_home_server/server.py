@@ -119,7 +119,7 @@ def graphsGet():
 @app.route('/datasources')
 def datasourcesGet():
     datasources = []
-    datasourceSchemas = [dstype.getSchemaPropertiesRequired() for dstype in dst.Datasource.getSubclasses()]
+    datasourceSchemas = dst.Datasource.getSchema()['oneOf']
     for source in dsi.datasourceList:
         datasources.append(source.toJson())
     return render_template('datasources.html', datasources=datasources, datasourceSchemas=datasourceSchemas)
