@@ -62,7 +62,8 @@
                                 checked="true"
                         {% endif %}
 
-                    {% if key in required and false %}
+                    {% if key in required %}
+                        data-is-required="true"
                         required
                     {% endif %}
                     />

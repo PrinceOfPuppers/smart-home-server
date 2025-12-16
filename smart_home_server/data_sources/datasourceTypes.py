@@ -15,7 +15,7 @@ class InvalidDatasource(Exception):
     pass
 
 
-pollingPeriodAnnotation = Annotated[int, ann.IntConstraints(minimum=1, maximum=10*60*60), ann.UiInfo(label="Polling Period", labelCaps=False)]
+pollingPeriodAnnotation = Annotated[int, ann.IntConstraints(minimum=1, maximum=10*60*60), ann.UiInfo(label="Polling Sec", labelCaps=False)]
 
 @dataclass(kw_only=True)
 class DatasourceDashboard:

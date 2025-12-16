@@ -206,11 +206,23 @@ function hideUnhideForm(dropDown, hideUnhideSectionId){
 
         // see if they match the current value
         if (dropDown.value === dropDownOption.value) {
-            // if so, display them
-            optionElements.forEach((element) => {element.style.display = "block"});
+            optionElements.forEach((element) => {
+                // if so, display them
+                element.style.display = "block";
+                // toggle required elements if they contain special tag
+                if(element.hasAttribute("data-is-required") && element.getAttribute("data-is-required")){
+                    element.required = true;
+                }
+            });
         } else {
             // else hide them
-            optionElements.forEach((element) => {element.style.display = "none"});
+            optionElements.forEach((element) => {
+                element.style.display = "none"
+                // toggle required elements if they contain special tag
+                if(element.hasAttribute("data-is-required") && element.getAttribute("data-is-required")){
+                    element.required = false;
+                }
+            });
         }
     })
 }
