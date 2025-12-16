@@ -48,9 +48,14 @@ class Datasource(_Datasource):
         super().__init_subclass__(**kwargs)
         ann.ConstConstraints.create_discriminator(cls, "datasourceType")
 
+    # override this method to sanitize data or throw exception
+    @staticmethod
+    def sanitize(data: dict):
+        return data
+
     @staticmethod
     def fromjson(j:dict) -> 'Datasource':
-        return ann.from_json(Datasource, j, "datasourceType")
+        return ann.from_json(Datasource, j, "datasourceType", lambda dclass, data: dclass.sanitize(data))
 
     def tojson(self) -> dict:
         return ann.to_json(self)
@@ -91,6 +96,12 @@ class DatasourceForex(Datasource):
         return {
             f"{self.name}": ['data', 'rate']
         }
+
+    @staticmethod
+    def sanitize(data: dict):
+        data['src'] = data['src'].upper()
+        data['dest'] = data['dest'].upper()
+        return data
 
     def local(self):
         return cached(dsf.getForexLocal, self.pollingPeriod//2, src = self.src, dest = self.dest)

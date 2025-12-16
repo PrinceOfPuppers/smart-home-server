@@ -19,5 +19,5 @@ colorConstraints = ann.EnumConstraints(values = {color for color in const.colors
 ipv4Schema = {"type": "string", "minLength": 1, "maxLength": 15, "pattern": r"^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$"}
 ipv4Constraints = ann.StrConstraints(**{k:ipv4Schema[k] for k in inspect.signature(ann.StrConstraints).parameters})
 
-currencyCodeSchema = {"type": "string", "minLength": 0, "maxLength": 3, "pattern": "^[A-Z]{3}$"}
+currencyCodeSchema = {"type": "string", "minLength": 0, "maxLength": 3, "pattern": "^[A-Za-z]{3}$"}
 currencyConstraints = ann.StrConstraints(**{k:currencyCodeSchema[k] for k in inspect.signature(ann.StrConstraints).parameters})

@@ -4,6 +4,7 @@ from typing import (
     Union,
     TypeVar,
     Type,
+    Callable,
     get_origin,
     get_args,
     get_type_hints,
@@ -285,7 +286,7 @@ def to_json(x):
     return asdict(x)
 
 T = TypeVar('T')  # Declare a type variable
-def from_json(base_class:Type[T], data:dict, discriminator:str|None = None) -> T:
+def from_json(base_class:Type[T], data:dict, discriminator:str|None = None, sanitizer: Callable[[T, dict], dict]|None = None) -> T:
     subclass = base_class
     if discriminator is not None:
         for sc in base_class.__subclasses__():
@@ -294,5 +295,8 @@ def from_json(base_class:Type[T], data:dict, discriminator:str|None = None) -> T
                 break
         else:
             raise ValueError("class discriminator not found!")
+        if sanitizer is not None:
+            data = sanitizer(sc, data.copy())
+
 
     return from_dict(subclass, data)
