@@ -74,7 +74,7 @@
                     {{ m.deleteButton( "deleteLcd(%s)" % (num) ) }}
                     <span id="lcd-name-{{ num }}" class="{{ class }}" contentEditable="true" spellcheck="false">{{ name }}</span>
                     <!-- <span id="lcd-num-{{ num }}" class="lightGrey entry" contentEditable="false" spellcheck="false">{{ num }}</span> -->
-                    <button id="lcd-num-{{ num }}" class="grayButton" onclick="toggleLcd({{ num }})">{{ num }}</button>
+                    <button id="lcd-num-{{ num }}" class="lightGreyButton" onclick="toggleLcd({{ num }})">{{ num }}</button>
                     <button id="lcd-edit-{{ num }}" class="greenButton" onclick="saveLcd({{ num }})">💾</button>
                 </span>
                 <p id="lcd-fmt-{{ num }}" contentEditable="true" spellcheck="false">{{ fmt }}</p>

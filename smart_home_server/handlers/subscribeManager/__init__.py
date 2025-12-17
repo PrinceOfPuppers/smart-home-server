@@ -81,7 +81,7 @@ def startSubscribeManager():
 
 def subscribe(values:list, cb, cbUnsub, cbError):
     global _subManagerJobQueue
-    valueSet = {value for value in values if value in dsi.datavalues}
-    sourcesDict = dsi.getSourceDict(valueSet)
+    valueSet = {value for value in values if value in dsi.datasources.datavalues}
+    sourcesDict = dsi.datasources.getSourceDict(valueSet)
     _subManagerJobQueue.put(Subscriber(sourcesDict, valueSet, cb, cbUnsub, cbError))
 

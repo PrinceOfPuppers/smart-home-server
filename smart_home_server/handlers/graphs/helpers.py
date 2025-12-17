@@ -74,7 +74,7 @@ def _getGraphs():
 
 
 def _getNumSamples(datasource:str, timeHours:int):
-    pollingPeriod = dsi.getPollingPeriod(datasource)
+    pollingPeriod = dsi.datasources.getPollingPeriod(datasource)
     if pollingPeriod is None:
         raise DatasourceDoesNotExist()
 

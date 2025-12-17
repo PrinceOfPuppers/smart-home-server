@@ -25,7 +25,8 @@ def addDatasource():
     print(j)
     ds = dst.Datasource.fromjson(j)
     print(ds)
-
+    # TODO: catch erros, send useful error codes
+    dsi.datasourcesMutable.appendDatasource(ds)
     return current_app.response_class(status=200)
 
 

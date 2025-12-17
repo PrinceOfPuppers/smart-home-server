@@ -64,11 +64,11 @@ def postJob():
     addDefault(data, 'name', 'Trigger', checkCond=True, strip=True)
 
     firstVar = data['firstVar']
-    if firstVar['value'] not in dsi.datavalues:
+    if firstVar['value'] not in dsi.datasources.datavalues:
         return current_app.response_class(f"Unknown Data Value: {firstVar['value']}", status=400)
 
     secondVar = data['secondVar']
-    if secondVar['type'] == 'dataSource' and secondVar['value'] not in dsi.datavalues:
+    if secondVar['type'] == 'dataSource' and secondVar['value'] not in dsi.datasources.datavalues:
         return current_app.response_class(f"Unknown Data Value: {secondVar['value']}", status=400)
 
 

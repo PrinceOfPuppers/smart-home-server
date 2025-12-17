@@ -101,7 +101,7 @@ class UiInfo: # must be in all annotations
     br: bool = True # should be followed by a linebreak
     size: int | None = None
     #required: bool = True # overriden by defaults
-    def tojson(self):
+    def toJson(self):
         return {k: v for k, v in asdict(self).items() if v is not None}
 
 
@@ -162,7 +162,7 @@ def schema_from_primitive(annotation, metadata, default):
 
     ui_info = get_ui_info(metadata)
     if ui_info is not None:
-        schema["uiInfo"] = ui_info.tojson()
+        schema["uiInfo"] = ui_info.toJson()
 
     # Const
     if isinstance(type_constraint, ConstConstraints):
@@ -232,7 +232,7 @@ def schema_for_annotation(annotation, metadata=None, default=MISSING):
         }
         ui_info = get_ui_info(metadata)
         if ui_info is not None:
-            schema["uiInfo"] = ui_info.tojson()
+            schema["uiInfo"] = ui_info.toJson()
 
         hints = get_type_hints(annotation, include_extras=True)
         for f in fields(annotation):
@@ -270,7 +270,7 @@ def schema_for_annotation(annotation, metadata=None, default=MISSING):
         schema["items"] = items
         ui_info = get_ui_info(metadata)
         if ui_info is not None:
-            schema["uiInfo"] = ui_info.tojson()
+            schema["uiInfo"] = ui_info.toJson()
         return schema
 
     # ---- Primitive / scalar ----

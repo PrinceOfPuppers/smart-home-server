@@ -92,10 +92,10 @@ def _processUnsubs(subscribers, lastUpdates):
 
 def _publishUpdates(now: datetime, subscribers, lastUpdates, toSend):
     # update data if applicable
-    for name in dsi.datasourceDict:
+    for name in dsi.datasources.datasourceDict:
         if name not in lastUpdates:
             continue
-        source = dsi.datasourceDict[name]
+        source = dsi.datasources.datasourceDict[name]
         period = source.pollingPeriod
         if now < lastUpdates[name]+timedelta(seconds=period):
             # no update

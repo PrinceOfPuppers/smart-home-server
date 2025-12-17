@@ -60,7 +60,7 @@ class Datasource(_Datasource):
     def fromjson(j:dict) -> 'Datasource':
         return ann.from_json(Datasource, j, "datasourceType", lambda dclass, data: dclass.sanitize(data))
 
-    def tojson(self) -> dict:
+    def toJson(self) -> dict:
         return ann.to_json(self)
 
     @classmethod
@@ -69,7 +69,7 @@ class Datasource(_Datasource):
 
     @property
     def url(self) -> str: # pyright: ignore
-        return f"api/data/{self.name}"
+        return f"/api/data/{self.name}"
 
     @property
     def buttons(self) -> list: #pyright: ignore

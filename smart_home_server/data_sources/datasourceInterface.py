@@ -1,6 +1,5 @@
 import smart_home_server.data_sources.datasourceTypes as dst
 import smart_home_server.constants as const
-from dataclasses import dataclass
 from threading import Lock
 from copy import copy
 import os
@@ -15,16 +14,13 @@ dsFileLock = Lock()
 def _getDatasourcePath():
     return f"{const.datasourcesFolder}/datasources.json"
 
-@dataclass
 class DatasourceStorage:
-    datasourceDict: dict = {}
-    datasourceOrder: list[str] = []
-    # names
-    _datavalues: dict | None = None
-    _datasourceList: list | None = None
-
-
     def __init__(self):
+        self.datasourceDict: dict = dict()
+        self.datasourceOrder: list[str] = list()
+        self._datavalues: dict | None = None
+        self._datasourceList: list | None = None
+
         with dsFileLock:
             path = _getDatasourcePath()
 
@@ -32,7 +28,7 @@ class DatasourceStorage:
             if not os.path.exists(path):
                 # create blank file, clear lists
                 with open(path, "w") as f:
-                    f.write(json.dumps([]))
+                    json.dump({'order': [], 'datasources': {}}, f)
                     
             with open(path, "r") as f:
                 try:
@@ -43,10 +39,9 @@ class DatasourceStorage:
                     raise DatasourceFileCorrupted("Datasource json format incorrect")
 
             self.datasourceOrder = j['order']
-            for name, datasourceRaw in j['datasources'].values():
-                if name != j['datasources']['name']:
+            for name, datasourceRaw in j['datasources'].items():
+                if name != datasourceRaw['name']:
                     raise DatasourceFileCorrupted("Datasource name does not match")
-                self.datasourceOrder.append(name)
 
                 source = dst.Datasource.fromjson(datasourceRaw)
 
@@ -101,7 +96,11 @@ class DatasourceStorage:
 
 # only one instance can exist (caches file state)
 class DatasourceStorageMutable(DatasourceStorage):
-    dsMutableLock:Lock = Lock()
+
+    def __init__(self):
+        super().__init__()
+        self.dsMutableLock:Lock = Lock()
+
 
     def _assertOrderOverlap(self, datasources, order):
         if set(order) != datasources.keys():
@@ -111,12 +110,12 @@ class DatasourceStorageMutable(DatasourceStorage):
         with dsFileLock:
             path = _getDatasourcePath()
 
-            datasources = {k: d.tojson() for k, d in self.datasourceDict.items()}
+            datasources = {k: d.toJson() for k, d in self.datasourceDict.items()}
             order = self.datasourceOrder
             self._assertOrderOverlap(datasources, order)
 
             with open(path, "w") as f:
-                f.write(json.dumps({'order': order, 'datasources': datasources}))
+                json.dump({'order': order, 'datasources': datasources}, f)
 
 
     def editDatasource(self, name, datasource):

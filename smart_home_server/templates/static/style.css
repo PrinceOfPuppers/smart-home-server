@@ -44,6 +44,10 @@ img {
     border: 2pt solid var(--lightGrey);
     color: var(--lightGrey)
 }
+.darkGrey{
+    border: 2pt solid var(--darkGrey);
+    color: var(--darkGrey)
+}
 @font-face {
   font-family: "Noto-Color-Mono";
   src: url('NotoColorEmoji-Regular.ttf') format('truetype');
@@ -150,9 +154,18 @@ button:active {
     color: var(--orange);
     border-color: var(--orange);
 }
-.grayButton {
+.greyButton {
+    color: var(--grey);
+    border-color: var(--grey);
+}
+.lightGreyButton {
     color: var(--lightGrey);
     border-color: var(--lightGrey);
+}
+/*Note this is the same as greyButton as the style does not work*/
+.darkGreyButton {
+    color: var(--grey);
+    border-color: var(--grey);
 }
 ul{
     padding: 0;

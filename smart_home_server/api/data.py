@@ -29,6 +29,6 @@ def route(source:dst.Datasource):
     return jsonify(res)
 
 view_maker = lambda source: (lambda: route(source))
-for source in dsi.datasourceList:
+for source in dsi.datasources.datasourceList:
     endpoint = source.url.replace('/','')
     dataApi.add_url_rule(source.url, view_func = view_maker(source), endpoint=endpoint)
