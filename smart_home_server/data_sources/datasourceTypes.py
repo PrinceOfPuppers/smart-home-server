@@ -30,13 +30,13 @@ class DatasourceDashboard:
 
 # allows properties to be read by asdict
 # this determines which properties will be sent to frontend
-@dataclass
+@dataclass(frozen=True)
 class _Datasource:
     url: str = field(init=False)
     # values: dict[str, list] = field(init=False)
     buttons: list = field(init=False)
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Datasource(_Datasource):
     datasourceType:Annotated[
         str,
@@ -88,7 +88,7 @@ class Datasource(_Datasource):
         }
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DatasourceForex(Datasource):
     src: Annotated[str, currencyConstraints, ann.UiInfo(br=False)]
     dest: Annotated[str, currencyConstraints]
@@ -109,7 +109,7 @@ class DatasourceForex(Datasource):
     def local(self):
         return cached(dsf.getForexLocal, self.pollingPeriod//2, src = self.src, dest = self.dest)
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DatasourceClock(Datasource):
     pollingPeriod:pollingPeriodAnnotation = 1
 
@@ -120,7 +120,7 @@ class DatasourceClock(Datasource):
     def local(self):
         return dsf.getClockLocal()
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DatasourceAQ(Datasource):
     ip: Annotated[str, ipv4Constraints]
     pollingPeriod: pollingPeriodAnnotation = 60
@@ -132,7 +132,7 @@ class DatasourceAQ(Datasource):
     def local(self):
         return cached(dsf.getAirQualityServerLocal, self.pollingPeriod//2, ip=self.ip)
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DatasourceTempHumid(Datasource):
     ip: Annotated[str, ipv4Constraints]
     pollingPeriod: pollingPeriodAnnotation = 60
@@ -144,7 +144,7 @@ class DatasourceTempHumid(Datasource):
     def local(self):
         return cached(dsf.getAirQualityServerLocal, self.pollingPeriod//2, ip=self.ip)
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DatasourceWeatherImage(Datasource):
     pollingPeriod:pollingPeriodAnnotation = 10*60
     locale: Annotated[str, urlSafeConstraints]
@@ -157,7 +157,7 @@ class DatasourceWeatherImage(Datasource):
         return cached(dsf.getWeatherImageLocal, self.pollingPeriod//2, locale=self.locale)
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DatasourceForcast(Datasource):
     pollingPeriod:pollingPeriodAnnotation = 10*60
     locale: Annotated[str, urlSafeConstraints]
@@ -173,7 +173,7 @@ class DatasourceForcast(Datasource):
     def local(self):
         return cached(dsf.getForecastLocal, self.pollingPeriod//2, locale = self.locale)
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DatasourceWeatherCurrent(Datasource):
     pollingPeriod:pollingPeriodAnnotation = 10*60
     locale: Annotated[str, urlSafeConstraints]
@@ -185,7 +185,7 @@ class DatasourceWeatherCurrent(Datasource):
     def local(self):
         return cached(dsf.getCurrentWeather, self.pollingPeriod//2, locale = self.locale)
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DatasourceErrors(Datasource):
     pollingPeriod:pollingPeriodAnnotation = 15
 
@@ -206,7 +206,7 @@ class DatasourceErrors(Datasource):
              ],
         }]
         
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DatasourceJobLog(Datasource):
     pollingPeriod:pollingPeriodAnnotation = 30*60
 
@@ -223,7 +223,7 @@ class DatasourceJobLog(Datasource):
                  ],
             }]
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DatasourceRfLog(Datasource):
     pollingPeriod:pollingPeriodAnnotation = 30*60
 
@@ -240,7 +240,7 @@ class DatasourceRfLog(Datasource):
                  ],
             }]
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DatasourceVersion(Datasource):
     pollingPeriod:pollingPeriodAnnotation = 10*60
 
