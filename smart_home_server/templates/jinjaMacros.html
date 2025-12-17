@@ -1,6 +1,6 @@
 
 
-{% macro schemaToForm(schema, idPrefix, skipKeys, required) %}
+{% macro schemaToForm(schema, idPrefix, skipKeys, required, prePopulated = None) %}
     {% for key in schema %}
         {% if key not in skipKeys %}
             <div id="{{ idPrefix }}Div"  class="formDiv">
@@ -9,12 +9,14 @@
             {% set uiInfo = variable.uiInfo if variable.uiInfo is defined else {} %}
             {% set label = uiInfo.label if uiInfo.label is defined else key %}
             {% set label = label | capitalize if uiInfo.labelCaps is not defined or uiInfo.labelCaps else label %}
+            
+            {% set prePop = prePopulated.key if prePopulated.key is defined else None %}
 
             {% if "enum" in variable %}
                 <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ label }}:</label>
                 <select id="{{ idPrefix }}.{{ key }}" name="{{ idPrefix }}.{{ key }}">
                     {% for color in variable.enum %}
-                        <option value="{{ color }}">{{ color }}</option>
+                        <option value="{{ color }}" {{ "selected" if color == prePop }}>{{ color }}</option>
                     {% endfor %}
                 </select>
 
@@ -22,7 +24,7 @@
                 <div id="{{ idPrefix }}Div", class="formBoxDiv">
                     {{ label }}:
                     <div id="{{ idPrefix }}Br" class="clear"></div>
-                    {{ schemaToForm(variable.properties, idPrefix+"."+key, [], variable.required) }}
+                    {{ schemaToForm(variable.properties, idPrefix+"."+key, [], variable.required, prePop) }}
                 </div>
 
             {% elif variable.type in ["integer", "string", "boolean"] %}
@@ -40,6 +42,11 @@
                                 {% if variable.default is defined %}
                                     placeholder="{{ variable.default }}"
                                 {% endif %}
+
+                                {% if prePop != None %}
+                                    value={{ prePop }}
+                                {% endif %}
+
                                 {% if variable.minimum is defined %}min="{{ variable.minimum }}"{% endif %}
                                 {% if variable.maximum is defined %}max="{{ variable.maximum }}"{% endif %}
                         {% elif variable.type == "string" %}
@@ -52,11 +59,18 @@
                                 {% if variable.default is defined %}
                                     placeholder="{{ variable.default }}"
                                 {% endif %}
+
+                                {% if prePop != None %}
+                                    value="{{ prePop }}"
+                                {% endif %}
+
                                 {% if variable.minLength is defined %}minLength="{{ variable.minLength }}"{% endif %}
                                 {% if variable.maxLength is defined %}maxLength="{{ variable.maxLength }}"{% endif %}
                         {% elif variable.type == "boolean" %}
                                 type="checkbox"
-                                {% if variable.default is defined %}
+                                {% if prePop != None %}
+                                    value="{{ prePop }}"
+                                {% elif variable.default is defined %}
                                     value="{{ variable.default if variable.default is defined else "true"}}"
                                 {% endif %}
                                 checked="true"

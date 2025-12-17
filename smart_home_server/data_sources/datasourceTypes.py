@@ -14,6 +14,9 @@ class UnknownDatasource(Exception):
 class InvalidDatasource(Exception):
     pass
 
+class DatasourceAlreadyExists(Exception):
+    pass
+
 
 pollingPeriodAnnotation = Annotated[int, ann.IntConstraints(minimum=1, maximum=10*60*60), ann.UiInfo(label="Polling Sec", labelCaps=False)]
 
