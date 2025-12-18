@@ -10,7 +10,7 @@
             {% set label = uiInfo.label if uiInfo.label is defined else key %}
             {% set label = label | capitalize if uiInfo.labelCaps is not defined or uiInfo.labelCaps else label %}
             
-            {% set prePop = prePopulated.key if prePopulated.key is defined else None %}
+            {% set prePop = prePopulated[key] if prePopulated[key] is defined else None %}
 
             {% if "enum" in variable %}
                 <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ label }}:</label>
@@ -19,6 +19,13 @@
                         <option value="{{ color }}" {{ "selected" if color == prePop }}>{{ color }}</option>
                     {% endfor %}
                 </select>
+
+            {% elif "const" in variable %}
+                <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ label }}:</label>
+                <select disabled id="{{ idPrefix }}.{{ key }}" name="{{ idPrefix }}.{{ key }}">
+                    <option value="{{ variable["const"] }}" >{{ variable["const"] }}</option>
+                </select>
+
 
             {% elif variable.type == "object" %}
                 <div id="{{ idPrefix }}Div", class="formBoxDiv">
@@ -69,11 +76,11 @@
                         {% elif variable.type == "boolean" %}
                                 type="checkbox"
                                 {% if prePop != None %}
-                                    value="{{ prePop }}"
+                                    {{ "checked" if prePop else "" }}
                                 {% elif variable.default is defined %}
-                                    value="{{ variable.default if variable.default is defined else "true"}}"
+                                    {{ "checked" if variable.default else "" }}
                                 {% endif %}
-                                checked="true"
+                                value="true"
                         {% endif %}
 
                     {% if key in required %}

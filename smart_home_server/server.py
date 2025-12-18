@@ -119,9 +119,10 @@ def graphsGet():
 def datasourcesGet():
     datasources = []
     datasourceSchemas = dst.Datasource.getSchema()['oneOf']
+    datasourceSchemaDict = dst.Datasource.getSchemaTypeDict()
     for source in dsi.datasourcesMutable.datasourceList:
         datasources.append(source.toJson())
-    return render_template('datasources.html', datasources=datasources, datasourceSchemas=datasourceSchemas)
+    return render_template('datasources.html', datasources=datasources, datasourceSchemas=datasourceSchemas, datasourceSchemaDict=datasourceSchemaDict)
 
 def startServer():
     global app

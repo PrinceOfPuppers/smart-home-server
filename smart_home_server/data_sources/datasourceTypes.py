@@ -3,6 +3,7 @@ from typing import Annotated
 
 from smart_home_server.api.schemaTypes import nameConstraints, ipv4Constraints, colorConstraints, urlSafeConstraints, currencyConstraints
 import smart_home_server.annotations as ann
+from functools import cache 
 
 from smart_home_server.data_sources.caching import cached
 import smart_home_server.data_sources.datasourceFunctions as dsf
@@ -41,6 +42,7 @@ class Datasource(_Datasource):
     datasourceType:Annotated[
         str,
         ann.ConstConstraints(),
+        ann.UiInfo(label="Type")
     ] = field(init=False)
 
     name: Annotated[str, nameConstraints, ann.UiInfo(size=10, br=False)] # used for url and regex, must be unique
@@ -66,6 +68,22 @@ class Datasource(_Datasource):
     @classmethod
     def getSchema(cls):
         return ann.json_schema_from_dataclass(cls)
+
+    # returns dict {datasourceType: schema}
+    @classmethod
+    @cache
+    def getSchemaTypeDict(cls):
+        
+        x = cls.getSchema()
+        assert x is not None
+        datasourceSchemas = x['oneOf']
+        assert isinstance(datasourceSchemas, list)
+
+        res = {}
+        for schema in datasourceSchemas:
+            dsType = schema["properties"]["datasourceType"]["const"]
+            res[dsType] = schema
+        return res
 
     @property
     def url(self) -> str: # pyright: ignore

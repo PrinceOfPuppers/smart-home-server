@@ -415,6 +415,9 @@ select {
     border: 2pt solid var(--lightGrey);
     color:var(--white);
 }
+select[disabled] {
+    appearance: none;
+}
 textarea {
     background-color:var(--darkGrey);
     border-radius: 4pt;
