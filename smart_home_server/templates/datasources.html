@@ -62,6 +62,7 @@
     window.onload = () => {
         document.getElementById('datasourceForm').addEventListener('submit', submitdatasourceHandler);
 
+        setupSelectButtonResize();
         setupHideUnhideForm('datasourceType', 'datasourceFormHideUnhide')
     }
 
@@ -71,6 +72,9 @@
     {{ m.topnav("Datasources") }}
 
     <h3>Datasources:</h3>
+    {% if datasources|length == 0 %}
+        <center class="faintText">No Datasources</center>
+    {% endif %}
     {% for ds in datasources %}
         {% set dss = datasourceSchemaDict[ds.datasourceType] %}
         {% set id = ds.name %}
@@ -81,7 +85,7 @@
         <form id="existingDatasourceForm-{{ id }}">
             <span class="buttonBar">
                 {{ m.deleteButton( 'deleteDatasource("%s")' % (id) ) }}
-                <span id="asdf" id="existing-datasourceType" class="lightGrey entry" contentEditable="false" >{{ ds.datasourceType | replace("Datasource", "", 1) }}</span>
+                <span id="asdf" id="existing-datasourceType" class="{{ ds.dashboard.color }} entry" contentEditable="false" >{{ ds.datasourceType | replace("Datasource", "", 1) }}</span>
                 <button id="save-datasource-{{ id }}" type="button" class="greenButton" onclick='saveDatasource("{{ id }}", "{{ ds.datasourceType }}")'>💾</button>
             </span>
             <div id="existingBr" class="clear"></div>
@@ -93,14 +97,17 @@
     <form id="datasourceForm">
         <section>
             <div class="formDiv">
-                <label for="datasourceType">Type:</label>
-                <select id="datasourceType" name="datasourceType" required>
-                    {% for dss in datasourceSchemas %}
-                        {% set schema = dss.properties %}
-                        {% set datasourceType = schema.datasourceType.const %}
-                        <option value="{{ datasourceType }}">{{ datasourceType | replace("Datasource", "", 1) }}</option>
-                    {% endfor %}
-                </select>
+                <span class="buttonBar">
+                    {{ m.deleteButton( "" ) }}
+                    <select id="datasourceType" class="blue selectButton" name="datasourceType" required>
+                        {% for dss in datasourceSchemas %}
+                            {% set schema = dss.properties %}
+                            {% set datasourceType = schema.datasourceType.const %}
+                            <option value="{{ datasourceType }}">{{ datasourceType | replace("Datasource", "", 1) }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="greenButton">💾</button>
+                </span>
             </div>
             <div id="dsTypeSelectBr" class="clear"></div>
         </section>
@@ -113,16 +120,6 @@
                 {{ m.schemaToForm(schema, datasourceType, ["datasourceType"], required) }}
             {% endfor %}
         </section>
-
-        <section>
-            <div class="formDiv">
-                <button type="submit" class="greenButton">Create Datasource</button>
-            </div>
-        </section>
-
-
-        <br style="clear:both;" />
-
     </form>
 
   </body>

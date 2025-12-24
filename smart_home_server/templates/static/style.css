@@ -374,6 +374,7 @@ form {
     border-radius: 4pt;
     background-color: var(--darkGrey);
     padding: 10pt 12pt;
+    line-height: normal;
     cursor: pointer;
     font-size:11pt;
     -moz-appearance:none; /* Firefox */
