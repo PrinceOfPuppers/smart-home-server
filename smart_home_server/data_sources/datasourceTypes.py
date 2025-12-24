@@ -3,7 +3,7 @@ from typing import Annotated
 
 from smart_home_server.api.schemaTypes import nameConstraints, ipv4Constraints, colorConstraints, urlSafeConstraints, currencyConstraints
 import smart_home_server.annotations as ann
-from functools import cache 
+from functools import cache
 
 from smart_home_server.data_sources.caching import cached
 import smart_home_server.data_sources.datasourceFunctions as dsf
@@ -12,6 +12,8 @@ import smart_home_server.data_sources.datasourceFunctions as dsf
 class UnknownDatasource(Exception):
     pass
 
+# Not currently in use, can be used when sanatizing datasources, all endpoints should accept this as a possibility
+# string should contain the reason why it is invalid in a human redable format
 class InvalidDatasource(Exception):
     pass
 
@@ -73,7 +75,7 @@ class Datasource(_Datasource):
     @classmethod
     @cache
     def getSchemaTypeDict(cls):
-        
+
         x = cls.getSchema()
         assert x is not None
         datasourceSchemas = x['oneOf']
@@ -223,7 +225,7 @@ class DatasourceErrors(Datasource):
                 {'type': 'reload'},
              ],
         }]
-        
+
 @dataclass(kw_only=True, frozen=True)
 class DatasourceJobLog(Datasource):
     pollingPeriod:pollingPeriodAnnotation = 30*60

@@ -26,10 +26,10 @@ class DatasourceStorage:
 
             # ensure file exists
             if not os.path.exists(path):
-                # create blank file, clear lists
+                # create blank file
                 with open(path, "w") as f:
                     json.dump({'order': [], 'datasources': {}}, f)
-                    
+
             with open(path, "r") as f:
                 try:
                     j = json.loads(f.read())
@@ -47,7 +47,7 @@ class DatasourceStorage:
 
                 self.datasourceDict[source.name] = source
 
-    
+
     def getSources(self, valueKeys: list) -> list:
         res = []
 
@@ -96,7 +96,6 @@ class DatasourceStorage:
 
 # only one instance can exist (caches file state)
 class DatasourceStorageMutable(DatasourceStorage):
-
     def __init__(self):
         super().__init__()
         self.dsMutableLock:Lock = Lock()
@@ -118,19 +117,37 @@ class DatasourceStorageMutable(DatasourceStorage):
                 json.dump({'order': order, 'datasources': datasources}, f)
 
 
-    def editDatasource(self, name, datasource):
+    def editDatasource(self, oldName, datasource):
         with self.dsMutableLock:
             if not isinstance(datasource, dst.Datasource):
                 raise ValueError("datasource argument is not Datasource")
-            if name not in self.datasourceDict:
-                raise dst.UnknownDatasource(f"Unknown Datasource: {name}")
-                
-            # TODO: acquire lock
+
+            orderIndex = self.datasourceOrder.index(oldName)
+
+            if oldName not in self.datasourceDict or orderIndex < 0:
+                raise dst.UnknownDatasource(f"Unknown Datasource: {oldName}\nCurrentSources: {[k for k in self.datasourceDict.keys()]} \nOrder:{self.datasourceOrder}")
 
             self._datavalues = None
             self._datasourceList = None
 
-            self.datasourceDict[name] = copy(datasource)
+            del self.datasourceDict[oldName]
+            self.datasourceDict[datasource.name] = copy(datasource)
+            self.datasourceOrder[orderIndex] = datasource.name
+
+            self.writeback()
+
+    def deleteDatasource(self, name):
+        with self.dsMutableLock:
+            self._datavalues = None
+            self._datasourceList = None
+
+            orderIndex = self.datasourceOrder.index(name)
+            if orderIndex >= 0:
+                del self.datasourceOrder[orderIndex]
+
+            if name in self.datasourceDict:
+                del self.datasourceDict[name]
+
             self.writeback()
 
     def editDatasoruceOrder(self, newOrder):
@@ -150,7 +167,7 @@ class DatasourceStorageMutable(DatasourceStorage):
 
             self._datavalues = None
             self._datasourceList = None
-            self.datasourceDict[datasource.name] = datasource
+            self.datasourceDict[datasource.name] = copy(datasource)
             self.datasourceOrder.append(datasource.name)
             self.writeback()
 
@@ -165,13 +182,9 @@ class DatasourceStorageMutable(DatasourceStorage):
             return super().datasourceList
 
 
-
-    
-
 # immutable at runtime
 datasources = DatasourceStorage()
 
 # edited by frontend, changes aren't loaded into immutable until restart
 datasourcesMutable = DatasourceStorageMutable()
-
 

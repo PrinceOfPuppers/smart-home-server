@@ -7,22 +7,21 @@
 
 <html>
 <script>
-    function submitdatasourceHandler(event){
-        event.preventDefault();
-        let form = event.currentTarget;
+    function formToSubmit(form, dsTypeField = "datasourceType", dsType = null){
         // Format
         // data = {"dataType": T, "T.x": ... , "T.some.data": ... , "T.some.otherdata": ...}
         var data = formToObject(form);
-
-        toSubmit = {"datasourceType": data.datasourceType};
-        dsType = data.datasourceType;
+        if (dsType === null){
+            dsType = data[dsTypeField];
+        }
+        toSubmit = {"datasourceType": dsType};
 
         Object.entries(data).forEach(([keyChain, value]) => {
             // Format
             // keys = ["T", "some", "data"]
             keys = keyChain.split('.')
 
-            if(keys[0] == dsType && keys[0] != "datasourceType" && value != null){
+            if(keys[0] == dsType && keys[0] != dsTypeField && value != null){
                 // we iterate over keys and create a property path to store our value
                 // we keep track of the final container that will contain our value
                 container = toSubmit
@@ -37,8 +36,27 @@
                 container[keys.at(-1)] = value;
             }
         })
+        return toSubmit
+    }
 
+    function submitdatasourceHandler(event){
+        event.preventDefault();
+        let form = event.currentTarget;
+        toSubmit = formToSubmit(form)
         sendData('api/datasource', {"datasource": toSubmit}, 'POST', reload=true);
+    }
+
+    function deleteDatasource(id){
+        var data = {'name': id};
+        console.log(data);
+        sendData('/api/datasource', data, 'DELETE', reload=true);
+    }
+
+    function saveDatasource(id, datasourceType){
+        let form = document.getElementById('existingDatasourceForm-' + id)
+        var toSubmit = formToSubmit(form, "", datasourceType)
+        console.log(toSubmit);
+        sendData('api/datasource', {"datasource": toSubmit, "oldName": id}, 'PATCH', reload=true);
     }
 
     window.onload = () => {
@@ -60,8 +78,14 @@
         {% set schema = dss.properties %}
         {% set required = dss.required %}
 
-        <form id="datasourceForm">
-            {{ m.schemaToForm(schema, id, [], required, ds) }}
+        <form id="existingDatasourceForm-{{ id }}">
+            <span class="buttonBar">
+                {{ m.deleteButton( 'deleteDatasource("%s")' % (id) ) }}
+                <span id="asdf" id="existing-datasourceType" class="lightGrey entry" contentEditable="false" >{{ ds.datasourceType | replace("Datasource", "", 1) }}</span>
+                <button id="save-datasource-{{ id }}" type="button" class="greenButton" onclick='saveDatasource("{{ id }}", "{{ ds.datasourceType }}")'>💾</button>
+            </span>
+            <div id="existingBr" class="clear"></div>
+            {{ m.schemaToForm(schema, ds.datasourceType, ["datasourceType"], required, ds) }}
         </form>
     {% endfor %}
 
