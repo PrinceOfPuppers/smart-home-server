@@ -51,7 +51,7 @@ Main Case and [Arduino Blinds Controller](devices/arduino-blinds/README.md):
 # ABOUT
 The smart-home-server (hereto called "the server") is a device for collecting data and controlling IOT devices (hereto called "devices"). The server runs a full web interface for easy control on mobile or desktop.
 
-The server's functionality is best understood through two categories, [Jobs and Macros](#jobs-and-macros) and [Datasources](#dataSources).
+The server's functionality is best understood through two categories, [Jobs and Macros](#jobs-and-macros) and [Datasources](#datasources).
 
 ## Jobs and Macros
 Jobs are things the server can do, they include:
@@ -100,12 +100,34 @@ Examples of each Application:
 <br clear="left"/>
 <br clear="left"/>
 
-Datasources can be added and changed [here](smart_home_server/data_sources/__init__.py), simply:
+Datasources can be added and changed on the `Datasources` tab if they fit into one of the existing types:
+- Forex: currency converstion
+- Clock: tells time
+- AQ: air quality, temprature and humidity station
+- TempHumid: temprature and humidity station
+- WeatherImage: current weather with ascii art image
+- WeatherCurrent: current weather simple representation
+- Forcast: long term forcast chart
+- Errors: log of errors in the smart home
+- JobLog: log of run jobs
+- RfLog: log of rf rx/tx
+- Version: smart home version
 
-1) Add a function which returns `{ 'str': '...', 'data':{...} }` where `str` is shown in dashboard and `data` contains the values used by triggers, graphs and etc.
-2) Add an entry to `dataSources` with a `name`, `color`, desired `url`, `local` function to call, `pollingPeriod`, `values` (paths in `data` to find the datasources), and more (see existing examples).
 
-All existing datasources can be edited using the same method. The order they appear in the `dataSources` list determines the order they appear in the dashboard, you can also add dashboard buttons to each entry, and make each entry hideable here too. See `Job Log` and `RF Log` as examples.
+New Datasource Form (left). Edit existing Datasource Form (right):
+
+<img align="left" height="200" src="images/new-datasource.png">
+<img align="left" height="200" src="images/datasource.png">
+<br clear="left"/>
+<br clear="left"/>
+
+Each Datasource can be displayed in the Dashboard and provides values that can be consumed by Job Triggers, Graphs and LCDs
+
+New types of Datasources can be added [here](smart_home_server/data_sources/datasourceTypes.py), by:
+1) Creating a new subclass of `Datasource` (use an existing one as a base), Any required arguments should be annotated so they appear correctly in the `Datasource` form
+2) Adding a `local` function which returns `{ 'str': '...', 'data':{...} }` where `str` is shown in dashboard and `data` contains the values used by triggers, graphs and etc (this function is polled to get the data).
+3) Adding a `values` property which specifies what fields in `data` are relevant and what they should be called
+4) Set a sane default polling period, although this is editable in the datasource form
 
 # Pages
 
