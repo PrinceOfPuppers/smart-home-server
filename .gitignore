@@ -12,6 +12,9 @@ venv
 /build
 /dist
 
+# platformio
+.pio
+
 # kicad
 devices/*/pcb/*
 !devices/*/pcb/*.kicad_pcb

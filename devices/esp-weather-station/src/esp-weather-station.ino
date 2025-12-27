@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <BME280I2C.h>
 #include <Wire.h>
 
@@ -81,7 +82,6 @@ unsigned int localudpPort = 6831;
 char incomingPacket[256];
 char replyPacket[256];
 
-#define HOST_NAME "esp-weather-station"
 
 void setup_udp(){
     WiFi.hostname(HOST_NAME);
