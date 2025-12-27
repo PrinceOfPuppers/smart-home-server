@@ -52,11 +52,18 @@
         sendData('/api/datasource', data, 'DELETE', reload=true);
     }
 
-    function saveDatasource(id, datasourceType){
+    function saveDatasource(id, datasourceType, initialIndex){
         let form = document.getElementById('existingDatasourceForm-' + id)
+        let indexSpan = document.getElementById('existingDatasourceIndex-' + id)
+        const newIndex = parseInt(indexSpan.textContent);
         var toSubmit = formToSubmit(form, "", datasourceType)
-        console.log(toSubmit);
-        sendData('api/datasource', {"datasource": toSubmit, "oldName": id}, 'PATCH', reload=true);
+        var packet = {"datasource": toSubmit, "oldName": id}
+
+        if(!isNaN(newIndex) && initialIndex != newIndex){
+            packet["newIndex"] = newIndex
+        }
+
+        sendData('api/datasource', packet, 'PATCH', reload=true);
     }
 
     window.onload = () => {
@@ -82,11 +89,12 @@
         {% set schema = dss.properties %}
         {% set required = dss.required %}
 
-        <form id="existingDatasourceForm-{{ id }}">
+        <form id="existingDatasourceForm-{{ id }}" autocomplete="off">
             <span class="buttonBar">
                 {{ m.deleteButton( 'deleteDatasource("%s")' % (id) ) }}
-                <span id="asdf" id="existing-datasourceType" class="{{ ds.dashboard.color }} entry" contentEditable="false" >{{ ds.datasourceType | replace("Datasource", "", 1) }}</span>
-                <button id="save-datasource-{{ id }}" type="button" class="greenButton" onclick='saveDatasource("{{ id }}", "{{ ds.datasourceType }}")'>💾</button>
+                <span id="existing-datasourceType" class="{{ ds.dashboard.color }} entry" contentEditable="false" >{{ ds.datasourceType | replace("Datasource", "", 1) }}</span>
+                <span class="lightGrey entry" id="existingDatasourceIndex-{{ id }}" contentEditable="true" data-placeholder="Index" spellcheck="false">{{ loop.index0 }}</span>
+                <button id="save-datasource-{{ id }}" type="button" class="greenButton" onclick='saveDatasource("{{ id }}", "{{ ds.datasourceType }}", {{ loop.index0 }})'>💾</button>
             </span>
             <div id="existingBr" class="clear"></div>
             {{ m.schemaToForm(schema, ds.datasourceType, ["datasourceType"], required, ds) }}

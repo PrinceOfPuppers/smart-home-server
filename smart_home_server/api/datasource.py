@@ -25,6 +25,7 @@ patchDatasourceSchema = \
     "properties":{
         "datasource": dst.Datasource.getSchema(),
         "oldName": nameSchema,
+        "newIndex": {"type": "integer"},
     },
     "required": ['datasource', 'oldName'],
     'additionalProperties': False,
@@ -71,13 +72,14 @@ def addDatasource():
 def patchDatasource():
     j = json.loads(request.data)
     oldName = j["oldName"]
+    newIndex = j["newIndex"] if "newIndex" in j else None
     dsj = j["datasource"]
     ds, err = loadDs(dsj)
     if ds is None:
         return current_app.response_class(err, status=400)
 
     try:
-        dsi.datasourcesMutable.editDatasource(oldName, ds)
+        dsi.datasourcesMutable.editDatasource(oldName, ds, newIndex)
     except dst.UnknownDatasource as _:
         return current_app.response_class(f"Datasource with old name: {oldName} does not exist", status=400)
 
@@ -96,3 +98,4 @@ def deleteDatasource():
         print("deleteDatasource Unknown Datasource")
         return current_app.response_class(f"Attempting to delete datasource: {name} resulted in an internal error", status=500)
     return current_app.response_class(status=200)
+

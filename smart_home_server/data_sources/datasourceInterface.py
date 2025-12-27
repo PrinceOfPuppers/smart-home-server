@@ -117,7 +117,7 @@ class DatasourceStorageMutable(DatasourceStorage):
                 json.dump({'order': order, 'datasources': datasources}, f)
 
 
-    def editDatasource(self, oldName, datasource):
+    def editDatasource(self, oldName, datasource, newIndex:int|None = None):
         with self.dsMutableLock:
             if not isinstance(datasource, dst.Datasource):
                 raise ValueError("datasource argument is not Datasource")
@@ -132,7 +132,12 @@ class DatasourceStorageMutable(DatasourceStorage):
 
             del self.datasourceDict[oldName]
             self.datasourceDict[datasource.name] = copy(datasource)
-            self.datasourceOrder[orderIndex] = datasource.name
+            if newIndex is not None:
+                del self.datasourceOrder[orderIndex]
+                _newIndex = newIndex % (len(self.datasourceOrder) + 1)
+                self.datasourceOrder.insert(_newIndex, datasource.name)
+            else:
+                self.datasourceOrder[orderIndex] = datasource.name
 
             self.writeback()
 
