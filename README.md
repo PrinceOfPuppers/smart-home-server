@@ -101,17 +101,17 @@ Examples of each Application:
 <br clear="left"/>
 
 Datasources can be added and changed on the `Datasources` tab if they fit into one of the existing types:
-- Forex: currency converstion
-- Clock: tells time
-- AQ: air quality, temprature and humidity station
-- TempHumid: temprature and humidity station
-- WeatherImage: current weather with ascii art image
-- WeatherCurrent: current weather simple representation
-- Forcast: long term forcast chart
-- Errors: log of errors in the smart home
-- JobLog: log of run jobs
-- RfLog: log of rf rx/tx
-- Version: smart home version
+- `Forex`: currency converstion
+- `Clock`: tells time
+- `AQ`: air quality, temprature and humidity station
+- `TempHumid`: temprature and humidity station
+- `WeatherImage`: current weather with ascii art image
+- `WeatherCurrent`: current weather simple representation
+- `Forcast`: long term forcast chart
+- `Errors`: log of errors in the smart home
+- `JobLog`: log of run jobs
+- `RfLog`: log of rf rx/tx
+- `Version`: smart home version
 
 
 New Datasource Form (left). Edit existing Datasource Form (right):
