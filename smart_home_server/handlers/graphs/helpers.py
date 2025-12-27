@@ -4,11 +4,16 @@ from time import sleep
 from uuid import uuid4
 
 import smart_home_server.constants as const
-from smart_home_server.data_sources import getPollingPeriod
+import smart_home_server.data_sources.datasourceInterface as dsi
 from smart_home_server.handlers.graphs.runtime import _addPoint, GraphAlreadyExists, GraphDoesNotExist, _startGraphPlotting, _stopGraphPlotting, _putOnMonitor, _getOnMonitor, _loadOnMonitor
 
 class DatasourceDoesNotExist(Exception):
     pass
+
+# TODO:
+# - 'datasource' should be renamed to datavalue
+# - graph should be dataclass with from/to json methods
+# - which graph is on monitor stored in 2 locations, the id and and the boolean flag
 
 _graphCache:dict = {}
 
@@ -69,7 +74,7 @@ def _getGraphs():
 
 
 def _getNumSamples(datasource:str, timeHours:int):
-    pollingPeriod = getPollingPeriod(datasource)
+    pollingPeriod = dsi.datasources.getPollingPeriod(datasource)
     if pollingPeriod is None:
         raise DatasourceDoesNotExist()
 

@@ -4,7 +4,8 @@ from flask_expects_json import expects_json
 
 from smart_home_server.handlers.lcd import overwriteLcd, saveLcd, deleteLcd, LcdDoesNotExist, LcdAlreadyExists, toggleBacklight, setBacklight
 
-from smart_home_server.api import nameSchema, patchLcdSchema
+from smart_home_server.api.schemas import patchLcdSchema
+from smart_home_server.api.schemaTypes import nameSchema
 import smart_home_server.constants as const
 
 lcdApi = Blueprint('lcdApi', __name__)

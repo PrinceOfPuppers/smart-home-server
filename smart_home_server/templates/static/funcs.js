@@ -47,13 +47,33 @@ async function getData(url, data=null, httpMethod='GET'){
 }
 
 function formToObject(form){
-    let formData = new FormData(form)
+    var res = {}
+    const elements = form.querySelectorAll('[name]');
+    elements.forEach( element => {
+        const name = element.name;
+        let value = element.value;
 
-    var object = {};
-    formData.forEach(function(value, key){
-        object[key] = value;
-    });
-    return object
+        switch (element.type) {
+          case 'number':
+            value = value === '' ? null : Number(value);
+            break;
+
+          case 'checkbox':
+            value = element.checked;
+            break;
+
+          case 'radio':
+            if (!element.checked) return; // only store the checked one
+            break;
+
+          case 'date':
+            value = value ? new Date(value) : null;
+            break;
+        }
+        res[name] = value
+
+    })
+    return res
 }
 
 
@@ -133,24 +153,6 @@ function tempChangeButton(element, newText, time=1){
     });
 }
 
-function hideUnhideJobForms(dropDown){
-    // iterate over options in the drop down
-    Array.from(dropDown.options).forEach((dropDownOption) => {
-        // get all elements which match that option
-        const form = document.getElementById("jobFormHideUnhide");
-        const optionElements = form.querySelectorAll(`[id^='${dropDownOption.value}']`);
-
-        // see if they match the current value
-        if (dropDown.value === dropDownOption.value) {
-            // if so, display them
-            optionElements.forEach((element) => {element.style.display = "block"});
-        } else {
-            // else hide them
-            optionElements.forEach((element) => {element.style.display = "none"});
-        }
-    })
-}
-
 function toggleDropDown(buttonId, elementId){
     const button = document.getElementById(buttonId);
     const element = document.getElementById(elementId);
@@ -187,4 +189,40 @@ function setupSelectButtonResize(){
             sel.addEventListener("change", (e) => {resizeSelectButton(e.target)}); // resize on change
         }
     );
+}
+
+function setupHideUnhideForm(dropDownId, hideUnhideSectionId){
+    let ddid = "#" + dropDownId;
+    hideUnhideForm(document.querySelector(ddid), hideUnhideSectionId);
+    document.querySelector(ddid).addEventListener("change", function(dropDown) {hideUnhideForm(dropDown.target, hideUnhideSectionId)});
+}
+
+function hideUnhideForm(dropDown, hideUnhideSectionId){
+    // iterate over options in the drop down
+    Array.from(dropDown.options).forEach((dropDownOption) => {
+        // get all elements which match that option
+        const form = document.getElementById(hideUnhideSectionId);
+        const optionElements = form.querySelectorAll(`[id^='${dropDownOption.value}']`);
+
+        // see if they match the current value
+        if (dropDown.value === dropDownOption.value) {
+            optionElements.forEach((element) => {
+                // if so, display them
+                element.style.display = "block";
+                // toggle required elements if they contain special tag
+                if(element.hasAttribute("data-is-required") && element.getAttribute("data-is-required")){
+                    element.required = true;
+                }
+            });
+        } else {
+            // else hide them
+            optionElements.forEach((element) => {
+                element.style.display = "none"
+                // toggle required elements if they contain special tag
+                if(element.hasAttribute("data-is-required") && element.getAttribute("data-is-required")){
+                    element.required = false;
+                }
+            });
+        }
+    })
 }

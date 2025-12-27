@@ -66,6 +66,9 @@ createIfNotExists(lcdsFolder)
 graphsFolder = f'{storageFolder}/graphs'
 createIfNotExists(graphsFolder)
 
+datasourcesFolder = f'{storageFolder}/datasources'
+createIfNotExists(datasourcesFolder)
+
 # defaultRemoteFileA = f'{storageFolder}/remotes/A'
 # if not os.path.exists(defaultRemoteFileA):
 #     with open(defaultRemoteFileA,"w") as f:
@@ -155,18 +158,18 @@ def isRpi():
     return _isRpi
 
 requestTimeout = 5
-_city = "43.4652699,-80.5222961" # Waterloo Canada
-fullForecastUrl   = f'http://wttr.in/{_city}'
-fullforecastUrlV2 = f'http://v2d.wttr.in/{_city}'
+#_city = "43.4652699,-80.5222961" # Waterloo Canada
+fullForecastUrl   = lambda locale: f'http://wttr.in/{locale}'
+fullforecastUrlV2 = lambda locale: f'http://v2d.wttr.in/{locale}'
 #graphical forcast
-forecastUrl       = f'http://wttr.in/{_city}?TQ3n'
+forecastUrl       = lambda locale: f'http://wttr.in/{locale}?TQ3n'
 # inaccurate current information, used for forcast
-wttrApiUrl        = f'http://wttr.in/{_city}?format=j1'
+wttrApiUrl        = lambda locale: f'http://wttr.in/{locale}?format=j1'
 # used for weather image
-weatherUrl        = f'http://wttr.in/{_city}?TQ0n'
+weatherUrl        = lambda locale: f'http://wttr.in/{locale}?TQ0n'
 #used for current condition data
-#wttrCurrentData   = f'http://wttr.in/{_city}?format=%C\n%t\n%f\n%h\n%p\n%u\n%S\n%s'
-wttrCurrentData   = f'http://wttr.in/{_city}?format=%C\n%t\n%f\n%h\n%p\n%u\n'
+#wttrCurrentData   = lambda locale: f'http://wttr.in/{locale}?format=%C\n%t\n%f\n%h\n%p\n%u\n%S\n%s'
+wttrCurrentData   = lambda locale: f'http://wttr.in/{locale}?format=%C\n%t\n%f\n%h\n%p\n%u\n'
 
 #google scraping for dashboard
 googleExchangeRateDiv = re.compile(r"<div[^>]+data-exchange-rate\s?=\s?[\"\'](.*?)[\"\'][^>]?>")
@@ -186,8 +189,6 @@ pulseLenthTolerance = 10
 
 # max hours graphs can display
 graphMaxHours = 128
-
-useBME = False
 
 # server buttons
 buttonPins = [23,24]

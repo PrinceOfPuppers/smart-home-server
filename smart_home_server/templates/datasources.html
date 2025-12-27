@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href = "style.css"></link>
+<script type="text/javascript" src="funcs.js"></script>
+
+{% import 'jinjaMacros.html' as m %}
+
+<html>
+<script>
+    function formToSubmit(form, dsTypeField = "datasourceType", dsType = null){
+        // Format
+        // data = {"dataType": T, "T.x": ... , "T.some.data": ... , "T.some.otherdata": ...}
+        var data = formToObject(form);
+        if (dsType === null){
+            dsType = data[dsTypeField];
+        }
+        toSubmit = {"datasourceType": dsType};
+
+        Object.entries(data).forEach(([keyChain, value]) => {
+            // Format
+            // keys = ["T", "some", "data"]
+            keys = keyChain.split('.')
+
+            if(keys[0] == dsType && keys[0] != dsTypeField && value != null){
+                // we iterate over keys and create a property path to store our value
+                // we keep track of the final container that will contain our value
+                container = toSubmit
+
+                keys.slice(1, -1).forEach((key => {
+                    if(!Object.hasOwn(container, key)){
+                        container[key] = {}
+                    }
+                    container = container[key]
+                }))
+
+                container[keys.at(-1)] = value;
+            }
+        })
+        return toSubmit
+    }
+
+    function submitdatasourceHandler(event){
+        event.preventDefault();
+        let form = event.currentTarget;
+        toSubmit = formToSubmit(form)
+        sendData('api/datasource', {"datasource": toSubmit}, 'POST', reload=true);
+    }
+
+    function deleteDatasource(id){
+        var data = {'name': id};
+        console.log(data);
+        sendData('/api/datasource', data, 'DELETE', reload=true);
+    }
+
+    function saveDatasource(id, datasourceType, initialIndex){
+        let form = document.getElementById('existingDatasourceForm-' + id)
+        let indexSpan = document.getElementById('existingDatasourceIndex-' + id)
+        const newIndex = parseInt(indexSpan.textContent);
+        var toSubmit = formToSubmit(form, "", datasourceType)
+        var packet = {"datasource": toSubmit, "oldName": id}
+
+        if(!isNaN(newIndex) && initialIndex != newIndex){
+            packet["newIndex"] = newIndex
+        }
+
+        sendData('api/datasource', packet, 'PATCH', reload=true);
+    }
+
+    window.onload = () => {
+        document.getElementById('datasourceForm').addEventListener('submit', submitdatasourceHandler);
+
+        setupSelectButtonResize();
+        setupHideUnhideForm('datasourceType', 'datasourceFormHideUnhide')
+    }
+
+</script>
+
+<body>
+    {{ m.topnav("Datasources") }}
+
+    <h3>Datasources:</h3>
+    {% if datasources|length == 0 %}
+        <center class="faintText">No Datasources</center>
+    {% endif %}
+    {% for ds in datasources %}
+        {% set dss = datasourceSchemaDict[ds.datasourceType] %}
+        {% set id = ds.name %}
+
+        {% set schema = dss.properties %}
+        {% set required = dss.required %}
+
+        <form id="existingDatasourceForm-{{ id }}" autocomplete="off">
+            <span class="buttonBar">
+                {{ m.deleteButton( 'deleteDatasource("%s")' % (id) ) }}
+                <span id="existing-datasourceType" class="{{ ds.dashboard.color }} entry" contentEditable="false" >{{ ds.datasourceType | replace("Datasource", "", 1) }}</span>
+                <span class="lightGrey entry" id="existingDatasourceIndex-{{ id }}" contentEditable="true" data-placeholder="Index" spellcheck="false">{{ loop.index0 }}</span>
+                <button id="save-datasource-{{ id }}" type="button" class="greenButton" onclick='saveDatasource("{{ id }}", "{{ ds.datasourceType }}", {{ loop.index0 }})'>💾</button>
+            </span>
+            <div id="existingBr" class="clear"></div>
+            {{ m.schemaToForm(schema, ds.datasourceType, ["datasourceType"], required, ds) }}
+        </form>
+    {% endfor %}
+
+    <h3>New Datasource:</h3>
+    <form id="datasourceForm">
+        <section>
+            <div class="formDiv">
+                <span class="buttonBar">
+                    {{ m.deleteButton( "" ) }}
+                    <select id="datasourceType" class="blue selectButton" name="datasourceType" required>
+                        {% for dss in datasourceSchemas %}
+                            {% set schema = dss.properties %}
+                            {% set datasourceType = schema.datasourceType.const %}
+                            <option value="{{ datasourceType }}">{{ datasourceType | replace("Datasource", "", 1) }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="greenButton">💾</button>
+                </span>
+            </div>
+            <div id="dsTypeSelectBr" class="clear"></div>
+        </section>
+        <section id="datasourceFormHideUnhide">
+            {% for dss in datasourceSchemas %}
+                {% set schema = dss.properties %}
+                {% set required = dss.required %}
+                {% set datasourceType = schema.datasourceType.const %}
+
+                {{ m.schemaToForm(schema, datasourceType, ["datasourceType"], required) }}
+            {% endfor %}
+        </section>
+    </form>
+
+  </body>
+</html>

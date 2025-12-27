@@ -44,6 +44,10 @@ img {
     border: 2pt solid var(--lightGrey);
     color: var(--lightGrey)
 }
+.darkGrey{
+    border: 2pt solid var(--darkGrey);
+    color: var(--darkGrey)
+}
 @font-face {
   font-family: "Noto-Color-Mono";
   src: url('NotoColorEmoji-Regular.ttf') format('truetype');
@@ -150,9 +154,18 @@ button:active {
     color: var(--orange);
     border-color: var(--orange);
 }
-.grayButton {
+.greyButton {
+    color: var(--grey);
+    border-color: var(--grey);
+}
+.lightGreyButton {
     color: var(--lightGrey);
     border-color: var(--lightGrey);
+}
+/*Note this is the same as greyButton as the style does not work*/
+.darkGreyButton {
+    color: var(--grey);
+    border-color: var(--grey);
 }
 ul{
     padding: 0;
@@ -232,6 +245,14 @@ textarea {
     float:left;
     padding:3pt;
 }
+.formBoxDiv {
+    width: fit-content;
+    /*border: 2pt solid var(--lightGrey);*/
+    background-color: var(--darkGrey);
+    padding:5pt;
+    border-radius: 4px;
+}
+
 .job, .macro{
     width: fit-content;
     border: 2pt solid var(--lightGrey);
@@ -263,7 +284,7 @@ textarea {
 .macroItems {
     display: none;
 }
-#jobForm, #newMacroForm, #addToMacroForm, #newRemoteForm, #editRemoteForm{
+form {
     width: fit-content;
     border: 2pt solid var(--lightGrey);
     background-color: var(--grey);
@@ -353,6 +374,7 @@ textarea {
     border-radius: 4pt;
     background-color: var(--darkGrey);
     padding: 10pt 12pt;
+    line-height: normal;
     cursor: pointer;
     font-size:11pt;
     -moz-appearance:none; /* Firefox */
@@ -393,6 +415,9 @@ select {
     border-radius: 4pt;
     border: 2pt solid var(--lightGrey);
     color:var(--white);
+}
+select[disabled] {
+    appearance: none;
 }
 textarea {
     background-color:var(--darkGrey);

@@ -166,8 +166,7 @@
         document.getElementById('addToMacroForm').addEventListener('submit', addToMacroHandler);
         document.getElementById('newMacroForm').addEventListener('submit', newMacroHandler);
 
-        hideUnhideJobForms(document.querySelector('#do'));
-        document.querySelector('#do').addEventListener("change", function(dropDown) {hideUnhideJobForms(dropDown.target)});
+        setupHideUnhideForm("do", "jobFormHideUnhide")
     }
 </script>
 

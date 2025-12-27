@@ -1,4 +1,105 @@
 
+
+{% macro schemaToForm(schema, idPrefix, skipKeys, required, prePopulated = None) %}
+    {% for key in schema %}
+        {% if key not in skipKeys %}
+            <div id="{{ idPrefix }}Div"  class="formDiv">
+
+            {% set variable = schema[key] %}
+            {% set uiInfo = variable.uiInfo if variable.uiInfo is defined else {} %}
+            {% set label = uiInfo.label if uiInfo.label is defined else key %}
+            {% set label = label | capitalize if uiInfo.labelCaps is not defined or uiInfo.labelCaps else label %}
+            
+            {% set prePop = prePopulated[key] if prePopulated[key] is defined else None %}
+
+            {% if "enum" in variable %}
+                <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ label }}:</label>
+                <select id="{{ idPrefix }}.{{ key }}" name="{{ idPrefix }}.{{ key }}">
+                    {% for color in variable.enum %}
+                        <option value="{{ color }}" {{ "selected" if color == prePop }}>{{ color }}</option>
+                    {% endfor %}
+                </select>
+
+            {% elif "const" in variable %}
+                <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ label }}:</label>
+                <select disabled id="{{ idPrefix }}.{{ key }}" name="{{ idPrefix }}.{{ key }}">
+                    <option value="{{ variable["const"] }}" >{{ variable["const"] }}</option>
+                </select>
+
+
+            {% elif variable.type == "object" %}
+                <div id="{{ idPrefix }}Div", class="formBoxDiv">
+                    {{ label }}:
+                    <div id="{{ idPrefix }}Br" class="clear"></div>
+                    {{ schemaToForm(variable.properties, idPrefix+"."+key, [], variable.required, prePop) }}
+                </div>
+
+            {% elif variable.type in ["integer", "string", "boolean"] %}
+                    <label for="{{ idPrefix }}.{{ key }}" id="{{ idPrefix }}.{{ key }}Label">{{ label }}:</label>
+                    <input
+                        id="{{ idPrefix }}.{{ key }}"
+                        name="{{ idPrefix }}.{{ key }}"
+                        {% if variable.type == "integer" %}
+                                type="number"
+                                size="{{ 
+                                      uiInfo.size if uiInfo.size is defined else 
+                                      variable.maximum|string|length if variable.maximum is defined 
+                                      else 8
+                                }}"
+                                {% if variable.default is defined %}
+                                    placeholder="{{ variable.default }}"
+                                {% endif %}
+
+                                {% if prePop != None %}
+                                    value={{ prePop }}
+                                {% endif %}
+
+                                {% if variable.minimum is defined %}min="{{ variable.minimum }}"{% endif %}
+                                {% if variable.maximum is defined %}max="{{ variable.maximum }}"{% endif %}
+                        {% elif variable.type == "string" %}
+                                type="text"
+                                size="{{ 
+                                      uiInfo.size if uiInfo.size is defined else 
+                                      variable.maxLength if variable.maxLength is defined and variable.maxLength < 20 
+                                      else 20
+                                }}"
+                                {% if variable.default is defined %}
+                                    placeholder="{{ variable.default }}"
+                                {% endif %}
+
+                                {% if prePop != None %}
+                                    value="{{ prePop }}"
+                                {% endif %}
+
+                                {% if variable.minLength is defined %}minLength="{{ variable.minLength }}"{% endif %}
+                                {% if variable.maxLength is defined %}maxLength="{{ variable.maxLength }}"{% endif %}
+                        {% elif variable.type == "boolean" %}
+                                type="checkbox"
+                                {% if prePop != None %}
+                                    {{ "checked" if prePop else "" }}
+                                {% elif variable.default is defined %}
+                                    {{ "checked" if variable.default else "" }}
+                                {% endif %}
+                                value="true"
+                        {% endif %}
+
+                    {% if key in required %}
+                        data-is-required="true"
+                        required
+                    {% endif %}
+                    />
+            {% endif %}
+
+
+        </div>
+        {% if uiInfo.br is not defined or uiInfo.br %}
+            <div id="{{ idPrefix }}Br" class="clear"></div>
+        {% endif %}
+
+        {% endif %} <!-- key not in skipKeys -->
+    {% endfor %}
+{% endmacro %}
+
 {% macro jobFormDo(remotes, macros, lcds, includeDelay=False) %}
     <section id="jobFormHideUnhide">
         <div class="formDiv">
@@ -48,7 +149,7 @@
         </div>
 
         <div id="lcdDiv" class="formDiv">
-            <button type="button" id="lcdHelp" class="grayButton" onclick="lcdFmtCheatSheet()">Cheat Sheet</button>
+            <button type="button" id="lcdHelp" class="lightGreyButton" onclick="lcdFmtCheatSheet()">Cheat Sheet</button>
         </div>
 
         <div id="lcdBr" class="clear"></div>
@@ -82,6 +183,7 @@
             <input type="checkbox" id="lcdNameEdit" name="lcdNameEdit" value="true" checked="true">
         </div>
 
+        <div id="lcdBr" class="clear"></div>
 
         <div id="lcdDiv" class="formDiv">
             <label for="lcdFmt" id="lcdFmtLabel">Format:</label>
@@ -207,7 +309,7 @@
 
 
 {% macro deleteButton(onclick) %}
-    <button class="redButton", onclick = "{{ onclick }}"">✕</button>
+    <button class="redButton", type="button", onclick = "{{ onclick }}"">✕</button>
 {% endmacro %}
 
 {% macro enabledButton(onclick) %}
@@ -232,11 +334,12 @@
         ("/trigger", "Trigger"),
         ("/macros", "Macro"),
         ("/graphs", "Graph"),
+        ("/datasources", "Datasources"),
     ] %}
     <div class="topnav">
         {% for tab in tabs %}
         {% set active = 'class=active' if activeTab == tab[1] else "" %}
         <a {{ active }} href="{{ tab[0] }}">{{ tab[1] }}</a>
         {% endfor %}
-    </div> 
+    </div>
 {% endmacro %}

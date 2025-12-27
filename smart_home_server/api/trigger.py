@@ -3,10 +3,11 @@ from flask import jsonify, request, Blueprint, current_app
 from flask_expects_json import expects_json
 
 from smart_home_server.helpers import addDefault
-from smart_home_server.data_sources import dataSourceValues
+import smart_home_server.data_sources.datasourceInterface as dsi
 from smart_home_server.handlers.triggerManager import addTrigger, updateTriggerName, removeTrigger, enableDisableTrigger, getTrigger, getTriggers, TriggerDoesNotExist
 
-from smart_home_server.api import allJobsSchema, nameSchema, idSchema, patchNameSchema
+from smart_home_server.api.schemas import allJobsSchema, patchNameSchema
+from smart_home_server.api.schemaTypes import nameSchema, idSchema
 from smart_home_server.handlers import validateJob
 
 triggerApi = Blueprint('triggerApi', __name__)
@@ -63,11 +64,11 @@ def postJob():
     addDefault(data, 'name', 'Trigger', checkCond=True, strip=True)
 
     firstVar = data['firstVar']
-    if firstVar['value'] not in dataSourceValues:
+    if firstVar['value'] not in dsi.datasources.datavalues:
         return current_app.response_class(f"Unknown Data Value: {firstVar['value']}", status=400)
 
     secondVar = data['secondVar']
-    if secondVar['type'] == 'dataSource' and secondVar['value'] not in dataSourceValues:
+    if secondVar['type'] == 'dataSource' and secondVar['value'] not in dsi.datasources.datavalues:
         return current_app.response_class(f"Unknown Data Value: {secondVar['value']}", status=400)
 
 

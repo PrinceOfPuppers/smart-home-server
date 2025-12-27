@@ -63,7 +63,18 @@ sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
 sudo systemctl enable systemd-time-wait-sync
 sudo systemctl start systemd-time-wait-sync
+python3 -m venv venv
+source ./venv/bin/activate
 pip3 install -e .
+
+# create bin
+
+PROGRAM="smart-home-server"
+echo "#!$(which python3) -u" > "./$PROGRAM"
+echo "if __name__ == \"__main__\":" >> "./$PROGRAM"
+echo "    from smart_home_server import main" >> "./$PROGRAM"
+echo "    main()" >> "./$PROGRAM"
+sudo chmod +x "./$PROGRAM"
 
 # create update script
 UPDATE_PROGRAM="smart-home-update"
@@ -73,15 +84,13 @@ echo "git -C $PWD pull" | sudo tee -a "./$UPDATE_PROGRAM"
 sudo chmod +x "./$UPDATE_PROGRAM"
 
 # create systemd service
-PROGRAM="smart-home-server"
 # user service
 SERVICE_FILE="/usr/lib/systemd/user/$PROGRAM.service"
 BIN_LOCATION="/usr/local/bin/$PROGRAM"
 UPDATE_BIN_LOCATION="/usr/local/bin/$UPDATE_PROGRAM"
 
 #TODO replace with symlinks
-sudo chmod +x "bin/$PROGRAM"
-sudo cp "bin/$PROGRAM" $BIN_LOCATION
+sudo mv "./$PROGRAM" $BIN_LOCATION
 sudo mv "./$UPDATE_PROGRAM" $UPDATE_BIN_LOCATION
 
 sudo cp $PROGRAM.service $SERVICE_FILE

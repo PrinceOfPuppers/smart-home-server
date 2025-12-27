@@ -7,6 +7,7 @@ network-info.h
 .ccls-cache
 images_uncompressed
 generated
+venv
 
 /build
 /dist

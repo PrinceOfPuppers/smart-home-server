@@ -62,8 +62,7 @@
         hideUnhideSecondVarFields(document.querySelector('#secondVarType'));
         document.querySelector('#secondVarType').addEventListener("change", function(dropDown) {hideUnhideSecondVarFields(dropDown.target)});
 
-        hideUnhideJobForms(document.querySelector('#do'));
-        document.querySelector('#do').addEventListener("change", function(dropDown) {hideUnhideJobForms(dropDown.target)});
+        setupHideUnhideForm("do", "jobFormHideUnhide")
     }
     
 </script>

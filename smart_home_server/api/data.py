@@ -1,6 +1,7 @@
 from flask import Blueprint, current_app, jsonify
 
-from smart_home_server.data_sources import dataSources
+import smart_home_server.data_sources.datasourceInterface as dsi
+import smart_home_server.data_sources.datasourceTypes as dst
 from smart_home_server.errors import addSetError, clearErrorInSet
 
 # return format is
@@ -15,20 +16,19 @@ from smart_home_server.errors import addSetError, clearErrorInSet
 
 dataApi = Blueprint('dataApi', __name__)
 
-def route(source):
-    res = source['local']()
+def route(source:dst.Datasource):
+    res = source.local()
 
     if not res:
         # add error
-        addSetError('Dashboard None', source['name'])
-        return current_app.response_class(f"Error Getting: {source['name']}", status=400, mimetype="text/plain")
+        addSetError('Dashboard None', source.name)
+        return current_app.response_class(f"Error Getting: {source.name}", status=400, mimetype="text/plain")
 
     # remove error
-    clearErrorInSet('Dashboard None', source['name'])
+    clearErrorInSet('Dashboard None', source.name)
     return jsonify(res)
 
 view_maker = lambda source: (lambda: route(source))
-for source in dataSources:
-    if 'dashboard' in source: #and source['dashboard']['enabled']:
-        endpoint = source['url'].replace('/','')
-        dataApi.add_url_rule(source['url'], view_func = view_maker(source), endpoint=endpoint)
+for source in dsi.datasources.datasourceList:
+    endpoint = source.url.replace('/','')
+    dataApi.add_url_rule(source.url, view_func = view_maker(source), endpoint=endpoint)

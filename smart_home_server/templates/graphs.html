@@ -66,9 +66,9 @@
                 <span class="buttonBar">
                     {{ m.deleteButton( "deleteGraph('%s')" % (id) ) }}
                     <button class = "{{ color }} button" onclick="reloadImg('{{ id }}')">{{ datasource }}</button>
-                    <button class = "grayButton">{{ timeHours }} Hours</button>
+                    <button class = "lightGreyButton">{{ timeHours }} Hours</button>
                     {% if onMonitor %}
-                        <button class = "grayButton">Monitoring</button>
+                        <button class = "lightGreyButton">Monitoring</button>
                     {% else %}
                         <button class = "{{ color }} button" onclick="putOnMonitor('{{ id }}')">Monitor</button>
                     {% endif %}

@@ -24,10 +24,12 @@ from smart_home_server.api.note import noteApi
 from smart_home_server.api.macro import macroApi
 from smart_home_server.api.graph import graphApi
 from smart_home_server.api.lcd import lcdApi
-from smart_home_server.data_sources import dataSources, dataSourceValues
+from smart_home_server.api.datasource import datasourceApi
+import smart_home_server.data_sources.datasourceInterface as dsi
+import smart_home_server.data_sources.datasourceTypes as dst
 import smart_home_server.constants as const
 
-values = list(dataSourceValues)
+values = list(dsi.datasources.datavalues.keys())
 values.sort()
 
 app = Flask(__name__)
@@ -40,6 +42,7 @@ app.register_blueprint(noteApi)
 app.register_blueprint(macroApi)
 app.register_blueprint(lcdApi)
 app.register_blueprint(graphApi)
+app.register_blueprint(datasourceApi)
 app.jinja_env.add_extension('jinja2.ext.do')
 
 @app.route('/')
@@ -71,17 +74,9 @@ def scheduleGet():
 @app.route('/dashboard')
 def dashboardGet():
     elements=[]
-    for source in dataSources:
-        if 'dashboard' in source and source['dashboard']['enabled']:
-            elements.append(
-                {
-                    'url': source['url'],
-                    'pollingPeriod': source['pollingPeriod'],
-                    'color': source['color'],
-                    'name': source['name'],
-                    'dashboard': source['dashboard']
-                 }
-            )
+    for source in dsi.datasources.datasourceList:
+        if source.dashboard.enabled:
+            elements.append(source.toJson())
     return render_template('dashboard.html', dashboardElements=elements)
 
 @app.route('/trigger')
@@ -120,6 +115,14 @@ def graphsGet():
     idOnMonitor = getOnMonitor()
     return render_template('graphs.html', loadTime=round(time()), graphs=graphs, values=values, colors=["blue", "green", "orange", "red", "yellow", "purple", "grey", "white"], idOnMonitor=idOnMonitor)
 
+@app.route('/datasources')
+def datasourcesGet():
+    datasources = []
+    datasourceSchemas = dst.Datasource.getSchema()['oneOf']
+    datasourceSchemaDict = dst.Datasource.getSchemaTypeDict()
+    for source in dsi.datasourcesMutable.datasourceList:
+        datasources.append(source.toJson())
+    return render_template('datasources.html', datasources=datasources, datasourceSchemas=datasourceSchemas, datasourceSchemaDict=datasourceSchemaDict)
 
 def startServer():
     global app
