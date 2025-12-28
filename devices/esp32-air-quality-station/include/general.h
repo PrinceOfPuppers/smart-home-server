@@ -1,6 +1,8 @@
 #ifndef GENERAL_H_
 #define GENERAL_H_
 
+#include <Arduino.h>
+
 #define AQS_STATUS_OK 0
 #define AQS_STATUS_NO_UPDATE 1
 #define AQS_STATUS_WARN 2
