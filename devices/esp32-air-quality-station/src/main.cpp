@@ -1,29 +1,23 @@
+#include <Arduino.h>
 #include "PMS.h"
-#include "bme680_type.h"
 #include "bsec.h"
 #include "WiFi.h"
 
+#include "general.h"
+#include "bme680_type.h"
+#include "udp.h"
+#include "s8_sensor.h"
+#include "pms_sensor.h"
+#include "bme680_sensor.h"
 
 // if defined, will not hardfault if bme device is offline
 // (the bme often causes problems)
 #define BME_NO_HARDFAULT
 
+// if defined, will not hardfault if pms device is offline
+// #define PMS_NO_HARDFAULT
+
 #define SERIAL_BAUD 115200
-
-// #define DEBUG_ENABLED
-
-#ifdef DEBUG_ENABLED
-#define debug(msg) Serial.print((msg))
-#define debugln(msg) Serial.println((msg))
-#else
-#define debug(msg)
-#define debugln(msg)
-#endif
-
-#define AQS_STATUS_OK 0
-#define AQS_STATUS_NO_UPDATE 1
-#define AQS_STATUS_WARN 2
-#define AQS_STATUS_ERR 3
 
 
 ///////////////
@@ -107,6 +101,23 @@ void handle_bme_err(){
 #endif
 }
 
+void handle_pms_err(){
+#ifdef PMS_NO_HARDFAULT
+    // fill with max uint16 to notify data is invalid
+    pmsData.PM_AE_UG_1_0  = 0xFFFF;
+    pmsData.PM_AE_UG_2_5  = 0xFFFF;
+    pmsData.PM_AE_UG_10_0 = 0xFFFF;
+    pmsData.PM_SP_UG_1_0  = 0xFFFF;
+    pmsData.PM_SP_UG_2_5  = 0xFFFF;
+    pmsData.PM_SP_UG_10_0 = 0xFFFF;
+
+    debugln("PMS Error, No Hardfault");
+#else
+    hardfault(LED_ERR_PMS);
+#endif
+
+}
+
 ////////////////
 // setup/loop //
 ////////////////
@@ -155,7 +166,7 @@ void setup(){
 
     // end pms setup
     status = update_pms(&pmsData);
-    if(status != AQS_STATUS_OK){hardfault(LED_ERR_PMS);}
+    if(status != AQS_STATUS_OK){handle_pms_err();}
     debugln("");
     delay(1000);
 
@@ -210,7 +221,7 @@ void updateAll(uint32_t counterMins){
         status = update_pms(&pmsData);
         if(status != AQS_STATUS_OK){
             if ((++pmsErrCounter) > MAX_READ_ERR){
-                hardfault(LED_ERR_PMS);
+                handle_pms_err();
             }
         }
         else {
@@ -274,3 +285,4 @@ void loop(){
         debugln("");
     }
 }
+

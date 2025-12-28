@@ -88,27 +88,36 @@ Power board installation, installing motherboard into case, connecting lid:
 <br clear="left"/>
 
 ## Programming
-For debug output, uncomment `// #define DEBUG_ENABLED` in `esp32-air-quality-station.ino` line 10.
+For debug output, uncomment `// #define DEBUG_ENABLED` in `include/general.h` line 10.
 
-You must create the file `network-info.h` containing the following in this directory:
+You must create the file `network-info.h` containing the following in the `include` directory:
 
 ```
+#define HOST_NAME "esp32-air-quality-station"
 #define NETWORK_NAME "NETWORK123"
 #define NETWORK_PASS "XXXXXXXXX"
 ```
 
-The following command will build and get serial output on Linux, You may need to change USB0 to some other number for your machine:
+Replacing `NETWORK_NAME` and `NETWORK_PASS` with your wifi name and password. And replacing `HOST_NAME` with whatever you please (this is what will show up in your router)
+
+The following command will build and get serial output on Linux (Note you will need to enable debug output as specified in programming to see anything on your terminal)
 ```
-arduino-cli compile --fqbn "esp32:esp32:esp32" -u -p /dev/ttyUSB0 && screen /dev/ttyUSB0 115200
+pio run -t upload && pio device monitor
 ```
+
+If you have issues connecting to the device or the debug output is garbled try:
+```
+pio run -t upload --upload-port /dev/ttyUSB0 && pio device monitor -b 115200 --port /dev/ttyUSB0
+```
+
+Where `<PORT>` is somthing like `/dev/ttyUSB0`
 
 A UDP request can be made to the device using the following command:
 
 ```
 ./udp_request.sh "1" 192.168.1.123
-
 ```
-replace the IP address with the address of your ESP32 (check your router for the address once its connected, or the ESP32's debug output)
+Replace the IP address with the address of your ESP32 (check your router for the address once its connected, or the ESP32's debug output)
 
 
 # Operation
@@ -117,9 +126,16 @@ Once powered on, the device will gather its first sample and connect to WiFi (Ta
 Once the initialization is done and the indicator led is off (power led will still be on), the device will serve data whenever a UDP request is made to it.
 
 ## Hardware Errors
-In the event of a hardware error, the ESP32s indicator LED will blink, the number of flashes indicates the error:
+In the event of a hardware error (hardfault), the ESP32s indicator LED will blink, the number of flashes indicates the error:
 - BME680:      2
 - PMS5003:     3
 - Senseair S8: 4
 - Other:       5
 
+Note: 
+The following defines in `src/main.cpp` disable hardfaults for the BME680 and PMS5003 respectively:
+```
+#define BME_NO_HARDFAULT
+#define PMS_NO_HARDFAULT 
+```
+If a hardware fault occurs with these defines set, placeholder data will be sent (nan for the former and max uint16 for the latter)

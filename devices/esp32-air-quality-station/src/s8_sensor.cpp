@@ -1,4 +1,8 @@
+#include "s8_sensor.h"
+#include <Arduino.h>
 #include "s8_uart.h"
+
+#include "general.h"
 
 S8_UART *sensor_S8;
 S8_sensor sensor;
