@@ -103,6 +103,12 @@ class Datasource(_Datasource):
         return None
 
     def _value_helper(self, vals:set[str]):
+        if len(vals) == 1:
+            return {
+                f"{self.name}": ['data', next(iter(vals))]
+            }
+
+
         return {
             f"{self.name}-{val}": ['data', val] for val in vals
         }
@@ -116,9 +122,7 @@ class DatasourceForex(Datasource):
 
     @property
     def values(self):
-        return {
-            f"{self.name}": ['data', 'rate']
-        }
+        return self._value_helper({'rate'})
 
     def local(self):
         return dsf.getForexLocal(self.src, self.dest)

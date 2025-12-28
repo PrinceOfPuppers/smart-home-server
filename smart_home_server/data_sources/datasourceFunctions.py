@@ -1,7 +1,6 @@
 import requests
 from datetime import datetime
 
-from pprint import pprint
 from smart_home_server.hardware_interfaces.bme280 import getBME
 from smart_home_server.hardware_interfaces.udp import getWeatherServerData, getAirQualityServerData
 from smart_home_server.helpers import padChar
