@@ -171,9 +171,7 @@ weatherUrl        = lambda locale: f'http://wttr.in/{locale}?TQ0n'
 #wttrCurrentData   = lambda locale: f'http://wttr.in/{locale}?format=%C\n%t\n%f\n%h\n%p\n%u\n%S\n%s'
 wttrCurrentData   = lambda locale: f'http://wttr.in/{locale}?format=%C\n%t\n%f\n%h\n%p\n%u\n'
 
-#google scraping for dashboard
-googleExchangeRateDiv = re.compile(r"<div[^>]+data-exchange-rate\s?=\s?[\"\'](.*?)[\"\'][^>]?>")
-fakeUserAgentHeaders = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0"}
+forexUrl = lambda src: f"https://open.er-api.com/v6/latest/{src}"
 
 lcdI2CAddress = 0x27
 maxLcdLines = 4  # max lines supported for all lcds

@@ -99,8 +99,8 @@ class Datasource(_Datasource):
     def values(self) -> dict[str, list]: # pyright: ignore
         return {}
 
-    def local(self):
-        return {}
+    def local(self) -> dict | None:
+        return None
 
     def _value_helper(self, vals:set[str]):
         return {
@@ -120,14 +120,8 @@ class DatasourceForex(Datasource):
             f"{self.name}": ['data', 'rate']
         }
 
-    @staticmethod
-    def sanitize(data: dict):
-        data['src'] = data['src'].upper()
-        data['dest'] = data['dest'].upper()
-        return data
-
     def local(self):
-        return cached(dsf.getForexLocal, self.pollingPeriod//2, src = self.src, dest = self.dest)
+        return dsf.getForexLocal(self.src, self.dest)
 
 @dataclass(kw_only=True, frozen=True)
 class DatasourceClock(Datasource):
