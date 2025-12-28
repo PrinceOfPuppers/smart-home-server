@@ -91,16 +91,22 @@
             {% set schema = dss.properties %}
             {% set required = dss.required %}
 
+            {% set dropDownId =  'dropDownButton-' ~ id %}
+            {% set dropDownHideId = 'dropDownBody-' ~ id %}
+
             <div class="existingDatasource">
                 <form id="existingDatasourceForm-{{ id }}" autocomplete="off">
                     <span class="buttonBar">
                         {{ m.deleteButton( 'deleteDatasource("%s")' % (id) ) }}
                         <span id="existing-datasourceType" class="{{ ds.dashboard.color }} entry" contentEditable="false" >{{ ds.datasourceType | replace("Datasource", "", 1) }}</span>
                         <span class="lightGrey entry" id="existingDatasourceIndex-{{ id }}" contentEditable="true" data-placeholder="Index" spellcheck="false">{{ loop.index0 }}</span>
+                        {{ m.dropDownButton( dropDownId, dropDownHideId ) }}
                         <button id="save-datasource-{{ id }}" type="button" class="greenButton" onclick='saveDatasource("{{ id }}", "{{ ds.datasourceType }}", {{ loop.index0 }})'>💾</button>
                     </span>
                     <div id="existingBr" class="clear"></div>
-                    {{ m.schemaToForm(schema, ds.datasourceType, ["datasourceType"], required, ds) }}
+                    <div class="existingDatasourceContents" id={{ dropDownHideId }}>
+                        {{ m.schemaToForm(schema, ds.datasourceType, ["datasourceType"], required, ds) }}
+                    </div>
                 </form>
             </div>
         {% endfor %}

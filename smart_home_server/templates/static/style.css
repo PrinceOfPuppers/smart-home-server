@@ -265,6 +265,9 @@ textarea {
 .existingDatasource {
   margin-bottom:15pt;
 }
+.existingDatasourceContents{
+  display: none;
+}
 
 .buttonBar{
     width: fit-content;
