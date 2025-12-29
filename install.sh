@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x;
 
 mountPath=$(cd "$(dirname "$1")"; pwd)/$(basename "$1")smart_home_server/storage
 mkdir -p $mountPath
@@ -7,14 +6,40 @@ echo "Mount Path: $mountPath"
 
 if ! grep -Fq "$mountPath" /etc/fstab
 then
-    usbDevsStr=$(find /dev/disk/by-uuid -maxdepth 1 -type l -ls | sed 's/.*by-uuid\///' | sed 's/\.\.\/\.\.\///')
-    readarray -t usbDevs <<<"$usbDevsStr"
+    readarray -t uuids < <(basename -a /dev/disk/by-uuid/*)
+
+    valid_array=()
 
     echo "Pick a USB Device to Mount:"
+    for uuid in "${uuids[@]}"; do
+        part=$(readlink -f "/dev/disk/by-uuid/$uuid")
+        [[ -b "$part" ]] || continue
 
-    for i in "${!usbDevs[@]}"; do
-        echo "$(( $i + 1 ))) ${usbDevs[i]}"
+        disk_name=$(lsblk -no PKNAME "$part" 2>/dev/null) || continue
+        disk="/dev/$disk_name"
+        [[ -b "$disk" ]] || continue
+
+        # USB devices only
+        [[ "$(lsblk -no TRAN "$disk" 2>/dev/null)" == "usb" ]] || continue
+
+        size=$(lsblk -no SIZE "$part" 2>/dev/null)
+        label=$(lsblk -no LABEL "$part" 2>/dev/null)
+        model=$(lsblk -no MODEL "$disk" 2>/dev/null)
+
+        valid_array+=("$uuid")
+        line="${#valid_array[@]}) $part"
+
+        [[ -n "$model" ]] && line+=" Model:$model"
+        [[ -n "$label" ]] && line+=" Label:$label"
+
+        line+=" ($size)"
+
+        echo "$line"
     done
+    if [ ${#valid_array[@]} -eq 0 ]; then
+        echo "No USB devices detected."
+        exit 1
+    fi
 
     read input
     re='^[0-9]+$'
@@ -25,20 +50,25 @@ then
       exit 1
     fi
 
-    # now we mount selected UUID
-    dev=$(echo ${usbDevs[input-1]} | sed 's/\s->.*//')
-    ftype=$(sudo blkid | grep "$dev" | sed 's/.*\sTYPE="//' | sed 's/"\s.*//')
+    if (( input > ${#valid_array[@]} || input < 1 )); then
+      echo "input: ${input} not within range given"
+      exit 1
+    fi
 
-    echo $dev
-    echo $ftype
+    chosen_uuid=${valid_array[input-1]}
 
-    echo "UUID=$dev       $mountPath   $ftype  rw,user,exec,umask=000 0 1" | sudo tee -a /etc/fstab
+    ftype=$(blkid -o value -s TYPE "/dev/disk/by-uuid/$chosen_uuid")
+
+    echo "$chosen_uuid"
+    echo "$ftype"
+
+    echo "UUID=$dev       $mountPath   $ftype  rw,user,exec,umask=000 0 0" | sudo tee -a /etc/fstab
     sudo systemctl daemon-reload
     sudo mount -a
-    #sudo mount $mountPath
 fi
 
 # usb mounting over
+set -x;
 
 pathappend() {
   for ARG in "$@"
