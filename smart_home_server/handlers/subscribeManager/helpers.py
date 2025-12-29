@@ -1,4 +1,3 @@
-import smart_home_server.constants as const
 from datetime import datetime, timedelta
 from queue import Empty
 from typing import Callable
@@ -6,6 +5,8 @@ from dataclasses import dataclass
 import traceback
 
 import smart_home_server.data_sources.datasourceInterface as dsi
+import smart_home_server.data_sources.datasourceTypes as dst
+
 
 from smart_home_server.errors import addSetError, clearErrorInSet
 
@@ -15,21 +16,21 @@ def _dataFromDataPath(x, dataPath):
         y = y[p]
     return y
 
-def _updateToSend(source, toSend):
-    func = source['local']
+def _updateToSend(source:dst.Datasource, toSend):
+    func = source.local
     res = func()
     if res is None:
         # add error
-        addSetError("Subscribe Mgr None", source['name'])
+        addSetError("Subscribe Mgr None", source.name)
         return
 
-    clearErrorInSet("Subscribe Mgr None", source['name'])
+    clearErrorInSet("Subscribe Mgr None", source.name)
 
-    for key,value in source['values'].items():
+    for key,value in source.values.items():
         # we do not check if enabled, its only used for frontend filtering
         #if value['enabled']:
         try:
-            data = _dataFromDataPath(res , value['dataPath'])
+            data = _dataFromDataPath(res , value)
         except KeyError:
             continue
         toSend[key] = data
@@ -95,7 +96,7 @@ def _publishUpdates(now: datetime, subscribers, lastUpdates, toSend):
     for name in dsi.datasources.datasourceDict:
         if name not in lastUpdates:
             continue
-        source = dsi.datasources.datasourceDict[name]
+        source:dst.Datasource = dsi.datasources.datasourceDict[name]
         period = source.pollingPeriod
         if now < lastUpdates[name]+timedelta(seconds=period):
             # no update

@@ -1,8 +1,10 @@
+#include "bme680_sensor.h"
+#include <Arduino.h>
 #include "bsec.h"
 #include "bme680_type.h"
+#include "general.h"
 
 Bsec iaqSensor;
-String output;
 
 int checkIaqSensorStatus(void)
 {

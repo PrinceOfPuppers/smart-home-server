@@ -1,23 +1,16 @@
+#include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
 
 #include <ESP8266WiFi.h>
 
+#include "general.h"
 #include "network-info.h"
+#include "watchdog.h"
 
 #define WATCHDOG_INTERVAL 5000
 
 #define SERIAL_BAUD 115200
-
-// #define DEBUG_ENABLED
-
-#ifdef DEBUG_ENABLED
-#define debug(msg) Serial.print(msg)
-#define debugln(msg) Serial.println(msg)
-#else
-#define debug(msg) 
-#define debugln(msg) 
-#endif
 
 ///////////////
 // LCD stuff //
@@ -107,7 +100,6 @@ const String server_ip = SERVER_IP;
 static String localIP;
 #define PORT 6832
 
-#define HOST_NAME "esp-dashboard"
 
 WiFiClient client;
 #define KEEPALIVE_IDLE_SEC          10*60

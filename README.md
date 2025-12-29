@@ -84,7 +84,7 @@ The macros like bedroom on/off would be replaced with single RF switching jobs, 
 ## Datasources
 The server collects data from `datasources` with a set polling period. The data can then be used to:
 - [Trigger](#trigger) server [Jobs](#jobs-and-macros) on conditions
-- Displayed on the [dashboard](#dashboard)
+- Displayed on the [Dashboard](#dashboard)
 - Create [Graphs](#graph)
 - Displayed on local and remote [LCDs](#lcd)
 

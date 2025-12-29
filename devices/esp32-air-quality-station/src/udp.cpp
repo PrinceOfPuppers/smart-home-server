@@ -1,3 +1,5 @@
+#include "udp.h"
+#include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
@@ -6,6 +8,7 @@
 #include "bme680_type.h"
 
 #include "network-info.h"
+#include "general.h"
 
 ///////////////
 // UDP stuff //
@@ -16,8 +19,6 @@ char incomingPacket[256];
 char replyPacket[256];
 
 //WiFiEventHandler wifi_disconnect_handler;
-
-#define HOST_NAME "esp32-air-quality-station"
 
 void wifi_disconnect_cb(WiFiEvent_t event, WiFiEventInfo_t info) {
     ESP.restart();

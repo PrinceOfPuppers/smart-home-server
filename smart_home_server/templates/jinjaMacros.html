@@ -321,7 +321,7 @@
 {% endmacro %}
 
 {% macro dropDownButton(dropDownId, elementId, color="purple") %}
-    <button class="{{color}}Button", id="{{ dropDownId }}", onclick = "toggleDropDown('{{ dropDownId }}', '{{ elementId }}')"">⏷</button>
+    <button class="{{color}}Button", type="button" id="{{ dropDownId }}", onclick = "toggleDropDown('{{ dropDownId }}', '{{ elementId }}')"">⏷</button>
 {% endmacro %}
 
 {% macro topnav(activeTab) %}

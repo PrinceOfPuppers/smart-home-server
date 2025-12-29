@@ -1,3 +1,6 @@
+#include "watchdog.h"
+#include <Arduino.h>
+#include "general.h"
 #include "ESP8266TimerInterrupt.h"
 
 // Select a Timer Clock

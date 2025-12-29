@@ -107,11 +107,12 @@
         {% for element in dashboardElements %}
             {% set name          = element['name'] %}
             {% set color         = element['dashboard']['color'] %}
+            {% set label         = element['dashboard']['label'] %}
             {% set url           = element['url'] %}
             {% set dashboard     = element['dashboard'] %}
             <div>
                 <span class="buttonBar">
-                <button class="{{ color }}Button" id="dashboardButton-{{ name }}">{{ name }}</button>
+                <button class="{{ color }}Button" id="dashboardButton-{{ name }}">{{ label }}</button>
                 {% if 'buttons' in dashboard %}
                     {% for button in dashboard['buttons'] %}
                             {% set actions = button['actions'] %}

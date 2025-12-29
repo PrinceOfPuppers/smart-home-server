@@ -4,7 +4,9 @@ from datetime import datetime
 from smart_home_server.hardware_interfaces.bme280 import getBME
 from smart_home_server.hardware_interfaces.udp import getWeatherServerData, getAirQualityServerData
 from smart_home_server.helpers import padChar
+from threading import Lock
 import smart_home_server.constants as const
+from time import time
 
 from smart_home_server import __version__
 
@@ -21,20 +23,42 @@ from smart_home_server.handlers.logs import jobLog, rfLog
 #    },
 #}
 
+forexCache = {}
+forexCacheLock = Lock()
+def _getForexLocal(src, dest):
+    try:
+        if (src in forexCache) and \
+           (forexCache[src]["time_next_update_unix"]) > time() and \
+           (dest in forexCache[src]["rates"]):
+
+            return forexCache[src]["rates"][dest]
+    except:
+        pass
+    return None
 
 def getForexLocal(src,dest, decimal=3):
-    try:
-        r = requests.get(f'https://www.google.com/search?q={src}+to+{dest}', headers=const.fakeUserAgentHeaders, timeout=const.requestTimeout)
-    except:
-        return None
-    if not r.ok:
+    src = src.upper().strip()
+    dest = dest.upper().strip()
+    if len(src) != 3 or len(dest) != 3:
         return None
 
-    x = const.googleExchangeRateDiv.search(r.text)
-    if not x:
+    with forexCacheLock:
+        rate = _getForexLocal(src, dest)
+
+        if rate is None:
+            try:
+                r = requests.get(const.forexUrl(src), timeout=const.requestTimeout)
+                if not r.ok:
+                    return None
+                forexCache[src] = r.json()
+            except:
+                return None
+            rate = _getForexLocal(src, dest)
+
+    if rate is None:
         return None
 
-    rate = str(round(float(x.group(1)),decimal))
+    rate = round(float(rate), decimal)
     res = {
         'str': str(rate),
         'data': {

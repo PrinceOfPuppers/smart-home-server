@@ -1,13 +1,19 @@
+#include "pms_sensor.h"
+#include <Arduino.h>
 #include "PMS.h"
+
+#include "general.h"
 
 #define PMS_RX1 5
 #define PMS_TX1 18
 #define PMS_SET 14
 #define PMS_SLEEP_MS 30*1000
 
+
 PMS pms(Serial1);
 
 static uint32_t lastWakeMs = 0;
+static uint32_t read_attempts = 0;
 static bool sleeping = false;
 
 void wakeup_pms(){
@@ -58,6 +64,7 @@ int update_pms(PMS::DATA *data){
     pms.requestRead();
 
     if(pms.readUntil(*data)){
+        read_attempts = 0;
         debugln("PMS Data:");
         // memebers are of type uint16_t
         debugln("  PM1.0: " + String(data->PM_AE_UG_1_0) + "(ug/m3)");
@@ -65,7 +72,8 @@ int update_pms(PMS::DATA *data){
         debugln("  PM10 : " + String(data->PM_AE_UG_10_0) + "(ug/m3)");
         _sleep_pms();
         return AQS_STATUS_OK;
-    }
+    } 
+
     _sleep_pms();
 
     debugln("PMS no Update");

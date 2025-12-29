@@ -53,25 +53,36 @@ The BME280 will be mounted outside of the front the case, with the board facing 
 <br clear="left"/>
 
 ## Programming
-For debug output, uncomment `// #define DEBUG_ENABLED` in `esp-weather-station.ino` line 11.
+For debug output, uncomment `// #define DEBUG_ENABLED` in `esp-weather-station.ino` line 12.
 
-You must create the file `network-info.h` containing the following in this directory:
+You must create the file `network-info.h` containing the following in the `src` directory:
 
 ```
+#define HOST_NAME "esp-weather-station"
 #define NETWORK_NAME "NETWORK123"
 #define NETWORK_PASS "XXXXXXXXX"
 ```
 
-The following command will build and get serial output on Linux, you may need to change USB0 to some other number for your machine:
+Replacing `NETWORK_NAME` and `NETWORK_PASS` with your wifi name and password. And replacing `HOST_NAME` with whatever you please (this is what will show up in your router)
+
+The following command will build and get serial output on Linux (Note you will need to enable debug output as specified in programming to see anything on your terminal)
 ```
-arduino-cli compile --fqbn "esp8266:esp8266:nodemcuv2" -u -p /dev/ttyUSB0 && screen /dev/ttyUSB0 115200
+pio run -t upload && pio device monitor
 ```
+
+If you have issues connecting to the device or the debug output is garbled try:
+```
+pio run -t upload --upload-port /dev/ttyUSB0 && pio device monitor -b 115200 --port /dev/ttyUSB0
+```
+
+Where `<PORT>` is somthing like `/dev/ttyUSB0`
 
 A UDP request can be made to the device using the following command:
 
 ```
 ./udp_request.sh "1" 192.168.1.123
-
 ```
-replace the IP address with the address of your Esp8266 (check your router for the address once its connected, or the Esp8266's debug output)
+replace the IP address with the address of your Esp8266 (check your router for the address once its connected, or the Esp8266's debug output), `netcat` is required to use this script.
+
+For use with the smart home, you should set a static ip address for all devices including this one in your router settings.
 

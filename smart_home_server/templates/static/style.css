@@ -261,6 +261,14 @@ textarea {
     padding:5pt;
     margin-bottom:15pt;
 }
+
+.existingDatasource {
+  margin-bottom:15pt;
+}
+.existingDatasourceContents{
+  display: none;
+}
+
 .buttonBar{
     width: fit-content;
     font-size:8pt;
@@ -340,6 +348,7 @@ form {
       color: var(--darkGrey);
     }
 }
+
 .dashboardList {
   display: flex;
   flex-wrap: wrap;
