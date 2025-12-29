@@ -65,7 +65,7 @@ then
     echo "$chosen_uuid"
     echo "$ftype"
 
-    echo "UUID=$dev       $mountPath   $ftype  rw,user,exec,umask=000 0 0" | sudo tee -a /etc/fstab
+    echo "UUID=$dev       $mountPath   $ftype  rw,nofail,x-systemd.automount,noatime,umask=000 0 2" | sudo tee -a /etc/fstab
     sudo systemctl daemon-reload
     sudo mount -a
 fi
