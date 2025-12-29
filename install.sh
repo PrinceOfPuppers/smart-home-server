@@ -114,14 +114,14 @@ sudo chmod +x "./$PROGRAM"
 UPDATE_PROGRAM="smart-home-update"
 
 echo "#!/bin/sh" > "./$UPDATE_PROGRAM"
-echo "git -C $PWD pull" | sudo tee -a "./$UPDATE_PROGRAM"
+echo "git -C $PWD pull" >> "./$UPDATE_PROGRAM"
 sudo chmod +x "./$UPDATE_PROGRAM"
 
 # create systemd service
 # user service
 SERVICE_FILE="/usr/lib/systemd/user/$PROGRAM.service"
-BIN_LOCATION="/usr/local/bin/$PROGRAM"
-UPDATE_BIN_LOCATION="/usr/local/bin/$UPDATE_PROGRAM"
+BIN_LOCATION="$HOME/.local/bin/$PROGRAM"
+UPDATE_BIN_LOCATION="$HOME/.local/bin/$UPDATE_PROGRAM"
 
 #TODO replace with symlinks
 sudo mv "./$PROGRAM" $BIN_LOCATION

@@ -1,11 +1,11 @@
 [Unit]
 Description=smart home server
-After=pigpiod.service remote-fs.target nss-user-lookup.target systemd-time-wait-sync.service time-sync.target systemd-timesyncd
+After=remote-fs.target nss-user-lookup.target systemd-time-wait-sync.service time-sync.target systemd-timesyncd
                                         
 [Service]
 Type=simple
-ExecStartPre=/usr/local/bin/smart-home-update
-ExecStart=/usr/local/bin/smart-home-server
+ExecStartPre=%h/.local/bin/smart-home-update
+ExecStart=%h/.local/bin/smart-home-server
 Restart=on-failure
 RestartSec=10
 KillMode=process
