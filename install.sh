@@ -1,6 +1,9 @@
 #!/bin/bash
 
-mountPath=$(cd "$(dirname "$1")"; pwd)/$(basename "$1")smart_home_server/storage
+basePath="$(cd "$(dirname "$1")"; pwd)/$(basename "$1")"
+basePath="${basePath%/}"
+mountPath="$basePath/smart_home_server/storage"
+
 mkdir -p $mountPath
 echo "Mount Path: $mountPath"
 
