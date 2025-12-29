@@ -2,6 +2,8 @@
 > A Full Smart Home System and Associated IOT Devices
 
 - [DEVICES](#devices)
+- [INSTALLATION](#installation)
+  * [INSTRUCTIONS](#instructions)
 - [ABOUT](#about)
   * [JOBS AND MACROS](#jobs-and-macros)
   * [DATASOURCES](#datasources)
@@ -25,7 +27,7 @@ Each device has its own `README`. Click the links to read more.
 <br clear="left"/>
 <br clear="left"/>
 
-Main Case and [Arduino Blinds Controller](devices/arduino-blinds/README.md):
+[Main Case](devices/main-case/README.md) and [Arduino Blinds Controller](devices/arduino-blinds/README.md):
 
 <img align="left" height="200" src="devices/atmega16u2-monitor/images/full.jpg">
 <img align="left" height="200" src="devices/arduino-blinds/images/mechanical.jpg">
@@ -46,7 +48,29 @@ Main Case and [Arduino Blinds Controller](devices/arduino-blinds/README.md):
 <br clear="left"/>
 <br clear="left"/>
 
+# INSTALLATION
+This section covers the installation of the central smart-home-server (hereto called "the server"). For a full parts list and physical assembly see: [Main Case Readme.md](devices/main-case/README.md)
 
+The server runs RaspberryPi OS Lite, it has only been tested on a RaspberryPi 4B. I'd recommend using rpi-imager for creating the image as it lets you setup WiFi, SSH, etc, for an easier experience.
+
+### Instructions
+1) Flash an SD card with RaspberryPi OS Lite using rpi-imager, edit the settings to configure your user, WiFi, ssh, and other settings
+
+2) Boot up the server and let it connect to wifi, in your router set a static IP address for the server
+
+3) Reboot the server and connect to it over ssh
+
+4) Git clone this repository into your home directory, cd into the repo
+
+5) Ensure a USB stick is connected to the Pi, this will be the where smart home configurations are saved (to avoid excessive writing to the SD card)
+
+6) Prior to running the installer script, install/change things on the system as you desire, the installer script makes the file system readonly so its better to do that now.
+
+6) Run `./install.sh`, DO NOT RUN AS ROOT, it will ask for your user password to sudo when it needs to.
+
+7) The Installer will prompt you a few times as it runs and will end by rebooting the server, after this the server will be ready to go and accessable at its static ip address.
+
+Note: The installer script enables read only file system, this makes the SD card readonly but still allows writing to the USB stick. You can disable this and re-enable it using `sudo raspi-config`
 
 # ABOUT
 The smart-home-server (hereto called "the server") is a device for collecting data and controlling IOT devices (hereto called "devices"). The server runs a full web interface for easy control on mobile or desktop.

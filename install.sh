@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+set -x;
 
 mountPath=$(cd "$(dirname "$1")"; pwd)/$(basename "$1")smart_home_server/storage
 mkdir -p $mountPath
@@ -56,14 +57,12 @@ source "$HOME/.profile"
 sudo raspi-config nonint do_i2c 0
 sudo loginctl enable-linger $(id -u)
 sudo apt-get update
-sudo apt-get install pigpio
 sudo apt install python3-pip
+sudo apt-get install python3-gpiozero
 sudo apt install libhidapi-hidraw0
-sudo systemctl enable pigpiod
-sudo systemctl start pigpiod
 sudo systemctl enable systemd-time-wait-sync
 sudo systemctl start systemd-time-wait-sync
-python3 -m venv venv
+python3 -m venv venv --system-site-packages
 source ./venv/bin/activate
 pip3 install -e .
 

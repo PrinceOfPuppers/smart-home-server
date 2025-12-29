@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+set -x;
 
 echo "Ensure Overlay Filesystem is Disabled!"
 

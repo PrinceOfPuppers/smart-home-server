@@ -190,8 +190,6 @@ graphMaxHours = 128
 
 # server buttons
 buttonPins = [23,24]
-# in seconds, applies to all button interfaces
-buttonDebounce = 0.8
 buttonMacroAddDebounceTime = 1
 
 

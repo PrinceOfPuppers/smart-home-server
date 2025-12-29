@@ -1,35 +1,22 @@
-from time import time
-
 import smart_home_server.constants as const
 
-class ButtonInvalidPin(Exception):
-    pass
-
 if const.isRpi():
-    import pigpio
+    from gpiozero import Button
 
     def _defaultCallback(pin):
         print("Button Callback Not Set, pin: ", pin)
 
     _callback = _defaultCallback
-    _lastCalled = {}
+    buttons = []
 
-    def _target(pin, _, __):
+    def _target(button_obj):
         global _callback
-        global _lastCalled
+        _callback(button_obj.pin.number)
 
-        t = time()
-        if t < _lastCalled[pin] + const.buttonDebounce:
-            return
-
-        _lastCalled[pin] = t
-        _callback(pin)
-
-    _pi = pigpio.pi()
     for pin in const.buttonPins:
-        _lastCalled[pin] = 0
-        _pi.set_pull_up_down(pin, pigpio.PUD_UP)
-        _pi.callback( pin, pigpio.FALLING_EDGE, _target )
+        button = Button(pin, pull_up=True)
+        button.when_pressed = _target
+        buttons.append(button)
 
 
     def registerCallback(func):
