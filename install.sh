@@ -62,12 +62,17 @@ then
 
     ftype=$(blkid -o value -s TYPE "/dev/disk/by-uuid/$chosen_uuid")
 
-    echo "$chosen_uuid"
-    echo "$ftype"
+    echo "Chosen UUID: $chosen_uuid, Filesystem Type:$ftype"
 
-    echo "UUID=$dev       $mountPath   $ftype  rw,nofail,x-systemd.automount,noatime,umask=000 0 2" | sudo tee -a /etc/fstab
+    OWNER_USER="${SUDO_USER:-$(id -un)}"
+    OWNER_GROUP="$(id -gn "$OWNER_USER")"
+
+    echo "FSTAB entry:"
+    echo "UUID=$chosen_uuid       $mountPath   $ftype  rw,nofail,x-systemd.automount,noatime 0 2" | sudo tee -a /etc/fstab
     sudo systemctl daemon-reload
     sudo mount -a
+    sudo chown -R "$OWNER_USER:$OWNER_GROUP" $mountPath
+    sudo chmod 755 $mountPath
 fi
 
 # usb mounting over
@@ -90,9 +95,9 @@ source "$HOME/.profile"
 sudo raspi-config nonint do_i2c 0
 sudo loginctl enable-linger $(id -u)
 sudo apt-get update
-sudo apt install python3-pip
+sudo apt-get install python3-pip
 sudo apt-get install python3-gpiozero
-sudo apt install libhidapi-hidraw0
+sudo apt-get install libhidapi-hidraw0
 sudo systemctl enable systemd-time-wait-sync
 sudo systemctl start systemd-time-wait-sync
 python3 -m venv venv --system-site-packages
