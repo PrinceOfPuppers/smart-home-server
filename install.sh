@@ -60,20 +60,13 @@ then
 
     chosen_uuid=${valid_array[input-1]}
 
-    ftype=$(blkid -o value -s TYPE "/dev/disk/by-uuid/$chosen_uuid")
-
-    if [[ "$fstype" != "ext4" ]]; then
-      echo "ERROR: USB storage must be formatted as ext4"
-      exit 1
-    fi
-
-    echo "Chosen UUID: $chosen_uuid, Filesystem Type:$ftype"
+    echo "Chosen UUID: $chosen_uuid"
 
     OWNER_USER="${SUDO_USER:-$(id -un)}"
     OWNER_GROUP="$(id -gn "$OWNER_USER")"
 
     echo "FSTAB entry:"
-    echo "UUID=$chosen_uuid       $mountPath   $ftype  rw,nofail,x-systemd.automount,noatime 0 2" | sudo tee -a /etc/fstab
+    echo "UUID=$chosen_uuid       $mountPath   auto   rw,nofail,x-systemd.automount,noatime 0 2" | sudo tee -a /etc/fstab
     sudo systemctl daemon-reload
     sudo mount -a
     sudo chown -R "$OWNER_USER:$OWNER_GROUP" $mountPath
@@ -93,16 +86,15 @@ pathappend() {
 }
 sudo apt-get update
 sudo apt-get upgrade
-sudo apt-get install git
+sudo apt-get -y install git
 
 pathappend "$HOME/.local/bin"
 source "$HOME/.profile"
 sudo raspi-config nonint do_i2c 0
 sudo loginctl enable-linger $(id -u)
-sudo apt-get update
-sudo apt-get install python3-pip
-sudo apt-get install python3-gpiozero
-sudo apt-get install libhidapi-hidraw0
+sudo apt-get -y install python3-pip
+sudo apt-get -y install python3-gpiozero
+sudo apt-get -y install libhidapi-hidraw0
 sudo systemctl enable systemd-time-wait-sync
 sudo systemctl start systemd-time-wait-sync
 python3 -m venv venv --system-site-packages
