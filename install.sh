@@ -85,7 +85,7 @@ pathappend() {
   done
 }
 sudo apt-get update
-sudo apt-get upgrade
+sudo apt-get -y upgrade
 sudo apt-get -y install git
 
 pathappend "$HOME/.local/bin"
@@ -120,6 +120,7 @@ sudo chmod +x "./$UPDATE_PROGRAM"
 # create systemd service
 # user service
 SERVICE_FILE="/usr/lib/systemd/user/$PROGRAM.service"
+mkdir -p "$HOME/.local/bin"
 BIN_LOCATION="$HOME/.local/bin/$PROGRAM"
 UPDATE_BIN_LOCATION="$HOME/.local/bin/$UPDATE_PROGRAM"
 
