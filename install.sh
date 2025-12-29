@@ -62,6 +62,11 @@ then
 
     ftype=$(blkid -o value -s TYPE "/dev/disk/by-uuid/$chosen_uuid")
 
+    if [[ "$fstype" != "ext4" ]]; then
+      echo "ERROR: USB storage must be formatted as ext4"
+      exit 1
+    fi
+
     echo "Chosen UUID: $chosen_uuid, Filesystem Type:$ftype"
 
     OWNER_USER="${SUDO_USER:-$(id -un)}"
