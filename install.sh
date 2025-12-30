@@ -93,6 +93,7 @@ source "$HOME/.profile"
 sudo raspi-config nonint do_i2c 0
 sudo loginctl enable-linger $(id -u)
 sudo apt-get -y install python3-pip
+sudo apt-get -y install python3-rpi-lgpio
 sudo apt-get -y install libhidapi-hidraw0
 sudo systemctl enable systemd-time-wait-sync
 sudo systemctl start systemd-time-wait-sync
