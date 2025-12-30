@@ -93,7 +93,6 @@ source "$HOME/.profile"
 sudo raspi-config nonint do_i2c 0
 sudo loginctl enable-linger $(id -u)
 sudo apt-get -y install python3-pip
-sudo apt-get -y install python3-rpi.gpio
 sudo apt-get -y install libhidapi-hidraw0
 sudo systemctl enable systemd-time-wait-sync
 sudo systemctl start systemd-time-wait-sync
@@ -140,6 +139,27 @@ sudo udevadm control --reload-rules
 # allow sd card writes to finish
 sync
 sleep 1
-# enable overlay filesystem and reboot
-sudo raspi-config nonint enable_overlayfs
+
+# Check if overlayfs is already active
+CMDLINE="/boot/firmware/cmdline.txt"
+if grep -q "overlayroot=tmpfs" "$CMDLINE"; then
+    echo "OverlayFS already enabled, skipping..."
+else
+    sudo raspi-config nonint enable_overlayfs
+fi
+
+# Replace overlayroot option with one that allows writable external drives
+if grep -q "overlayroot=tmpfs:recurse=0" "$CMDLINE"; then
+    # already done
+    :
+elif grep -q "overlayroot=tmpfs" "$CMDLINE"; then
+    # update to allow writable drives
+    sudo sed -i 's/overlayroot=tmpfs/overlayroot=tmpfs:recurse=0/' "$CMDLINE"
+else
+    # overlay root was fully missing
+    sudo sed -i 's/$/ overlayroot=tmpfs:recurse=0/' "$CMDLINE"
+fi
+# Update initramfs
+sudo update-initramfs -u
+# reboot
 sudo reboot
