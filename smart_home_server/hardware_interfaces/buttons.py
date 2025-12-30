@@ -1,7 +1,7 @@
 import smart_home_server.constants as const
 
 if const.isRpi():
-    import RPI.GPIO as gpio
+    import RPi.GPIO as gpio
     gpio.setmode(gpio.BCM)
 
     def _defaultCallback(pin):
@@ -19,7 +19,7 @@ if const.isRpi():
             pin,
             gpio.FALLING,
             callback = lambda _, p=pin: _target(p),
-            debouncetime = 100
+            bouncetime = 100
         )
 
 
