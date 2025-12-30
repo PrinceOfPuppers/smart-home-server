@@ -1,6 +1,7 @@
 [Unit]
 Description=smart home server
-After=remote-fs.target nss-user-lookup.target systemd-time-wait-sync.service time-sync.target systemd-timesyncd
+After=remote-fs.target nss-user-lookup.target time-sync.target network-online.target
+Wants=network-online.target
                                         
 [Service]
 Type=simple

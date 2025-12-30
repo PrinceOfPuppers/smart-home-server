@@ -60,15 +60,13 @@ The server runs RaspberryPi OS Lite, it has only been tested on a RaspberryPi 4B
 
 3) Reboot the server and connect to it over ssh
 
-4) Git clone this repository into your home directory, cd into the repo
+4) Ensure a USB stick is connected to the Pi and run: 
 
-5) Ensure a USB stick is connected to the Pi, this will be the where smart home configurations are saved (to avoid excessive writing to the SD card)
+```
+sudo apt install -y git && git clone https://github.com/PrinceOfPuppers/smart-home-server.git && cd smart-home-server && ./install.sh
+```
 
-6) Prior to running the installer script, install/change things on the system as you desire, the installer script makes the file system readonly so its better to do that now.
-
-6) Run `./install.sh`, DO NOT RUN AS ROOT, it will ask for your user password to sudo when it needs to.
-
-7) The Installer will prompt you a few times as it runs and will end by rebooting the server, after this the server will be ready to go and accessable at its static ip address.
+5) The Installer will prompt you to select the usb stick from a list (will likley be the only one), after it is finished the server will be ready to go and accessable at its static ip address.
 
 Note: The installer script enables read only file system, this makes the SD card readonly but still allows writing to the USB stick. You can disable this and re-enable it using `sudo raspi-config`
 

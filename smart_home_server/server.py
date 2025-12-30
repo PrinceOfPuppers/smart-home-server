@@ -8,6 +8,7 @@ from smart_home_server.handlers.subscribeManager import startSubscribeManager, s
 from smart_home_server.handlers.rfMacros import startMac, stopMac, joinMac
 from smart_home_server.handlers.lcd import getLcds, startLcdListener, stopLcdListener, joinLcdListener
 from smart_home_server.handlers.graphs import getGraphs, startGraphs, stopGraphs, joinGraphs, getOnMonitor, putOnMonitor
+from smart_home_server.hardware_interfaces.buttons import stopGpio
 
 from smart_home_server.handlers.notes import getNotes
 from smart_home_server.handlers.macros import getMacros
@@ -155,6 +156,7 @@ def startServer():
         joinPresser()
         joinScheduler()
         joinMac()
+        stopGpio()
 
 if __name__ == '__main__':
     startServer()
