@@ -66,7 +66,7 @@ then
     OWNER_GROUP="$(id -gn "$OWNER_USER")"
 
     echo "FSTAB entry:"
-    echo "UUID=$chosen_uuid       $mountPath   auto   rw,nofail,x-systemd.automount,noatime 0 2" | sudo tee -a /etc/fstab
+    echo "UUID=$chosen_uuid       $mountPath   auto   rw,nofail,x-systemd.automount,noatime 0 2 # smart-home-server" | sudo tee -a /etc/fstab
     sudo systemctl daemon-reload
     sudo mount -a
     sudo chown -R "$OWNER_USER:$OWNER_GROUP" $mountPath
@@ -101,25 +101,18 @@ python3 -m venv venv --system-site-packages
 source ./venv/bin/activate
 pip3 install -e .
 
-# create bin
-
+# create bin for systemd to execute
 PROGRAM="smart-home-server"
-echo "#!$(which python3) -u" > "./$PROGRAM"
-echo "if __name__ == \"__main__\":" >> "./$PROGRAM"
-echo "    from smart_home_server import main" >> "./$PROGRAM"
-echo "    main()" >> "./$PROGRAM"
+echo "#!/bin/sh" > "./$PROGRAM"
+echo "$basePath/venv/bin/python3 $basePath/bin/smart-home-server" >> "./$PROGRAM"
 sudo chmod +x "./$PROGRAM"
 
 # create update script
 UPDATE_PROGRAM="smart-home-update"
-
 echo "#!/bin/sh" > "./$UPDATE_PROGRAM"
-echo "git -C $PWD pull" >> "./$UPDATE_PROGRAM"
+echo "git -C $basePath pull" >> "./$UPDATE_PROGRAM"
 sudo chmod +x "./$UPDATE_PROGRAM"
 
-# create systemd service
-# user service
-SERVICE_FILE="/usr/lib/systemd/user/$PROGRAM.service"
 mkdir -p "$HOME/.local/bin"
 BIN_LOCATION="$HOME/.local/bin/$PROGRAM"
 UPDATE_BIN_LOCATION="$HOME/.local/bin/$UPDATE_PROGRAM"
@@ -128,6 +121,8 @@ UPDATE_BIN_LOCATION="$HOME/.local/bin/$UPDATE_PROGRAM"
 sudo mv "./$PROGRAM" $BIN_LOCATION
 sudo mv "./$UPDATE_PROGRAM" $UPDATE_BIN_LOCATION
 
+# create systemd userspace service
+SERVICE_FILE="/usr/lib/systemd/user/$PROGRAM.service"
 sudo cp $PROGRAM.service $SERVICE_FILE
 sudo chmod 644 $SERVICE_FILE
 
@@ -142,6 +137,9 @@ UDEV_RULE_LOCATION="/etc/udev/rules.d/$UDEV_RULE"
 sudo cp $UDEV_RULE $UDEV_RULE_LOCATION
 sudo udevadm control --reload-rules
 
+# allow sd card writes to finish
+sync
+sleep 1
 # enable overlay filesystem and reboot
 sudo raspi-config nonint enable_overlayfs
 sudo reboot

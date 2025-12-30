@@ -2,18 +2,24 @@
 set -x;
 
 echo "Ensure Overlay Filesystem is Disabled!"
+if grep -q 'overlayroot=' /boot/cmdline.txt; then
+    echo "Error: Root filesystem overlay is ENABLED, uninstallation will have no effect"
+    exit 1
+fi
 
-# remove fstab mount (marked with comment smart-home-server)
-# TODO: create similar system that deletes line with mark and the line beneath it
-# sudo sed -i '/smart-home-server/d' /etc/fstab
+# remove fstab mount (marked with smart-home-server comment)
+if grep -q '# smart-home-server' /etc/fstab; then
+    sudo sed -i '/# smart-home-server/d' /etc/fstab
+fi
+
 
 # create systemd service
 PROGRAM="smart-home-server"
 UPDATER="smart-home-update"
 # user service
 SERVICE_FILE="/usr/lib/systemd/user/$PROGRAM.service"
-BIN_LOCATION="/usr/local/bin/$PROGRAM"
-UPDATE_BIN_LOCATION="/usr/local/bin/$UPDATER"
+BIN_LOCATION="$HOME/.local/bin/$PROGRAM"
+UPDATE_BIN_LOCATION="$HOME/.local/bin/$UPDATE_PROGRAM"
 
 systemctl --user unmask $PROGRAM
 systemctl --user stop $PROGRAM
