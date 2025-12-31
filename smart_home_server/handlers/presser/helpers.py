@@ -106,7 +106,7 @@ def _renameRemote(id:str, newName:str):
     _overwriteRemote(id, remote)
 
 if const.isRpi():
-    from rpi_rf import RFDevice
+    from rpi_rf_gpiod import RFDevice
 
     # timeout = -1 for inf
     def _getCode(timeout, repeats, sleepTimer):

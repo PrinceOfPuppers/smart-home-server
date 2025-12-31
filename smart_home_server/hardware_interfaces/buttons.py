@@ -1,44 +1,28 @@
 import smart_home_server.constants as const
 
 if const.isRpi():
-    import RPi.GPIO as gpio
+    from gpiozero import Button
 
     def _defaultCallback(pin):
         print("Button Callback Not Set, pin: ", pin)
 
     _callback = _defaultCallback
+    buttons = []
 
-    def _target(pin):
+    def _target(button_obj):
         global _callback
-        _callback(pin)
+        _callback(button_obj.pin.number)
+
+    for pin in const.buttonPins:
+        button = Button(pin, pull_up=True)
+        button.when_pressed = _target
+        buttons.append(button)
 
 
     def registerCallback(func):
         global _callback
         _callback = func
 
-    def startGpio():
-        gpio.setmode(gpio.BCM)
-
-        for pin in const.buttonPins:
-            gpio.setup(pin, gpio.IN, pull_up_down=gpio.PUD_UP)
-            gpio.add_event_detect(
-                pin,
-                gpio.FALLING,
-                callback = lambda _, p=pin: _target(p),
-                bouncetime = 100
-            )
-
-    def stopGpio():
-        for pin in const.buttonPins:
-            gpio.cleanup(pin)
-
 else:
     def registerCallback(func):
         print("Register Callback Shim")
-
-    def stopGpio():
-        print("Stop Gpio Shim")
-
-    def startGpio():
-        print("Start Gpio Shim")
