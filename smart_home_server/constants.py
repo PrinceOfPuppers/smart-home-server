@@ -142,7 +142,6 @@ rxGpio = 25
 #seconds
 threadPollingPeriod = 1
 
-
 _isRpi = None
 def isRpi():
     global _isRpi
@@ -156,6 +155,9 @@ def isRpi():
             if 'raspberry pi' in m.read().lower():
                 _isRpi = True
     return _isRpi
+
+# is the i2c bme280 installed
+bme280Connected = False
 
 requestTimeout = 5
 #_city = "43.4652699,-80.5222961" # Waterloo Canada

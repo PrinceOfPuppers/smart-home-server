@@ -4,7 +4,7 @@ import smart_home_server.constants as const
 from smart_home_server.errors import clearConseqError, incConseqError
 from smart_home_server.hardware_interfaces import BMEData
 
-if const.isRpi():
+if const.isRpi() and const.bme280Connected:
     from smbus2 import SMBus
     from bme280 import BME280
 
