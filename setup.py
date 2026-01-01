@@ -17,7 +17,7 @@ def getDeps():
     deps=['Flask', 'schedule', 'flask-expects-json', 'requests', 'matplotlib', 'hid', 'pyudev', 'dacite']
     if isRPI():
         #rpi specific
-        deps.extend(['rpi-rf-gpiod', 'RPLCD', 'waitress', 'smbus2', 'pimoroni-bme280'])
+        deps.extend(['RPLCD', 'waitress', 'smbus2', 'pimoroni-bme280'])
     return deps
 
 # single sourcing version number to __init__.py
