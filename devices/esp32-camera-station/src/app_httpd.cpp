@@ -1,13 +1,16 @@
+#include <Arduino.h>
+#include <math.h>
 #include "app_httpd.h"
 #include "esp_http_server.h"
 #include "esp_timer.h"
 #include "esp_camera.h"
+#include "esp32-hal-misc.h"
 #include "img_converters.h"
 #include "fb_gfx.h"
-#include "esp32-hal-ledc.h"
 #include "sdkconfig.h"
 #include "board_config.h"
 #include "esp32-hal-log.h"
+#include <esp_system.h>
 
 // LED FLASH setup
 #define CONFIG_LED_MAX_INTENSITY 255
@@ -222,6 +225,14 @@ static esp_err_t status_handler(httpd_req_t *req) {
   p += sprintf(p, "\"dcw\":%u,", s->status.dcw);
   p += sprintf(p, "\"colorbar\":%u", s->status.colorbar);
   p += sprintf(p, ",\"led_intensity\":%u", led_duty);
+
+  float temp = temperatureRead();
+  if(!isfinite(temp)){
+      p += sprintf(p, ",\"temp\":null");
+  } else {
+      p += sprintf(p, ",\"temp\":%2f", temperatureRead());
+  }
+
   *p++ = '}';
   *p++ = 0;
   httpd_resp_set_type(req, "application/json");

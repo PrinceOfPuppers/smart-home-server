@@ -78,13 +78,6 @@ void setup() {
 }
 
 void loop() {
-  /*
-  float temp_celsius = temperatureRead();
-  Serial.print("Temp onBoard ");
-  Serial.print(temp_celsius);
-  Serial.println("°C");
-  */
-
   // Do nothing. Everything is done in another task by the web server
   delay(10000);
 }
