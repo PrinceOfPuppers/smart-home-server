@@ -32,27 +32,6 @@ static const char *_STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" 
 
 static const char *_STREAM_BOUND_PART = _STREAM_BOUNDARY _STREAM_PART;
 
-int set_camera_defaults(){
-  sensor_t *s = esp_camera_sensor_get();
-  int res = 0;
-  res = s->set_framesize(s, (framesize_t)FRAMESIZE_VGA);
-  if (res < 0){
-      log_e("Unable to set default frame size");
-      return res;
-  }
-  res = s->set_quality(s, 8);
-  if (res < 0){
-      log_e("Unable to set default quality");
-      return res;
-  }
-  res = s->set_xclk(s, LEDC_TIMER_0, 8);
-  if (res < 0){
-      log_e("Unable to set default xclk");
-      return res;
-  }
-  return 0;
-}
-
 httpd_handle_t stream_httpd = NULL;
 httpd_handle_t camera_httpd = NULL;
 
@@ -339,7 +318,6 @@ static int parse_get_var(char *buf, const char *key, int def) {
 }
 
 void startCameraServer() {
-  set_camera_defaults();
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.max_uri_handlers = 16;
 
