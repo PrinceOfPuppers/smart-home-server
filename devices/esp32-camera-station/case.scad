@@ -29,6 +29,12 @@ paddingLeft_calc         = generalPadding;
 containerWidth = paddingBack_calc + espLength + paddingFront_calc;
 containerHeight = paddingLeft_calc + paddingRight_calc + espWidth;
 
+pcbOrigin = [
+    paddingBack_calc+wallThickness_calc, 
+    paddingLeft_calc+wallThickness_calc,
+    bottomTopThickness
+];
+
 cableCutoutWidth = 16.5;
 cableCutoutLength = 30;
 
@@ -42,11 +48,7 @@ cameraPodiumCenter_relpcb = [
     espWidth/2,
     0
 ];
-cameraPodiumCenter = [
-    paddingBack_calc+wallThickness_calc, 
-    paddingLeft_calc+wallThickness_calc,
-    bottomTopThickness
-] + cameraPodiumCenter_relpcb;
+cameraPodiumCenter = pcbOrigin + cameraPodiumCenter_relpcb;
 
 
 cameraHeight = 9.6;
@@ -61,6 +63,17 @@ difference(){
     cube([cameraPodiumLength, cameraPodiumWidth, cameraPodiumHeight], anchor=BOTTOM);
     down(0.0001)
     tri_prisim(cableCutoutLength, cableCutoutWidth, cableCutoutHeight);
+}
+
+
+pcbHolderWall = 2;
+pcbHolderHeight = 7;
+pcbHolderPadding = 1.5;
+difference(){
+    translate(pcbOrigin - [pcbHolderWall+pcbHolderPadding/2, pcbHolderWall+pcbHolderPadding/2, 0])
+    rect_tube(h=pcbHolderHeight, wall=pcbHolderWall, isize=[espLength+pcbHolderPadding, espWidth+pcbHolderPadding], anchor=[-1,-1,-1]);
+    translate(cameraPodiumCenter)
+    cube([espLength,cableCutoutWidth,10], anchor=[1,0,-1]);
 }
 
 
