@@ -9,7 +9,6 @@ module tri_prisim(length, width, height){
 espLength = 40;
 espWidth = 27.0;
 
-espHoleDiameter = 2.7;
 espHoleWall = 0.8;
 
 
@@ -81,14 +80,6 @@ difference(){
 translate([wallThickness_calc+paddingBack_calc, wallThickness_calc + paddingLeft_calc, standoffHeight+bottomTopThickness]){
     difference(){
         cube([espLength, espWidth, espPCBThickness]);
-        translate([espHoleDiameter/2 + espHoleWall, espHoleDiameter/2 + espHoleWall,0])
-            #cylinder(d=espHoleDiameter, h = 100);
-
-        translate([-espHoleDiameter/2 - espHoleWall+espLength, espHoleDiameter/2 + espHoleWall,0])
-            #cylinder(d=espHoleDiameter, h = 100);
-
-        translate([-espHoleDiameter/2 - espHoleWall+espLength, espHoleDiameter/2 + espHoleWall,0])
-            #cylinder(d=espHoleDiameter, h = 100);
     }
 }
 */
@@ -154,9 +145,9 @@ roundRadius         = 2.0;
 
 //-- How much the PCB needs to be raised from the base
 //-- to leave room for solderings and whatnot
-standoffHeight      = 4.0;  //-- only used for showPCB
-standoffPinDiameter = espHoleDiameter;
-standoffHoleSlack   = 0.4;
+standoffHeight      = 3.0;  //-- only used for showPCB
+standoffPinDiameter = 0;
+standoffHoleSlack   = 0;
 standoffDiameter    = 4;
 
 //-- Total height of box = basePlaneThickness + lidPlaneThickness 
@@ -199,7 +190,7 @@ inspectButtons      = 0;        //-> { -1 | 0 | 1 }
 
 pcbStands =    [
                    // esp
-                   // [espHoleWall+standoffPinDiameter/2, espHoleWall+standoffPinDiameter/2, standoffHeight, 2, yappBoth, yappAllCorners, yappAddFillet], 
+                   [standoffDiameter/2, espWidth/2, standoffHeight, 4, yappLidOnly, yappBackLeft, yappAddFillet], 
                ];
 
 //-- base plane    -- origin is pcb[0,0,0]
