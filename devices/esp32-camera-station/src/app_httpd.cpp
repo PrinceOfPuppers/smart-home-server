@@ -237,7 +237,7 @@ static esp_err_t status_handler(httpd_req_t *req) {
   if(!isfinite(temp)){
       p += sprintf(p, ",\"temp\":null");
   } else {
-      p += sprintf(p, ",\"temp\":%2f", temperatureRead());
+      p += sprintf(p, ",\"temp\":%.2f", temperatureRead());
   }
 
   *p++ = '}';
