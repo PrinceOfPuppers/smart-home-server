@@ -4,7 +4,6 @@
 #include "esp_http_server.h"
 #include "esp_timer.h"
 #include "esp_camera.h"
-#include "esp32-hal-misc.h"
 #include "img_converters.h"
 #include "fb_gfx.h"
 #include "sdkconfig.h"
@@ -79,6 +78,7 @@ static esp_err_t stream_handler(httpd_req_t *req) {
     break_not_ok(httpd_resp_send_chunk(req, (const char *)fb->buf, fb->len), res, "error sending chunk")
 
     esp_camera_fb_return(fb);
+    fb = NULL;
 
 #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_DEBUG
     int64_t fr_end = esp_timer_get_time();
@@ -91,6 +91,10 @@ static esp_err_t stream_handler(httpd_req_t *req) {
       "MJPG: %ums (%.1ffps), AVG: %ums (%.1ffps)", (uint32_t)frame_time, 1000.0 / (uint32_t)frame_time,
     );
 #endif
+  }
+  if(fb){
+    esp_camera_fb_return(fb);
+    fb = NULL;
   }
 
   isStreaming = false;
