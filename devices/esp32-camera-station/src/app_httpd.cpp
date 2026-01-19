@@ -106,11 +106,13 @@ static esp_err_t stream_handler(httpd_req_t *req) {
 static esp_err_t cmd_handler(httpd_req_t *req) {
   size_t buf_len = httpd_req_get_url_query_len(req) + 1;
   if(buf_len < 1){
+    log_e("buff length too small");
     httpd_resp_send_404(req);
     return ESP_FAIL;
   }
   char buf[buf_len];
   if (httpd_req_get_url_query_str(req, buf, sizeof(buf)) != ESP_OK) {
+    log_e("get url query str failed");
     httpd_resp_send_404(req);
     return ESP_FAIL;
   }
@@ -118,6 +120,7 @@ static esp_err_t cmd_handler(httpd_req_t *req) {
   char variable[32];
   char value[32];
   if (httpd_query_key_value(buf, "var", variable, sizeof(variable)) != ESP_OK || httpd_query_key_value(buf, "val", value, sizeof(value)) != ESP_OK) {
+    log_e("get query key value failed");
     httpd_resp_send_404(req);
     return ESP_FAIL;
   }
