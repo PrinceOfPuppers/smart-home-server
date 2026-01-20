@@ -17,7 +17,7 @@ espPCBThickness = 1.45;
 
 
 wallThickness_calc = 2.0;
-bottomTopThickness = 2.0;
+bottomTopThickness = 1;
 generalPadding = 4;
 
 paddingBack_calc         = generalPadding;
@@ -52,10 +52,11 @@ cameraPodiumCenter = pcbOrigin + cameraPodiumCenter_relpcb;
 
 cameraHeight = 9.6;
 cameraDiameter = 10;
+cameraDiameterPadding = 3.5;
 
 // test camera
-// translate(cameraPodiumCenter + [0,0,cameraPodiumHeight])
-// cylinder(d=cameraDiameter,h=cameraHeight);
+translate(cameraPodiumCenter + [0,0,cameraPodiumHeight])
+cylinder(d=cameraDiameter,h=cameraHeight);
 
 translate(cameraPodiumCenter)
 difference(){
@@ -213,7 +214,7 @@ cutoutsBase =   [
 // (n) = { yappRectangle | yappCircle }
 // (n) = { yappCenter }
 cutoutsLid  =   [
-                    [cameraPodiumCenter_relpcb[0], cameraPodiumCenter_relpcb[1], cameraDiameter+3, 0, 0, yappCircle]
+                    [cameraPodiumCenter_relpcb[0], cameraPodiumCenter_relpcb[1], cameraDiameter+cameraDiameterPadding, 0, 0, yappCircle]
                 ];
 
 //-- cutoutsGrill    -- origin is pcb[x0,y0,zx]

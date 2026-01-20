@@ -62,6 +62,7 @@ void setup() {
   setupLedFlash();
 #endif
 
+  WiFi.hostname(HOST_NAME);
   WiFi.begin(NETWORK_NAME , NETWORK_PASS);
   WiFi.setSleep(false);
 

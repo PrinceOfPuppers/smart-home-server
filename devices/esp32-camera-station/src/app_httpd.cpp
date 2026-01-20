@@ -12,6 +12,7 @@
 #include <esp_system.h>
 
 // LED FLASH setup
+// #define LED_ENABLED
 #define CONFIG_LED_MAX_INTENSITY 255
 
 #define LEDC_CHANNEL 1
@@ -38,12 +39,14 @@ httpd_handle_t stream_httpd = NULL;
 httpd_handle_t camera_httpd = NULL;
 
 void enable_led(bool en) {  // Turn LED On or Off
+#ifdef LED_ENABLED
   int duty = en ? led_duty : 0;
   if (en && isStreaming && (led_duty > CONFIG_LED_MAX_INTENSITY)) {
     duty = CONFIG_LED_MAX_INTENSITY;
   }
   ledcWrite(LEDC_CHANNEL, duty);
   log_i("Set LED intensity to %d", duty);
+#endif
 }
 
 
@@ -305,6 +308,8 @@ void startCameraServer() {
 }
 
 void setupLedFlash() {
+#ifdef LED_ENABLED
   ledcSetup(LEDC_CHANNEL, 5000, 8);
   ledcAttachPin(LED_GPIO_NUM, LEDC_CHANNEL);
+#endif
 }
