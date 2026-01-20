@@ -212,7 +212,7 @@ if const.isRpi():
             duration = timestamp - self._rx_last_timestamp
 
             if duration > 5000:
-                if abs(duration - self._rx_timings[0]) < 200:
+                if duration - self._rx_timings[0] < 200:
                     self._rx_repeat_count += 1
                     self._rx_change_count -= 1
                     if self._rx_repeat_count == 2:
@@ -237,11 +237,11 @@ if const.isRpi():
             delay_tolerance = delay * self.rx_tolerance / 100
 
             for i in range(1, change_count, 2):
-                if (abs(self._rx_timings[i] - delay * PROTOCOLS[pnum].zero_high) < delay_tolerance and
-                    abs(self._rx_timings[i+1] - delay * PROTOCOLS[pnum].zero_low) < delay_tolerance):
+                if (self._rx_timings[i] - delay * PROTOCOLS[pnum].zero_high < delay_tolerance and
+                    self._rx_timings[i+1] - delay * PROTOCOLS[pnum].zero_low < delay_tolerance):
                     code <<= 1
-                elif (abs(self._rx_timings[i] - delay * PROTOCOLS[pnum].one_high) < delay_tolerance and
-                      abs(self._rx_timings[i+1] - delay * PROTOCOLS[pnum].one_low) < delay_tolerance):
+                elif (self._rx_timings[i] - delay * PROTOCOLS[pnum].one_high < delay_tolerance and
+                      self._rx_timings[i+1] - delay * PROTOCOLS[pnum].one_low < delay_tolerance):
                     code <<= 1
                     code |= 1
                 else:
