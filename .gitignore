@@ -2,6 +2,7 @@ __pycache__
 notepad*
 smart_home_server.egg-info
 smart_home_server/storage
+compile_commands.json
 smart-home-update
 network-info.h
 .ccls-cache
