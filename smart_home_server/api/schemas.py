@@ -1,5 +1,4 @@
-from smart_home_server.api.schemaTypes import nameSchema, idSchema, colorSchema
-import smart_home_server.data_sources.datasourceTypes as dst
+from smart_home_server.api.schemaTypes import nameSchema, idSchema
 
 postRemoteSchema = \
 {
